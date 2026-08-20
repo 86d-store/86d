@@ -2,6 +2,8 @@
 
 Thank you for your interest in improving 86d. The codebase is shaped for small, focused changes. We review those pull requests first.
 
+By participating, you agree to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## Prerequisites
 
 - [Bun](https://bun.sh) v1.3.14+
@@ -115,5 +117,6 @@ By contributing, you agree that your contributions are licensed under the [MIT L
 
 ## Getting help
 
-- [Discussions](https://github.com/86d-app/86d/discussions) for design proposals and open questions
-- [Issues](https://github.com/86d-app/86d/issues) for bugs and feature requests
+- [Discussions](https://github.com/86d-app/86d/discussions) for help questions and feature ideas
+- [Issues](https://github.com/86d-app/86d/issues) for reproducible bugs (and in-repo docs problems)
+- [SECURITY.md](SECURITY.md) for vulnerabilities — never open a public issue for those

@@ -1,0 +1,34 @@
+name: Docs report
+description: Report a problem in this repository's docs (README, CONTRIBUTING, AGENTS, package docs).
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for **in-repo** documentation (README, CONTRIBUTING, AGENTS.md, package READMEs).
+
+        Published product docs live in [86d-app/docs](https://github.com/86d-app/docs) — open issues there instead.
+
+        Questions about how something works → [Discussions (Help)](https://github.com/86d-app/86d/discussions/new?category=help).
+  - type: input
+    id: location
+    attributes:
+      label: Doc location
+      description: File path or URL in this repository.
+      placeholder: e.g. CONTRIBUTING.md or AGENTS.md
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong or missing
+      description: Inaccuracy, outdated steps, broken link, or gap.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix
+      description: Optional. What should it say instead?
+    validations:
+      required: false

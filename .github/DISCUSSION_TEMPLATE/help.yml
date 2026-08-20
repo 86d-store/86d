@@ -1,0 +1,38 @@
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What do you need help with?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Setup / init
+        - Docker Compose
+        - Storefront or store admin
+        - Modules
+        - CLI
+        - Database / seed
+        - Deployment
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Error output, steps you already tried, Bun/Node versions, and whether you used Docker or local `bun`.
+      render: text
+    validations:
+      required: false
+  - type: input
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Optional link to a minimal public repo, gist, or commit.
+    validations:
+      required: false

@@ -1,0 +1,76 @@
+name: Bug report
+description: Report a reproducible bug in the Store Runtime, Modules, CLI, or packages.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Search [existing issues](https://github.com/86d-app/86d/issues) first.
+
+        - Questions and setup help → [Discussions (Help)](https://github.com/86d-app/86d/discussions/new?category=help)
+        - Features and ideas → [Discussions (Ideas)](https://github.com/86d-app/86d/discussions/new?category=ideas)
+        - Security → [SECURITY.md](https://github.com/86d-app/86d/blob/main/SECURITY.md) (private advisory or `security@86d.store`)
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the repo is affected?
+      multiple: true
+      options:
+        - Store Runtime / storefront
+        - Store admin
+        - Module
+        - CLI
+        - Package (core, runtime, db, sdk, …)
+        - Docker / deployment
+        - Registry
+        - Docs in this repo
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Package version, Docker image tag, or `main` commit SHA where you saw the bug.
+      placeholder: e.g. 0.0.4 or abc1234
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened
+      description: Clear description of the bug. Include error messages or logs when useful.
+      placeholder: Expected X. Observed Y.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps from a clean or documented setup. Prefer `docker compose up` or `bun run 86d init` when possible.
+      placeholder: |
+        1. …
+        2. …
+        3. …
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      multiple: true
+      options:
+        - Local (bun run dev)
+        - Docker Compose
+        - Managed / Railway
+        - Other deployment
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: OS, Bun/Node versions, relevant Modules enabled, links to a minimal reproduction, screenshots.
+    validations:
+      required: false

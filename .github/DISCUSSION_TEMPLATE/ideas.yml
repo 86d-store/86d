@@ -1,0 +1,36 @@
+body:
+  - type: textarea
+    id: goals
+    attributes:
+      label: Goals
+      description: What should this change achieve?
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals
+      description: What is explicitly out of scope?
+      value: |
+        1.
+        2.
+    validations:
+      required: false
+  - type: textarea
+    id: background
+    attributes:
+      label: Background
+      description: Why is this needed? What do you do today instead?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Sketch the approach if you have one. Are you interested in contributing a PR?
+    validations:
+      required: true

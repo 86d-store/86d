@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question or get help
+    url: https://github.com/86d-app/86d/discussions/new?category=help
+    about: Setup, usage, and design questions belong in Discussions, not Issues.
+  - name: Feature or idea
+    url: https://github.com/86d-app/86d/discussions/new?category=ideas
+    about: Propose features and design ideas in Discussions.
+  - name: Report a security vulnerability
+    url: https://github.com/86d-app/86d/security/advisories/new
+    about: Use private advisories or security@86d.store. Do not open a public issue. See SECURITY.md.
