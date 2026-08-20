@@ -21,7 +21,7 @@ env:
 jobs:
   commitlint:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,13 +30,23 @@ jobs:
       - name: Setup
         uses: ./internals/github/setup
 
-      - name: Validate commit messages
+      - name: Validate commit messages (pull request)
+        if: github.event_name == 'pull_request'
         run: bunx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+      - name: Validate commit messages (push)
+        if: github.event_name == 'push'
+        run: |
+          before="${{ github.event.before }}"
+          if [ "$before" = "0000000000000000000000000000000000000000" ]; then
+            bunx commitlint --last --verbose
+          else
+            bunx commitlint --from "$before" --to "${{ github.sha }}" --verbose
+          fi
 
   ci-cd:
     name: ci/cd
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
     steps:
       - uses: actions/checkout@v4
 

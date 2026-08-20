@@ -186,7 +186,7 @@ PR / `ci/cd` gates (in order; all must exit zero):
 
 `bun run test:e2e` — against an already running, seeded store — runs in CI only on pushes to `main`.
 
-CI (`.github/workflows/ci.yml`) runs commitlint plus the `ci/cd` job on pull requests (`bun check` → typecheck → unit tests → `bun run build` via `internals/github/ci-cd`). E2E (`test:e2e`) runs only on pushes to `main`.
+CI (`.github/workflows/ci.yml`) runs `ci/cd` on pull requests, merge queue, and pushes to `main` (`bun check` → typecheck → unit tests → `bun run build` via `internals/github/ci-cd`). Commitlint runs on pull requests and pushes to `main`. E2E (`test:e2e`) runs only on pushes to `main`.
 
 ## Git safety
 
