@@ -953,7 +953,9 @@ describe("createSitemapController", () => {
 			const products = await controller.listEntries({
 				source: "product",
 			});
-			expect(products[0].loc.startsWith("https://mystore.com")).toBe(true);
+			expect(new URL(products[0].loc).origin === "https://mystore.com").toBe(
+				true,
+			);
 		});
 
 		it("sets sourceId on product entries", async () => {

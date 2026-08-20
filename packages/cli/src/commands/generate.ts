@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import {
@@ -46,6 +46,13 @@ function getRunner(root: string): string {
 	return existsSync(tsxPath) ? tsxPath : "tsx";
 }
 
+function runScript(root: string, script: string, extraArgs: string[] = []) {
+	execFileSync(getRunner(root), [script, ...extraArgs], {
+		cwd: root,
+		stdio: "inherit",
+	});
+}
+
 function runModuleGeneration() {
 	const root = findProjectRoot();
 	const script = join(root, "internals/generators/src/generate-modules.ts");
@@ -58,10 +65,7 @@ function runModuleGeneration() {
 	heading("Generating module code");
 
 	try {
-		execSync(`${getRunner(root)} ${script}`, {
-			cwd: root,
-			stdio: "inherit",
-		});
+		runScript(root, script);
 		success("Module generation complete");
 	} catch {
 		error("Module generation failed");
@@ -81,10 +85,7 @@ function runRegistryGeneration() {
 	heading("Generating registry manifest");
 
 	try {
-		execSync(`${getRunner(root)} ${script}`, {
-			cwd: root,
-			stdio: "inherit",
-		});
+		runScript(root, script);
 		success("Registry generation complete");
 	} catch {
 		warn("Registry generation failed (non-fatal)");
@@ -108,10 +109,7 @@ function runComponentDocs() {
 	heading("Generating component documentation");
 
 	try {
-		execSync(`${getRunner(root)} ${script}`, {
-			cwd: root,
-			stdio: "inherit",
-		});
+		runScript(root, script);
 		success("Component docs generation complete");
 	} catch {
 		warn("Component docs generation failed (non-fatal)");
@@ -133,10 +131,7 @@ function runSchemaCompile(extraArgs: string[]) {
 	heading("Compiling Module schema DDL (report mode)");
 
 	try {
-		execSync(`${getRunner(root)} ${script} ${extraArgs.join(" ")}`.trim(), {
-			cwd: root,
-			stdio: "inherit",
-		});
+		runScript(root, script, extraArgs);
 		success("Schema compile report complete");
 	} catch {
 		error("Schema compile failed");

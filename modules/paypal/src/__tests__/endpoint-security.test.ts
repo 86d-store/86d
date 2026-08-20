@@ -456,8 +456,8 @@ describe("paypal endpoint security — sandbox isolation", () => {
 		await callWebhook(sandboxHandler, makeRequest(body, PAYPAL_HEADERS));
 
 		const calledUrls = fetchSpy.mock.calls.map((c) => String(c[0]));
-		const allSandbox = calledUrls.every((u) =>
-			u.includes("sandbox.paypal.com"),
+		const allSandbox = calledUrls.every(
+			(u) => new URL(u).hostname === "api-m.sandbox.paypal.com",
 		);
 		expect(allSandbox).toBe(true);
 	});
@@ -492,9 +492,13 @@ describe("paypal endpoint security — sandbox isolation", () => {
 		await callWebhook(prodHandler, makeRequest(body, PAYPAL_HEADERS));
 
 		const calledUrls = fetchSpy.mock.calls.map((c) => String(c[0]));
-		const noneSandbox = calledUrls.every((u) => !u.includes("sandbox"));
+		const noneSandbox = calledUrls.every(
+			(u) => !new URL(u).hostname.includes("sandbox"),
+		);
 		expect(noneSandbox).toBe(true);
-		expect(calledUrls.every((u) => u.includes("api-m.paypal.com"))).toBe(true);
+		expect(
+			calledUrls.every((u) => new URL(u).hostname === "api-m.paypal.com"),
+		).toBe(true);
 	});
 });
 

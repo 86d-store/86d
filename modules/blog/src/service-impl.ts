@@ -1,3 +1,4 @@
+import { stripTags } from "@86d-app/core/sanitize";
 import type { ModuleDataService } from "@86d-app/core/types/module";
 import type { BlogController, BlogPost, PostStats } from "./service";
 
@@ -10,8 +11,7 @@ function slugify(text: string): string {
 
 /** Estimate reading time in minutes based on word count (~200 wpm). */
 function estimateReadingTime(content: string): number {
-	const words = content
-		.replace(/<[^>]*>/g, "")
+	const words = stripTags(content)
 		.replace(/[#*_~`>\-|[\]()!]/g, "")
 		.split(/\s+/)
 		.filter((w) => w.length > 0);

@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 import { copyFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createConnection } from "node:net";
 import { join } from "node:path";
@@ -66,7 +66,7 @@ export async function init(args: string[]) {
 	if (existsSync(generateScript)) {
 		try {
 			const runner = existsSync(tsxPath) ? tsxPath : "tsx";
-			execSync(`${runner} ${generateScript}`, {
+			execFileSync(runner, [generateScript], {
 				cwd: root,
 				stdio: "inherit",
 			});

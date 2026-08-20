@@ -159,8 +159,8 @@ async function fetchTemplateFromGitHub(
 ): Promise<FetchResult> {
 	// Temporarily rewrite the specifier to fetch into templates/ by using
 	// a customized root where "modules" maps to "templates"
-	const { execSync } = await import("node:child_process");
-	const { mkdirSync, rmSync, writeFileSync } = await import("node:fs");
+	const { spawnSync } = await import("node:child_process");
+	const { cpSync, mkdirSync, rmSync, writeFileSync } = await import("node:fs");
 
 	const { repo, path, ref = "main", name } = spec;
 	if (!repo) {
@@ -210,9 +210,16 @@ async function fetchTemplateFromGitHub(
 		const extractDir = join(tmpDir, "extracted");
 		mkdirSync(extractDir, { recursive: true });
 
-		execSync(`tar xzf "${tarballPath}" -C "${extractDir}"`, {
+		const tarResult = spawnSync("tar", ["xzf", tarballPath, "-C", extractDir], {
 			stdio: "pipe",
 		});
+		if (tarResult.status !== 0) {
+			rmSync(tmpDir, { recursive: true, force: true });
+			return {
+				success: false,
+				error: `tar failed: ${tarResult.stderr?.toString() ?? "unknown error"}`,
+			};
+		}
 
 		const { readdirSync } = await import("node:fs");
 		const extractedDirs = readdirSync(extractDir);
@@ -234,7 +241,7 @@ async function fetchTemplateFromGitHub(
 		}
 
 		mkdirSync(targetDir, { recursive: true });
-		execSync(`cp -R "${sourcePath}/"* "${targetDir}/"`, { stdio: "pipe" });
+		cpSync(sourcePath, targetDir, { recursive: true, force: true });
 		rmSync(tmpDir, { recursive: true, force: true });
 
 		return { success: true, localPath: targetDir };

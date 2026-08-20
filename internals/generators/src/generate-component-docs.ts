@@ -302,7 +302,7 @@ function renderPropsTable(props: PropInfo[]): string {
 	const divider = "|------|------|----------|-------------|";
 	const rows = props.map((p) => {
 		const desc = p.description ?? "";
-		const type = `\`${p.type.replace(/\|/g, "\\|")}\``;
+		const type = `\`${p.type.replaceAll("\\", "\\\\").replaceAll("|", "\\|")}\``;
 		return `| \`${p.name}\` | ${type} | ${p.optional ? "No" : "Yes"} | ${desc} |`;
 	});
 

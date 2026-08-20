@@ -20,6 +20,14 @@ export interface MeiliSearchDocument {
 	[key: string]: unknown;
 }
 
+function trimTrailingSlashes(value: string): string {
+	let out = value;
+	while (out.endsWith("/")) {
+		out = out.slice(0, -1);
+	}
+	return out;
+}
+
 export interface MeiliSearchHit {
 	id: string;
 	entityType: string;
@@ -80,7 +88,7 @@ export class MeiliSearchProvider {
 
 	constructor(host: string, apiKey: string, indexUid = "search") {
 		// Strip trailing slash from host
-		this.host = host.replace(/\/+$/, "");
+		this.host = trimTrailingSlashes(host);
 		this.apiKey = apiKey;
 		this.indexUid = indexUid;
 	}

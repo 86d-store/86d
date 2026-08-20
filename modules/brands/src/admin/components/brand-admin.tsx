@@ -1,6 +1,7 @@
 "use client";
 
 import { useModuleClient } from "@86d-app/core/client/provider";
+import { isSafeUrl } from "@86d-app/core/sanitize";
 import { useEffect, useRef, useState } from "react";
 
 function useBrandsAdminApi() {
@@ -228,7 +229,7 @@ function BrandForm({
 						placeholder="https://example.com/logo.png"
 						className={inputCls}
 					/>
-					{logo.trim() && (
+					{logo.trim() && isSafeUrl(logo) && (
 						<img
 							src={logo}
 							alt="Logo preview"

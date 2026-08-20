@@ -46,6 +46,22 @@ describe("stripTags", () => {
 			stripTags('<script>a</script>ok<script type="module">b</script>'),
 		).toBe("ok");
 	});
+
+	it("defeats nested/reassembled script tags", () => {
+		expect(stripTags("<scr<script>ipt>alert(1)</script>")).toBe("");
+		// After the inner empty script is removed, residual text remains — no tags.
+		expect(stripTags("<scr<script></script>ipt>alert(1)</script>")).toBe(
+			"ipt>alert(1)",
+		);
+	});
+
+	it("matches spaced script end tags", () => {
+		expect(stripTags("before<script>x</script >after")).toBe("beforeafter");
+	});
+
+	it("drops unclosed script content", () => {
+		expect(stripTags("before<script>still running")).toBe("before");
+	});
 });
 
 describe("normalizeWhitespace", () => {

@@ -253,7 +253,9 @@ describe("sitemap()", () => {
 
 		const entries = await sitemap();
 		expect(
-			entries.every((e) => e.url.startsWith("https://custom-store.com")),
+			entries.every(
+				(e) => new URL(e.url).origin === "https://custom-store.com",
+			),
 		).toBe(true);
 	});
 });

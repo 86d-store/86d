@@ -8,6 +8,14 @@ export interface WorkloadIdentityProofBridge {
 	prove(input: { challenge: string }): Promise<{ status: "ok" }>;
 }
 
+function trimTrailingSlashes(value: string): string {
+	let out = value;
+	while (out.endsWith("/")) {
+		out = out.slice(0, -1);
+	}
+	return out;
+}
+
 export function createWorkloadIdentityProofBridge(input: {
 	config: ManagedWorkloadConfig;
 	client?: WorkloadTokenClient | undefined;
@@ -20,7 +28,7 @@ export function createWorkloadIdentityProofBridge(input: {
 			...(input.fetch ? { fetch: input.fetch } : {}),
 		});
 	const fetch = input.fetch ?? globalThis.fetch;
-	const apiBase = input.config.apiBaseUrl.replace(/\/+$/, "");
+	const apiBase = trimTrailingSlashes(input.config.apiBaseUrl);
 	const apiRoot = apiBase.endsWith("/api") ? apiBase : `${apiBase}/api`;
 	return {
 		async prove(proof) {
