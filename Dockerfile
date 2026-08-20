@@ -75,9 +75,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV DOCKER_BUILD=true
 # next.config imports `env`, which requires a production-strength secret at
-# build time. Scoped to this RUN so it is not an image ENV; runtime must supply
-# BETTER_AUTH_SECRET via compose/orchestrator.
-RUN BETTER_AUTH_SECRET="86d-image-build-placeholder-Kx9mQ2vL7nP4wR8tY1uA3sD6fG0hJ5cB" \
+# build time. Generate a throwaway value for this RUN only (not an image ENV);
+# runtime must supply BETTER_AUTH_SECRET via compose/orchestrator.
+RUN BETTER_AUTH_SECRET="$(openssl rand -base64 48)" \
 	NODE_OPTIONS="--max-old-space-size=4096" \
 	bun run build:store
 
