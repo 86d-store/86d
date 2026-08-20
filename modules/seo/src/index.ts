@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { toMarkdownSitemap } from "./markdown";
-import { seoSchema, seoTables } from "./schema";
+import { seoStorage } from "./schema";
 import { createSeoController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -25,8 +25,7 @@ export default function seo(options?: SeoOptions): Module {
 	return {
 		id: "seo",
 		version: "0.0.1",
-		schema: seoSchema,
-		tables: seoTables,
+		storage: seoStorage,
 		exports: {
 			read: ["metaTitle", "metaDescription", "canonicalUrl"],
 		},

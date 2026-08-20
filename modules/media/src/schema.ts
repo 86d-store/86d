@@ -1,45 +1,39 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const mediaSchema = {
-	asset: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			altText: { type: "string", required: false },
-			url: { type: "string", required: true },
-			mimeType: { type: "string", required: true },
-			size: { type: "number", required: true },
-			width: { type: "number", required: false },
-			height: { type: "number", required: false },
-			folder: { type: "string", required: false },
-			tags: { type: "json", required: true, defaultValue: [] },
-			metadata: { type: "json", required: true, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const mediaAssetShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	altText: z.string().optional(),
+	url: z.string(),
+	mimeType: z.string(),
+	size: z.number(),
+	width: z.number().optional(),
+	height: z.number().optional(),
+	folder: z.string().optional(),
+	tags: z.array(z.unknown()).default([]),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const mediaFolderShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	parentId: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for media. */
+export const mediaStorage = {
+	kind: "relational",
+	tables: {
+		asset: {
+			shape: mediaAssetShape,
+		},
+		folder: {
+			shape: mediaFolderShape,
 		},
 	},
-	folder: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			parentId: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
-
-export const mediaTables = transcodeModuleSchema(mediaSchema);
+} as const satisfies ModuleStorageDeclaration;

@@ -6,7 +6,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { automationsSchema } from "./schema";
+import { automationsStorage } from "./schema";
 import { createAutomationsController } from "./service-impl";
 import { createStoreEndpoints } from "./store/endpoints/routes";
 
@@ -71,7 +71,7 @@ export default function automations(options?: AutomationsOptions): Module {
 	return {
 		id: "automations",
 		version: "0.0.1",
-		schema: automationsSchema,
+		storage: automationsStorage,
 		capabilities: {
 			accepts: [
 				acceptCapability(notificationCreateCapability, { optional: true }),

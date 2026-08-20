@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { priceListResolveProvider } from "./capabilities";
-import { priceListsSchema } from "./schema";
+import { priceListsStorage } from "./schema";
 import { createPriceListController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -27,7 +27,7 @@ export default function priceLists(options?: PriceListsOptions): Module {
 	return {
 		id: "price-lists",
 		version: "0.0.1",
-		schema: priceListsSchema,
+		storage: priceListsStorage,
 		capabilities: { provides: [priceListResolveProvider] },
 		exports: {
 			read: ["activePriceLists", "resolvedPrice", "productPrices"],

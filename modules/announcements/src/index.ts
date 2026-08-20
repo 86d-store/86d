@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { announcementsSchema } from "./schema";
+import { announcementsStorage } from "./schema";
 import { createAnnouncementsControllers } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -27,7 +27,7 @@ export default function announcements(options?: AnnouncementsOptions): Module {
 	return {
 		id: "announcements",
 		version: "1.0.0",
-		schema: announcementsSchema,
+		storage: announcementsStorage,
 		exports: {
 			read: ["activeAnnouncements", "announcementTypes", "announcementStats"],
 		},

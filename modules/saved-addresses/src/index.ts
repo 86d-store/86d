@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { savedAddressesSchema } from "./schema";
+import { savedAddressesStorage } from "./schema";
 import { createSavedAddressesController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -26,7 +26,7 @@ export default function savedAddresses(
 	return {
 		id: "saved-addresses",
 		version: "0.0.1",
-		schema: savedAddressesSchema,
+		storage: savedAddressesStorage,
 		exports: {
 			read: ["defaultAddress", "defaultBillingAddress", "addressList"],
 		},

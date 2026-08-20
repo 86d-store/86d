@@ -1336,13 +1336,13 @@ describe("reviews module factory", () => {
 		expect(mod.version).toBe("0.0.2");
 	});
 
-	it("exports the reviews schema", () => {
+	it("exports relational reviews storage", () => {
 		const mod = reviewsModule();
-		expect(mod.schema).toBeDefined();
-		const schema = mod.schema as NonNullable<typeof mod.schema>;
-		expect(schema.review).toBeDefined();
-		expect(schema.review.fields.id).toBeDefined();
-		expect(schema.review.fields.rating).toBeDefined();
+		expect(mod.storage?.kind).toBe("relational");
+		if (mod.storage?.kind !== "relational") return;
+		expect(mod.storage.tables?.review).toBeDefined();
+		expect(mod.storage.tables?.review?.shape.shape.id).toBeDefined();
+		expect(mod.storage.tables?.review?.shape.shape.rating).toBeDefined();
 	});
 
 	it("declares exported contract fields", () => {

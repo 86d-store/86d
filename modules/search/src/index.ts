@@ -6,7 +6,7 @@ import type {
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { OpenAIEmbeddingProvider } from "./embedding-provider";
 import { MeiliSearchProvider } from "./meilisearch-provider";
-import { searchSchema, searchTables } from "./schema";
+import { searchStorage } from "./schema";
 import { createSearchController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -69,8 +69,7 @@ export default function search(options?: SearchOptions): Module {
 	return {
 		id: "search",
 		version: "0.1.0",
-		schema: searchSchema,
-		tables: searchTables,
+		storage: searchStorage,
 		exports: {
 			read: ["searchIndexCount", "popularTerms"],
 		},

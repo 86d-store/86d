@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
-import { googleShoppingSchema } from "./schema";
+import { googleShoppingStorage } from "./schema";
 import { createGoogleShoppingController } from "./service-impl";
 import { createStoreEndpoints } from "./store/endpoints/routes";
 
@@ -44,7 +44,7 @@ export default function googleShopping(
 	return {
 		id: "google-shopping",
 		version: "0.1.0",
-		schema: googleShoppingSchema,
+		storage: googleShoppingStorage,
 		exports: {
 			read: ["feedItemTitle", "feedItemStatus", "feedItemPrice"],
 		},

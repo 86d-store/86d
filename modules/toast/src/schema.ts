@@ -1,47 +1,39 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const toastSchema = {
-	syncRecord: {
-		fields: {
-			id: { type: "string", required: true },
-			entityType: { type: "string", required: true },
-			entityId: { type: "string", required: true },
-			externalId: { type: "string", required: true },
-			direction: { type: "string", required: true },
-			status: { type: "string", required: true, defaultValue: "pending" },
-			error: { type: "string", required: false },
-			syncedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const toastSyncRecordShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	entityType: z.string(),
+	entityId: z.string(),
+	externalId: z.string(),
+	direction: z.string(),
+	status: z.string().default("pending"),
+	error: z.string().optional(),
+	syncedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const toastMenuMappingShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	localProductId: z.string(),
+	externalMenuItemId: z.string(),
+	isActive: z.boolean().default(true),
+	lastSyncedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for toast. */
+export const toastStorage = {
+	kind: "relational",
+	tables: {
+		syncRecord: {
+			shape: toastSyncRecordShape,
+		},
+		menuMapping: {
+			shape: toastMenuMappingShape,
 		},
 	},
-	menuMapping: {
-		fields: {
-			id: { type: "string", required: true },
-			localProductId: { type: "string", required: true },
-			externalMenuItemId: { type: "string", required: true },
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			lastSyncedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

@@ -6,7 +6,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { reviewsSchema, reviewsTables } from "./schema";
+import { reviewsStorage } from "./schema";
 import { createReviewController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -34,8 +34,7 @@ export default function reviews(options?: ReviewsOptions): Module {
 	return {
 		id: "reviews",
 		version: "0.0.2",
-		schema: reviewsSchema,
-		tables: reviewsTables,
+		storage: reviewsStorage,
 		capabilities: {
 			accepts: [
 				acceptCapability(orderPurchaseVerifyCapability, { optional: true }),

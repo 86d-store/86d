@@ -1,23 +1,27 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const comparisonsSchema = {
-	comparisonItem: {
-		fields: {
-			id: { type: "string", required: true },
-			customerId: { type: "string", required: false },
-			sessionId: { type: "string", required: false },
-			productId: { type: "string", required: true },
-			productName: { type: "string", required: true },
-			productSlug: { type: "string", required: true },
-			productImage: { type: "string", required: false },
-			productPrice: { type: "number", required: false },
-			productCategory: { type: "string", required: false },
-			attributes: { type: "json", required: false },
-			addedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const comparisonsComparisonItemShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	customerId: z.string().optional(),
+	sessionId: z.string().optional(),
+	productId: z.string(),
+	productName: z.string(),
+	productSlug: z.string(),
+	productImage: z.string().optional(),
+	productPrice: z.number().optional(),
+	productCategory: z.string().optional(),
+	attributes: z.record(z.string(), z.unknown()).optional(),
+	addedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for comparisons. */
+export const comparisonsStorage = {
+	kind: "relational",
+	tables: {
+		comparisonItem: {
+			shape: comparisonsComparisonItemShape,
 		},
 	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

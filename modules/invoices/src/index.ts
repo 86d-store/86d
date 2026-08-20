@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { invoicesSchema } from "./schema";
+import { invoicesStorage } from "./schema";
 import { createInvoiceController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -19,7 +19,7 @@ export default function invoices(options?: InvoicesOptions): Module {
 	return {
 		id: "invoices",
 		version: "0.0.1",
-		schema: invoicesSchema,
+		storage: invoicesStorage,
 
 		requires: ["orders"],
 

@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
-import { facebookShopSchema } from "./schema";
+import { facebookShopStorage } from "./schema";
 import { createFacebookShopController } from "./service-impl";
 import { createStoreEndpoints } from "./store/endpoints/routes";
 
@@ -42,7 +42,7 @@ export default function facebookShop(options?: FacebookShopOptions): Module {
 	return {
 		id: "facebook-shop",
 		version: "0.2.0",
-		schema: facebookShopSchema,
+		storage: facebookShopStorage,
 		exports: {
 			read: ["listingTitle", "listingStatus", "listingSyncStatus"],
 		},

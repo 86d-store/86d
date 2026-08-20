@@ -17,12 +17,13 @@ describe("tipping events", () => {
 		expect(mod.version).toBe("0.1.0");
 	});
 
-	it("includes schema with tip, tipPayout, and tipSettings entities", () => {
+	it("includes relational storage with tip tables", () => {
 		const mod = tipping();
-		expect(mod.schema).toBeDefined();
-		expect(mod.schema?.tip).toBeDefined();
-		expect(mod.schema?.tipPayout).toBeDefined();
-		expect(mod.schema?.tipSettings).toBeDefined();
+		expect(mod.storage?.kind).toBe("relational");
+		if (mod.storage?.kind !== "relational") return;
+		expect(mod.storage.tables?.tip).toBeDefined();
+		expect(mod.storage.tables?.tipPayout).toBeDefined();
+		expect(mod.storage.tables?.tipSettings).toBeDefined();
 	});
 
 	it("declares admin pages", () => {

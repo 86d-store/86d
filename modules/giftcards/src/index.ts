@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { giftCardCheckoutProvider } from "./capabilities";
-import { giftCardSchema } from "./schema";
+import { giftcardsStorage } from "./schema";
 import { createGiftCardController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -31,7 +31,7 @@ export default function giftCards(options?: GiftCardOptions): Module {
 	return {
 		id: "gift-cards",
 		version: "0.1.0",
-		schema: giftCardSchema,
+		storage: giftcardsStorage,
 		capabilities: { provides: [giftCardCheckoutProvider] },
 		exports: {
 			read: ["giftCardBalance", "giftCardStatus"],

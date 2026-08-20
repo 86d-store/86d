@@ -1,79 +1,69 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const membershipsSchema = {
-	membershipPlan: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			slug: { type: "string", required: true, unique: true },
-			description: { type: "string", required: false },
-			price: { type: "number", required: true },
-			billingInterval: { type: "string", required: true },
-			trialDays: { type: "number", required: true },
-			features: { type: "json", required: false },
-			isActive: { type: "boolean", required: true },
-			maxMembers: { type: "number", required: false },
-			sortOrder: { type: "number", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const membershipsMembershipPlanShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	description: z.string().optional(),
+	price: z.number(),
+	billingInterval: z.string(),
+	trialDays: z.number(),
+	features: z.record(z.string(), z.unknown()).optional(),
+	isActive: z.boolean(),
+	maxMembers: z.number().optional(),
+	sortOrder: z.number(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const membershipsMembershipShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	customerId: z.string().register(col, { index: true }),
+	planId: z.string().register(col, { index: true }),
+	status: z.string(),
+	startDate: z.coerce.date(),
+	endDate: z.coerce.date().optional(),
+	trialEndDate: z.coerce.date().optional(),
+	cancelledAt: z.coerce.date().optional(),
+	pausedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const membershipsMembershipBenefitShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	planId: z.string().register(col, { index: true }),
+	type: z.string(),
+	value: z.string(),
+	description: z.string().optional(),
+	isActive: z.boolean(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const membershipsMembershipProductShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	planId: z.string().register(col, { index: true }),
+	productId: z.string().register(col, { index: true }),
+	assignedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for memberships. */
+export const membershipsStorage = {
+	kind: "relational",
+	tables: {
+		membershipPlan: {
+			shape: membershipsMembershipPlanShape,
+		},
+		membership: {
+			shape: membershipsMembershipShape,
+		},
+		membershipBenefit: {
+			shape: membershipsMembershipBenefitShape,
+		},
+		membershipProduct: {
+			shape: membershipsMembershipProductShape,
 		},
 	},
-	membership: {
-		fields: {
-			id: { type: "string", required: true },
-			customerId: { type: "string", required: true, index: true },
-			planId: { type: "string", required: true, index: true },
-			status: { type: "string", required: true },
-			startDate: { type: "date", required: true },
-			endDate: { type: "date", required: false },
-			trialEndDate: { type: "date", required: false },
-			cancelledAt: { type: "date", required: false },
-			pausedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	membershipBenefit: {
-		fields: {
-			id: { type: "string", required: true },
-			planId: { type: "string", required: true, index: true },
-			type: { type: "string", required: true },
-			value: { type: "string", required: true },
-			description: { type: "string", required: false },
-			isActive: { type: "boolean", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	membershipProduct: {
-		fields: {
-			id: { type: "string", required: true },
-			planId: { type: "string", required: true, index: true },
-			productId: { type: "string", required: true, index: true },
-			assignedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { productQaSchema } from "./schema";
+import { productQaStorage } from "./schema";
 import { createProductQaController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -27,7 +27,7 @@ export default function productQa(options?: ProductQaOptions): Module {
 	return {
 		id: "product-qa",
 		version: "0.0.1",
-		schema: productQaSchema,
+		storage: productQaStorage,
 		exports: {
 			read: ["questionCount", "answeredCount"],
 		},

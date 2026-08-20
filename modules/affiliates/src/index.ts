@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { affiliatesSchema } from "./schema";
+import { affiliatesStorage } from "./schema";
 import { createAffiliateController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -34,7 +34,7 @@ export default function affiliates(options?: AffiliatesOptions): Module {
 	return {
 		id: "affiliates",
 		version: "0.0.1",
-		schema: affiliatesSchema,
+		storage: affiliatesStorage,
 		exports: {
 			read: ["affiliateCode", "affiliateStatus"],
 		},

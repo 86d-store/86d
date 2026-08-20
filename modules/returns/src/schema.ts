@@ -1,199 +1,125 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const returnsSchema = {
-	/** Internal serialization rows for deterministic Return request admission. */
-	returnAuthorityOperationLock: {
-		fields: {
-			id: { type: "string", required: true },
-			operationId: { type: "string", required: true, unique: true },
+export const returnsReturnAuthorityOperationLockShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	operationId: z.string().register(col, { unique: true }),
+});
+
+export const returnsReturnAuthorityOrderLockShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	orderId: z.string().register(col, { unique: true }),
+});
+
+export const returnsReturnAuthorityRequestShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	contractVersion: z.number(),
+	operationId: z.string().register(col, { unique: true }),
+	requestDigest: z.string(),
+	orderId: z.string(),
+	customerId: z.string(),
+	actor: z.record(z.string(), z.unknown()),
+	authority: z.record(z.string(), z.unknown()),
+	requestedResolution: z.string(),
+	reasonSnapshot: z.string(),
+	items: z.record(z.string(), z.unknown()),
+	requestedAt: z.coerce.date(),
+});
+
+export const returnsReturnAuthorityReceiptShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	operationId: z.string().register(col, { unique: true }),
+	requestDigest: z.string(),
+	returnRequestId: z.string(),
+	createdAt: z.coerce.date(),
+});
+
+export const returnsReturnRequestShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	orderId: z.string().register(col, {
+		references: { table: "self.order", column: "id", onDelete: "cascade" },
+	}),
+	customerId: z.string(),
+	customerEmail: z.string().optional(),
+	status: z
+		.enum([
+			"requested",
+			"approved",
+			"rejected",
+			"received",
+			"completed",
+			"cancelled",
+		])
+		.default("requested"),
+	refundMethod: z
+		.enum(["original_payment", "store_credit", "exchange"])
+		.default("original_payment"),
+	refundAmount: z.int().default(0),
+	currency: z.string().default("USD"),
+	reason: z.string(),
+	customerNotes: z.string().optional(),
+	adminNotes: z.string().optional(),
+	trackingNumber: z.string().optional(),
+	trackingCarrier: z.string().optional(),
+	requestedAt: z.coerce.date().default(() => new Date()),
+	resolvedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const returnsReturnItemShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	returnRequestId: z.string().register(col, {
+		references: {
+			table: "self.returnRequest",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	orderItemId: z.string(),
+	productName: z.string(),
+	sku: z.string().optional(),
+	quantity: z.number(),
+	unitPrice: z.number(),
+	reason: z.enum([
+		"damaged",
+		"defective",
+		"wrong_item",
+		"not_as_described",
+		"changed_mind",
+		"too_small",
+		"too_large",
+		"other",
+	]),
+	condition: z
+		.enum(["unopened", "opened", "used", "damaged"])
+		.default("opened"),
+	notes: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for returns. */
+export const returnsStorage = {
+	kind: "relational",
+	tables: {
+		returnAuthorityOperationLock: {
+			shape: returnsReturnAuthorityOperationLockShape,
+		},
+		returnAuthorityOrderLock: {
+			shape: returnsReturnAuthorityOrderLockShape,
+		},
+		returnAuthorityRequest: {
+			shape: returnsReturnAuthorityRequestShape,
+		},
+		returnAuthorityReceipt: {
+			shape: returnsReturnAuthorityReceiptShape,
+		},
+		returnRequest: {
+			shape: returnsReturnRequestShape,
+		},
+		returnItem: {
+			shape: returnsReturnItemShape,
 		},
 	},
-	returnAuthorityOrderLock: {
-		fields: {
-			id: { type: "string", required: true },
-			orderId: { type: "string", required: true, unique: true },
-		},
-	},
-	/** Immutable v1 request snapshot; lifecycle state is deliberately separate. */
-	returnAuthorityRequest: {
-		fields: {
-			id: { type: "string", required: true },
-			contractVersion: { type: "number", required: true },
-			operationId: { type: "string", required: true, unique: true },
-			requestDigest: { type: "string", required: true },
-			orderId: { type: "string", required: true },
-			customerId: { type: "string", required: true },
-			actor: { type: "json", required: true },
-			authority: { type: "json", required: true },
-			requestedResolution: { type: "string", required: true },
-			reasonSnapshot: { type: "string", required: true },
-			items: { type: "json", required: true },
-			requestedAt: { type: "date", required: true },
-		},
-	},
-	returnAuthorityReceipt: {
-		fields: {
-			id: { type: "string", required: true },
-			operationId: { type: "string", required: true, unique: true },
-			requestDigest: { type: "string", required: true },
-			returnRequestId: { type: "string", required: true },
-			createdAt: { type: "date", required: true },
-		},
-	},
-	returnRequest: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			orderId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "order",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			customerId: {
-				type: "string",
-				required: true,
-			},
-			customerEmail: {
-				type: "string",
-				required: false,
-			},
-			status: {
-				type: [
-					"requested",
-					"approved",
-					"rejected",
-					"received",
-					"completed",
-					"cancelled",
-				] as const,
-				required: true,
-				defaultValue: "requested",
-			},
-			refundMethod: {
-				type: ["original_payment", "store_credit", "exchange"] as const,
-				required: true,
-				defaultValue: "original_payment",
-			},
-			refundAmount: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			currency: {
-				type: "string",
-				required: true,
-				defaultValue: "USD",
-			},
-			reason: {
-				type: "string",
-				required: true,
-			},
-			customerNotes: {
-				type: "string",
-				required: false,
-			},
-			adminNotes: {
-				type: "string",
-				required: false,
-			},
-			trackingNumber: {
-				type: "string",
-				required: false,
-			},
-			trackingCarrier: {
-				type: "string",
-				required: false,
-			},
-			requestedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			resolvedAt: {
-				type: "date",
-				required: false,
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	returnItem: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			returnRequestId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "returnRequest",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			orderItemId: {
-				type: "string",
-				required: true,
-			},
-			productName: {
-				type: "string",
-				required: true,
-			},
-			sku: {
-				type: "string",
-				required: false,
-			},
-			quantity: {
-				type: "number",
-				required: true,
-			},
-			unitPrice: {
-				type: "number",
-				required: true,
-			},
-			reason: {
-				type: [
-					"damaged",
-					"defective",
-					"wrong_item",
-					"not_as_described",
-					"changed_mind",
-					"too_small",
-					"too_large",
-					"other",
-				] as const,
-				required: true,
-			},
-			condition: {
-				type: ["unopened", "opened", "used", "damaged"] as const,
-				required: true,
-				defaultValue: "opened",
-			},
-			notes: {
-				type: "string",
-				required: false,
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

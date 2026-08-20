@@ -1,112 +1,51 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const automationsSchema = {
-	automation: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			name: {
-				type: "string",
-				required: true,
-			},
-			description: {
-				type: "string",
-				required: false,
-			},
-			status: {
-				type: ["active", "paused", "draft"],
-				required: true,
-				defaultValue: "draft",
-			},
-			triggerEvent: {
-				type: "string",
-				required: true,
-			},
-			conditions: {
-				type: "json",
-				required: false,
-				defaultValue: [],
-			},
-			actions: {
-				type: "json",
-				required: true,
-			},
-			priority: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			runCount: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			lastRunAt: {
-				type: "date",
-				required: false,
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const automationsAutomationShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	description: z.string().optional(),
+	status: z.enum(["active", "paused", "draft"]).default("draft"),
+	triggerEvent: z.string(),
+	conditions: z.array(z.unknown()).default([]),
+	actions: z.record(z.string(), z.unknown()),
+	priority: z.int().default(0),
+	runCount: z.int().default(0),
+	lastRunAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const automationsAutomationExecutionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	automationId: z.string().register(col, {
+		references: {
+			table: "self.automation",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	triggerEvent: z.string(),
+	triggerPayload: z.record(z.string(), z.unknown()).default({}),
+	status: z
+		.enum(["pending", "running", "completed", "failed", "skipped"])
+		.default("pending"),
+	results: z.array(z.unknown()).default([]),
+	error: z.string().optional(),
+	startedAt: z.coerce.date().default(() => new Date()),
+	completedAt: z.coerce.date().optional(),
+});
+
+/** Native Relational storage for automations. */
+export const automationsStorage = {
+	kind: "relational",
+	tables: {
+		automation: {
+			shape: automationsAutomationShape,
+		},
+		automationExecution: {
+			shape: automationsAutomationExecutionShape,
 		},
 	},
-	automationExecution: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			automationId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "automation",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			triggerEvent: {
-				type: "string",
-				required: true,
-			},
-			triggerPayload: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			status: {
-				type: ["pending", "running", "completed", "failed", "skipped"],
-				required: true,
-				defaultValue: "pending",
-			},
-			results: {
-				type: "json",
-				required: false,
-				defaultValue: [],
-			},
-			error: {
-				type: "string",
-				required: false,
-			},
-			startedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			completedAt: {
-				type: "date",
-				required: false,
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

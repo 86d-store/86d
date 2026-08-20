@@ -1,78 +1,48 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const bulkPricingSchema = {
-	pricingRule: {
-		fields: {
-			id: { type: "string", required: true },
-			/** Human-readable name (e.g. "Wholesale T-Shirt Pricing") */
-			name: { type: "string", required: true },
-			/** Optional description for admin reference */
-			description: { type: "string", required: false },
-			/** Which products this rule applies to */
-			scope: {
-				type: ["product", "variant", "collection", "global"] as const,
-				required: true,
-			},
-			/** Target entity ID (product/variant/collection ID, null for global) */
-			targetId: { type: "string", required: false, index: true },
-			/** Priority when multiple rules match (higher = wins) */
-			priority: { type: "number", required: true, defaultValue: 0 },
-			/** Whether this rule is active */
-			active: { type: "boolean", required: true, defaultValue: true },
-			/** Optional start date for scheduled activation (ISO 8601) */
-			startsAt: { type: "date", required: false },
-			/** Optional end date for scheduled deactivation (ISO 8601) */
-			endsAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const bulkPricingPricingRuleShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	description: z.string().optional(),
+	scope: z.enum(["product", "variant", "collection", "global"]),
+	targetId: z.string().register(col, { index: true }).optional(),
+	priority: z.int().default(0),
+	active: z.boolean().default(true),
+	startsAt: z.coerce.date().optional(),
+	endsAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const bulkPricingPricingTierShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	ruleId: z.string().register(col, {
+		references: {
+			table: "self.pricingRule",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	minQuantity: z.number(),
+	maxQuantity: z.number().optional(),
+	discountType: z.enum(["percentage", "fixed_amount", "fixed_price"]),
+	discountValue: z.number(),
+	label: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for bulk-pricing. */
+export const bulkPricingStorage = {
+	kind: "relational",
+	tables: {
+		pricingRule: {
+			shape: bulkPricingPricingRuleShape,
+		},
+		pricingTier: {
+			shape: bulkPricingPricingTierShape,
 		},
 	},
-	pricingTier: {
-		fields: {
-			id: { type: "string", required: true },
-			/** Parent pricing rule */
-			ruleId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "pricingRule",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			/** Minimum quantity to trigger this tier (inclusive) */
-			minQuantity: { type: "number", required: true },
-			/** Maximum quantity for this tier (inclusive, null = unlimited) */
-			maxQuantity: { type: "number", required: false },
-			/** Type of discount applied at this tier */
-			discountType: {
-				type: ["percentage", "fixed_amount", "fixed_price"] as const,
-				required: true,
-			},
-			/** Discount value (percentage 0-100, or currency amount) */
-			discountValue: { type: "number", required: true },
-			/** Optional label shown to customers (e.g. "Buy 10+, save 15%") */
-			label: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

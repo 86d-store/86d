@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { flashSalesSchema } from "./schema";
+import { flashSalesStorage } from "./schema";
 import { createFlashSaleController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -27,7 +27,7 @@ export default function flashSales(options?: FlashSalesOptions): Module {
 	return {
 		id: "flash-sales",
 		version: "0.0.1",
-		schema: flashSalesSchema,
+		storage: flashSalesStorage,
 		requires: ["products"],
 		exports: {
 			read: [

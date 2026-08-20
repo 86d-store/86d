@@ -17,6 +17,8 @@ export interface PayPalOptions extends ModuleConfig {
 	verificationKeyReference?: string | undefined;
 }
 
+const paypalStorage = { kind: "none" } as const;
+
 export default function paypal(options: PayPalOptions): Module {
 	const webhookOpts = {
 		clientId: options.clientId,
@@ -33,7 +35,7 @@ export default function paypal(options: PayPalOptions): Module {
 	return {
 		id: "paypal",
 		version: "0.0.1",
-		schema: {},
+		storage: paypalStorage,
 		events: {
 			emits: [
 				"paypal.payment.captured",

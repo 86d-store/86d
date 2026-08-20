@@ -1,0 +1,1306 @@
+{
+  "generatedAt": "2026-08-20T23:14:48.831Z",
+  "registryCount": 101,
+  "sourceCount": 101,
+  "byKind": {
+    "none": 6,
+    "config": 0,
+    "relational": 95,
+    "missing": 0
+  },
+  "modules": [
+    {
+      "moduleId": "abandoned-carts",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "abandonedCart",
+        "recoveryAttempt"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "affiliates",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "affiliate",
+        "affiliateConversion",
+        "affiliateLink",
+        "affiliatePayout"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "amazon",
+      "version": "0.2.0",
+      "kind": "relational",
+      "tables": [
+        "amazonOrder",
+        "inventorySync",
+        "listing"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "analytics",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "event"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "announcements",
+      "version": "1.0.0",
+      "kind": "relational",
+      "tables": [
+        "announcement"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "appointments",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "appointment",
+        "schedule",
+        "service",
+        "staff",
+        "staffService"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "auctions",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "auction",
+        "auctionWatch",
+        "bid"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "audit-log",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "auditEntry"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "automations",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "automation",
+        "automationExecution"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "backorders",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "backorder",
+        "backorderPolicy"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "blog",
+      "version": "0.1.0",
+      "kind": "relational",
+      "tables": [
+        "post"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "braintree",
+      "version": "0.0.1",
+      "kind": "none",
+      "tables": [],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "brands",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "brand",
+        "brandProduct"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "bulk-pricing",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "pricingRule",
+        "pricingTier"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "bundles",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "bundle",
+        "bundleItem"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "cart",
+      "version": "1.0.0",
+      "kind": "relational",
+      "tables": [
+        "cart",
+        "cartItem"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "checkout",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "checkoutFinalization",
+        "checkoutFinalizationAttempt",
+        "checkoutFinalizationCompensation",
+        "checkoutFinalizationLock",
+        "checkoutLineItem",
+        "checkoutRequest",
+        "checkoutRequestLock",
+        "checkoutRequestOperation",
+        "checkoutSession"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "collections",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "collection",
+        "collectionProduct"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "comparisons",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "comparisonItem"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "customer-groups",
+      "version": "1.0.0",
+      "kind": "relational",
+      "tables": [
+        "customerGroup",
+        "groupMembership",
+        "groupPriceAdjustment",
+        "groupRule"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "customers",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "customer",
+        "customerAddress",
+        "storeCustomerAuthBinding",
+        "storeCustomerIdentityLock"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "delivery-slots",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "deliveryBlackout",
+        "deliveryBooking",
+        "deliverySchedule"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "digital-downloads",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "downloadToken",
+        "downloadableFile"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "discounts",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "cartPriceRule",
+        "discount",
+        "discountCode"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "doordash",
+      "version": "0.1.0",
+      "kind": "relational",
+      "tables": [
+        "delivery",
+        "deliveryZone",
+        "quote"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "ebay",
+      "version": "0.2.0",
+      "kind": "relational",
+      "tables": [
+        "ebayOrder",
+        "listing"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "etsy",
+      "version": "0.1.0",
+      "kind": "relational",
+      "tables": [
+        "etsyOrder",
+        "etsyReview",
+        "listing"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "facebook-shop",
+      "version": "0.2.0",
+      "kind": "relational",
+      "tables": [
+        "catalogSync",
+        "channelOrder",
+        "collection",
+        "listing"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "faq",
+      "version": "1.0.0",
+      "kind": "relational",
+      "tables": [
+        "faqCategory",
+        "faqItem"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "favor",
+      "version": "0.1.0",
+      "kind": "relational",
+      "tables": [
+        "delivery",
+        "serviceArea"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "flash-sales",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "flashSale",
+        "flashSaleProduct"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "forms",
+      "version": "1.0.0",
+      "kind": "relational",
+      "tables": [
+        "form",
+        "formSubmission"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "fulfillment",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "fulfillment",
+        "fulfillmentOrderLock"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "gamification",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "game",
+        "play",
+        "prize"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "gift-registry",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "registry",
+        "registryItem",
+        "registryPurchase"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "gift-wrapping",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "wrapOption",
+        "wrapSelection"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "gift-cards",
+      "version": "0.1.0",
+      "kind": "relational",
+      "tables": [
+        "giftCard",
+        "giftCardTransaction"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "google-shopping",
+      "version": "0.1.0",
+      "kind": "relational",
+      "tables": [
+        "channelOrder",
+        "feedSubmission",
+        "productFeed"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "import-export",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "exportJob",
+        "importJob"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "instagram-shop",
+      "version": "0.2.0",
+      "kind": "relational",
+      "tables": [
+        "catalogSync",
+        "channelOrder",
+        "listing"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "inventory",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "backInStockSubscription",
+        "inventoryItem",
+        "inventoryReservation",
+        "inventoryReservationLock",
+        "inventoryReservationOperation"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "invoices",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "creditNote",
+        "creditNoteLineItem",
+        "invoice",
+        "invoiceLineItem",
+        "invoicePayment"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "kiosk",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "kioskSession",
+        "kioskStation"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "loyalty",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "loyaltyAccount",
+        "loyaltyRule",
+        "loyaltyTier",
+        "loyaltyTransaction"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "managed-payments",
+      "version": "0.0.1",
+      "kind": "none",
+      "tables": [],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "media",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "asset",
+        "folder"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "memberships",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "membership",
+        "membershipBenefit",
+        "membershipPlan",
+        "membershipProduct"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "multi-currency",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "currency",
+        "exchangeRateHistory",
+        "priceOverride"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "navigation",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "menu",
+        "menuItem"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "newsletter",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "campaign",
+        "subscriber"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "notifications",
+      "version": "0.1.0",
+      "kind": "relational",
+      "tables": [
+        "notification",
+        "notificationIntent",
+        "notificationIntentLock",
+        "preference",
+        "template"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "order-notes",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "orderNote"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "orders",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "order",
+        "orderAddress",
+        "orderCustomerAttribution",
+        "orderItem",
+        "orderNote",
+        "returnItem",
+        "returnRequest"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "pages",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "page"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "payments",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "paymentConnection",
+        "paymentConnectionLockV2",
+        "paymentDisputeFactV2",
+        "paymentIntent",
+        "paymentMethod",
+        "paymentOperationAttemptV2",
+        "paymentOperationLockV2",
+        "paymentOperationV2",
+        "paymentV2",
+        "paymentV2Lock",
+        "paymentWebhookReceiptLockV2",
+        "paymentWebhookReceiptV2",
+        "refund"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "paypal",
+      "version": "0.0.1",
+      "kind": "none",
+      "tables": [],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "photo-booth",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "photo",
+        "photoSession",
+        "photoStream"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "pinterest-shop",
+      "version": "0.2.0",
+      "kind": "relational",
+      "tables": [
+        "catalogItem",
+        "catalogSync",
+        "shoppingPin"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "preorders",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "preorderCampaign",
+        "preorderItem"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "price-lists",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "priceEntry",
+        "priceList"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "product-feeds",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "categoryMapping",
+        "feed",
+        "feedItem"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "product-labels",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "label",
+        "productLabel"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "product-qa",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "answer",
+        "question"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "products",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "catalogPresentation",
+        "catalogRevision",
+        "catalogRevisionAudit",
+        "catalogRevisionHead",
+        "catalogRevisionLock",
+        "catalogRevisionOperation",
+        "category",
+        "collection",
+        "collectionProduct",
+        "product",
+        "productVariant"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "qr-code",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "qrCode",
+        "qrScan"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "quotes",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "quote",
+        "quoteComment",
+        "quoteHistory",
+        "quoteItem"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "recently-viewed",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "productView"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "recommendations",
+      "version": "0.1.0",
+      "kind": "relational",
+      "tables": [
+        "coOccurrence",
+        "productEmbedding",
+        "productInteraction",
+        "recommendationClick",
+        "recommendationImpression",
+        "recommendationRule"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "redirects",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "redirect"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "referrals",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "referral",
+        "referralCode",
+        "rewardRule"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "returns",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "returnAuthorityOperationLock",
+        "returnAuthorityOrderLock",
+        "returnAuthorityReceipt",
+        "returnAuthorityRequest",
+        "returnItem",
+        "returnRequest"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "revenue",
+      "version": "0.0.1",
+      "kind": "none",
+      "tables": [],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "reviews",
+      "version": "0.0.2",
+      "kind": "relational",
+      "tables": [
+        "review",
+        "reviewReport",
+        "reviewVote"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "saved-addresses",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "address"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "search",
+      "version": "0.1.0",
+      "kind": "relational",
+      "tables": [
+        "searchClick",
+        "searchIndex",
+        "searchQuery",
+        "searchSynonym"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "seo",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "metaTag",
+        "redirect"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "settings",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "storeSetting"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "shipping",
+      "version": "0.1.0",
+      "kind": "relational",
+      "tables": [
+        "shipment",
+        "shippingBoundaryLockV2",
+        "shippingCarrier",
+        "shippingConnectionV2",
+        "shippingLabelRefundV2",
+        "shippingLabelV2",
+        "shippingMethod",
+        "shippingOptionV2",
+        "shippingPostageAdjustmentV2",
+        "shippingQuoteRequestV2",
+        "shippingQuoteV2",
+        "shippingRate",
+        "shippingTrackingV2",
+        "shippingZone"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "sitemap",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "sitemapConfig",
+        "sitemapEntry"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "social-proof",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "activityEvent",
+        "trustBadge"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "social-sharing",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "shareEvent",
+        "shareSettings"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "square",
+      "version": "0.0.1",
+      "kind": "none",
+      "tables": [],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "store-credits",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "creditAccount",
+        "creditTransaction"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "store-locator",
+      "version": "1.0.0",
+      "kind": "relational",
+      "tables": [
+        "location"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "store-pickup",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "pickupBlackout",
+        "pickupLocation",
+        "pickupOrder",
+        "pickupWindow"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "stripe",
+      "version": "0.0.1",
+      "kind": "none",
+      "tables": [],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "subscriptions",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "subscription",
+        "subscriptionPlan"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "tax",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "taxCategory",
+        "taxExemption",
+        "taxExemptionV2",
+        "taxNexus",
+        "taxPolicyV2",
+        "taxRate",
+        "taxRatePackV2",
+        "taxTransaction"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "tickets",
+      "version": "1.0.0",
+      "kind": "relational",
+      "tables": [
+        "ticket",
+        "ticketCategory",
+        "ticketMessage"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "tiktok-shop",
+      "version": "0.2.0",
+      "kind": "relational",
+      "tables": [
+        "catalogSync",
+        "channelOrder",
+        "listing"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "tipping",
+      "version": "0.1.0",
+      "kind": "relational",
+      "tables": [
+        "tip",
+        "tipPayout",
+        "tipSettings"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "toast",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "menuMapping",
+        "syncRecord"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "uber-direct",
+      "version": "0.1.0",
+      "kind": "relational",
+      "tables": [
+        "delivery",
+        "quote",
+        "serviceArea"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "uber-eats",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "menuSync",
+        "uberOrder"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "vendors",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "vendor",
+        "vendorPayout",
+        "vendorProduct"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "waitlist",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "waitlistEntry"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "walmart",
+      "version": "0.2.0",
+      "kind": "relational",
+      "tables": [
+        "feedSubmission",
+        "item",
+        "walmartOrder"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "warranties",
+      "version": "0.0.1",
+      "kind": "relational",
+      "tables": [
+        "warrantyClaim",
+        "warrantyPlan",
+        "warrantyRegistration"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "wish",
+      "version": "0.1.0",
+      "kind": "relational",
+      "tables": [
+        "wishOrder",
+        "wishProduct"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "wishlist",
+      "version": "0.0.2",
+      "kind": "relational",
+      "tables": [
+        "wishlistItem",
+        "wishlistShare"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    },
+    {
+      "moduleId": "x-shop",
+      "version": "0.2.0",
+      "kind": "relational",
+      "tables": [
+        "channelOrder",
+        "listing",
+        "productDrop"
+      ],
+      "configKeys": [],
+      "anchors": [],
+      "publishes": []
+    }
+  ]
+}

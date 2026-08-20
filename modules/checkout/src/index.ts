@@ -61,7 +61,7 @@ import {
 	isPaymentLiveActivated,
 	isThirdPartyPaymentProvider,
 } from "./finalizer-handlers";
-import { checkoutSchema, checkoutTables } from "./schema";
+import { checkoutStorage } from "./schema";
 import { createCheckoutController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -168,8 +168,7 @@ export default function checkout(options?: CheckoutOptions): Module {
 	return {
 		id: "checkout",
 		version: "0.0.1",
-		schema: checkoutSchema,
-		tables: checkoutTables,
+		storage: checkoutStorage,
 		capabilities: {
 			accepts: [
 				acceptCapability(cartSnapshotCapability),

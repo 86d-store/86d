@@ -1,48 +1,41 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const qrCodeSchema = {
-	qrCode: {
-		fields: {
-			id: { type: "string", required: true },
-			label: { type: "string", required: true },
-			targetUrl: { type: "string", required: true },
-			targetType: { type: "string", required: true, defaultValue: "custom" },
-			targetId: { type: "string", required: false },
-			format: { type: "string", required: true, defaultValue: "svg" },
-			size: { type: "number", required: true, defaultValue: 256 },
-			errorCorrection: {
-				type: "string",
-				required: true,
-				defaultValue: "M",
-			},
-			scanCount: { type: "number", required: true, defaultValue: 0 },
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			metadata: { type: "json", required: true, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const qrCodeQrCodeShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	label: z.string(),
+	targetUrl: z.string(),
+	targetType: z.string().default("custom"),
+	targetId: z.string().optional(),
+	format: z.string().default("svg"),
+	size: z.int().default(256),
+	errorCorrection: z.string().default("M"),
+	scanCount: z.int().default(0),
+	isActive: z.boolean().default(true),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const qrCodeQrScanShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	qrCodeId: z.string(),
+	scannedAt: z.coerce.date().default(() => new Date()),
+	userAgent: z.string().optional(),
+	ipAddress: z.string().optional(),
+	referrer: z.string().optional(),
+});
+
+/** Native Relational storage for qr-code. */
+export const qrCodeStorage = {
+	kind: "relational",
+	tables: {
+		qrCode: {
+			shape: qrCodeQrCodeShape,
+		},
+		qrScan: {
+			shape: qrCodeQrScanShape,
 		},
 	},
-	qrScan: {
-		fields: {
-			id: { type: "string", required: true },
-			qrCodeId: { type: "string", required: true },
-			scannedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			userAgent: { type: "string", required: false },
-			ipAddress: { type: "string", required: false },
-			referrer: { type: "string", required: false },
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

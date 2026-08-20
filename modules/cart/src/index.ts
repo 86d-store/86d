@@ -7,7 +7,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { cartSnapshotProvider } from "./capabilities";
-import { cartSchema, cartTables } from "./schema";
+import { cartStorage } from "./schema";
 import { createCartControllers } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -35,8 +35,7 @@ export default function cart(options?: CartOptions): Module {
 	return {
 		id: "cart",
 		version: "1.0.0",
-		schema: cartSchema,
-		tables: cartTables,
+		storage: cartStorage,
 		capabilities: {
 			provides: [cartSnapshotProvider],
 			accepts: [acceptCapability(productResolveCapability)],

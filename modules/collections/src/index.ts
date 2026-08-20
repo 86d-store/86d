@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { collectionsSchema, collectionsTables } from "./schema";
+import { collectionsStorage } from "./schema";
 import { createCollectionController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -29,8 +29,7 @@ export default function collections(options?: CollectionsOptions): Module {
 	return {
 		id: "collections",
 		version: "0.0.1",
-		schema: collectionsSchema,
-		tables: collectionsTables,
+		storage: collectionsStorage,
 		exports: {
 			read: [
 				"activeCollections",

@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { createAdminEndpoints } from "./admin/endpoints/routes";
-import { favorSchema } from "./schema";
+import { favorStorage } from "./schema";
 import { createFavorController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -28,7 +28,7 @@ export default function favor(options?: FavorOptions): Module {
 	return {
 		id: "favor",
 		version: "0.1.0",
-		schema: favorSchema,
+		storage: favorStorage,
 		exports: {
 			read: ["deliveryStatus", "serviceAvailability"],
 		},

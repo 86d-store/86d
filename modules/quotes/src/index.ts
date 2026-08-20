@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { quoteSchema } from "./schema";
+import { quotesStorage } from "./schema";
 import { createQuoteController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -29,7 +29,7 @@ export default function quotes(options?: QuotesOptions): Module {
 	return {
 		id: "quotes",
 		version: "0.0.1",
-		schema: quoteSchema,
+		storage: quotesStorage,
 		exports: {
 			read: ["quote", "quoteItem"],
 		},

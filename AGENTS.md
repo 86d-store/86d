@@ -75,9 +75,9 @@ Package presence, generated registry metadata, or an existing endpoint does not 
 
 ## Module system
 
-Every Module currently exports a factory with `id`, `version`, `endpoints`, and optional `init`. Most first-party Modules still expose a legacy `Module.schema` field map. The migrated subset also exposes adapter-produced `tables` from `transcodeModuleSchema`; legacy-only Modules are reported as not transcoded. Modules depend **only** on `@86d-app/core` (one exception: `managed-payments` also depends on `@86d-app/sdk`). Database access goes through `ModuleDataService`, which reaches compiled Postgres tables under `mod_<moduleId>` where a compiled declaration exists. The Module contract and target storage kinds are defined in [`../prd/contexts/store-runtime/module-system.md`](../prd/contexts/store-runtime/module-system.md).
+Every Module exports a factory with `id`, `version`, required `storage`, `endpoints`, and optional `init`. Every installable Module declares exactly one canonical storage branch: `{ kind: "none" }`, `{ kind: "config", config }`, or `{ kind: "relational", tables?, extends?, anchors?, publishes?, config? }`. Relational shapes are native Zod with the `col` registry. Modules depend **only** on `@86d-app/core` (one exception: `managed-payments` also depends on `@86d-app/sdk`). Database access goes through `ModuleDataService`, which binds each Module operation to the compiled query surface under `mod_<moduleId>` (and Config functions when declared). The Module contract is defined in [`../prd/contexts/store-runtime/module-system.md`](../prd/contexts/store-runtime/module-system.md).
 
-**Storage authority:** Drizzle owns framework tables (auth, commands, outbox, files, logs, webhooks) and `core.*`. The committed bridge compiles installed `tables`; current first-party table declarations are adapter-fed legacy field maps, not native storage authoring. The removed JSON path is not a fallback. The target requires one explicit `storage.kind` (`none`, `config`, or `relational`); Relational storage uses direct Zod `tables`, `extends`, `anchors`, and `publishes`, with no `Module.schema` or transcoder. Treat that target as future until the Module storage and isolation plan closes.
+**Storage authority:** Drizzle owns framework tables (auth, commands, outbox, files, logs, webhooks) and `core.*`. The schema compiler emits Module table DDL plus isolation identities (roles, Config `SECURITY DEFINER` functions, published views, grants, revocations, and statement timeouts). The login role holds no Module privileges; request transactions enter the Module role with `SET LOCAL ROLE`. Legacy `Module.schema` and `transcodeModuleSchema` are removed.
 
 The target cross-Module boundary uses typed synchronous capability calls for immediate business decisions and a durable transactional outbox with versioned, idempotent events for completed changes. The current `requires` and `exports` contracts and in-memory event behavior are migration state where they do not meet that boundary.
 
@@ -86,7 +86,7 @@ Admin pages declare a `group` and optional `subgroup` for the 2-level sidebar. G
 ```
 modules/<name>/src/
   index.ts              Factory + types + admin nav (no `export { … } from` barrels)
-  schema.ts             Legacy `Module.schema` field map during migration
+  schema.ts             Native `storage` declaration (Zod + col)
   service.ts            Business-logic interface
   service-impl.ts       Business-logic implementation
   store/endpoints/      Public endpoints

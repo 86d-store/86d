@@ -38,13 +38,15 @@ export interface ManagedPaymentsOptions {
 	workloadConfig?: Parameters<typeof createManagedPaymentClient>[0]["config"];
 }
 
+const managedPaymentsStorage = { kind: "none" } as const;
+
 export default function managedPayments(
 	options?: ManagedPaymentsOptions,
 ): Module {
 	return {
 		id: "managed-payments",
 		version: "0.0.1",
-		schema: {},
+		storage: managedPaymentsStorage,
 		requires: {
 			payments: {
 				read: ["paymentStatus", "paymentAmount"],

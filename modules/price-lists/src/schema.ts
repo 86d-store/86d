@@ -1,44 +1,42 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const priceListsSchema = {
-	priceList: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			slug: { type: "string", required: true, unique: true },
-			description: { type: "string", required: false },
-			currency: { type: "string", required: false },
-			priority: { type: "number", required: true },
-			status: { type: "string", required: true },
-			startsAt: { type: "date", required: false },
-			endsAt: { type: "date", required: false },
-			customerGroupId: { type: "string", required: false, index: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const priceListsPriceListShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	description: z.string().optional(),
+	currency: z.string().optional(),
+	priority: z.number(),
+	status: z.string(),
+	startsAt: z.coerce.date().optional(),
+	endsAt: z.coerce.date().optional(),
+	customerGroupId: z.string().register(col, { index: true }).optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const priceListsPriceEntryShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	priceListId: z.string().register(col, { index: true }),
+	productId: z.string().register(col, { index: true }),
+	price: z.number(),
+	compareAtPrice: z.number().optional(),
+	minQuantity: z.number().optional(),
+	maxQuantity: z.number().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for price-lists. */
+export const priceListsStorage = {
+	kind: "relational",
+	tables: {
+		priceList: {
+			shape: priceListsPriceListShape,
+		},
+		priceEntry: {
+			shape: priceListsPriceEntryShape,
 		},
 	},
-	priceEntry: {
-		fields: {
-			id: { type: "string", required: true },
-			priceListId: { type: "string", required: true, index: true },
-			productId: { type: "string", required: true, index: true },
-			price: { type: "number", required: true },
-			compareAtPrice: { type: "number", required: false },
-			minQuantity: { type: "number", required: false },
-			maxQuantity: { type: "number", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

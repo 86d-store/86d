@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { socialProofSchema } from "./schema";
+import { socialProofStorage } from "./schema";
 import { createSocialProofController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -31,7 +31,7 @@ export default function socialProof(options?: SocialProofOptions): Module {
 	return {
 		id: "social-proof",
 		version: "0.0.1",
-		schema: socialProofSchema,
+		storage: socialProofStorage,
 		exports: {
 			read: [
 				"productActivity",

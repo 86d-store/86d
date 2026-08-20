@@ -21,9 +21,9 @@ describe("paypal module factory — identity", () => {
 		expect(mod.version).toBe("0.0.1");
 	});
 
-	it("has empty schema", () => {
+	it("declares none storage", () => {
 		const mod = paypal(BASE_OPTIONS);
-		expect(mod.schema).toEqual({});
+		expect(mod.storage).toEqual({ kind: "none" });
 	});
 });
 

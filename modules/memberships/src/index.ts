@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { membershipsSchema } from "./schema";
+import { membershipsStorage } from "./schema";
 import { createMembershipController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -32,7 +32,7 @@ export default function memberships(options?: MembershipsOptions): Module {
 	return {
 		id: "memberships",
 		version: "0.0.1",
-		schema: membershipsSchema,
+		storage: membershipsStorage,
 		exports: {
 			read: [
 				"activePlans",

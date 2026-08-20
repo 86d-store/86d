@@ -1,85 +1,66 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const xShopSchema = {
-	listing: {
-		fields: {
-			id: { type: "string", required: true },
-			localProductId: { type: "string", required: true },
-			externalProductId: { type: "string", required: false },
-			title: { type: "string", required: true },
-			status: { type: "string", required: true, defaultValue: "draft" },
-			syncStatus: { type: "string", required: true, defaultValue: "pending" },
-			lastSyncedAt: { type: "date", required: false },
-			error: { type: "string", required: false },
-			metadata: { type: "json", required: true, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const xShopListingShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	localProductId: z.string(),
+	externalProductId: z.string().optional(),
+	title: z.string(),
+	status: z.string().default("draft"),
+	syncStatus: z.string().default("pending"),
+	lastSyncedAt: z.coerce.date().optional(),
+	error: z.string().optional(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const xShopChannelOrderShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	externalOrderId: z.string(),
+	status: z.string().default("pending"),
+	items: z.array(z.unknown()).default([]),
+	subtotal: z.int().default(0),
+	shippingFee: z.int().default(0),
+	platformFee: z.int().default(0),
+	total: z.int().default(0),
+	customerName: z.string().optional(),
+	shippingAddress: z.record(z.string(), z.unknown()).default({}),
+	trackingNumber: z.string().optional(),
+	trackingUrl: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const xShopProductDropShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	description: z.string().optional(),
+	productIds: z.array(z.unknown()).default([]),
+	launchDate: z.coerce.date().default(() => new Date()),
+	endDate: z.coerce.date().optional(),
+	status: z.string().default("scheduled"),
+	tweetId: z.string().optional(),
+	impressions: z.int().default(0),
+	clicks: z.int().default(0),
+	conversions: z.int().default(0),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for x-shop. */
+export const xShopStorage = {
+	kind: "relational",
+	tables: {
+		listing: {
+			shape: xShopListingShape,
+		},
+		channelOrder: {
+			shape: xShopChannelOrderShape,
+		},
+		productDrop: {
+			shape: xShopProductDropShape,
 		},
 	},
-	channelOrder: {
-		fields: {
-			id: { type: "string", required: true },
-			externalOrderId: { type: "string", required: true },
-			status: { type: "string", required: true, defaultValue: "pending" },
-			items: { type: "json", required: true, defaultValue: [] },
-			subtotal: { type: "number", required: true, defaultValue: 0 },
-			shippingFee: { type: "number", required: true, defaultValue: 0 },
-			platformFee: { type: "number", required: true, defaultValue: 0 },
-			total: { type: "number", required: true, defaultValue: 0 },
-			customerName: { type: "string", required: false },
-			shippingAddress: { type: "json", required: true, defaultValue: {} },
-			trackingNumber: { type: "string", required: false },
-			trackingUrl: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	productDrop: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			description: { type: "string", required: false },
-			productIds: { type: "json", required: true, defaultValue: [] },
-			launchDate: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			endDate: { type: "date", required: false },
-			status: { type: "string", required: true, defaultValue: "scheduled" },
-			tweetId: { type: "string", required: false },
-			impressions: { type: "number", required: true, defaultValue: 0 },
-			clicks: { type: "number", required: true, defaultValue: 0 },
-			conversions: { type: "number", required: true, defaultValue: 0 },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

@@ -1,109 +1,38 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const announcementsSchema = {
-	announcement: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			title: {
-				type: "string",
-				required: true,
-			},
-			content: {
-				type: "string",
-				required: true,
-			},
-			type: {
-				type: ["bar", "banner", "popup"],
-				required: true,
-				defaultValue: "bar",
-			},
-			position: {
-				type: ["top", "bottom"],
-				required: true,
-				defaultValue: "top",
-			},
-			linkUrl: {
-				type: "string",
-				required: false,
-			},
-			linkText: {
-				type: "string",
-				required: false,
-			},
-			backgroundColor: {
-				type: "string",
-				required: false,
-			},
-			textColor: {
-				type: "string",
-				required: false,
-			},
-			iconName: {
-				type: "string",
-				required: false,
-			},
-			priority: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			isActive: {
-				type: "boolean",
-				required: true,
-				defaultValue: true,
-			},
-			isDismissible: {
-				type: "boolean",
-				required: true,
-				defaultValue: true,
-			},
-			startsAt: {
-				type: "date",
-				required: false,
-			},
-			endsAt: {
-				type: "date",
-				required: false,
-			},
-			targetAudience: {
-				type: ["all", "authenticated", "guest"],
-				required: true,
-				defaultValue: "all",
-			},
-			impressions: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			clicks: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			dismissals: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const announcementsAnnouncementShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	title: z.string(),
+	content: z.string(),
+	type: z.enum(["bar", "banner", "popup"]).default("bar"),
+	position: z.enum(["top", "bottom"]).default("top"),
+	linkUrl: z.string().optional(),
+	linkText: z.string().optional(),
+	backgroundColor: z.string().optional(),
+	textColor: z.string().optional(),
+	iconName: z.string().optional(),
+	priority: z.int().default(0),
+	isActive: z.boolean().default(true),
+	isDismissible: z.boolean().default(true),
+	startsAt: z.coerce.date().optional(),
+	endsAt: z.coerce.date().optional(),
+	targetAudience: z.enum(["all", "authenticated", "guest"]).default("all"),
+	impressions: z.int().default(0),
+	clicks: z.int().default(0),
+	dismissals: z.int().default(0),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for announcements. */
+export const announcementsStorage = {
+	kind: "relational",
+	tables: {
+		announcement: {
+			shape: announcementsAnnouncementShape,
 		},
 	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

@@ -1,115 +1,69 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const amazonSchema = {
-	listing: {
-		fields: {
-			id: { type: "string", required: true },
-			localProductId: { type: "string", required: true },
-			asin: { type: "string", required: false },
-			sku: { type: "string", required: true },
-			title: { type: "string", required: true },
-			status: {
-				type: "string",
-				required: true,
-				defaultValue: "incomplete",
-			},
-			fulfillmentChannel: {
-				type: "string",
-				required: true,
-				defaultValue: "FBM",
-			},
-			price: { type: "number", required: true },
-			quantity: { type: "number", required: true, defaultValue: 0 },
-			condition: {
-				type: "string",
-				required: true,
-				defaultValue: "new",
-			},
-			buyBoxOwned: {
-				type: "boolean",
-				required: true,
-				defaultValue: false,
-			},
-			lastSyncedAt: { type: "date", required: false },
-			error: { type: "string", required: false },
-			metadata: { type: "json", required: true, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const amazonListingShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	localProductId: z.string(),
+	asin: z.string().optional(),
+	sku: z.string(),
+	title: z.string(),
+	status: z.string().default("incomplete"),
+	fulfillmentChannel: z.string().default("FBM"),
+	price: z.number(),
+	quantity: z.int().default(0),
+	condition: z.string().default("new"),
+	buyBoxOwned: z.boolean().default(false),
+	lastSyncedAt: z.coerce.date().optional(),
+	error: z.string().optional(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const amazonAmazonOrderShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	amazonOrderId: z.string(),
+	status: z.string().default("pending"),
+	fulfillmentChannel: z.string().default("FBM"),
+	items: z.array(z.unknown()).default([]),
+	orderTotal: z.number(),
+	shippingTotal: z.number(),
+	marketplaceFee: z.number(),
+	netProceeds: z.number(),
+	buyerName: z.string().optional(),
+	shippingAddress: z.record(z.string(), z.unknown()).default({}),
+	shipDate: z.coerce.date().optional(),
+	trackingNumber: z.string().optional(),
+	carrier: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const amazonInventorySyncShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	status: z.string().default("pending"),
+	totalSkus: z.int().default(0),
+	updatedSkus: z.int().default(0),
+	failedSkus: z.int().default(0),
+	error: z.string().optional(),
+	startedAt: z.coerce.date().default(() => new Date()),
+	completedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for amazon. */
+export const amazonStorage = {
+	kind: "relational",
+	tables: {
+		listing: {
+			shape: amazonListingShape,
+		},
+		amazonOrder: {
+			shape: amazonAmazonOrderShape,
+		},
+		inventorySync: {
+			shape: amazonInventorySyncShape,
 		},
 	},
-	amazonOrder: {
-		fields: {
-			id: { type: "string", required: true },
-			amazonOrderId: { type: "string", required: true },
-			status: {
-				type: "string",
-				required: true,
-				defaultValue: "pending",
-			},
-			fulfillmentChannel: {
-				type: "string",
-				required: true,
-				defaultValue: "FBM",
-			},
-			items: { type: "json", required: true, defaultValue: [] },
-			orderTotal: { type: "number", required: true },
-			shippingTotal: { type: "number", required: true },
-			marketplaceFee: { type: "number", required: true },
-			netProceeds: { type: "number", required: true },
-			buyerName: { type: "string", required: false },
-			shippingAddress: {
-				type: "json",
-				required: true,
-				defaultValue: {},
-			},
-			shipDate: { type: "date", required: false },
-			trackingNumber: { type: "string", required: false },
-			carrier: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	inventorySync: {
-		fields: {
-			id: { type: "string", required: true },
-			status: {
-				type: "string",
-				required: true,
-				defaultValue: "pending",
-			},
-			totalSkus: { type: "number", required: true, defaultValue: 0 },
-			updatedSkus: { type: "number", required: true, defaultValue: 0 },
-			failedSkus: { type: "number", required: true, defaultValue: 0 },
-			error: { type: "string", required: false },
-			startedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			completedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

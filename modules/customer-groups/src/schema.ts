@@ -1,170 +1,82 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const customerGroupsSchema = {
-	customerGroup: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			name: {
-				type: "string",
-				required: true,
-			},
-			slug: {
-				type: "string",
-				required: true,
-				unique: true,
-			},
-			description: {
-				type: "string",
-				required: false,
-			},
-			type: {
-				type: "string",
-				required: true,
-				defaultValue: "manual",
-			},
-			isActive: {
-				type: "boolean",
-				required: true,
-				defaultValue: true,
-			},
-			priority: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const customerGroupsCustomerGroupShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	description: z.string().optional(),
+	type: z.string().default("manual"),
+	isActive: z.boolean().default(true),
+	priority: z.int().default(0),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const customerGroupsGroupMembershipShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	groupId: z.string().register(col, {
+		references: {
+			table: "self.customerGroup",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	customerId: z.string(),
+	joinedAt: z.coerce.date().default(() => new Date()),
+	expiresAt: z.coerce.date().optional(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+});
+
+export const customerGroupsGroupRuleShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	groupId: z.string().register(col, {
+		references: {
+			table: "self.customerGroup",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	field: z.string(),
+	operator: z.string(),
+	value: z.string(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const customerGroupsGroupPriceAdjustmentShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	groupId: z.string().register(col, {
+		references: {
+			table: "self.customerGroup",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	adjustmentType: z.string(),
+	value: z.number(),
+	scope: z.string().default("all"),
+	scopeId: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for customer-groups. */
+export const customerGroupsStorage = {
+	kind: "relational",
+	tables: {
+		customerGroup: {
+			shape: customerGroupsCustomerGroupShape,
+		},
+		groupMembership: {
+			shape: customerGroupsGroupMembershipShape,
+		},
+		groupRule: {
+			shape: customerGroupsGroupRuleShape,
+		},
+		groupPriceAdjustment: {
+			shape: customerGroupsGroupPriceAdjustmentShape,
 		},
 	},
-	groupMembership: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			groupId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "customerGroup",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			customerId: {
-				type: "string",
-				required: true,
-			},
-			joinedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			expiresAt: {
-				type: "date",
-				required: false,
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-		},
-	},
-	groupRule: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			groupId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "customerGroup",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			field: {
-				type: "string",
-				required: true,
-			},
-			operator: {
-				type: "string",
-				required: true,
-			},
-			value: {
-				type: "string",
-				required: true,
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	groupPriceAdjustment: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			groupId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "customerGroup",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			adjustmentType: {
-				type: "string",
-				required: true,
-			},
-			value: {
-				type: "number",
-				required: true,
-			},
-			scope: {
-				type: "string",
-				required: true,
-				defaultValue: "all",
-			},
-			scopeId: {
-				type: "string",
-				required: false,
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

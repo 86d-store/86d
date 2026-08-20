@@ -574,7 +574,7 @@ describe("createProductQaController", () => {
 			const mod = productQaModule();
 			expect(mod.id).toBe("product-qa");
 			expect(mod.version).toBe("0.0.1");
-			expect(mod.schema).toBeDefined();
+			expect(mod.storage).toBeDefined();
 			expect(mod.endpoints?.store).toBeDefined();
 			expect(mod.endpoints?.admin).toBeDefined();
 		});

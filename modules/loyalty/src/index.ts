@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { loyaltySchema } from "./schema";
+import { loyaltyStorage } from "./schema";
 import { createLoyaltyController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -34,7 +34,7 @@ export default function loyalty(options?: LoyaltyOptions): Module {
 	return {
 		id: "loyalty",
 		version: "0.0.1",
-		schema: loyaltySchema,
+		storage: loyaltyStorage,
 		exports: {
 			read: ["loyaltyBalance", "loyaltyTier", "loyaltyLifetimeEarned"],
 		},

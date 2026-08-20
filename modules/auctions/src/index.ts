@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { auctionsSchema } from "./schema";
+import { auctionsStorage } from "./schema";
 import { createAuctionController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -46,7 +46,7 @@ export default function auctions(options?: AuctionsOptions): Module {
 	return {
 		id: "auctions",
 		version: "0.0.1",
-		schema: auctionsSchema,
+		storage: auctionsStorage,
 
 		exports: {
 			read: ["auctionStatus", "currentBid", "highestBidder"],

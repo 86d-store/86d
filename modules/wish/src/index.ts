@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { wishSchema } from "./schema";
+import { wishStorage } from "./schema";
 import { createWishController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -28,7 +28,7 @@ export default function wish(options?: WishOptions): Module {
 	return {
 		id: "wish",
 		version: "0.1.0",
-		schema: wishSchema,
+		storage: wishStorage,
 		exports: {
 			read: [
 				"wishProductTitle",

@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { comparisonsSchema } from "./schema";
+import { comparisonsStorage } from "./schema";
 import { createComparisonController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -23,7 +23,7 @@ export default function comparisons(options?: ComparisonsOptions): Module {
 	return {
 		id: "comparisons",
 		version: "0.0.1",
-		schema: comparisonsSchema,
+		storage: comparisonsStorage,
 		exports: {
 			read: ["comparisonItems", "frequentlyCompared"],
 		},

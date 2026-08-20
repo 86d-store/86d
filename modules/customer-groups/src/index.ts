@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { customerGroupsSchema } from "./schema";
+import { customerGroupsStorage } from "./schema";
 import { createCustomerGroupControllers } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -45,7 +45,7 @@ export default function customerGroups(
 	return {
 		id: "customer-groups",
 		version: "1.0.0",
-		schema: customerGroupsSchema,
+		storage: customerGroupsStorage,
 		exports: {
 			read: [
 				"customerGroup",

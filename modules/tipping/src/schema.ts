@@ -1,81 +1,61 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const tippingSchema = {
-	tip: {
-		fields: {
-			id: { type: "string", required: true },
-			orderId: { type: "string", required: true },
-			amount: { type: "number", required: true },
-			percentage: { type: "number", required: false },
-			/** preset | custom */
-			type: { type: "string", required: true },
-			/** driver | server | staff | store */
-			recipientType: { type: "string", required: true },
-			recipientId: { type: "string", required: false },
-			customerId: { type: "string", required: false },
-			/** pending | paid | refunded */
-			status: { type: "string", required: true },
-			paidAt: { type: "date", required: false },
-			metadata: { type: "json", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const tippingTipShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	orderId: z.string(),
+	amount: z.number(),
+	percentage: z.number().optional(),
+	type: z.string(),
+	recipientType: z.string(),
+	recipientId: z.string().optional(),
+	customerId: z.string().optional(),
+	status: z.string(),
+	paidAt: z.coerce.date().optional(),
+	metadata: z.record(z.string(), z.unknown()),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const tippingTipPayoutShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	recipientId: z.string(),
+	recipientType: z.string(),
+	amount: z.number(),
+	tipCount: z.number(),
+	periodStart: z.coerce.date().default(() => new Date()),
+	periodEnd: z.coerce.date().default(() => new Date()),
+	status: z.string(),
+	paidAt: z.coerce.date().optional(),
+	reference: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const tippingTipSettingsShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	presetPercents: z.record(z.string(), z.unknown()),
+	allowCustom: z.boolean(),
+	maxPercent: z.number(),
+	maxAmount: z.number(),
+	enableSplitting: z.boolean(),
+	defaultRecipientType: z.string(),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for tipping. */
+export const tippingStorage = {
+	kind: "relational",
+	tables: {
+		tip: {
+			shape: tippingTipShape,
+		},
+		tipPayout: {
+			shape: tippingTipPayoutShape,
+		},
+		tipSettings: {
+			shape: tippingTipSettingsShape,
 		},
 	},
-	tipPayout: {
-		fields: {
-			id: { type: "string", required: true },
-			recipientId: { type: "string", required: true },
-			recipientType: { type: "string", required: true },
-			amount: { type: "number", required: true },
-			tipCount: { type: "number", required: true },
-			periodStart: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			periodEnd: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			/** pending | processing | paid | failed */
-			status: { type: "string", required: true },
-			paidAt: { type: "date", required: false },
-			reference: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	tipSettings: {
-		fields: {
-			id: { type: "string", required: true },
-			presetPercents: { type: "json", required: true },
-			allowCustom: { type: "boolean", required: true },
-			maxPercent: { type: "number", required: true },
-			maxAmount: { type: "number", required: true },
-			enableSplitting: { type: "boolean", required: true },
-			defaultRecipientType: { type: "string", required: true },
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

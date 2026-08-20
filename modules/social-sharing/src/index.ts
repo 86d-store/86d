@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { socialSharingSchema } from "./schema";
+import { socialSharingStorage } from "./schema";
 import { createSocialSharingController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -27,7 +27,7 @@ export default function socialSharing(options?: SocialSharingOptions): Module {
 	return {
 		id: "social-sharing",
 		version: "0.0.1",
-		schema: socialSharingSchema,
+		storage: socialSharingStorage,
 		exports: {
 			read: ["shareEventNetwork", "shareEventTargetType"],
 		},

@@ -196,6 +196,21 @@ export interface ModuleDataService<
 	delete(entityType: keyof E & string, entityId: string): Promise<void>;
 
 	/**
+	 * Get a single Config value by declared key. Missing rows return `undefined`.
+	 */
+	getConfig?(key: string): Promise<unknown>;
+
+	/**
+	 * Upsert a Config value after parsing through the key's Zod schema.
+	 */
+	upsertConfig?(key: string, value: unknown): Promise<void>;
+
+	/**
+	 * Delete a Config key. Unknown keys fail closed.
+	 */
+	deleteConfig?(key: string): Promise<void>;
+
+	/**
 	 * Find many entities with optional filtering.
 	 *
 	 * @example
@@ -556,6 +571,12 @@ export type Module = {
 	 * @example "1.0.0"
 	 */
 	version: string;
+
+	/**
+	 * Canonical storage declaration. Required: `{ kind: "none" }`,
+	 * `{ kind: "config", config }`, or `{ kind: "relational", ... }`.
+	 */
+	storage?: import("../schema/declaration").ModuleStorageDeclaration;
 
 	/**
 	 * Legacy compatibility metadata for declared fields. This never grants

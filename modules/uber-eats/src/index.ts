@@ -10,7 +10,7 @@ import {
 	createAdminEndpointsWithSettings,
 } from "./admin/endpoints/routes";
 import { UberEatsProvider } from "./provider";
-import { uberEatsSchema } from "./schema";
+import { uberEatsStorage } from "./schema";
 import type { UberEatsEntities } from "./service";
 import { createUberEatsController } from "./service-impl";
 import { createStoreEndpointsWithWebhook } from "./store/endpoints/routes";
@@ -63,7 +63,7 @@ export default function uberEats(options?: UberEatsOptions): Module {
 	return {
 		id: "uber-eats",
 		version: "0.0.1",
-		schema: uberEatsSchema,
+		storage: uberEatsStorage,
 		exports: {
 			read: ["uberOrderStatus", "uberOrderTotal"],
 		},

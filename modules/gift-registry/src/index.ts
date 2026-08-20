@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { giftRegistrySchema } from "./schema";
+import { giftRegistryStorage } from "./schema";
 import { createGiftRegistryController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -17,7 +17,7 @@ export default function giftRegistry(options?: GiftRegistryOptions): Module {
 	return {
 		id: "gift-registry",
 		version: "0.0.1",
-		schema: giftRegistrySchema,
+		storage: giftRegistryStorage,
 
 		exports: {
 			read: ["registryStatus", "registryItemCount", "registryProgress"],

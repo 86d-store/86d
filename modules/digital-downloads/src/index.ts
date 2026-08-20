@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { digitalDownloadsSchema } from "./schema";
+import { digitalDownloadsStorage } from "./schema";
 import { createDigitalDownloadsController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -27,7 +27,7 @@ export default function digitalDownloads(
 	return {
 		id: "digital-downloads",
 		version: "0.0.1",
-		schema: digitalDownloadsSchema,
+		storage: digitalDownloadsStorage,
 		exports: {
 			read: ["downloadFiles", "downloadTokens"],
 		},

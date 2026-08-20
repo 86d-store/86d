@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { discountCodeProvider } from "./capabilities";
-import { discountsSchema, discountsTables } from "./schema";
+import { discountsStorage } from "./schema";
 import { createDiscountController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -47,8 +47,7 @@ export default function discounts(options?: DiscountsOptions): Module {
 	return {
 		id: "discounts",
 		version: "0.0.1",
-		schema: discountsSchema,
-		tables: discountsTables,
+		storage: discountsStorage,
 		capabilities: { provides: [discountCodeProvider] },
 		exports: {
 			read: ["discountValidation", "discountAmount", "discountCode"],

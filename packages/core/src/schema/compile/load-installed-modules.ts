@@ -1,6 +1,7 @@
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { Module } from "../../types/module";
+import { resolveModuleStorage, storageTables } from "../declaration";
 
 const repoRoot = join(import.meta.dirname, "../../../../..");
 const modulesDir = join(repoRoot, "modules");
@@ -27,13 +28,29 @@ export async function loadInstalledModules(): Promise<Module[]> {
 	return loaded;
 }
 
-/** Modules that declare at least one compiled table, plus curated tier-none. */
+/** Modules with canonical storage (or legacy tables / empty schema). */
 export async function loadManifestModules(): Promise<Module[]> {
 	const modules = await loadInstalledModules();
-	return modules.filter(
-		(module) =>
+	return modules.filter((module) => {
+		const storage = resolveModuleStorage(module);
+		if (storage) {
+			return true;
+		}
+		return (
 			(module.tables && Object.keys(module.tables).length > 0) ||
 			!module.schema ||
-			Object.keys(module.schema).length === 0,
-	);
+			Object.keys(module.schema).length === 0
+		);
+	});
+}
+
+/** Helper for tests: relational table count across loaded Modules. */
+export function countRelationalModules(modules: readonly Module[]): number {
+	return modules.filter((module) => {
+		const storage = resolveModuleStorage(module);
+		if (storage) {
+			return Object.keys(storageTables(storage)).length > 0;
+		}
+		return Boolean(module.tables && Object.keys(module.tables).length > 0);
+	}).length;
 }

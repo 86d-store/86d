@@ -9,7 +9,7 @@ import {
 	createAdminEndpointsWithSettings,
 } from "./admin/endpoints/routes";
 import { ToastPosProvider } from "./provider";
-import { toastSchema } from "./schema";
+import { toastStorage } from "./schema";
 import { createToastController } from "./service-impl";
 import { createStoreEndpointsWithWebhook } from "./store/endpoints/routes";
 import { createToastWebhook } from "./store/endpoints/webhook";
@@ -60,7 +60,7 @@ export default function toast(options?: ToastOptions): Module {
 	return {
 		id: "toast",
 		version: "0.0.1",
-		schema: toastSchema,
+		storage: toastStorage,
 		exports: {
 			read: ["syncRecordStatus", "menuMappingId"],
 		},

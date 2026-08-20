@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { bulkPricingSchema } from "./schema";
+import { bulkPricingStorage } from "./schema";
 import { createBulkPricingController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -28,7 +28,7 @@ export default function bulkPricing(options?: BulkPricingOptions): Module {
 	return {
 		id: "bulk-pricing",
 		version: "0.0.1",
-		schema: bulkPricingSchema,
+		storage: bulkPricingStorage,
 		requires: ["products"],
 		exports: {
 			read: ["resolvedBulkPrice", "pricingTiers", "pricingRules"],

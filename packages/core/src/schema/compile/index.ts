@@ -1,5 +1,8 @@
 import type { Module } from "../../types/module";
 import type { TableDeclaration } from "../declaration";
+import { resolveModuleStorage, storageTables } from "../declaration";
+import { compileIsolationArtifacts, emitIsolationSql } from "../isolation";
+import { assertValidStorageDeclaration } from "../storage-validate";
 import { compileTableShape } from "./analyze-zod";
 import type { CompileModuleResult, CompileReport } from "./types";
 
@@ -106,26 +109,61 @@ function compileModuleTables(
 	return { moduleId, tables: compiled };
 }
 
-/** Compile all modules with `tables` declared; list others as not transcoded. */
+/** Resolve relational tables from canonical storage (or legacy `tables` during migration). */
+function resolveTables(
+	module: Module,
+): Readonly<Record<string, TableDeclaration>> {
+	const storage = resolveModuleStorage(module);
+	if (storage) {
+		assertValidStorageDeclaration(module.id, storage);
+		return storageTables(storage);
+	}
+	if (module.tables && Object.keys(module.tables).length > 0) {
+		return module.tables;
+	}
+	return {};
+}
+
+/**
+ * Compile Module storage declarations into table DDL (+ isolation SQL when storage is present).
+ * Modules without relational tables are omitted from `transcoded`.
+ */
 export function compileModuleDeclarations(
 	modules: readonly Module[],
 ): CompileReport {
 	const transcoded: CompileModuleResult[] = [];
 	const notTranscoded: string[] = [];
+	const withStorage: Module[] = [];
 
 	for (const module of modules) {
-		if (module.tables && Object.keys(module.tables).length > 0) {
-			transcoded.push(compileModuleTables(module.id, module.tables));
+		const storage = resolveModuleStorage(module);
+		if (storage) {
+			assertValidStorageDeclaration(module.id, storage);
+			withStorage.push(module);
+			const tables = storageTables(storage);
+			if (Object.keys(tables).length > 0) {
+				transcoded.push(compileModuleTables(module.id, tables));
+			}
+			continue;
+		}
+
+		const tables = resolveTables(module);
+		if (Object.keys(tables).length > 0) {
+			transcoded.push(compileModuleTables(module.id, tables));
 		} else if (module.schema && Object.keys(module.schema).length > 0) {
 			notTranscoded.push(module.id);
 		}
 	}
 
-	const sql = emitSql(transcoded);
+	const tableSql = emitSql(transcoded);
+	const isolation =
+		withStorage.length > 0
+			? emitIsolationSql(compileIsolationArtifacts(withStorage), transcoded)
+			: "";
+	const sql = isolation ? `${tableSql}\n${isolation}` : tableSql;
 
 	return { transcoded, notTranscoded, sql };
 }
-
 /** Format a human-readable report for stdout. */
 export function formatCompileReport(report: CompileReport): string {
 	const sections: string[] = [];

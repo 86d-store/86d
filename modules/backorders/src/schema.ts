@@ -1,56 +1,50 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const backordersSchema = {
-	backorder: {
-		fields: {
-			id: { type: "string", required: true },
-			productId: { type: "string", required: true },
-			productName: { type: "string", required: true },
-			variantId: { type: "string", required: false },
-			variantLabel: { type: "string", required: false },
-			customerId: { type: "string", required: true },
-			customerEmail: { type: "string", required: true },
-			orderId: { type: "string", required: false },
-			quantity: { type: "number", required: true },
-			status: { type: "string", required: true },
-			estimatedAvailableAt: { type: "date", required: false },
-			allocatedAt: { type: "date", required: false },
-			shippedAt: { type: "date", required: false },
-			cancelledAt: { type: "date", required: false },
-			cancelReason: { type: "string", required: false },
-			notes: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const backordersBackorderShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	productId: z.string(),
+	productName: z.string(),
+	variantId: z.string().optional(),
+	variantLabel: z.string().optional(),
+	customerId: z.string(),
+	customerEmail: z.string(),
+	orderId: z.string().optional(),
+	quantity: z.number(),
+	status: z.string(),
+	estimatedAvailableAt: z.coerce.date().optional(),
+	allocatedAt: z.coerce.date().optional(),
+	shippedAt: z.coerce.date().optional(),
+	cancelledAt: z.coerce.date().optional(),
+	cancelReason: z.string().optional(),
+	notes: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const backordersBackorderPolicyShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	productId: z.string(),
+	enabled: z.boolean(),
+	maxQuantityPerOrder: z.number().optional(),
+	maxTotalBackorders: z.number().optional(),
+	estimatedLeadDays: z.number().optional(),
+	autoConfirm: z.boolean(),
+	message: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for backorders. */
+export const backordersStorage = {
+	kind: "relational",
+	tables: {
+		backorder: {
+			shape: backordersBackorderShape,
+		},
+		backorderPolicy: {
+			shape: backordersBackorderPolicyShape,
 		},
 	},
-	backorderPolicy: {
-		fields: {
-			id: { type: "string", required: true },
-			productId: { type: "string", required: true },
-			enabled: { type: "boolean", required: true },
-			maxQuantityPerOrder: { type: "number", required: false },
-			maxTotalBackorders: { type: "number", required: false },
-			estimatedLeadDays: { type: "number", required: false },
-			autoConfirm: { type: "boolean", required: true },
-			message: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

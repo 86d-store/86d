@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { ResendNewsletterProvider } from "./email-provider";
-import { newsletterSchema, newsletterTables } from "./schema";
+import { newsletterStorage } from "./schema";
 import { createNewsletterController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -31,8 +31,7 @@ export default function newsletter(options?: NewsletterOptions): Module {
 	return {
 		id: "newsletter",
 		version: "0.0.1",
-		schema: newsletterSchema,
-		tables: newsletterTables,
+		storage: newsletterStorage,
 		exports: {
 			read: ["subscriberEmail", "subscriberStatus"],
 		},

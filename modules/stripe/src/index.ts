@@ -21,11 +21,13 @@ export interface StripeOptions extends ModuleConfig {
 	webhookSecret?: string | undefined;
 }
 
+const stripeStorage = { kind: "none" } as const;
+
 export default function stripe(options: StripeOptions): Module {
 	return {
 		id: "stripe",
 		version: "0.0.1",
-		schema: {},
+		storage: stripeStorage,
 		events: {
 			emits: [
 				"stripe.payment.succeeded",

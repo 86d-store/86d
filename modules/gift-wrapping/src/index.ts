@@ -6,7 +6,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { giftWrappingSchema } from "./schema";
+import { giftWrappingStorage } from "./schema";
 import { createGiftWrappingController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -19,7 +19,7 @@ export default function giftWrapping(options?: GiftWrappingOptions): Module {
 	return {
 		id: "gift-wrapping",
 		version: "0.0.1",
-		schema: giftWrappingSchema,
+		storage: giftWrappingStorage,
 
 		capabilities: {
 			accepts: [acceptCapability(orderCustomerAuthorizeCapability)],

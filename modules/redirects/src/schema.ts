@@ -1,28 +1,28 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const redirectsSchema = {
-	redirect: {
-		fields: {
-			id: { type: "string", required: true },
-			sourcePath: { type: "string", required: true, index: true },
-			targetPath: { type: "string", required: true },
-			statusCode: { type: "number", required: true },
-			isActive: { type: "boolean", required: true },
-			isRegex: { type: "boolean", required: true },
-			preserveQueryString: { type: "boolean", required: true },
-			note: { type: "string", required: false },
-			hitCount: { type: "number", required: true },
-			lastHitAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const redirectsRedirectShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	sourcePath: z.string().register(col, { index: true }),
+	targetPath: z.string(),
+	statusCode: z.number(),
+	isActive: z.boolean(),
+	isRegex: z.boolean(),
+	preserveQueryString: z.boolean(),
+	note: z.string().optional(),
+	hitCount: z.number(),
+	lastHitAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for redirects. */
+export const redirectsStorage = {
+	kind: "relational",
+	tables: {
+		redirect: {
+			shape: redirectsRedirectShape,
 		},
 	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

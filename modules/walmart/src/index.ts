@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
-import { walmartSchema } from "./schema";
+import { walmartStorage } from "./schema";
 import { createWalmartController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -45,7 +45,7 @@ export default function walmart(options?: WalmartOptions): Module {
 	return {
 		id: "walmart",
 		version: "0.2.0",
-		schema: walmartSchema,
+		storage: walmartStorage,
 		exports: {
 			read: ["itemTitle", "itemStatus", "itemPrice", "walmartItemId"],
 		},

@@ -15,7 +15,7 @@ import {
 	storeCustomerAuthBindingSchema,
 	storeCustomerIdentityInputSchema,
 } from "./identity-binding";
-import { customersSchema, customersTables } from "./schema";
+import { customersStorage } from "./schema";
 import { DEFAULT_LOYALTY_RULES } from "./service";
 import { createCustomerController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
@@ -68,8 +68,7 @@ export default function customers(options?: CustomersOptions): Module {
 	return {
 		id: "customers",
 		version: "0.0.1",
-		schema: customersSchema,
-		tables: customersTables,
+		storage: customersStorage,
 		capabilities: {
 			provides: [
 				customerContactResolveProvider,

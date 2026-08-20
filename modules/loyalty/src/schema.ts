@@ -1,91 +1,72 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const loyaltySchema = {
-	loyaltyAccount: {
-		fields: {
-			id: { type: "string", required: true },
-			customerId: { type: "string", required: true, unique: true },
-			balance: { type: "number", required: true, defaultValue: 0 },
-			lifetimeEarned: { type: "number", required: true, defaultValue: 0 },
-			lifetimeRedeemed: { type: "number", required: true, defaultValue: 0 },
-			tier: {
-				type: ["bronze", "silver", "gold", "platinum"] as const,
-				required: true,
-				defaultValue: "bronze",
-			},
-			status: {
-				type: ["active", "suspended", "closed"] as const,
-				required: true,
-				defaultValue: "active",
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const loyaltyLoyaltyAccountShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	customerId: z.string().register(col, { unique: true }),
+	balance: z.int().default(0),
+	lifetimeEarned: z.int().default(0),
+	lifetimeRedeemed: z.int().default(0),
+	tier: z.enum(["bronze", "silver", "gold", "platinum"]).default("bronze"),
+	status: z.enum(["active", "suspended", "closed"]).default("active"),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const loyaltyLoyaltyTransactionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	accountId: z.string().register(col, {
+		references: {
+			table: "self.loyaltyAccount",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	type: z.enum(["earn", "redeem", "adjust", "expire"]),
+	points: z.number(),
+	description: z.string(),
+	orderId: z.string().optional(),
+	ledgerKey: z.string().register(col, { unique: true }).optional(),
+	metadata: z.record(z.string(), z.unknown()).optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const loyaltyLoyaltyRuleShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	type: z.enum(["per_dollar", "fixed_bonus", "multiplier", "signup"]),
+	points: z.number(),
+	minOrderAmount: z.number().optional(),
+	active: z.boolean().default(true),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const loyaltyLoyaltyTierShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	minPoints: z.number(),
+	multiplier: z.int().default(1),
+	perks: z.record(z.string(), z.unknown()).optional(),
+	sortOrder: z.int().default(0),
+});
+
+/** Native Relational storage for loyalty. */
+export const loyaltyStorage = {
+	kind: "relational",
+	tables: {
+		loyaltyAccount: {
+			shape: loyaltyLoyaltyAccountShape,
+		},
+		loyaltyTransaction: {
+			shape: loyaltyLoyaltyTransactionShape,
+		},
+		loyaltyRule: {
+			shape: loyaltyLoyaltyRuleShape,
+		},
+		loyaltyTier: {
+			shape: loyaltyLoyaltyTierShape,
 		},
 	},
-	loyaltyTransaction: {
-		fields: {
-			id: { type: "string", required: true },
-			accountId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "loyaltyAccount",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			type: {
-				type: ["earn", "redeem", "adjust", "expire"] as const,
-				required: true,
-			},
-			points: { type: "number", required: true },
-			description: { type: "string", required: true },
-			orderId: { type: "string", required: false },
-			ledgerKey: { type: "string", required: false, unique: true },
-			metadata: { type: "json", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	loyaltyRule: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			type: {
-				type: ["per_dollar", "fixed_bonus", "multiplier", "signup"] as const,
-				required: true,
-			},
-			points: { type: "number", required: true },
-			minOrderAmount: { type: "number", required: false },
-			active: { type: "boolean", required: true, defaultValue: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	loyaltyTier: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			slug: { type: "string", required: true, unique: true },
-			minPoints: { type: "number", required: true },
-			multiplier: { type: "number", required: true, defaultValue: 1 },
-			perks: { type: "json", required: false },
-			sortOrder: { type: "number", required: true, defaultValue: 0 },
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

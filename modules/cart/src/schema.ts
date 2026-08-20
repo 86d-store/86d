@@ -1,120 +1,46 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const cartSchema = {
-	cart: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			customerId: {
-				type: "string",
-				required: false,
-			},
-			guestId: {
-				type: "string",
-				required: false,
-				unique: true,
-			},
-			status: {
-				type: ["active", "abandoned", "converted"],
-				required: true,
-				defaultValue: "active",
-			},
-			expiresAt: {
-				type: "date",
-				required: true,
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const cartCartShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	customerId: z.string().optional(),
+	guestId: z.string().register(col, { unique: true }).optional(),
+	status: z.enum(["active", "abandoned", "converted"]).default("active"),
+	expiresAt: z.coerce.date(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const cartCartItemShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	cartId: z.string().register(col, {
+		references: { table: "self.cart", column: "id", onDelete: "cascade" },
+	}),
+	productId: z.string(),
+	variantId: z.string().optional(),
+	quantity: z.int().default(1),
+	price: z.number(),
+	productName: z.string(),
+	productSlug: z.string(),
+	productImage: z.string().optional(),
+	variantName: z.string().optional(),
+	variantOptions: z.record(z.string(), z.unknown()).default({}),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for cart. */
+export const cartStorage = {
+	kind: "relational",
+	tables: {
+		cart: {
+			shape: cartCartShape,
+		},
+		cartItem: {
+			shape: cartCartItemShape,
 		},
 	},
-	cartItem: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			cartId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "cart",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			productId: {
-				type: "string",
-				required: true,
-			},
-			variantId: {
-				type: "string",
-				required: false,
-			},
-			quantity: {
-				type: "number",
-				required: true,
-				defaultValue: 1,
-			},
-			price: {
-				type: "number",
-				required: true,
-			},
-			productName: {
-				type: "string",
-				required: true,
-			},
-			productSlug: {
-				type: "string",
-				required: true,
-			},
-			productImage: {
-				type: "string",
-				required: false,
-			},
-			variantName: {
-				type: "string",
-				required: false,
-			},
-			variantOptions: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
-
-export const cartTables = transcodeModuleSchema(cartSchema);
+} as const satisfies ModuleStorageDeclaration;

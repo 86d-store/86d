@@ -1,75 +1,58 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const referralsSchema = {
-	referralCode: {
-		fields: {
-			id: { type: "string", required: true },
-			customerId: { type: "string", required: true },
-			customerEmail: { type: "string", required: false },
-			code: { type: "string", required: true },
-			active: { type: "boolean", required: true, defaultValue: true },
-			usageCount: { type: "number", required: true, defaultValue: 0 },
-			maxUses: { type: "number", required: true, defaultValue: 0 },
-			expiresAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const referralsReferralCodeShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	customerId: z.string(),
+	customerEmail: z.string().optional(),
+	code: z.string(),
+	active: z.boolean().default(true),
+	usageCount: z.int().default(0),
+	maxUses: z.int().default(0),
+	expiresAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const referralsReferralShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	referrerCodeId: z.string(),
+	referrerCustomerId: z.string(),
+	referrerEmail: z.string().optional(),
+	refereeCustomerId: z.string(),
+	refereeEmail: z.string(),
+	status: z.string().default("pending"),
+	referrerRewarded: z.boolean().default(false),
+	refereeRewarded: z.boolean().default(false),
+	completedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const referralsRewardRuleShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	referrerRewardType: z.string(),
+	referrerRewardValue: z.number(),
+	refereeRewardType: z.string(),
+	refereeRewardValue: z.number(),
+	minOrderAmount: z.int().default(0),
+	active: z.boolean().default(true),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for referrals. */
+export const referralsStorage = {
+	kind: "relational",
+	tables: {
+		referralCode: {
+			shape: referralsReferralCodeShape,
+		},
+		referral: {
+			shape: referralsReferralShape,
+		},
+		rewardRule: {
+			shape: referralsRewardRuleShape,
 		},
 	},
-	referral: {
-		fields: {
-			id: { type: "string", required: true },
-			referrerCodeId: { type: "string", required: true },
-			referrerCustomerId: { type: "string", required: true },
-			referrerEmail: { type: "string", required: false },
-			refereeCustomerId: { type: "string", required: true },
-			refereeEmail: { type: "string", required: true },
-			status: {
-				type: "string",
-				required: true,
-				defaultValue: "pending",
-			},
-			referrerRewarded: {
-				type: "boolean",
-				required: true,
-				defaultValue: false,
-			},
-			refereeRewarded: {
-				type: "boolean",
-				required: true,
-				defaultValue: false,
-			},
-			completedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	rewardRule: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			referrerRewardType: { type: "string", required: true },
-			referrerRewardValue: { type: "number", required: true },
-			refereeRewardType: { type: "string", required: true },
-			refereeRewardValue: { type: "number", required: true },
-			minOrderAmount: { type: "number", required: true, defaultValue: 0 },
-			active: { type: "boolean", required: true, defaultValue: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

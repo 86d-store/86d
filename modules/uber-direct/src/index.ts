@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
-import { uberDirectSchema } from "./schema";
+import { uberDirectStorage } from "./schema";
 import { createUberDirectController } from "./service-impl";
 import { createStoreEndpoints, storeEndpoints } from "./store/endpoints/routes";
 import { createUberDirectWebhook } from "./store/endpoints/webhook";
@@ -52,7 +52,7 @@ export default function uberDirect(options?: UberDirectOptions): Module {
 	return {
 		id: "uber-direct",
 		version: "0.1.0",
-		schema: uberDirectSchema,
+		storage: uberDirectStorage,
 		exports: {
 			read: ["deliveryStatus", "deliveryTracking"],
 		},

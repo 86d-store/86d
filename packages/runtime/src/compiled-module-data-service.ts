@@ -156,7 +156,40 @@ export type CompiledModuleDataServiceConfig<
 	moduleId: string;
 	moduleDbId: string;
 	compiled: readonly CompileModuleResult[];
+	/** When true, each transaction enters the Module role via SET LOCAL ROLE. */
+	enforceIsolation?: boolean;
+	/** Postgres role name for this Module (defaults to mod_<moduleId>). */
+	roleName?: string;
+	/** Declared Config key schemas for this Module. */
+	configSchemas?: Readonly<
+		Record<string, { parse: (value: unknown) => unknown }>
+	>;
 }>;
+
+/** Typed failure when Module role context is missing or mismatched. */
+export class ModuleRoleContextError extends Error {
+	readonly code:
+		| "ROLE_CONTEXT_MISSING"
+		| "ROLE_CONTEXT_MISMATCH"
+		| "RAW_CONNECTION_DENIED";
+
+	constructor(code: ModuleRoleContextError["code"], message: string) {
+		super(message);
+		this.name = "ModuleRoleContextError";
+		this.code = code;
+	}
+}
+
+/** Typed failure for Config key allow-list violations. */
+export class ModuleConfigAccessError extends Error {
+	readonly code: "CONFIG_KEY_DENIED" | "CONFIG_KEY_INVALID";
+
+	constructor(code: ModuleConfigAccessError["code"], message: string) {
+		super(message);
+		this.name = "ModuleConfigAccessError";
+		this.code = code;
+	}
+}
 
 /**
  * Production ModuleDataService over compiled `mod_<moduleId>` tables.
@@ -173,12 +206,27 @@ export class CompiledModuleDataService<
 	readonly #moduleDbId: string;
 	readonly #tables = new Map<string, PgTable>();
 	readonly #compiled = new Map<string, CompiledTable>();
+	readonly #enforceIsolation: boolean;
+	readonly #roleName: string;
+	readonly #configSchemas: Readonly<
+		Record<string, { parse: (value: unknown) => unknown }>
+	>;
+	readonly #roleActive: boolean;
 
-	constructor(config: CompiledModuleDataServiceConfig<TSchema>) {
+	constructor(
+		config: CompiledModuleDataServiceConfig<TSchema> & {
+			roleActive?: boolean;
+		},
+	) {
 		this.#db = config.db;
 		this.#storeId = config.storeId;
 		this.#moduleId = config.moduleId;
 		this.#moduleDbId = config.moduleDbId;
+		this.#enforceIsolation = config.enforceIsolation === true;
+		this.#roleName =
+			config.roleName ?? `mod_${config.moduleId.replace(/-/g, "_")}`;
+		this.#configSchemas = config.configSchemas ?? {};
+		this.#roleActive = config.roleActive === true;
 		for (const moduleResult of config.compiled) {
 			if (moduleResult.moduleId !== config.moduleId) {
 				continue;
@@ -189,6 +237,50 @@ export class CompiledModuleDataService<
 				this.#tables.set(key, buildDrizzleTable(table));
 			}
 		}
+	}
+
+	/** Raw database handles are never exposed to Modules. */
+	getConnection(): never {
+		throw new ModuleRoleContextError(
+			"RAW_CONNECTION_DENIED",
+			"Modules cannot obtain a raw database connection.",
+		);
+	}
+
+	#assertRoleContext(): void {
+		if (!this.#enforceIsolation) {
+			return;
+		}
+		if (!this.#roleActive) {
+			throw new ModuleRoleContextError(
+				"ROLE_CONTEXT_MISSING",
+				`Module "${this.#moduleId}" operation requires an active role transaction.`,
+			);
+		}
+	}
+
+	async #enterRole(db: Db): Promise<void> {
+		if (!this.#enforceIsolation) {
+			return;
+		}
+		await (
+			db as unknown as {
+				execute: (q: unknown) => Promise<unknown>;
+			}
+		).execute(sql.raw(`SET LOCAL ROLE ${this.#roleName}`));
+	}
+
+	#requireConfigKey(key: string): {
+		parse: (value: unknown) => unknown;
+	} {
+		const schema = this.#configSchemas[key];
+		if (!schema) {
+			throw new ModuleConfigAccessError(
+				"CONFIG_KEY_DENIED",
+				`Config key "${key}" is not declared for Module "${this.#moduleId}".`,
+			);
+		}
+		return schema;
 	}
 
 	#requireTable(entityType: string): {
@@ -204,7 +296,7 @@ export class CompiledModuleDataService<
 		return { table, compiled };
 	}
 
-	#scoped(db: Db): CompiledModuleDataService<E> {
+	#scoped(db: Db, roleActive = this.#roleActive): CompiledModuleDataService<E> {
 		return new CompiledModuleDataService({
 			db,
 			storeId: this.#storeId,
@@ -215,6 +307,10 @@ export class CompiledModuleDataService<
 				tables: [table],
 				errors: [],
 			})),
+			enforceIsolation: this.#enforceIsolation,
+			roleName: this.#roleName,
+			configSchemas: this.#configSchemas,
+			roleActive,
 		});
 	}
 
@@ -222,6 +318,7 @@ export class CompiledModuleDataService<
 		entityType: K,
 		entityId: string,
 	): Promise<E[K] | null> {
+		this.#assertRoleContext();
 		const { table, compiled } = this.#requireTable(entityType);
 		const rows = await this.#db
 			.select()
@@ -240,6 +337,7 @@ export class CompiledModuleDataService<
 		entityType: string,
 		entityId: string,
 	): Promise<Record<string, unknown> | null> {
+		this.#assertRoleContext();
 		const { table, compiled } = this.#requireTable(entityType);
 		const rows = await this.#db
 			.select()
@@ -260,6 +358,7 @@ export class CompiledModuleDataService<
 		entityId: string,
 		data: E[K],
 	): Promise<void> {
+		this.#assertRoleContext();
 		const { table, compiled } = this.#requireTable(entityType);
 		const parsed = parseStorageWrite(compiled, {
 			...(data as Record<string, unknown>),
@@ -277,6 +376,7 @@ export class CompiledModuleDataService<
 	}
 
 	async delete(entityType: keyof E & string, entityId: string): Promise<void> {
+		this.#assertRoleContext();
 		const { table } = this.#requireTable(entityType);
 		await this.#db.delete(table).where(sql`"id" = ${entityId}`);
 	}
@@ -290,6 +390,7 @@ export class CompiledModuleDataService<
 			skip?: number;
 		},
 	): Promise<E[K][]> {
+		this.#assertRoleContext();
 		const { table, compiled } = this.#requireTable(entityType);
 		const tableColumns = table as unknown as Record<string, PgColumn>;
 		const filters: SQL[] = [];
@@ -336,10 +437,87 @@ export class CompiledModuleDataService<
 		});
 	}
 
+	async getConfig(key: string): Promise<unknown> {
+		this.#assertRoleContext();
+		this.#requireConfigKey(key);
+		if (this.#enforceIsolation) {
+			const prefix = `cfg_${this.#moduleId.replace(/-/g, "_")}`;
+			const result = await (
+				this.#db as unknown as {
+					execute: (
+						q: unknown,
+					) => Promise<{ rows: Array<{ result?: unknown }> }>;
+				}
+			).execute(sql`SELECT core.${sql.raw(prefix)}_get(${key}) AS result`);
+			const value = result.rows?.[0]?.result;
+			return value === null ? undefined : value;
+		}
+		const result = await (
+			this.#db as unknown as {
+				execute: (q: unknown) => Promise<{ rows: Array<{ value?: unknown }> }>;
+			}
+		).execute(
+			sql`SELECT value FROM core.module_config WHERE module_id = ${this.#moduleId} AND key = ${key} LIMIT 1`,
+		);
+		const value = result.rows?.[0]?.value;
+		return value === undefined || value === null ? undefined : value;
+	}
+
+	async upsertConfig(key: string, value: unknown): Promise<void> {
+		this.#assertRoleContext();
+		const schema = this.#requireConfigKey(key);
+		let parsed: unknown;
+		try {
+			parsed = schema.parse(value);
+		} catch (error) {
+			throw new ModuleConfigAccessError(
+				"CONFIG_KEY_INVALID",
+				error instanceof Error
+					? error.message
+					: `Invalid value for Config key "${key}".`,
+			);
+		}
+		if (this.#enforceIsolation) {
+			const prefix = `cfg_${this.#moduleId.replace(/-/g, "_")}`;
+			await (
+				this.#db as unknown as { execute: (q: unknown) => Promise<unknown> }
+			).execute(
+				sql`SELECT core.${sql.raw(prefix)}_upsert(${key}, ${JSON.stringify(parsed)}::jsonb)`,
+			);
+			return;
+		}
+		await (
+			this.#db as unknown as { execute: (q: unknown) => Promise<unknown> }
+		).execute(
+			sql`INSERT INTO core.module_config (module_id, key, value)
+			VALUES (${this.#moduleId}, ${key}, ${JSON.stringify(parsed)}::jsonb)
+			ON CONFLICT (module_id, key) DO UPDATE
+			SET value = EXCLUDED.value, updated_at = CURRENT_TIMESTAMP`,
+		);
+	}
+
+	async deleteConfig(key: string): Promise<void> {
+		this.#assertRoleContext();
+		this.#requireConfigKey(key);
+		if (this.#enforceIsolation) {
+			const prefix = `cfg_${this.#moduleId.replace(/-/g, "_")}`;
+			await (
+				this.#db as unknown as { execute: (q: unknown) => Promise<unknown> }
+			).execute(sql`SELECT core.${sql.raw(prefix)}_delete(${key})`);
+			return;
+		}
+		await (
+			this.#db as unknown as { execute: (q: unknown) => Promise<unknown> }
+		).execute(
+			sql`DELETE FROM core.module_config WHERE module_id = ${this.#moduleId} AND key = ${key}`,
+		);
+	}
+
 	async count(
 		entityType: string,
 		where?: Record<string, unknown>,
 	): Promise<number> {
+		this.#assertRoleContext();
 		const { table } = this.#requireTable(entityType);
 		const tableColumns = table as unknown as Record<string, PgColumn>;
 		const filters: SQL[] = [];
@@ -369,7 +547,8 @@ export class CompiledModuleDataService<
 		}>,
 	): Promise<void> {
 		await this.#db.transaction(async (tx) => {
-			const scoped = this.#scoped(tx as unknown as Db);
+			await this.#enterRole(tx as unknown as Db);
+			const scoped = this.#scoped(tx as unknown as Db, true);
 			for (const entity of entities) {
 				await scoped.upsert(
 					entity.entityType,
@@ -384,16 +563,26 @@ export class CompiledModuleDataService<
 		work: (transaction: ModuleDataTransaction) => Promise<T>,
 	): Promise<T> {
 		return this.#db.transaction(async (tx) => {
-			return work(this.transactionContext(tx as unknown as Db));
+			await this.#enterRole(tx as unknown as Db);
+			return work(this.transactionContext(tx as unknown as Db, true));
 		});
 	}
 
 	currentTransaction(): LockingModuleDataTransaction {
-		return this.transactionContext(this.#db);
+		if (this.#enforceIsolation && !this.#roleActive) {
+			throw new ModuleRoleContextError(
+				"ROLE_CONTEXT_MISSING",
+				`Module "${this.#moduleId}" has no active role transaction.`,
+			);
+		}
+		return this.transactionContext(this.#db, this.#roleActive);
 	}
 
-	private transactionContext(db: Db): LockingModuleDataTransaction {
-		const ownerData = this.#scoped(db);
+	private transactionContext(
+		db: Db,
+		roleActive: boolean,
+	): LockingModuleDataTransaction {
+		const ownerData = this.#scoped(db, roleActive);
 		return Object.assign(ownerData, {
 			emit: <D extends AnyDurableEventDefinition>(
 				definition: D,

@@ -50,6 +50,7 @@ describe("generate", () => {
 		});
 
 		vi.doMock("node:child_process", () => ({
+			execFileSync: mockExecSync,
 			execSync: mockExecSync,
 		}));
 
@@ -61,22 +62,27 @@ describe("generate", () => {
 		await runGenerate(["modules"]);
 
 		expect(mockExecSync).toHaveBeenCalledTimes(1);
-		expect(mockExecSync.mock.calls[0][0]).toContain("generate-modules.ts");
+		expect(String(mockExecSync.mock.calls[0]?.[1]?.[0] ?? "")).toContain(
+			"generate-modules.ts",
+		);
 	});
 
 	it("runs component docs script", async () => {
 		await runGenerate(["components"]);
 
 		expect(mockExecSync).toHaveBeenCalledTimes(1);
-		expect(mockExecSync.mock.calls[0][0]).toContain(
+		expect(String(mockExecSync.mock.calls[0]?.[1]?.[0] ?? "")).toContain(
 			"generate-component-docs.ts",
 		);
 	});
 
 	it("runs both scripts when called with no subcommand", async () => {
+		mkdirSync(join(tempDir, "apps/registry/src"), { recursive: true });
+		writeFileSync(join(tempDir, "apps/registry/src/generate-manifest.ts"), "");
+
 		await runGenerate([]);
 
-		expect(mockExecSync).toHaveBeenCalledTimes(2);
+		expect(mockExecSync).toHaveBeenCalledTimes(3);
 	});
 
 	it("exits with error when module script is missing", async () => {

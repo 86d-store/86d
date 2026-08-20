@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { appointmentsSchema } from "./schema";
+import { appointmentsStorage } from "./schema";
 import { createAppointmentController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -35,7 +35,7 @@ export default function appointments(options?: AppointmentsOptions): Module {
 	return {
 		id: "appointments",
 		version: "0.0.1",
-		schema: appointmentsSchema,
+		storage: appointmentsStorage,
 		exports: {
 			read: [
 				"availableSlots",

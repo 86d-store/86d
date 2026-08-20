@@ -1,57 +1,45 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const productQaSchema = {
-	question: {
-		fields: {
-			id: { type: "string", required: true },
-			productId: { type: "string", required: true },
-			customerId: { type: "string", required: false },
-			authorName: { type: "string", required: true },
-			authorEmail: { type: "string", required: true },
-			body: { type: "string", required: true },
-			status: { type: "string", required: true, defaultValue: "pending" },
-			upvoteCount: { type: "number", required: true, defaultValue: 0 },
-			answerCount: { type: "number", required: true, defaultValue: 0 },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const productQaQuestionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	productId: z.string(),
+	customerId: z.string().optional(),
+	authorName: z.string(),
+	authorEmail: z.string(),
+	body: z.string(),
+	status: z.string().default("pending"),
+	upvoteCount: z.int().default(0),
+	answerCount: z.int().default(0),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const productQaAnswerShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	questionId: z.string(),
+	productId: z.string(),
+	customerId: z.string().optional(),
+	authorName: z.string(),
+	authorEmail: z.string(),
+	body: z.string(),
+	isOfficial: z.boolean().default(false),
+	upvoteCount: z.int().default(0),
+	status: z.string().default("pending"),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for product-qa. */
+export const productQaStorage = {
+	kind: "relational",
+	tables: {
+		question: {
+			shape: productQaQuestionShape,
+		},
+		answer: {
+			shape: productQaAnswerShape,
 		},
 	},
-	answer: {
-		fields: {
-			id: { type: "string", required: true },
-			questionId: { type: "string", required: true },
-			productId: { type: "string", required: true },
-			customerId: { type: "string", required: false },
-			authorName: { type: "string", required: true },
-			authorEmail: { type: "string", required: true },
-			body: { type: "string", required: true },
-			isOfficial: {
-				type: "boolean",
-				required: true,
-				defaultValue: false,
-			},
-			upvoteCount: { type: "number", required: true, defaultValue: 0 },
-			status: { type: "string", required: true, defaultValue: "pending" },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

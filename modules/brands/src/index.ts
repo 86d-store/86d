@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { brandsSchema } from "./schema";
+import { brandsStorage } from "./schema";
 import { createBrandController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -25,7 +25,7 @@ export default function brands(options?: BrandsOptions): Module {
 	return {
 		id: "brands",
 		version: "0.0.1",
-		schema: brandsSchema,
+		storage: brandsStorage,
 		exports: {
 			read: ["activeBrands", "featuredBrands", "brandProducts", "productBrand"],
 		},

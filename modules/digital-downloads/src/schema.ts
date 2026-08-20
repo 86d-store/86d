@@ -1,50 +1,42 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const digitalDownloadsSchema = {
-	downloadableFile: {
-		fields: {
-			id: { type: "string", required: true },
-			productId: { type: "string", required: true },
-			name: { type: "string", required: true },
-			url: { type: "string", required: true },
-			fileSize: { type: "number", required: false },
-			mimeType: { type: "string", required: false },
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const digitalDownloadsDownloadableFileShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	productId: z.string(),
+	name: z.string(),
+	url: z.string(),
+	fileSize: z.number().optional(),
+	mimeType: z.string().optional(),
+	isActive: z.boolean().default(true),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const digitalDownloadsDownloadTokenShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	token: z.string(),
+	fileId: z.string(),
+	orderId: z.string().optional(),
+	email: z.string(),
+	maxDownloads: z.number().optional(),
+	downloadCount: z.int().default(0),
+	expiresAt: z.coerce.date().optional(),
+	revokedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for digital-downloads. */
+export const digitalDownloadsStorage = {
+	kind: "relational",
+	tables: {
+		downloadableFile: {
+			shape: digitalDownloadsDownloadableFileShape,
+		},
+		downloadToken: {
+			shape: digitalDownloadsDownloadTokenShape,
 		},
 	},
-	downloadToken: {
-		fields: {
-			id: { type: "string", required: true },
-			token: { type: "string", required: true },
-			fileId: { type: "string", required: true },
-			orderId: { type: "string", required: false },
-			email: { type: "string", required: true },
-			maxDownloads: { type: "number", required: false },
-			downloadCount: { type: "number", required: true, defaultValue: 0 },
-			expiresAt: { type: "date", required: false },
-			revokedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

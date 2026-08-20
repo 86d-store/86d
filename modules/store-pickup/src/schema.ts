@@ -1,183 +1,107 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const storePickupSchema = {
-	pickupLocation: {
-		fields: {
-			id: { type: "string", required: true },
-			/** Display name (e.g. "Downtown Flagship Store") */
-			name: { type: "string", required: true },
-			/** Street address line 1 */
-			address: { type: "string", required: true },
-			/** City */
-			city: { type: "string", required: true },
-			/** State / province / region */
-			state: { type: "string", required: true },
-			/** ZIP / postal code */
-			postalCode: { type: "string", required: true },
-			/** ISO 3166-1 alpha-2 country code */
-			country: { type: "string", required: true },
-			/** Contact phone number */
-			phone: { type: "string", required: false },
-			/** Contact email */
-			email: { type: "string", required: false },
-			/** Latitude for map display */
-			latitude: { type: "number", required: false },
-			/** Longitude for map display */
-			longitude: { type: "number", required: false },
-			/** Minutes needed to prepare an order for pickup */
-			preparationMinutes: {
-				type: "number",
-				required: true,
-				defaultValue: 60,
-			},
-			/** Whether this location accepts new pickups */
-			active: { type: "boolean", required: true, defaultValue: true },
-			/** Display order */
-			sortOrder: { type: "number", required: true, defaultValue: 0 },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const storePickupPickupLocationShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	address: z.string(),
+	city: z.string(),
+	state: z.string(),
+	postalCode: z.string(),
+	country: z.string(),
+	phone: z.string().optional(),
+	email: z.string().optional(),
+	latitude: z.number().optional(),
+	longitude: z.number().optional(),
+	preparationMinutes: z.int().default(60),
+	active: z.boolean().default(true),
+	sortOrder: z.int().default(0),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const storePickupPickupWindowShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	locationId: z.string().register(col, {
+		references: {
+			table: "self.pickupLocation",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	dayOfWeek: z.number(),
+	startTime: z.string(),
+	endTime: z.string(),
+	capacity: z.number(),
+	active: z.boolean().default(true),
+	sortOrder: z.int().default(0),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const storePickupPickupOrderShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	locationId: z.string().register(col, {
+		references: {
+			table: "self.pickupLocation",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	windowId: z.string().register(col, {
+		references: {
+			table: "self.pickupWindow",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	orderId: z.string().register(col, { index: true }),
+	customerId: z.string().register(col, { index: true }).optional(),
+	scheduledDate: z.string().register(col, { index: true }),
+	locationName: z.string(),
+	locationAddress: z.string(),
+	startTime: z.string(),
+	endTime: z.string(),
+	status: z.enum(["scheduled", "preparing", "ready", "picked_up", "cancelled"]),
+	notes: z.string().optional(),
+	preparingAt: z.coerce.date().optional(),
+	readyAt: z.coerce.date().optional(),
+	pickedUpAt: z.coerce.date().optional(),
+	cancelledAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const storePickupPickupBlackoutShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	locationId: z.string().register(col, {
+		references: {
+			table: "self.pickupLocation",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	date: z.string().register(col, { index: true }),
+	reason: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for store-pickup. */
+export const storePickupStorage = {
+	kind: "relational",
+	tables: {
+		pickupLocation: {
+			shape: storePickupPickupLocationShape,
+		},
+		pickupWindow: {
+			shape: storePickupPickupWindowShape,
+		},
+		pickupOrder: {
+			shape: storePickupPickupOrderShape,
+		},
+		pickupBlackout: {
+			shape: storePickupPickupBlackoutShape,
 		},
 	},
-	pickupWindow: {
-		fields: {
-			id: { type: "string", required: true },
-			/** Parent location */
-			locationId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "pickupLocation",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			/** Day of week: 0 = Sunday … 6 = Saturday */
-			dayOfWeek: { type: "number", required: true },
-			/** Start time in HH:MM 24-hour format */
-			startTime: { type: "string", required: true },
-			/** End time in HH:MM 24-hour format */
-			endTime: { type: "string", required: true },
-			/** Maximum simultaneous pickups in this window */
-			capacity: { type: "number", required: true },
-			/** Whether this window is bookable */
-			active: { type: "boolean", required: true, defaultValue: true },
-			/** Display order within the same location/day */
-			sortOrder: { type: "number", required: true, defaultValue: 0 },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	pickupOrder: {
-		fields: {
-			id: { type: "string", required: true },
-			/** Location where pickup will happen */
-			locationId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "pickupLocation",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			/** Window used to schedule this pickup */
-			windowId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "pickupWindow",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			/** Associated commerce order */
-			orderId: { type: "string", required: true, index: true },
-			/** Customer who placed the order */
-			customerId: { type: "string", required: false, index: true },
-			/** Scheduled pickup date (YYYY-MM-DD) */
-			scheduledDate: { type: "string", required: true, index: true },
-			/** Denormalized location name */
-			locationName: { type: "string", required: true },
-			/** Denormalized location address */
-			locationAddress: { type: "string", required: true },
-			/** Denormalized window start time */
-			startTime: { type: "string", required: true },
-			/** Denormalized window end time */
-			endTime: { type: "string", required: true },
-			/** Pickup lifecycle status */
-			status: {
-				type: [
-					"scheduled",
-					"preparing",
-					"ready",
-					"picked_up",
-					"cancelled",
-				] as const,
-				required: true,
-			},
-			/** Optional customer notes */
-			notes: { type: "string", required: false },
-			/** When preparation started */
-			preparingAt: { type: "date", required: false },
-			/** When order was marked ready */
-			readyAt: { type: "date", required: false },
-			/** When customer picked up */
-			pickedUpAt: { type: "date", required: false },
-			/** When pickup was cancelled */
-			cancelledAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	pickupBlackout: {
-		fields: {
-			id: { type: "string", required: true },
-			/** Location this blackout applies to */
-			locationId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "pickupLocation",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			/** Date to block (YYYY-MM-DD) */
-			date: { type: "string", required: true, index: true },
-			/** Reason displayed to staff */
-			reason: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

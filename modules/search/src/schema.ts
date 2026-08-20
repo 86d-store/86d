@@ -1,66 +1,61 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const searchSchema = {
-	searchIndex: {
-		fields: {
-			id: { type: "string", required: true },
-			entityType: { type: "string", required: true },
-			entityId: { type: "string", required: true },
-			title: { type: "string", required: true },
-			body: { type: "string", required: false },
-			tags: { type: "json", required: false, defaultValue: [] },
-			url: { type: "string", required: true },
-			image: { type: "string", required: false },
-			metadata: { type: "json", required: false, defaultValue: {} },
-			indexedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	searchQuery: {
-		fields: {
-			id: { type: "string", required: true },
-			term: { type: "string", required: true },
-			normalizedTerm: { type: "string", required: true },
-			resultCount: { type: "number", required: true },
-			sessionId: { type: "string", required: false },
-			searchedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	searchSynonym: {
-		fields: {
-			id: { type: "string", required: true },
-			term: { type: "string", required: true },
-			synonyms: { type: "json", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	searchClick: {
-		fields: {
-			id: { type: "string", required: true },
-			queryId: { type: "string", required: true },
-			term: { type: "string", required: true },
-			entityType: { type: "string", required: true },
-			entityId: { type: "string", required: true },
-			position: { type: "number", required: true },
-			clickedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+export const searchSearchIndexShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	entityType: z.string(),
+	entityId: z.string(),
+	title: z.string(),
+	body: z.string().optional(),
+	tags: z.array(z.unknown()).default([]),
+	url: z.string(),
+	image: z.string().optional(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	indexedAt: z.coerce.date().default(() => new Date()),
+});
 
-export const searchTables = transcodeModuleSchema(searchSchema);
+export const searchSearchQueryShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	term: z.string(),
+	normalizedTerm: z.string(),
+	resultCount: z.number(),
+	sessionId: z.string().optional(),
+	searchedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const searchSearchSynonymShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	term: z.string(),
+	synonyms: z.record(z.string(), z.unknown()),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const searchSearchClickShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	queryId: z.string(),
+	term: z.string(),
+	entityType: z.string(),
+	entityId: z.string(),
+	position: z.number(),
+	clickedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for search. */
+export const searchStorage = {
+	kind: "relational",
+	tables: {
+		searchIndex: {
+			shape: searchSearchIndexShape,
+		},
+		searchQuery: {
+			shape: searchSearchQueryShape,
+		},
+		searchSynonym: {
+			shape: searchSearchSynonymShape,
+		},
+		searchClick: {
+			shape: searchSearchClickShape,
+		},
+	},
+} as const satisfies ModuleStorageDeclaration;

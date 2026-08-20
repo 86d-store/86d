@@ -1,387 +1,285 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const paymentsSchema = {
-	paymentConnection: {
-		fields: {
-			id: { type: "string", required: true },
-			providerAccountId: { type: "string", required: true },
-			name: { type: "string", required: true },
-			normalizedName: { type: "string", required: true, index: true },
-			provider: { type: "string", required: true },
-			mode: { type: ["test", "live"], required: true },
-			capabilities: { type: "json", required: true, defaultValue: [] },
-			health: {
-				type: ["unknown", "healthy", "degraded", "unhealthy"],
-				required: true,
-				defaultValue: "unknown",
-			},
-			lifecycle: {
-				type: ["draft", "enabled", "disabled", "revoked"],
-				required: true,
-				defaultValue: "draft",
-			},
-			/** Opaque server-side locator. Never return this field from an endpoint. */
-			secretReference: { type: "string", required: true },
-			healthCheckedAt: { type: "date", required: false },
-			enabledAt: { type: "date", required: false },
-			disabledAt: { type: "date", required: false },
-			revokedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	/** Stable row used to serialize Payment Connection names. */
-	paymentConnectionLockV2: {
-		fields: {
-			id: { type: "string", required: true },
-		},
-	},
-	/** Payment-owned financial aggregate. Checkout and Order remain references. */
-	paymentV2: {
-		fields: {
-			id: { type: "string", required: true },
-			modelVersion: { type: "number", required: true, defaultValue: 2 },
-			checkoutId: { type: "string", required: true, index: true },
-			orderId: { type: "string", required: false, index: true },
-			connectionId: { type: "string", required: true, index: true },
-			paymentOption: {
-				type: ["card", "apple_pay", "google_pay", "paypal"],
-				required: true,
-			},
-			expectedAmount: { type: "number", required: true },
-			eligibleMerchandiseAmount: { type: "number", required: true },
-			currency: { type: "string", required: true },
-			authorizedAmount: { type: "number", required: true, defaultValue: 0 },
-			capturedAmount: { type: "number", required: true, defaultValue: 0 },
-			voidedAmount: { type: "number", required: true, defaultValue: 0 },
-			confirmedRefundedAmount: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			providerReferences: { type: "json", required: true, defaultValue: [] },
-			dispute: { type: "json", required: true },
-			state: {
-				type: [
-					"pending",
-					"authorized",
-					"partially_captured",
-					"captured",
-					"partially_refunded",
-					"refunded",
-					"voided",
-				],
-				required: true,
-				defaultValue: "pending",
-			},
-			terminalState: {
-				type: ["none", "refunded", "voided"],
-				required: true,
-				defaultValue: "none",
-			},
-			creationIdempotencyKey: { type: "string", required: true, index: true },
-			creationDigest: { type: "string", required: true },
-			creationDigestVersion: {
-				type: "number",
-				required: true,
-				defaultValue: 1,
-			},
-			revision: { type: "number", required: true, defaultValue: 1 },
-			terminalAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	/** Owner-local lock row used to serialize every mutation of one Payment. */
-	paymentV2Lock: {
-		fields: {
-			id: { type: "string", required: true },
-			paymentId: { type: "string", required: true, index: true },
-		},
-	},
-	/** Immutable provider dispute facts; the aggregate stores their projection. */
-	paymentDisputeFactV2: {
-		fields: {
-			id: { type: "string", required: true },
-			paymentId: { type: "string", required: true, index: true },
-			connectionId: { type: "string", required: true, index: true },
-			eventId: { type: "string", required: true, index: true },
-			eventDigest: { type: "string", required: true },
-			providerDisputeReference: { type: "string", required: true, index: true },
-			state: {
-				type: ["open", "won", "lost", "reversed"],
-				required: true,
-			},
-			occurredAt: { type: "date", required: true },
-			appliedRevision: { type: "number", required: true },
-		},
-	},
-	/** Durable v2 operation aggregate. Routing and request identity are immutable. */
-	paymentOperationV2: {
-		fields: {
-			id: { type: "string", required: true },
-			modelVersion: { type: "number", required: true, defaultValue: 2 },
-			paymentId: { type: "string", required: true, index: true },
-			connectionId: { type: "string", required: true, index: true },
-			sourceOperationId: { type: "string", required: false, index: true },
-			operation: {
-				type: ["intent", "authorization", "capture", "refund", "void"],
-				required: true,
-			},
-			idempotencyKey: { type: "string", required: true, index: true },
-			requestDigest: { type: "string", required: true },
-			/** Canonical financial input persisted before any provider I/O. */
-			payload: { type: "json", required: true },
-			requestDigestVersion: {
-				type: "number",
-				required: true,
-				defaultValue: 1,
-			},
-			state: {
-				type: [
-					"pending",
-					"requires_action",
-					"running",
-					"succeeded",
-					"failed",
-					"ambiguous",
-					"needs_attention",
-					"dead_letter",
-				],
-				required: true,
-				defaultValue: "pending",
-			},
-			revision: { type: "number", required: true, defaultValue: 1 },
-			attempt: { type: "number", required: true, defaultValue: 1 },
-			reconciliationAttempts: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			manualReconciliationCount: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			providerReference: { type: "string", required: false },
-			outcome: { type: "json", required: false },
-			needsAttentionReason: { type: "string", required: false },
-			needsAttentionAt: { type: "date", required: false },
-			leaseExpiresAt: { type: "date", required: false, index: true },
-			nextReconciliationAt: { type: "date", required: false, index: true },
-			lastReconciliationAt: { type: "date", required: false },
-			lastReconciliationTrigger: {
-				type: ["scheduled", "manual"],
-				required: false,
-			},
-			lastManualReconciliationReason: { type: "string", required: false },
-			lastManualReconciliationAt: { type: "date", required: false },
-			deadLetteredAt: { type: "date", required: false },
-			completedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	/** Append-only attempt history; each row becomes final after its provider call. */
-	paymentOperationAttemptV2: {
-		fields: {
-			id: { type: "string", required: true },
-			paymentOperationId: { type: "string", required: true, index: true },
-			connectionId: { type: "string", required: true, index: true },
-			attempt: { type: "number", required: true },
-			idempotencyKey: { type: "string", required: true, index: true },
-			requestDigest: { type: "string", required: true },
-			trigger: {
-				type: ["initial", "scheduled_reconciliation", "manual_reconciliation"],
-				required: true,
-				defaultValue: "initial",
-			},
-			triggerReason: { type: "string", required: false },
-			state: {
-				type: [
-					"running",
-					"pending",
-					"requires_action",
-					"succeeded",
-					"failed",
-					"ambiguous",
-				],
-				required: true,
-			},
-			providerReference: { type: "string", required: false },
-			outcome: { type: "json", required: false },
-			startedAt: { type: "date", required: true },
-			finishedAt: { type: "date", required: false },
-		},
-	},
-	/** Stable row used to serialize one idempotent Payment operation. */
-	paymentOperationLockV2: {
-		fields: {
-			id: { type: "string", required: true },
-		},
-	},
-	/** Verified, Connection-bound provider ingress. Raw payloads are never stored. */
-	paymentWebhookReceiptV2: {
-		fields: {
-			id: { type: "string", required: true },
-			modelVersion: { type: "number", required: true, defaultValue: 2 },
-			storeId: { type: "string", required: true, index: true },
-			connectionId: { type: "string", required: true, index: true },
-			provider: { type: "string", required: true, index: true },
-			providerEventId: { type: "string", required: true, index: true },
-			providerEventType: { type: "string", required: true },
-			payloadDigest: { type: "string", required: true },
-			verificationKeyReference: { type: "string", required: true },
-			fact: { type: "json", required: true },
-			state: {
-				type: [
-					"verified",
-					"processing",
-					"applied",
-					"rejected",
-					"needs_attention",
-				],
-				required: true,
-				defaultValue: "verified",
-			},
-			processingAttempts: { type: "number", required: true, defaultValue: 0 },
-			revision: { type: "number", required: true, defaultValue: 1 },
-			leaseExpiresAt: { type: "date", required: false, index: true },
-			finalDisposition: { type: "string", required: false },
-			lastFailureCode: { type: "string", required: false },
-			verifiedAt: { type: "date", required: true },
-			appliedAt: { type: "date", required: false },
-			createdAt: { type: "date", required: true },
-			updatedAt: { type: "date", required: true },
-		},
-	},
-	/** Stable row used to serialize one provider event identity. */
-	paymentWebhookReceiptLockV2: {
-		fields: {
-			id: { type: "string", required: true },
-		},
-	},
-	paymentIntent: {
-		fields: {
-			id: { type: "string", required: true },
-			/** Provider-assigned intent ID (e.g. Stripe's pi_xxx) */
-			providerIntentId: { type: "string", required: false },
-			customerId: { type: "string", required: false },
-			email: { type: "string", required: false },
-			/** Amount in smallest currency unit (e.g. cents) */
-			amount: { type: "number", required: true },
-			currency: { type: "string", required: true, defaultValue: "USD" },
-			status: {
-				type: [
-					"pending",
-					"processing",
-					"succeeded",
-					"failed",
-					"cancelled",
-					"refunded",
-				],
-				required: true,
-				defaultValue: "pending",
-			},
-			paymentMethodId: { type: "string", required: false },
-			orderId: { type: "string", required: false },
-			checkoutSessionId: { type: "string", required: false },
-			metadata: { type: "json", required: false, defaultValue: {} },
-			providerMetadata: { type: "json", required: false, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	paymentMethod: {
-		fields: {
-			id: { type: "string", required: true },
-			customerId: { type: "string", required: true },
-			/** Provider-assigned method ID (e.g. Stripe's pm_xxx) */
-			providerMethodId: { type: "string", required: true },
-			/** card | bank_transfer | wallet */
-			type: { type: "string", required: true, defaultValue: "card" },
-			last4: { type: "string", required: false },
-			brand: { type: "string", required: false },
-			expiryMonth: { type: "number", required: false },
-			expiryYear: { type: "number", required: false },
-			isDefault: { type: "boolean", required: true, defaultValue: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	refund: {
-		fields: {
-			id: { type: "string", required: true },
-			paymentIntentId: { type: "string", required: true },
-			/** Provider-assigned refund ID */
-			providerRefundId: { type: "string", required: true },
-			/** Refund amount in smallest currency unit */
-			amount: { type: "number", required: true },
-			reason: { type: "string", required: false },
-			status: {
-				type: ["pending", "succeeded", "failed"],
-				required: true,
-				defaultValue: "pending",
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+export const paymentsPaymentConnectionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	providerAccountId: z.string(),
+	name: z.string(),
+	normalizedName: z.string().register(col, { index: true }),
+	provider: z.string(),
+	mode: z.enum(["test", "live"]),
+	capabilities: z.array(z.unknown()).default([]),
+	health: z
+		.enum(["unknown", "healthy", "degraded", "unhealthy"])
+		.default("unknown"),
+	lifecycle: z
+		.enum(["draft", "enabled", "disabled", "revoked"])
+		.default("draft"),
+	secretReference: z.string(),
+	healthCheckedAt: z.coerce.date().optional(),
+	enabledAt: z.coerce.date().optional(),
+	disabledAt: z.coerce.date().optional(),
+	revokedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
 
-export const paymentsTables = transcodeModuleSchema(paymentsSchema);
+export const paymentsPaymentConnectionLockV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+});
+
+export const paymentsPaymentV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+	modelVersion: z.int().default(2),
+	checkoutId: z.string().register(col, { index: true }),
+	orderId: z.string().register(col, { index: true }).optional(),
+	connectionId: z.string().register(col, { index: true }),
+	paymentOption: z.enum(["card", "apple_pay", "google_pay", "paypal"]),
+	expectedAmount: z.number(),
+	eligibleMerchandiseAmount: z.number(),
+	currency: z.string(),
+	authorizedAmount: z.int().default(0),
+	capturedAmount: z.int().default(0),
+	voidedAmount: z.int().default(0),
+	confirmedRefundedAmount: z.int().default(0),
+	providerReferences: z.array(z.unknown()).default([]),
+	dispute: z.record(z.string(), z.unknown()),
+	state: z
+		.enum([
+			"pending",
+			"authorized",
+			"partially_captured",
+			"captured",
+			"partially_refunded",
+			"refunded",
+			"voided",
+		])
+		.default("pending"),
+	terminalState: z.enum(["none", "refunded", "voided"]).default("none"),
+	creationIdempotencyKey: z.string().register(col, { index: true }),
+	creationDigest: z.string(),
+	creationDigestVersion: z.int().default(1),
+	revision: z.int().default(1),
+	terminalAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const paymentsPaymentV2LockShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	paymentId: z.string().register(col, { index: true }),
+});
+
+export const paymentsPaymentDisputeFactV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+	paymentId: z.string().register(col, { index: true }),
+	connectionId: z.string().register(col, { index: true }),
+	eventId: z.string().register(col, { index: true }),
+	eventDigest: z.string(),
+	providerDisputeReference: z.string().register(col, { index: true }),
+	state: z.enum(["open", "won", "lost", "reversed"]),
+	occurredAt: z.coerce.date(),
+	appliedRevision: z.number(),
+});
+
+export const paymentsPaymentOperationV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+	modelVersion: z.int().default(2),
+	paymentId: z.string().register(col, { index: true }),
+	connectionId: z.string().register(col, { index: true }),
+	sourceOperationId: z.string().register(col, { index: true }).optional(),
+	operation: z.enum(["intent", "authorization", "capture", "refund", "void"]),
+	idempotencyKey: z.string().register(col, { index: true }),
+	requestDigest: z.string(),
+	payload: z.record(z.string(), z.unknown()),
+	requestDigestVersion: z.int().default(1),
+	state: z
+		.enum([
+			"pending",
+			"requires_action",
+			"running",
+			"succeeded",
+			"failed",
+			"ambiguous",
+			"needs_attention",
+			"dead_letter",
+		])
+		.default("pending"),
+	revision: z.int().default(1),
+	attempt: z.int().default(1),
+	reconciliationAttempts: z.int().default(0),
+	manualReconciliationCount: z.int().default(0),
+	providerReference: z.string().optional(),
+	outcome: z.record(z.string(), z.unknown()).optional(),
+	needsAttentionReason: z.string().optional(),
+	needsAttentionAt: z.coerce.date().optional(),
+	leaseExpiresAt: z.coerce.date().register(col, { index: true }).optional(),
+	nextReconciliationAt: z.coerce
+		.date()
+		.register(col, { index: true })
+		.optional(),
+	lastReconciliationAt: z.coerce.date().optional(),
+	lastReconciliationTrigger: z.enum(["scheduled", "manual"]).optional(),
+	lastManualReconciliationReason: z.string().optional(),
+	lastManualReconciliationAt: z.coerce.date().optional(),
+	deadLetteredAt: z.coerce.date().optional(),
+	completedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const paymentsPaymentOperationAttemptV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+	paymentOperationId: z.string().register(col, { index: true }),
+	connectionId: z.string().register(col, { index: true }),
+	attempt: z.number(),
+	idempotencyKey: z.string().register(col, { index: true }),
+	requestDigest: z.string(),
+	trigger: z
+		.enum(["initial", "scheduled_reconciliation", "manual_reconciliation"])
+		.default("initial"),
+	triggerReason: z.string().optional(),
+	state: z.enum([
+		"running",
+		"pending",
+		"requires_action",
+		"succeeded",
+		"failed",
+		"ambiguous",
+	]),
+	providerReference: z.string().optional(),
+	outcome: z.record(z.string(), z.unknown()).optional(),
+	startedAt: z.coerce.date(),
+	finishedAt: z.coerce.date().optional(),
+});
+
+export const paymentsPaymentOperationLockV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+});
+
+export const paymentsPaymentWebhookReceiptV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+	modelVersion: z.int().default(2),
+	storeId: z.string().register(col, { index: true }),
+	connectionId: z.string().register(col, { index: true }),
+	provider: z.string().register(col, { index: true }),
+	providerEventId: z.string().register(col, { index: true }),
+	providerEventType: z.string(),
+	payloadDigest: z.string(),
+	verificationKeyReference: z.string(),
+	fact: z.record(z.string(), z.unknown()),
+	state: z
+		.enum(["verified", "processing", "applied", "rejected", "needs_attention"])
+		.default("verified"),
+	processingAttempts: z.int().default(0),
+	revision: z.int().default(1),
+	leaseExpiresAt: z.coerce.date().register(col, { index: true }).optional(),
+	finalDisposition: z.string().optional(),
+	lastFailureCode: z.string().optional(),
+	verifiedAt: z.coerce.date(),
+	appliedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date(),
+	updatedAt: z.coerce.date(),
+});
+
+export const paymentsPaymentWebhookReceiptLockV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+});
+
+export const paymentsPaymentIntentShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	providerIntentId: z.string().optional(),
+	customerId: z.string().optional(),
+	email: z.string().optional(),
+	amount: z.number(),
+	currency: z.string().default("USD"),
+	status: z
+		.enum([
+			"pending",
+			"processing",
+			"succeeded",
+			"failed",
+			"cancelled",
+			"refunded",
+		])
+		.default("pending"),
+	paymentMethodId: z.string().optional(),
+	orderId: z.string().optional(),
+	checkoutSessionId: z.string().optional(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	providerMetadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const paymentsPaymentMethodShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	customerId: z.string(),
+	providerMethodId: z.string(),
+	type: z.string().default("card"),
+	last4: z.string().optional(),
+	brand: z.string().optional(),
+	expiryMonth: z.number().optional(),
+	expiryYear: z.number().optional(),
+	isDefault: z.boolean().default(false),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const paymentsRefundShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	paymentIntentId: z.string(),
+	providerRefundId: z.string(),
+	amount: z.number(),
+	reason: z.string().optional(),
+	status: z.enum(["pending", "succeeded", "failed"]).default("pending"),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for payments. */
+export const paymentsStorage = {
+	kind: "relational",
+	tables: {
+		paymentConnection: {
+			shape: paymentsPaymentConnectionShape,
+		},
+		paymentConnectionLockV2: {
+			shape: paymentsPaymentConnectionLockV2Shape,
+		},
+		paymentV2: {
+			shape: paymentsPaymentV2Shape,
+		},
+		paymentV2Lock: {
+			shape: paymentsPaymentV2LockShape,
+		},
+		paymentDisputeFactV2: {
+			shape: paymentsPaymentDisputeFactV2Shape,
+		},
+		paymentOperationV2: {
+			shape: paymentsPaymentOperationV2Shape,
+		},
+		paymentOperationAttemptV2: {
+			shape: paymentsPaymentOperationAttemptV2Shape,
+		},
+		paymentOperationLockV2: {
+			shape: paymentsPaymentOperationLockV2Shape,
+		},
+		paymentWebhookReceiptV2: {
+			shape: paymentsPaymentWebhookReceiptV2Shape,
+		},
+		paymentWebhookReceiptLockV2: {
+			shape: paymentsPaymentWebhookReceiptLockV2Shape,
+		},
+		paymentIntent: {
+			shape: paymentsPaymentIntentShape,
+		},
+		paymentMethod: {
+			shape: paymentsPaymentMethodShape,
+		},
+		refund: {
+			shape: paymentsRefundShape,
+		},
+	},
+} as const satisfies ModuleStorageDeclaration;

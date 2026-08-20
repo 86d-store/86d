@@ -18,7 +18,7 @@ import {
 	returnRequestedV1,
 	returnResolutionSchema,
 } from "./events";
-import { returnsSchema } from "./schema";
+import { returnsStorage } from "./schema";
 import { createReturnController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -74,7 +74,7 @@ export default function returns(options?: ReturnsOptions): Module {
 	return {
 		id: "returns",
 		version: "0.0.1",
-		schema: returnsSchema,
+		storage: returnsStorage,
 		capabilities: {
 			accepts: [acceptCapability(orderLineQuantityValidateCapability)],
 		},

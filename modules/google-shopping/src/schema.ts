@@ -1,117 +1,71 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const googleShoppingSchema = {
-	productFeed: {
-		fields: {
-			id: { type: "string", required: true },
-			localProductId: { type: "string", required: true },
-			googleProductId: { type: "string", required: false },
-			title: { type: "string", required: true },
-			description: { type: "string", required: false },
-			status: {
-				type: "string",
-				required: true,
-				defaultValue: "pending",
-			},
-			disapprovalReasons: {
-				type: "json",
-				required: true,
-				defaultValue: [],
-			},
-			googleCategory: { type: "string", required: false },
-			condition: { type: "string", required: true, defaultValue: "new" },
-			availability: {
-				type: "string",
-				required: true,
-				defaultValue: "in-stock",
-			},
-			price: { type: "number", required: true },
-			salePrice: { type: "number", required: false },
-			link: { type: "string", required: true },
-			imageLink: { type: "string", required: true },
-			gtin: { type: "string", required: false },
-			mpn: { type: "string", required: false },
-			brand: { type: "string", required: false },
-			lastSyncedAt: { type: "date", required: false },
-			expiresAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const googleShoppingProductFeedShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	localProductId: z.string(),
+	googleProductId: z.string().optional(),
+	title: z.string(),
+	description: z.string().optional(),
+	status: z.string().default("pending"),
+	disapprovalReasons: z.array(z.unknown()).default([]),
+	googleCategory: z.string().optional(),
+	condition: z.string().default("new"),
+	availability: z.string().default("in-stock"),
+	price: z.number(),
+	salePrice: z.number().optional(),
+	link: z.string(),
+	imageLink: z.string(),
+	gtin: z.string().optional(),
+	mpn: z.string().optional(),
+	brand: z.string().optional(),
+	lastSyncedAt: z.coerce.date().optional(),
+	expiresAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const googleShoppingChannelOrderShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	googleOrderId: z.string(),
+	status: z.string().default("pending"),
+	items: z.array(z.unknown()).default([]),
+	subtotal: z.number(),
+	shippingCost: z.number(),
+	tax: z.number(),
+	total: z.number(),
+	shippingAddress: z.record(z.string(), z.unknown()).default({}),
+	trackingNumber: z.string().optional(),
+	carrier: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const googleShoppingFeedSubmissionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	status: z.string().default("pending"),
+	totalProducts: z.int().default(0),
+	approvedProducts: z.int().default(0),
+	disapprovedProducts: z.int().default(0),
+	error: z.string().optional(),
+	submittedAt: z.coerce.date().default(() => new Date()),
+	completedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for google-shopping. */
+export const googleShoppingStorage = {
+	kind: "relational",
+	tables: {
+		productFeed: {
+			shape: googleShoppingProductFeedShape,
+		},
+		channelOrder: {
+			shape: googleShoppingChannelOrderShape,
+		},
+		feedSubmission: {
+			shape: googleShoppingFeedSubmissionShape,
 		},
 	},
-	channelOrder: {
-		fields: {
-			id: { type: "string", required: true },
-			googleOrderId: { type: "string", required: true },
-			status: {
-				type: "string",
-				required: true,
-				defaultValue: "pending",
-			},
-			items: { type: "json", required: true, defaultValue: [] },
-			subtotal: { type: "number", required: true },
-			shippingCost: { type: "number", required: true },
-			tax: { type: "number", required: true },
-			total: { type: "number", required: true },
-			shippingAddress: {
-				type: "json",
-				required: true,
-				defaultValue: {},
-			},
-			trackingNumber: { type: "string", required: false },
-			carrier: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	feedSubmission: {
-		fields: {
-			id: { type: "string", required: true },
-			status: {
-				type: "string",
-				required: true,
-				defaultValue: "pending",
-			},
-			totalProducts: { type: "number", required: true, defaultValue: 0 },
-			approvedProducts: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			disapprovedProducts: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			error: { type: "string", required: false },
-			submittedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			completedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

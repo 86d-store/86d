@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
-import { pinterestShopSchema } from "./schema";
+import { pinterestShopStorage } from "./schema";
 import { createPinterestShopController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -40,7 +40,7 @@ export default function pinterestShop(options?: PinterestShopOptions): Module {
 	return {
 		id: "pinterest-shop",
 		version: "0.2.0",
-		schema: pinterestShopSchema,
+		storage: pinterestShopStorage,
 		exports: {
 			read: [
 				"catalogItemTitle",

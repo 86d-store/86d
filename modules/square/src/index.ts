@@ -11,6 +11,8 @@ export interface SquareOptions extends ModuleConfig {
 	webhookNotificationUrl?: string | undefined;
 }
 
+const squareStorage = { kind: "none" } as const;
+
 export default function square(options: SquareOptions): Module {
 	const webhookOpts =
 		options.webhookSignatureKey != null ||
@@ -28,7 +30,7 @@ export default function square(options: SquareOptions): Module {
 	return {
 		id: "square",
 		version: "0.0.1",
-		schema: {},
+		storage: squareStorage,
 		events: {
 			emits: [
 				"square.payment.completed",

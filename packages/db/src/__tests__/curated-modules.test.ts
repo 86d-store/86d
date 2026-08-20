@@ -13,12 +13,16 @@ describe("curated modules pin", () => {
 		);
 	}, 30_000);
 
-	it("matches transcoded count excluding tier-none modules", async () => {
+	it("matches relational storage count excluding none modules", async () => {
 		const modules = await loadCuratedModules();
-		const transcoded = modules.filter(
-			(module) => module.tables && Object.keys(module.tables).length > 0,
-		);
-		expect(transcoded.length).toBe(
+		const relational = modules.filter((module) => {
+			const storage = module.storage;
+			if (storage?.kind === "relational") {
+				return Object.keys(storage.tables ?? {}).length > 0;
+			}
+			return Boolean(module.tables && Object.keys(module.tables).length > 0);
+		});
+		expect(relational.length).toBe(
 			CURATED_STORE_MODULES.length - TIER_NONE_CURATED_MODULES.length,
 		);
 	}, 30_000);

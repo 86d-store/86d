@@ -1,0 +1,1911 @@
+{
+  "generatedAt": "2026-08-20T23:14:48.831Z",
+  "storeRoles": [
+    "store_owner",
+    "store_login"
+  ],
+  "modules": [
+    {
+      "moduleId": "abandoned-carts",
+      "roleName": "mod_abandoned_carts",
+      "schemaName": "mod_abandoned-carts",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "affiliates",
+      "roleName": "mod_affiliates",
+      "schemaName": "mod_affiliates",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "amazon",
+      "roleName": "mod_amazon",
+      "schemaName": "mod_amazon",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "analytics",
+      "roleName": "mod_analytics",
+      "schemaName": "mod_analytics",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "announcements",
+      "roleName": "mod_announcements",
+      "schemaName": "mod_announcements",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "appointments",
+      "roleName": "mod_appointments",
+      "schemaName": "mod_appointments",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "auctions",
+      "roleName": "mod_auctions",
+      "schemaName": "mod_auctions",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "audit-log",
+      "roleName": "mod_audit_log",
+      "schemaName": "mod_audit-log",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "automations",
+      "roleName": "mod_automations",
+      "schemaName": "mod_automations",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "backorders",
+      "roleName": "mod_backorders",
+      "schemaName": "mod_backorders",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "blog",
+      "roleName": "mod_blog",
+      "schemaName": "mod_blog",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "brands",
+      "roleName": "mod_brands",
+      "schemaName": "mod_brands",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "bulk-pricing",
+      "roleName": "mod_bulk_pricing",
+      "schemaName": "mod_bulk-pricing",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "bundles",
+      "roleName": "mod_bundles",
+      "schemaName": "mod_bundles",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "cart",
+      "roleName": "mod_cart",
+      "schemaName": "mod_cart",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "checkout",
+      "roleName": "mod_checkout",
+      "schemaName": "mod_checkout",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "collections",
+      "roleName": "mod_collections",
+      "schemaName": "mod_collections",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "comparisons",
+      "roleName": "mod_comparisons",
+      "schemaName": "mod_comparisons",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "customer-groups",
+      "roleName": "mod_customer_groups",
+      "schemaName": "mod_customer-groups",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "customers",
+      "roleName": "mod_customers",
+      "schemaName": "mod_customers",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "delivery-slots",
+      "roleName": "mod_delivery_slots",
+      "schemaName": "mod_delivery-slots",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "digital-downloads",
+      "roleName": "mod_digital_downloads",
+      "schemaName": "mod_digital-downloads",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "discounts",
+      "roleName": "mod_discounts",
+      "schemaName": "mod_discounts",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "doordash",
+      "roleName": "mod_doordash",
+      "schemaName": "mod_doordash",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "ebay",
+      "roleName": "mod_ebay",
+      "schemaName": "mod_ebay",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "etsy",
+      "roleName": "mod_etsy",
+      "schemaName": "mod_etsy",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "facebook-shop",
+      "roleName": "mod_facebook_shop",
+      "schemaName": "mod_facebook-shop",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "faq",
+      "roleName": "mod_faq",
+      "schemaName": "mod_faq",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "favor",
+      "roleName": "mod_favor",
+      "schemaName": "mod_favor",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "flash-sales",
+      "roleName": "mod_flash_sales",
+      "schemaName": "mod_flash-sales",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "forms",
+      "roleName": "mod_forms",
+      "schemaName": "mod_forms",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "fulfillment",
+      "roleName": "mod_fulfillment",
+      "schemaName": "mod_fulfillment",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "gamification",
+      "roleName": "mod_gamification",
+      "schemaName": "mod_gamification",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "gift-registry",
+      "roleName": "mod_gift_registry",
+      "schemaName": "mod_gift-registry",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "gift-wrapping",
+      "roleName": "mod_gift_wrapping",
+      "schemaName": "mod_gift-wrapping",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "gift-cards",
+      "roleName": "mod_gift_cards",
+      "schemaName": "mod_gift-cards",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "google-shopping",
+      "roleName": "mod_google_shopping",
+      "schemaName": "mod_google-shopping",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "import-export",
+      "roleName": "mod_import_export",
+      "schemaName": "mod_import-export",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "instagram-shop",
+      "roleName": "mod_instagram_shop",
+      "schemaName": "mod_instagram-shop",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "inventory",
+      "roleName": "mod_inventory",
+      "schemaName": "mod_inventory",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "invoices",
+      "roleName": "mod_invoices",
+      "schemaName": "mod_invoices",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "kiosk",
+      "roleName": "mod_kiosk",
+      "schemaName": "mod_kiosk",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "loyalty",
+      "roleName": "mod_loyalty",
+      "schemaName": "mod_loyalty",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "media",
+      "roleName": "mod_media",
+      "schemaName": "mod_media",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "memberships",
+      "roleName": "mod_memberships",
+      "schemaName": "mod_memberships",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "multi-currency",
+      "roleName": "mod_multi_currency",
+      "schemaName": "mod_multi-currency",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "navigation",
+      "roleName": "mod_navigation",
+      "schemaName": "mod_navigation",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "newsletter",
+      "roleName": "mod_newsletter",
+      "schemaName": "mod_newsletter",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "notifications",
+      "roleName": "mod_notifications",
+      "schemaName": "mod_notifications",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "order-notes",
+      "roleName": "mod_order_notes",
+      "schemaName": "mod_order-notes",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "orders",
+      "roleName": "mod_orders",
+      "schemaName": "mod_orders",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "pages",
+      "roleName": "mod_pages",
+      "schemaName": "mod_pages",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "payments",
+      "roleName": "mod_payments",
+      "schemaName": "mod_payments",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "photo-booth",
+      "roleName": "mod_photo_booth",
+      "schemaName": "mod_photo-booth",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "pinterest-shop",
+      "roleName": "mod_pinterest_shop",
+      "schemaName": "mod_pinterest-shop",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "preorders",
+      "roleName": "mod_preorders",
+      "schemaName": "mod_preorders",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "price-lists",
+      "roleName": "mod_price_lists",
+      "schemaName": "mod_price-lists",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "product-feeds",
+      "roleName": "mod_product_feeds",
+      "schemaName": "mod_product-feeds",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "product-labels",
+      "roleName": "mod_product_labels",
+      "schemaName": "mod_product-labels",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "product-qa",
+      "roleName": "mod_product_qa",
+      "schemaName": "mod_product-qa",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "products",
+      "roleName": "mod_products",
+      "schemaName": "mod_products",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "qr-code",
+      "roleName": "mod_qr_code",
+      "schemaName": "mod_qr-code",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "quotes",
+      "roleName": "mod_quotes",
+      "schemaName": "mod_quotes",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "recently-viewed",
+      "roleName": "mod_recently_viewed",
+      "schemaName": "mod_recently-viewed",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "recommendations",
+      "roleName": "mod_recommendations",
+      "schemaName": "mod_recommendations",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "redirects",
+      "roleName": "mod_redirects",
+      "schemaName": "mod_redirects",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "referrals",
+      "roleName": "mod_referrals",
+      "schemaName": "mod_referrals",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "returns",
+      "roleName": "mod_returns",
+      "schemaName": "mod_returns",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "reviews",
+      "roleName": "mod_reviews",
+      "schemaName": "mod_reviews",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "saved-addresses",
+      "roleName": "mod_saved_addresses",
+      "schemaName": "mod_saved-addresses",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "search",
+      "roleName": "mod_search",
+      "schemaName": "mod_search",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "seo",
+      "roleName": "mod_seo",
+      "schemaName": "mod_seo",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "settings",
+      "roleName": "mod_settings",
+      "schemaName": "mod_settings",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "shipping",
+      "roleName": "mod_shipping",
+      "schemaName": "mod_shipping",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "sitemap",
+      "roleName": "mod_sitemap",
+      "schemaName": "mod_sitemap",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "social-proof",
+      "roleName": "mod_social_proof",
+      "schemaName": "mod_social-proof",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "social-sharing",
+      "roleName": "mod_social_sharing",
+      "schemaName": "mod_social-sharing",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "store-credits",
+      "roleName": "mod_store_credits",
+      "schemaName": "mod_store-credits",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "store-locator",
+      "roleName": "mod_store_locator",
+      "schemaName": "mod_store-locator",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "store-pickup",
+      "roleName": "mod_store_pickup",
+      "schemaName": "mod_store-pickup",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "subscriptions",
+      "roleName": "mod_subscriptions",
+      "schemaName": "mod_subscriptions",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "tax",
+      "roleName": "mod_tax",
+      "schemaName": "mod_tax",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "tickets",
+      "roleName": "mod_tickets",
+      "schemaName": "mod_tickets",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "tiktok-shop",
+      "roleName": "mod_tiktok_shop",
+      "schemaName": "mod_tiktok-shop",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "tipping",
+      "roleName": "mod_tipping",
+      "schemaName": "mod_tipping",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "toast",
+      "roleName": "mod_toast",
+      "schemaName": "mod_toast",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "uber-direct",
+      "roleName": "mod_uber_direct",
+      "schemaName": "mod_uber-direct",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "uber-eats",
+      "roleName": "mod_uber_eats",
+      "schemaName": "mod_uber-eats",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "vendors",
+      "roleName": "mod_vendors",
+      "schemaName": "mod_vendors",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "waitlist",
+      "roleName": "mod_waitlist",
+      "schemaName": "mod_waitlist",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "walmart",
+      "roleName": "mod_walmart",
+      "schemaName": "mod_walmart",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "warranties",
+      "roleName": "mod_warranties",
+      "schemaName": "mod_warranties",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "wish",
+      "roleName": "mod_wish",
+      "schemaName": "mod_wish",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "wishlist",
+      "roleName": "mod_wishlist",
+      "schemaName": "mod_wishlist",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    },
+    {
+      "moduleId": "x-shop",
+      "roleName": "mod_x_shop",
+      "schemaName": "mod_x-shop",
+      "statementTimeoutMs": 5000,
+      "configFunctions": [],
+      "configKeys": [],
+      "publishedViews": [],
+      "grants": {
+        "ownSchema": [
+          "USAGE",
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ],
+        "moduleConfigBaseTable": [],
+        "publicExecute": []
+      }
+    }
+  ],
+  "migrationDigestSha256": null,
+  "registryNote": "Digests recorded at mode-proof time"
+}

@@ -1,35 +1,36 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const socialSharingSchema = {
-	shareEvent: {
-		fields: {
-			id: { type: "string", required: true },
-			targetType: { type: "string", required: true },
-			targetId: { type: "string", required: true },
-			network: { type: "string", required: true },
-			url: { type: "string", required: true },
-			referrer: { type: "string", required: false },
-			sessionId: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const socialSharingShareEventShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	targetType: z.string(),
+	targetId: z.string(),
+	network: z.string(),
+	url: z.string(),
+	referrer: z.string().optional(),
+	sessionId: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const socialSharingShareSettingsShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	enabledNetworks: z.array(z.unknown()).default([]),
+	defaultMessage: z.string().optional(),
+	hashtags: z.array(z.unknown()).default([]),
+	customTemplates: z.record(z.string(), z.unknown()).default({}),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for social-sharing. */
+export const socialSharingStorage = {
+	kind: "relational",
+	tables: {
+		shareEvent: {
+			shape: socialSharingShareEventShape,
+		},
+		shareSettings: {
+			shape: socialSharingShareSettingsShape,
 		},
 	},
-	shareSettings: {
-		fields: {
-			id: { type: "string", required: true },
-			enabledNetworks: { type: "json", required: true, defaultValue: [] },
-			defaultMessage: { type: "string", required: false },
-			hashtags: { type: "json", required: true, defaultValue: [] },
-			customTemplates: { type: "json", required: true, defaultValue: {} },
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

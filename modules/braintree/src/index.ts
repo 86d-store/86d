@@ -21,11 +21,13 @@ export interface BraintreeOptions extends ModuleConfig {
 	sandbox?: string | undefined;
 }
 
+const braintreeStorage = { kind: "none" } as const;
+
 export default function braintree(options: BraintreeOptions): Module {
 	return {
 		id: "braintree",
 		version: "0.0.1",
-		schema: {},
+		storage: braintreeStorage,
 		events: {
 			emits: [
 				"braintree.payment.settled",

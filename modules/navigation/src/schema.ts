@@ -1,80 +1,55 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const navigationSchema = {
-	menu: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			slug: { type: "string", required: true, unique: true },
-			location: {
-				type: ["header", "footer", "sidebar", "mobile", "custom"],
-				required: true,
-				defaultValue: "header",
-			},
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			metadata: { type: "json", required: false, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const navigationMenuShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	location: z
+		.enum(["header", "footer", "sidebar", "mobile", "custom"])
+		.default("header"),
+	isActive: z.boolean().default(true),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const navigationMenuItemShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	menuId: z.string().register(col, {
+		references: { table: "self.menu", column: "id", onDelete: "cascade" },
+	}),
+	parentId: z
+		.string()
+		.register(col, {
+			references: { table: "self.menuItem", column: "id", onDelete: "cascade" },
+		})
+		.optional(),
+	label: z.string(),
+	type: z
+		.enum(["link", "category", "collection", "page", "product"])
+		.default("link"),
+	url: z.string().optional(),
+	resourceId: z.string().optional(),
+	openInNewTab: z.boolean().default(false),
+	cssClass: z.string().optional(),
+	position: z.int().default(0),
+	isVisible: z.boolean().default(true),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for navigation. */
+export const navigationStorage = {
+	kind: "relational",
+	tables: {
+		menu: {
+			shape: navigationMenuShape,
+		},
+		menuItem: {
+			shape: navigationMenuItemShape,
 		},
 	},
-	menuItem: {
-		fields: {
-			id: { type: "string", required: true },
-			menuId: {
-				type: "string",
-				required: true,
-				references: { model: "menu", field: "id", onDelete: "cascade" },
-			},
-			parentId: {
-				type: "string",
-				required: false,
-				references: { model: "menuItem", field: "id", onDelete: "cascade" },
-			},
-			label: { type: "string", required: true },
-			/** "link" | "category" | "collection" | "page" | "product" */
-			type: {
-				type: ["link", "category", "collection", "page", "product"],
-				required: true,
-				defaultValue: "link",
-			},
-			/** URL for link type, or resource ID for category/collection/page/product */
-			url: { type: "string", required: false },
-			resourceId: { type: "string", required: false },
-			/** Whether to open in a new tab */
-			openInNewTab: {
-				type: "boolean",
-				required: true,
-				defaultValue: false,
-			},
-			/** CSS class for custom styling */
-			cssClass: { type: "string", required: false },
-			/** Sort order within the parent (menu or parent item) */
-			position: { type: "number", required: true, defaultValue: 0 },
-			isVisible: { type: "boolean", required: true, defaultValue: true },
-			metadata: { type: "json", required: false, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
-
-export const navigationTables = transcodeModuleSchema(navigationSchema);
+} as const satisfies ModuleStorageDeclaration;

@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { OpenAIEmbeddingProvider } from "./embedding-provider";
-import { recommendationsSchema } from "./schema";
+import { recommendationsStorage } from "./schema";
 import { createRecommendationController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -51,7 +51,7 @@ export default function recommendations(
 	return {
 		id: "recommendations",
 		version: "0.1.0",
-		schema: recommendationsSchema,
+		storage: recommendationsStorage,
 		exports: {
 			read: [
 				"recommendationRules",

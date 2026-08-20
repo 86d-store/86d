@@ -1,48 +1,43 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const collectionsSchema = {
-	collection: {
-		fields: {
-			id: { type: "string", required: true },
-			title: { type: "string", required: true },
-			slug: { type: "string", required: true, unique: true },
-			description: { type: "string", required: false },
-			image: { type: "string", required: false },
-			type: { type: "string", required: true },
-			sortOrder: { type: "string", required: true },
-			isActive: { type: "boolean", required: true },
-			isFeatured: { type: "boolean", required: true },
-			position: { type: "number", required: true },
-			conditions: { type: "json", required: false },
-			seoTitle: { type: "string", required: false },
-			seoDescription: { type: "string", required: false },
-			publishedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const collectionsCollectionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	title: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	description: z.string().optional(),
+	image: z.string().optional(),
+	type: z.string(),
+	sortOrder: z.string(),
+	isActive: z.boolean(),
+	isFeatured: z.boolean(),
+	position: z.number(),
+	conditions: z.record(z.string(), z.unknown()).optional(),
+	seoTitle: z.string().optional(),
+	seoDescription: z.string().optional(),
+	publishedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const collectionsCollectionProductShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	collectionId: z.string().register(col, { index: true }),
+	productId: z.string().register(col, { index: true }),
+	position: z.number(),
+	addedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for collections. */
+export const collectionsStorage = {
+	kind: "relational",
+	tables: {
+		collection: {
+			shape: collectionsCollectionShape,
+		},
+		collectionProduct: {
+			shape: collectionsCollectionProductShape,
 		},
 	},
-	collectionProduct: {
-		fields: {
-			id: { type: "string", required: true },
-			collectionId: { type: "string", required: true, index: true },
-			productId: { type: "string", required: true, index: true },
-			position: { type: "number", required: true },
-			addedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
-
-export const collectionsTables = transcodeModuleSchema(collectionsSchema);
+} as const satisfies ModuleStorageDeclaration;

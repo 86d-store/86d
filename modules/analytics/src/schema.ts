@@ -1,24 +1,25 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const analyticsSchema = {
-	event: {
-		fields: {
-			id: { type: "string", required: true },
-			type: { type: "string", required: true },
-			sessionId: { type: "string", required: false },
-			customerId: { type: "string", required: false },
-			productId: { type: "string", required: false },
-			orderId: { type: "string", required: false },
-			value: { type: "number", required: false },
-			data: { type: "json", required: true, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const analyticsEventShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	type: z.string(),
+	sessionId: z.string().optional(),
+	customerId: z.string().optional(),
+	productId: z.string().optional(),
+	orderId: z.string().optional(),
+	value: z.number().optional(),
+	data: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for analytics. */
+export const analyticsStorage = {
+	kind: "relational",
+	tables: {
+		event: {
+			shape: analyticsEventShape,
 		},
 	},
-} satisfies ModuleSchema;
-
-export const analyticsTables = transcodeModuleSchema(analyticsSchema);
+} as const satisfies ModuleStorageDeclaration;

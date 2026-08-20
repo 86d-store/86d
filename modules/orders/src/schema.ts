@@ -1,397 +1,173 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const ordersSchema = {
-	order: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			orderNumber: {
-				type: "string",
-				required: true,
-				unique: true,
-			},
-			customerId: {
-				type: "string",
-				required: false,
-			},
-			guestEmail: {
-				type: "string",
-				required: false,
-			},
-			status: {
-				type: [
-					"pending",
-					"processing",
-					"on_hold",
-					"completed",
-					"cancelled",
-					"refunded",
-				],
-				required: true,
-				defaultValue: "pending",
-			},
-			paymentStatus: {
-				type: ["unpaid", "paid", "partially_paid", "refunded", "voided"],
-				required: true,
-				defaultValue: "unpaid",
-			},
-			subtotal: {
-				type: "number",
-				required: true,
-			},
-			taxAmount: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			shippingAmount: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			discountAmount: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			giftCardAmount: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			storeCreditAmount: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			total: {
-				type: "number",
-				required: true,
-			},
-			currency: {
-				type: "string",
-				required: true,
-				defaultValue: "USD",
-			},
-			/** Immutable references to the accepted server-owned offer. */
-			checkoutId: { type: "string", required: false },
-			acceptedOfferId: { type: "string", required: false },
-			catalogRevision: { type: "string", required: false },
-			priceSourceVersion: { type: "string", required: false },
-			taxQuoteId: { type: "string", required: false },
-			shippingQuoteId: { type: "string", required: false },
-			shippingOptionId: { type: "string", required: false },
-			inventoryReservationIds: {
-				type: "json",
-				required: false,
-				defaultValue: [],
-			},
-			paymentConnectionId: { type: "string", required: false },
-			paymentOperationId: { type: "string", required: false },
-			/** Explicit closure is evaluated separately from delivery evidence. */
-			closedAt: { type: "date", required: false },
-			closureReason: { type: "string", required: false },
-			closurePolicyVersion: { type: "number", required: false },
-			notes: {
-				type: "string",
-				required: false,
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	orderItem: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			orderId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "order",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			productId: {
-				type: "string",
-				required: true,
-			},
-			variantId: {
-				type: "string",
-				required: false,
-			},
-			name: {
-				type: "string",
-				required: true,
-			},
-			sku: {
-				type: "string",
-				required: false,
-			},
-			price: {
-				type: "number",
-				required: true,
-			},
-			quantity: {
-				type: "number",
-				required: true,
-			},
-			subtotal: {
-				type: "number",
-				required: true,
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-		},
-	},
-	orderAddress: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			orderId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "order",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			type: {
-				type: ["billing", "shipping"],
-				required: true,
-			},
-			firstName: {
-				type: "string",
-				required: true,
-			},
-			lastName: {
-				type: "string",
-				required: true,
-			},
-			company: {
-				type: "string",
-				required: false,
-			},
-			line1: {
-				type: "string",
-				required: true,
-			},
-			line2: {
-				type: "string",
-				required: false,
-			},
-			city: {
-				type: "string",
-				required: true,
-			},
-			state: {
-				type: "string",
-				required: true,
-			},
-			postalCode: {
-				type: "string",
-				required: true,
-			},
-			country: {
-				type: "string",
-				required: true,
-			},
-			phone: {
-				type: "string",
-				required: false,
-			},
-		},
-	},
-	returnRequest: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			orderId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "order",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			status: {
-				type: [
-					"requested",
-					"approved",
-					"rejected",
-					"shipped_back",
-					"received",
-					"refunded",
-					"completed",
-				],
-				required: true,
-				defaultValue: "requested",
-			},
-			type: {
-				type: ["refund", "exchange", "store_credit"],
-				required: true,
-				defaultValue: "refund",
-			},
-			reason: {
-				type: "string",
-				required: true,
-			},
-			customerNotes: {
-				type: "string",
-				required: false,
-			},
-			adminNotes: {
-				type: "string",
-				required: false,
-			},
-			refundAmount: {
-				type: "number",
-				required: false,
-			},
-			trackingNumber: {
-				type: "string",
-				required: false,
-			},
-			trackingUrl: {
-				type: "string",
-				required: false,
-			},
-			carrier: {
-				type: "string",
-				required: false,
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	returnItem: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			returnRequestId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "returnRequest",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			orderItemId: {
-				type: "string",
-				required: true,
-			},
-			quantity: {
-				type: "number",
-				required: true,
-			},
-			reason: {
-				type: "string",
-				required: false,
-			},
-		},
-	},
-	orderNote: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			orderId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "order",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			type: {
-				type: ["note", "system"],
-				required: true,
-				defaultValue: "note",
-			},
-			content: {
-				type: "string",
-				required: true,
-			},
-			authorId: {
-				type: "string",
-				required: false,
-			},
-			authorName: {
-				type: "string",
-				required: false,
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	orderCustomerAttribution: {
-		fields: {
-			id: { type: "string", required: true },
-			orderId: { type: "string", required: true, index: true },
-			fromCustomerId: { type: "string", required: false },
-			toCustomerId: { type: "string", required: true },
-			reason: {
-				type: ["legacy_subject_rewrite", "guest_claim"],
-				required: true,
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+export const ordersOrderShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	orderNumber: z.string().register(col, { unique: true }),
+	customerId: z.string().optional(),
+	guestEmail: z.string().optional(),
+	status: z
+		.enum([
+			"pending",
+			"processing",
+			"on_hold",
+			"completed",
+			"cancelled",
+			"refunded",
+		])
+		.default("pending"),
+	paymentStatus: z
+		.enum(["unpaid", "paid", "partially_paid", "refunded", "voided"])
+		.default("unpaid"),
+	subtotal: z.number(),
+	taxAmount: z.int().default(0),
+	shippingAmount: z.int().default(0),
+	discountAmount: z.int().default(0),
+	giftCardAmount: z.int().default(0),
+	storeCreditAmount: z.int().default(0),
+	total: z.number(),
+	currency: z.string().default("USD"),
+	checkoutId: z.string().optional(),
+	acceptedOfferId: z.string().optional(),
+	catalogRevision: z.string().optional(),
+	priceSourceVersion: z.string().optional(),
+	taxQuoteId: z.string().optional(),
+	shippingQuoteId: z.string().optional(),
+	shippingOptionId: z.string().optional(),
+	inventoryReservationIds: z.array(z.unknown()).default([]),
+	paymentConnectionId: z.string().optional(),
+	paymentOperationId: z.string().optional(),
+	closedAt: z.coerce.date().optional(),
+	closureReason: z.string().optional(),
+	closurePolicyVersion: z.number().optional(),
+	notes: z.string().optional(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
 
-export const ordersTables = transcodeModuleSchema(ordersSchema);
+export const ordersOrderItemShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	orderId: z.string().register(col, {
+		references: { table: "self.order", column: "id", onDelete: "cascade" },
+	}),
+	productId: z.string(),
+	variantId: z.string().optional(),
+	name: z.string(),
+	sku: z.string().optional(),
+	price: z.number(),
+	quantity: z.number(),
+	subtotal: z.number(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+});
+
+export const ordersOrderAddressShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	orderId: z.string().register(col, {
+		references: { table: "self.order", column: "id", onDelete: "cascade" },
+	}),
+	type: z.enum(["billing", "shipping"]),
+	firstName: z.string(),
+	lastName: z.string(),
+	company: z.string().optional(),
+	line1: z.string(),
+	line2: z.string().optional(),
+	city: z.string(),
+	state: z.string(),
+	postalCode: z.string(),
+	country: z.string(),
+	phone: z.string().optional(),
+});
+
+export const ordersReturnRequestShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	orderId: z.string().register(col, {
+		references: { table: "self.order", column: "id", onDelete: "cascade" },
+	}),
+	status: z
+		.enum([
+			"requested",
+			"approved",
+			"rejected",
+			"shipped_back",
+			"received",
+			"refunded",
+			"completed",
+		])
+		.default("requested"),
+	type: z.enum(["refund", "exchange", "store_credit"]).default("refund"),
+	reason: z.string(),
+	customerNotes: z.string().optional(),
+	adminNotes: z.string().optional(),
+	refundAmount: z.number().optional(),
+	trackingNumber: z.string().optional(),
+	trackingUrl: z.string().optional(),
+	carrier: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const ordersReturnItemShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	returnRequestId: z.string().register(col, {
+		references: {
+			table: "self.returnRequest",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	orderItemId: z.string(),
+	quantity: z.number(),
+	reason: z.string().optional(),
+});
+
+export const ordersOrderNoteShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	orderId: z.string().register(col, {
+		references: { table: "self.order", column: "id", onDelete: "cascade" },
+	}),
+	type: z.enum(["note", "system"]).default("note"),
+	content: z.string(),
+	authorId: z.string().optional(),
+	authorName: z.string().optional(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const ordersOrderCustomerAttributionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	orderId: z.string().register(col, { index: true }),
+	fromCustomerId: z.string().optional(),
+	toCustomerId: z.string(),
+	reason: z.enum(["legacy_subject_rewrite", "guest_claim"]),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for orders. */
+export const ordersStorage = {
+	kind: "relational",
+	tables: {
+		order: {
+			shape: ordersOrderShape,
+		},
+		orderItem: {
+			shape: ordersOrderItemShape,
+		},
+		orderAddress: {
+			shape: ordersOrderAddressShape,
+		},
+		returnRequest: {
+			shape: ordersReturnRequestShape,
+		},
+		returnItem: {
+			shape: ordersReturnItemShape,
+		},
+		orderNote: {
+			shape: ordersOrderNoteShape,
+		},
+		orderCustomerAttribution: {
+			shape: ordersOrderCustomerAttributionShape,
+		},
+	},
+} as const satisfies ModuleStorageDeclaration;

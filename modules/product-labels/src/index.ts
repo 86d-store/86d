@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { productLabelsSchema } from "./schema";
+import { productLabelsStorage } from "./schema";
 import { createProductLabelController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -28,7 +28,7 @@ export default function productLabels(options?: ProductLabelsOptions): Module {
 	return {
 		id: "product-labels",
 		version: "0.0.1",
-		schema: productLabelsSchema,
+		storage: productLabelsStorage,
 		exports: {
 			read: ["activeLabels", "productLabels", "labelStats"],
 		},

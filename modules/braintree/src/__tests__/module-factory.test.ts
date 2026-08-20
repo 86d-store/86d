@@ -18,9 +18,9 @@ describe("braintree module factory", () => {
 		expect(mod.version).toBe("0.0.1");
 	});
 
-	it("has empty schema", () => {
+	it("declares none storage", () => {
 		const mod = braintree(baseOpts);
-		expect(mod.schema).toEqual({});
+		expect(mod.storage).toEqual({ kind: "none" });
 	});
 
 	it("init is defined", () => {

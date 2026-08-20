@@ -1,42 +1,40 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const flashSalesSchema = {
-	flashSale: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			slug: { type: "string", required: true, unique: true },
-			description: { type: "string", required: false },
-			status: { type: "string", required: true },
-			startsAt: { type: "date", required: true },
-			endsAt: { type: "date", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const flashSalesFlashSaleShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	description: z.string().optional(),
+	status: z.string(),
+	startsAt: z.coerce.date(),
+	endsAt: z.coerce.date(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const flashSalesFlashSaleProductShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	flashSaleId: z.string().register(col, { index: true }),
+	productId: z.string().register(col, { index: true }),
+	salePrice: z.number(),
+	originalPrice: z.number(),
+	stockLimit: z.number().optional(),
+	stockSold: z.number(),
+	sortOrder: z.number(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for flash-sales. */
+export const flashSalesStorage = {
+	kind: "relational",
+	tables: {
+		flashSale: {
+			shape: flashSalesFlashSaleShape,
+		},
+		flashSaleProduct: {
+			shape: flashSalesFlashSaleProductShape,
 		},
 	},
-	flashSaleProduct: {
-		fields: {
-			id: { type: "string", required: true },
-			flashSaleId: { type: "string", required: true, index: true },
-			productId: { type: "string", required: true, index: true },
-			salePrice: { type: "number", required: true },
-			originalPrice: { type: "number", required: true },
-			stockLimit: { type: "number", required: false },
-			stockSold: { type: "number", required: true },
-			sortOrder: { type: "number", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

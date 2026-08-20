@@ -13,7 +13,7 @@ import type {
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { FulfillmentAuthorityError } from "./authority";
 import { fulfillmentCreatedV1 } from "./events";
-import { fulfillmentSchema } from "./schema";
+import { fulfillmentStorage } from "./schema";
 import { createFulfillmentController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -35,7 +35,7 @@ export default function fulfillment(options?: FulfillmentOptions): Module {
 	return {
 		id: "fulfillment",
 		version: "0.0.1",
-		schema: fulfillmentSchema,
+		storage: fulfillmentStorage,
 		capabilities: {
 			accepts: [
 				acceptCapability(orderLineQuantityValidateCapability),

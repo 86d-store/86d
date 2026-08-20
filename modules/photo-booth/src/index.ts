@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { photoBoothSchema } from "./schema";
+import { photoBoothStorage } from "./schema";
 import { createPhotoBoothController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -31,7 +31,7 @@ export default function photoBooth(options?: PhotoBoothOptions): Module {
 	return {
 		id: "photo-booth",
 		version: "0.0.1",
-		schema: photoBoothSchema,
+		storage: photoBoothStorage,
 		exports: {
 			read: ["photoImageUrl", "photoSessionName"],
 		},

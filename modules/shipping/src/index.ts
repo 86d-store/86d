@@ -34,7 +34,7 @@ import {
 	shippingTrackingSchema,
 	USPS_PRIORITY_MAIL_SERVICE,
 } from "./foundation-v2";
-import { shippingSchema, shippingTables } from "./schema";
+import { shippingStorage } from "./schema";
 import { createShippingController } from "./service-impl";
 import {
 	createStoreEndpointsWithRates,
@@ -137,8 +137,7 @@ export default function shipping(options?: ShippingOptions): Module {
 	return {
 		id: "shipping",
 		version: "0.1.0",
-		schema: shippingSchema,
-		tables: shippingTables,
+		storage: shippingStorage,
 		capabilities: {
 			provides: [createShippingQuoteProvider()],
 			accepts: [

@@ -1,101 +1,91 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const recommendationsSchema = {
-	recommendationRule: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			strategy: { type: "string", required: true },
-			sourceProductId: { type: "string", required: false },
-			targetProductIds: { type: "json", required: true },
-			weight: { type: "number", required: true },
-			isActive: { type: "boolean", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const recommendationsRecommendationRuleShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	strategy: z.string(),
+	sourceProductId: z.string().optional(),
+	targetProductIds: z.record(z.string(), z.unknown()),
+	weight: z.number(),
+	isActive: z.boolean(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const recommendationsCoOccurrenceShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	productId1: z.string(),
+	productId2: z.string(),
+	count: z.number(),
+	lastOccurredAt: z.coerce.date().default(() => new Date()),
+});
+
+export const recommendationsProductInteractionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	productId: z.string(),
+	customerId: z.string().optional(),
+	sessionId: z.string().optional(),
+	type: z.string(),
+	productName: z.string(),
+	productSlug: z.string(),
+	productImage: z.string().optional(),
+	productPrice: z.number().optional(),
+	productCategory: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const recommendationsProductEmbeddingShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	productId: z.string(),
+	embedding: z.record(z.string(), z.unknown()),
+	text: z.string(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const recommendationsRecommendationImpressionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	surface: z.string(),
+	sourceProductId: z.string().optional(),
+	customerId: z.string().optional(),
+	sessionId: z.string().optional(),
+	productIds: z.record(z.string(), z.unknown()),
+	strategies: z.record(z.string(), z.unknown()),
+	servedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const recommendationsRecommendationClickShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	impressionId: z.string(),
+	surface: z.string(),
+	productId: z.string(),
+	position: z.number(),
+	strategy: z.string().optional(),
+	clickedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for recommendations. */
+export const recommendationsStorage = {
+	kind: "relational",
+	tables: {
+		recommendationRule: {
+			shape: recommendationsRecommendationRuleShape,
+		},
+		coOccurrence: {
+			shape: recommendationsCoOccurrenceShape,
+		},
+		productInteraction: {
+			shape: recommendationsProductInteractionShape,
+		},
+		productEmbedding: {
+			shape: recommendationsProductEmbeddingShape,
+		},
+		recommendationImpression: {
+			shape: recommendationsRecommendationImpressionShape,
+		},
+		recommendationClick: {
+			shape: recommendationsRecommendationClickShape,
 		},
 	},
-	coOccurrence: {
-		fields: {
-			id: { type: "string", required: true },
-			productId1: { type: "string", required: true },
-			productId2: { type: "string", required: true },
-			count: { type: "number", required: true },
-			lastOccurredAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	productInteraction: {
-		fields: {
-			id: { type: "string", required: true },
-			productId: { type: "string", required: true },
-			customerId: { type: "string", required: false },
-			sessionId: { type: "string", required: false },
-			type: { type: "string", required: true },
-			productName: { type: "string", required: true },
-			productSlug: { type: "string", required: true },
-			productImage: { type: "string", required: false },
-			productPrice: { type: "number", required: false },
-			productCategory: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	productEmbedding: {
-		fields: {
-			id: { type: "string", required: true },
-			productId: { type: "string", required: true },
-			embedding: { type: "json", required: true },
-			text: { type: "string", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	recommendationImpression: {
-		fields: {
-			id: { type: "string", required: true },
-			surface: { type: "string", required: true },
-			sourceProductId: { type: "string", required: false },
-			customerId: { type: "string", required: false },
-			sessionId: { type: "string", required: false },
-			productIds: { type: "json", required: true },
-			strategies: { type: "json", required: true },
-			servedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	recommendationClick: {
-		fields: {
-			id: { type: "string", required: true },
-			impressionId: { type: "string", required: true },
-			surface: { type: "string", required: true },
-			productId: { type: "string", required: true },
-			position: { type: "number", required: true },
-			strategy: { type: "string", required: false },
-			clickedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

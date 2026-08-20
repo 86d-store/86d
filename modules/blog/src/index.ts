@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { toMarkdownBlogListing, toMarkdownBlogPost } from "./markdown";
-import { blogSchema } from "./schema";
+import { blogStorage } from "./schema";
 import { createBlogController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -25,7 +25,7 @@ export default function blog(options?: BlogOptions): Module {
 	return {
 		id: "blog",
 		version: "0.1.0",
-		schema: blogSchema,
+		storage: blogStorage,
 		exports: {
 			read: [
 				"postTitle",

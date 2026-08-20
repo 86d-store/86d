@@ -1,120 +1,57 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const storeCreditsSchema = {
-	creditAccount: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			customerId: {
-				type: "string",
-				required: true,
-				unique: true,
-			},
-			customerEmail: {
-				type: "string",
-				required: false,
-			},
-			balance: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			lifetimeCredited: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			lifetimeDebited: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			currency: {
-				type: "string",
-				required: true,
-				defaultValue: "USD",
-			},
-			status: {
-				type: ["active", "frozen", "closed"] as const,
-				required: true,
-				defaultValue: "active",
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const storeCreditsCreditAccountShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	customerId: z.string().register(col, { unique: true }),
+	customerEmail: z.string().optional(),
+	balance: z.int().default(0),
+	lifetimeCredited: z.int().default(0),
+	lifetimeDebited: z.int().default(0),
+	currency: z.string().default("USD"),
+	status: z.enum(["active", "frozen", "closed"]).default("active"),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const storeCreditsCreditTransactionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	accountId: z.string().register(col, {
+		references: {
+			table: "self.creditAccount",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	type: z.enum(["credit", "debit"]),
+	amount: z.number(),
+	balanceAfter: z.number(),
+	reason: z.enum([
+		"return_refund",
+		"order_payment",
+		"admin_adjustment",
+		"referral_reward",
+		"gift_card_conversion",
+		"promotional",
+		"other",
+	]),
+	description: z.string(),
+	referenceType: z.string().optional(),
+	referenceId: z.string().optional(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for store-credits. */
+export const storeCreditsStorage = {
+	kind: "relational",
+	tables: {
+		creditAccount: {
+			shape: storeCreditsCreditAccountShape,
+		},
+		creditTransaction: {
+			shape: storeCreditsCreditTransactionShape,
 		},
 	},
-	creditTransaction: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			accountId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "creditAccount",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			type: {
-				type: ["credit", "debit"] as const,
-				required: true,
-			},
-			amount: {
-				type: "number",
-				required: true,
-			},
-			balanceAfter: {
-				type: "number",
-				required: true,
-			},
-			reason: {
-				type: [
-					"return_refund",
-					"order_payment",
-					"admin_adjustment",
-					"referral_reward",
-					"gift_card_conversion",
-					"promotional",
-					"other",
-				] as const,
-				required: true,
-			},
-			description: {
-				type: "string",
-				required: true,
-			},
-			referenceType: {
-				type: "string",
-				required: false,
-			},
-			referenceId: {
-				type: "string",
-				required: false,
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

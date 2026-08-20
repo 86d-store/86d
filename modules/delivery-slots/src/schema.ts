@@ -1,96 +1,62 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const deliverySlotsSchema = {
-	deliverySchedule: {
-		fields: {
-			id: { type: "string", required: true },
-			/** Display name (e.g. "Weekday Morning") */
-			name: { type: "string", required: true },
-			/** Day of week: 0 = Sunday … 6 = Saturday */
-			dayOfWeek: { type: "number", required: true },
-			/** Start time in HH:MM 24-hour format */
-			startTime: { type: "string", required: true },
-			/** End time in HH:MM 24-hour format */
-			endTime: { type: "string", required: true },
-			/** Maximum bookings allowed per slot occurrence */
-			capacity: { type: "number", required: true },
-			/** Surcharge in cents for this slot (0 = no surcharge) */
-			surchargeInCents: { type: "number", required: true, defaultValue: 0 },
-			/** Whether customers can book this slot */
-			active: { type: "boolean", required: true, defaultValue: true },
-			/** Display order within the same day */
-			sortOrder: { type: "number", required: true, defaultValue: 0 },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const deliverySlotsDeliveryScheduleShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	dayOfWeek: z.number(),
+	startTime: z.string(),
+	endTime: z.string(),
+	capacity: z.number(),
+	surchargeInCents: z.int().default(0),
+	active: z.boolean().default(true),
+	sortOrder: z.int().default(0),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const deliverySlotsDeliveryBookingShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	scheduleId: z.string().register(col, {
+		references: {
+			table: "self.deliverySchedule",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	deliveryDate: z.string().register(col, { index: true }),
+	orderId: z.string().register(col, { index: true }),
+	customerId: z.string().register(col, { index: true }).optional(),
+	scheduleName: z.string(),
+	startTime: z.string(),
+	endTime: z.string(),
+	surchargeInCents: z.number(),
+	status: z.enum(["confirmed", "cancelled"]),
+	instructions: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const deliverySlotsDeliveryBlackoutShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	date: z.string().register(col, { index: true }),
+	reason: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for delivery-slots. */
+export const deliverySlotsStorage = {
+	kind: "relational",
+	tables: {
+		deliverySchedule: {
+			shape: deliverySlotsDeliveryScheduleShape,
+		},
+		deliveryBooking: {
+			shape: deliverySlotsDeliveryBookingShape,
+		},
+		deliveryBlackout: {
+			shape: deliverySlotsDeliveryBlackoutShape,
 		},
 	},
-	deliveryBooking: {
-		fields: {
-			id: { type: "string", required: true },
-			/** The schedule this booking is for */
-			scheduleId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "deliverySchedule",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			/** The specific delivery date (YYYY-MM-DD) */
-			deliveryDate: { type: "string", required: true, index: true },
-			/** Associated order ID */
-			orderId: { type: "string", required: true, index: true },
-			/** Customer who booked */
-			customerId: { type: "string", required: false, index: true },
-			/** Denormalized schedule name */
-			scheduleName: { type: "string", required: true },
-			/** Denormalized time window */
-			startTime: { type: "string", required: true },
-			endTime: { type: "string", required: true },
-			/** Surcharge charged in cents (snapshot) */
-			surchargeInCents: { type: "number", required: true },
-			/** Booking status */
-			status: {
-				type: ["confirmed", "cancelled"] as const,
-				required: true,
-			},
-			/** Optional delivery instructions */
-			instructions: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	deliveryBlackout: {
-		fields: {
-			id: { type: "string", required: true },
-			/** Date to block (YYYY-MM-DD) */
-			date: { type: "string", required: true, index: true },
-			/** Reason displayed to customers */
-			reason: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { preordersSchema } from "./schema";
+import { preordersStorage } from "./schema";
 import { createPreordersController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -27,7 +27,7 @@ export default function preorders(options?: PreordersOptions): Module {
 	return {
 		id: "preorders",
 		version: "0.0.1",
-		schema: preordersSchema,
+		storage: preordersStorage,
 		requires: ["products"],
 		exports: {
 			read: ["preorderAvailability", "preorderCampaign"],

@@ -1,126 +1,51 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const faqSchema = {
-	faqCategory: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			name: {
-				type: "string",
-				required: true,
-			},
-			slug: {
-				type: "string",
-				required: true,
-				unique: true,
-			},
-			description: {
-				type: "string",
-				required: false,
-			},
-			icon: {
-				type: "string",
-				required: false,
-			},
-			position: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			isVisible: {
-				type: "boolean",
-				required: true,
-				defaultValue: true,
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const faqFaqCategoryShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	description: z.string().optional(),
+	icon: z.string().optional(),
+	position: z.int().default(0),
+	isVisible: z.boolean().default(true),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const faqFaqItemShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	categoryId: z.string().register(col, {
+		references: {
+			table: "self.faqCategory",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	question: z.string(),
+	answer: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	position: z.int().default(0),
+	isVisible: z.boolean().default(true),
+	tags: z.array(z.unknown()).default([]),
+	helpfulCount: z.int().default(0),
+	notHelpfulCount: z.int().default(0),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for faq. */
+export const faqStorage = {
+	kind: "relational",
+	tables: {
+		faqCategory: {
+			shape: faqFaqCategoryShape,
+		},
+		faqItem: {
+			shape: faqFaqItemShape,
 		},
 	},
-	faqItem: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			categoryId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "faqCategory",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			question: {
-				type: "string",
-				required: true,
-			},
-			answer: {
-				type: "string",
-				required: true,
-			},
-			slug: {
-				type: "string",
-				required: true,
-				unique: true,
-			},
-			position: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			isVisible: {
-				type: "boolean",
-				required: true,
-				defaultValue: true,
-			},
-			tags: {
-				type: "json",
-				required: false,
-				defaultValue: [],
-			},
-			helpfulCount: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			notHelpfulCount: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

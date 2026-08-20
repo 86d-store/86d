@@ -1,61 +1,55 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const preordersSchema = {
-	preorderCampaign: {
-		fields: {
-			id: { type: "string", required: true },
-			productId: { type: "string", required: true },
-			productName: { type: "string", required: true },
-			variantId: { type: "string", required: false },
-			variantLabel: { type: "string", required: false },
-			status: { type: "string", required: true },
-			paymentType: { type: "string", required: true },
-			depositAmount: { type: "number", required: false },
-			depositPercent: { type: "number", required: false },
-			price: { type: "number", required: true },
-			maxQuantity: { type: "number", required: false },
-			currentQuantity: { type: "number", required: true },
-			startDate: { type: "date", required: true },
-			endDate: { type: "date", required: false },
-			estimatedShipDate: { type: "date", required: false },
-			message: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const preordersPreorderCampaignShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	productId: z.string(),
+	productName: z.string(),
+	variantId: z.string().optional(),
+	variantLabel: z.string().optional(),
+	status: z.string(),
+	paymentType: z.string(),
+	depositAmount: z.number().optional(),
+	depositPercent: z.number().optional(),
+	price: z.number(),
+	maxQuantity: z.number().optional(),
+	currentQuantity: z.number(),
+	startDate: z.coerce.date(),
+	endDate: z.coerce.date().optional(),
+	estimatedShipDate: z.coerce.date().optional(),
+	message: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const preordersPreorderItemShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	campaignId: z.string(),
+	customerId: z.string(),
+	customerEmail: z.string(),
+	quantity: z.number(),
+	status: z.string(),
+	depositPaid: z.number(),
+	totalPrice: z.number(),
+	orderId: z.string().optional(),
+	notifiedAt: z.coerce.date().optional(),
+	cancelledAt: z.coerce.date().optional(),
+	cancelReason: z.string().optional(),
+	fulfilledAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for preorders. */
+export const preordersStorage = {
+	kind: "relational",
+	tables: {
+		preorderCampaign: {
+			shape: preordersPreorderCampaignShape,
+		},
+		preorderItem: {
+			shape: preordersPreorderItemShape,
 		},
 	},
-	preorderItem: {
-		fields: {
-			id: { type: "string", required: true },
-			campaignId: { type: "string", required: true },
-			customerId: { type: "string", required: true },
-			customerEmail: { type: "string", required: true },
-			quantity: { type: "number", required: true },
-			status: { type: "string", required: true },
-			depositPaid: { type: "number", required: true },
-			totalPrice: { type: "number", required: true },
-			orderId: { type: "string", required: false },
-			notifiedAt: { type: "date", required: false },
-			cancelledAt: { type: "date", required: false },
-			cancelReason: { type: "string", required: false },
-			fulfilledAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

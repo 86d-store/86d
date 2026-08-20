@@ -1,44 +1,42 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const productLabelsSchema = {
-	label: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			slug: { type: "string", required: true },
-			displayText: { type: "string", required: true },
-			type: { type: "string", required: true },
-			color: { type: "string", required: false },
-			backgroundColor: { type: "string", required: false },
-			icon: { type: "string", required: false },
-			priority: { type: "number", required: true },
-			isActive: { type: "boolean", required: true },
-			startsAt: { type: "date", required: false },
-			endsAt: { type: "date", required: false },
-			conditions: { type: "json", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const productLabelsLabelShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	slug: z.string(),
+	displayText: z.string(),
+	type: z.string(),
+	color: z.string().optional(),
+	backgroundColor: z.string().optional(),
+	icon: z.string().optional(),
+	priority: z.number(),
+	isActive: z.boolean(),
+	startsAt: z.coerce.date().optional(),
+	endsAt: z.coerce.date().optional(),
+	conditions: z.record(z.string(), z.unknown()).optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const productLabelsProductLabelShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	productId: z.string(),
+	labelId: z.string(),
+	position: z.string().optional(),
+	assignedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for product-labels. */
+export const productLabelsStorage = {
+	kind: "relational",
+	tables: {
+		label: {
+			shape: productLabelsLabelShape,
+		},
+		productLabel: {
+			shape: productLabelsProductLabelShape,
 		},
 	},
-	productLabel: {
-		fields: {
-			id: { type: "string", required: true },
-			productId: { type: "string", required: true },
-			labelId: { type: "string", required: true },
-			position: { type: "string", required: false },
-			assignedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

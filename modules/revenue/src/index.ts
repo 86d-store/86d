@@ -2,7 +2,7 @@ import { acceptCapability } from "@86d-app/core/capabilities";
 import { paymentIntentCapability } from "@86d-app/core/commerce-capabilities";
 import type { Module, ModuleConfig } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { revenueSchema } from "./schema";
+import { revenueStorage } from "./schema";
 import { storeEndpoints } from "./store/endpoints/routes";
 
 export type {
@@ -18,7 +18,7 @@ export default function revenue(_options?: RevenueOptions): Module {
 	return {
 		id: "revenue",
 		version: "0.0.1",
-		schema: revenueSchema,
+		storage: revenueStorage,
 		capabilities: {
 			accepts: [
 				acceptCapability(paymentIntentCapability, {

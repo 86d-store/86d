@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { sitemapSchema, sitemapTables } from "./schema";
+import { sitemapStorage } from "./schema";
 import { MAX_ENTRIES_PER_SITEMAP } from "./service";
 import { createSitemapController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
@@ -27,8 +27,7 @@ export default function sitemap(options?: SitemapOptions): Module {
 	return {
 		id: "sitemap",
 		version: "0.0.1",
-		schema: sitemapSchema,
-		tables: sitemapTables,
+		storage: sitemapStorage,
 		exports: {
 			read: ["sitemapXml", "sitemapEntries"],
 		},

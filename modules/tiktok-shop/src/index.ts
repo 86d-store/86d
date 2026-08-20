@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
-import { tiktokShopSchema } from "./schema";
+import { tiktokShopStorage } from "./schema";
 import { createTikTokShopController } from "./service-impl";
 import { createStoreEndpoints } from "./store/endpoints/routes";
 
@@ -42,7 +42,7 @@ export default function tiktokShop(options?: TikTokShopOptions): Module {
 	return {
 		id: "tiktok-shop",
 		version: "0.2.0",
-		schema: tiktokShopSchema,
+		storage: tiktokShopStorage,
 		exports: {
 			read: ["listingTitle", "listingStatus", "listingSyncStatus"],
 		},

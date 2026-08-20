@@ -28,7 +28,7 @@ import {
 	toMarkdownProductDetail,
 	toMarkdownProductListing,
 } from "./markdown";
-import { productsSchema, productsTables } from "./schema";
+import { productsStorage } from "./schema";
 import { storeEndpoints } from "./store/endpoints/routes";
 
 export type {
@@ -80,8 +80,7 @@ export default function products(options?: ProductsOptions): Module {
 	return {
 		id: "products",
 		version: "0.0.1",
-		schema: productsSchema,
-		tables: productsTables,
+		storage: productsStorage,
 		exports: {
 			read: [
 				"productTitle",

@@ -30,7 +30,7 @@ import {
 	paymentTerminalStateSchema,
 	paymentTransitionConfirmedV1,
 } from "./payment-service";
-import { paymentsSchema, paymentsTables } from "./schema";
+import { paymentsStorage } from "./schema";
 import type { PaymentProvider } from "./service";
 import { createPaymentController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
@@ -134,8 +134,7 @@ export default function payments(options?: PaymentsOptions): Module {
 	return {
 		id: "payments",
 		version: "0.0.1",
-		schema: paymentsSchema,
-		tables: paymentsTables,
+		storage: paymentsStorage,
 		capabilities: {
 			provides: [
 				createPaymentCheckoutProvider(options?.provider),

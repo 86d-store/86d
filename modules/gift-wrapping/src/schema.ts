@@ -1,64 +1,47 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const giftWrappingSchema = {
-	wrapOption: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			description: { type: "string", required: false },
-			/** Price in cents for this wrapping option */
-			priceInCents: { type: "number", required: true },
-			/** Preview image URL */
-			imageUrl: { type: "string", required: false },
-			/** Whether this option is available for selection */
-			active: { type: "boolean", required: true, defaultValue: true },
-			/** Display order */
-			sortOrder: { type: "number", required: true, defaultValue: 0 },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const giftWrappingWrapOptionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	description: z.string().optional(),
+	priceInCents: z.number(),
+	imageUrl: z.string().optional(),
+	active: z.boolean().default(true),
+	sortOrder: z.int().default(0),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const giftWrappingWrapSelectionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	orderId: z.string().register(col, { index: true }),
+	orderItemId: z.string().register(col, { index: true }),
+	wrapOptionId: z.string().register(col, {
+		references: {
+			table: "self.wrapOption",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	wrapOptionName: z.string(),
+	priceInCents: z.number(),
+	recipientName: z.string().optional(),
+	giftMessage: z.string().optional(),
+	customerId: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for gift-wrapping. */
+export const giftWrappingStorage = {
+	kind: "relational",
+	tables: {
+		wrapOption: {
+			shape: giftWrappingWrapOptionShape,
+		},
+		wrapSelection: {
+			shape: giftWrappingWrapSelectionShape,
 		},
 	},
-	wrapSelection: {
-		fields: {
-			id: { type: "string", required: true },
-			/** Associated order ID */
-			orderId: { type: "string", required: true, index: true },
-			/** Order line-item ID */
-			orderItemId: { type: "string", required: true, index: true },
-			/** Chosen wrapping option */
-			wrapOptionId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "wrapOption",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			/** Name of the wrapping option (denormalized for order history) */
-			wrapOptionName: { type: "string", required: true },
-			/** Price charged in cents (snapshot at time of selection) */
-			priceInCents: { type: "number", required: true },
-			/** Recipient name on the gift tag */
-			recipientName: { type: "string", required: false },
-			/** Custom gift message */
-			giftMessage: { type: "string", required: false },
-			/** Customer who selected the wrapping */
-			customerId: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

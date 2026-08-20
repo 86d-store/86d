@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { ticketsSchema } from "./schema";
+import { ticketsStorage } from "./schema";
 import { createTicketControllers } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -40,7 +40,7 @@ export default function tickets(options?: TicketsOptions): Module {
 	return {
 		id: "tickets",
 		version: "1.0.0",
-		schema: ticketsSchema,
+		storage: ticketsStorage,
 		exports: {
 			read: ["tickets", "ticketCategories", "ticketMessages"],
 		},

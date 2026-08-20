@@ -4,14 +4,15 @@ import {
 	CURATED_STORE_MODULES,
 	TIER_NONE_CURATED_MODULES,
 } from "@86d-app/core/curated-modules";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
 import type { Module } from "@86d-app/core/types/module";
 
 const repoRoot = join(import.meta.dirname, "../../..");
 const modulesDir = join(repoRoot, "modules");
 const TIER_NONE = new Set<string>(TIER_NONE_CURATED_MODULES);
 
-function tablesExportName(moduleId: string): string {
-	return `${moduleId.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())}Tables`;
+function storageExportName(moduleId: string): string {
+	return `${moduleId.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())}Storage`;
 }
 
 /**
@@ -24,7 +25,7 @@ export async function loadCuratedModule(moduleId: string): Promise<Module> {
 		return {
 			id: moduleId,
 			version: "0.0.1",
-			schema: {},
+			storage: { kind: "none" },
 		};
 	}
 
@@ -44,9 +45,9 @@ export async function loadCuratedModule(moduleId: string): Promise<Module> {
 		);
 	}
 
-	const exportName = tablesExportName(moduleId);
-	const tables = mod[exportName];
-	if (!tables || typeof tables !== "object") {
+	const exportName = storageExportName(moduleId);
+	const storage = mod[exportName];
+	if (!storage || typeof storage !== "object") {
 		throw new Error(
 			`Curated Module "${moduleId}" schema does not export ${exportName}.`,
 		);
@@ -55,7 +56,7 @@ export async function loadCuratedModule(moduleId: string): Promise<Module> {
 	return {
 		id: moduleId,
 		version: "0.0.1",
-		tables: tables as NonNullable<Module["tables"]>,
+		storage: storage as ModuleStorageDeclaration,
 	};
 }
 

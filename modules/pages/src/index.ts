@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { toMarkdownPageDetail, toMarkdownPageListing } from "./markdown";
-import { pagesSchema, pagesTables } from "./schema";
+import { pagesStorage } from "./schema";
 import { createPagesController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -20,8 +20,7 @@ export default function pages(options?: PagesOptions): Module {
 	return {
 		id: "pages",
 		version: "0.0.1",
-		schema: pagesSchema,
-		tables: pagesTables,
+		storage: pagesStorage,
 		exports: {
 			read: ["pageTitle", "pageSlug"],
 		},

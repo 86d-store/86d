@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { mediaSchema, mediaTables } from "./schema";
+import { mediaStorage } from "./schema";
 import { createMediaController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -21,8 +21,7 @@ export default function media(options?: MediaOptions): Module {
 	return {
 		id: "media",
 		version: "0.0.1",
-		schema: mediaSchema,
-		tables: mediaTables,
+		storage: mediaStorage,
 		exports: {
 			read: ["assetUrl", "assetAltText", "assetMimeType"],
 		},

@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { formsSchema } from "./schema";
+import { formsStorage } from "./schema";
 import { createFormsControllers } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -33,7 +33,7 @@ export default function forms(options?: FormsOptions): Module {
 	return {
 		id: "forms",
 		version: "1.0.0",
-		schema: formsSchema,
+		storage: formsStorage,
 		exports: {
 			read: ["forms", "formSubmissions"],
 		},

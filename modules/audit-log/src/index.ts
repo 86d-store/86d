@@ -8,7 +8,7 @@ import {
 	INVENTORY_STOCK_ADJUSTED_CONSUMER,
 	inventoryStockAdjustedAudit,
 } from "./durable-consumers";
-import { auditLogSchema } from "./schema";
+import { auditLogStorage } from "./schema";
 import { createAuditLogController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -44,7 +44,7 @@ export default function auditLog(options?: AuditLogOptions): Module {
 	return {
 		id: "audit-log",
 		version: "0.0.1",
-		schema: auditLogSchema,
+		storage: auditLogStorage,
 		exports: {
 			read: ["auditAction", "auditResource", "auditActorId"],
 		},

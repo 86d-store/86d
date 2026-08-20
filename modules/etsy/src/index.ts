@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
-import { etsySchema } from "./schema";
+import { etsyStorage } from "./schema";
 import { createEtsyController } from "./service-impl";
 import { createStoreEndpoints } from "./store/endpoints/routes";
 
@@ -38,7 +38,7 @@ export default function etsy(options?: EtsyOptions): Module {
 	return {
 		id: "etsy",
 		version: "0.1.0",
-		schema: etsySchema,
+		storage: etsyStorage,
 		exports: {
 			read: ["listingTitle", "listingStatus", "listingPrice", "listingViews"],
 		},

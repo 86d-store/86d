@@ -1,5 +1,6 @@
 import type { Module } from "../../types/module";
 import type { z } from "../../zod";
+import { resolveModuleStorage, storageTables } from "../declaration";
 import { readColumnMeta } from "./types";
 import {
 	classifyZodBase,
@@ -114,7 +115,7 @@ function inventoryField(
 }
 
 /**
- * Walk installed Modules that declare `tables` and emit the compiler
+ * Walk installed Modules that declare Relational tables and emit the compiler
  * support-boundary inventory with Module/table/field provenance.
  */
 export function buildFeatureManifest(
@@ -123,9 +124,14 @@ export function buildFeatureManifest(
 	const bucket = new Map<string, ConstructProvenance[]>();
 
 	for (const module of modules) {
-		const tables = module.tables;
+		const storage = resolveModuleStorage(module);
+		const tables = storage ? storageTables(storage) : (module.tables ?? {});
 		if (!tables || Object.keys(tables).length === 0) {
-			if (!module.schema || Object.keys(module.schema).length === 0) {
+			const isNone =
+				storage?.kind === "none" ||
+				(!storage &&
+					(!module.schema || Object.keys(module.schema).length === 0));
+			if (isNone || storage?.kind === "config") {
 				addConstruct(bucket, "module.tier_none", {
 					moduleId: module.id,
 				});

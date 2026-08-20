@@ -1,78 +1,43 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const auditLogSchema = {
-	auditEntry: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			action: {
-				type: [
-					"create",
-					"update",
-					"delete",
-					"bulk_create",
-					"bulk_update",
-					"bulk_delete",
-					"login",
-					"logout",
-					"export",
-					"import",
-					"settings_change",
-					"status_change",
-					"custom",
-				],
-				required: true,
-			},
-			resource: {
-				type: "string",
-				required: true,
-			},
-			resourceId: {
-				type: "string",
-				required: false,
-			},
-			actorId: {
-				type: "string",
-				required: false,
-			},
-			actorEmail: {
-				type: "string",
-				required: false,
-			},
-			actorType: {
-				type: ["admin", "system", "api_key"],
-				required: true,
-				defaultValue: "admin",
-			},
-			description: {
-				type: "string",
-				required: true,
-			},
-			changes: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			ipAddress: {
-				type: "string",
-				required: false,
-			},
-			userAgent: {
-				type: "string",
-				required: false,
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const auditLogAuditEntryShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	action: z.enum([
+		"create",
+		"update",
+		"delete",
+		"bulk_create",
+		"bulk_update",
+		"bulk_delete",
+		"login",
+		"logout",
+		"export",
+		"import",
+		"settings_change",
+		"status_change",
+		"custom",
+	]),
+	resource: z.string(),
+	resourceId: z.string().optional(),
+	actorId: z.string().optional(),
+	actorEmail: z.string().optional(),
+	actorType: z.enum(["admin", "system", "api_key"]).default("admin"),
+	description: z.string(),
+	changes: z.record(z.string(), z.unknown()).default({}),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	ipAddress: z.string().optional(),
+	userAgent: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for audit-log. */
+export const auditLogStorage = {
+	kind: "relational",
+	tables: {
+		auditEntry: {
+			shape: auditLogAuditEntryShape,
 		},
 	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

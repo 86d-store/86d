@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { gamificationSchema } from "./schema";
+import { gamificationStorage } from "./schema";
 import { createGamificationController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -34,7 +34,7 @@ export default function gamification(options?: GamificationOptions): Module {
 	return {
 		id: "gamification",
 		version: "0.0.1",
-		schema: gamificationSchema,
+		storage: gamificationStorage,
 		exports: {
 			read: ["gameType", "gameIsActive"],
 		},

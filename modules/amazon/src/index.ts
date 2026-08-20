@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
-import { amazonSchema } from "./schema";
+import { amazonStorage } from "./schema";
 import { createAmazonController } from "./service-impl";
 import { createStoreEndpoints } from "./store/endpoints/routes";
 
@@ -48,7 +48,7 @@ export default function amazon(options?: AmazonOptions): Module {
 	return {
 		id: "amazon",
 		version: "0.2.0",
-		schema: amazonSchema,
+		storage: amazonStorage,
 		exports: {
 			read: ["listingTitle", "listingSku", "listingStatus", "listingPrice"],
 		},

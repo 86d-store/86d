@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
-import { ebaySchema } from "./schema";
+import { ebayStorage } from "./schema";
 import { createEbayController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -48,7 +48,7 @@ export default function ebay(options?: EbayOptions): Module {
 	return {
 		id: "ebay",
 		version: "0.2.0",
-		schema: ebaySchema,
+		storage: ebayStorage,
 		exports: {
 			read: ["listingTitle", "listingStatus", "listingPrice", "ebayItemId"],
 		},

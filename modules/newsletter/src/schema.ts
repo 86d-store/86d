@@ -1,61 +1,46 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const newsletterSchema = {
-	subscriber: {
-		fields: {
-			id: { type: "string", required: true },
-			email: { type: "string", required: true },
-			firstName: { type: "string", required: false },
-			lastName: { type: "string", required: false },
-			status: { type: "string", required: true, defaultValue: "active" },
-			source: { type: "string", required: false },
-			tags: { type: "json", required: true, defaultValue: [] },
-			metadata: { type: "json", required: true, defaultValue: {} },
-			subscribedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			unsubscribedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const newsletterSubscriberShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	email: z.string(),
+	firstName: z.string().optional(),
+	lastName: z.string().optional(),
+	status: z.string().default("active"),
+	source: z.string().optional(),
+	tags: z.array(z.unknown()).default([]),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	subscribedAt: z.coerce.date().default(() => new Date()),
+	unsubscribedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const newsletterCampaignShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	subject: z.string(),
+	body: z.string(),
+	status: z.string().default("draft"),
+	recipientCount: z.int().default(0),
+	sentCount: z.int().default(0),
+	failedCount: z.int().default(0),
+	tags: z.array(z.unknown()).default([]),
+	scheduledAt: z.coerce.date().optional(),
+	sentAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for newsletter. */
+export const newsletterStorage = {
+	kind: "relational",
+	tables: {
+		subscriber: {
+			shape: newsletterSubscriberShape,
+		},
+		campaign: {
+			shape: newsletterCampaignShape,
 		},
 	},
-	campaign: {
-		fields: {
-			id: { type: "string", required: true },
-			subject: { type: "string", required: true },
-			body: { type: "string", required: true },
-			status: { type: "string", required: true, defaultValue: "draft" },
-			recipientCount: { type: "number", required: true, defaultValue: 0 },
-			sentCount: { type: "number", required: true, defaultValue: 0 },
-			failedCount: { type: "number", required: true, defaultValue: 0 },
-			tags: { type: "json", required: true, defaultValue: [] },
-			scheduledAt: { type: "date", required: false },
-			sentAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
-
-export const newsletterTables = transcodeModuleSchema(newsletterSchema);
+} as const satisfies ModuleStorageDeclaration;

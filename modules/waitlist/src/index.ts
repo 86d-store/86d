@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { waitlistSchema } from "./schema";
+import { waitlistStorage } from "./schema";
 import { createWaitlistController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -24,7 +24,7 @@ export default function waitlist(options?: WaitlistOptions): Module {
 	return {
 		id: "waitlist",
 		version: "0.0.1",
-		schema: waitlistSchema,
+		storage: waitlistStorage,
 		requires: ["inventory"],
 		exports: {
 			read: ["waitlistCount", "isOnWaitlist"],

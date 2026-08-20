@@ -1,3 +1,5 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
 
-export const revenueSchema = {} satisfies ModuleSchema;
+export const revenueStorage = {
+	kind: "none",
+} as const satisfies ModuleStorageDeclaration;

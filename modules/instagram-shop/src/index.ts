@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
-import { instagramShopSchema } from "./schema";
+import { instagramShopStorage } from "./schema";
 import { createInstagramShopController } from "./service-impl";
 import { createStoreEndpoints } from "./store/endpoints/routes";
 
@@ -41,7 +41,7 @@ export default function instagramShop(options?: InstagramShopOptions): Module {
 	return {
 		id: "instagram-shop",
 		version: "0.2.0",
-		schema: instagramShopSchema,
+		storage: instagramShopStorage,
 		exports: {
 			read: ["listingTitle", "listingStatus", "listingSyncStatus"],
 		},

@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { importExportSchema } from "./schema";
+import { importExportStorage } from "./schema";
 import { createImportExportController } from "./service-impl";
 
 export type {
@@ -35,7 +35,7 @@ export default function importExport(options?: ImportExportOptions): Module {
 	return {
 		id: "import-export",
 		version: "0.0.1",
-		schema: importExportSchema,
+		storage: importExportStorage,
 		exports: {
 			read: ["importJobStatus", "exportJobStatus"],
 		},

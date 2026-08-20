@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { redirectsSchema } from "./schema";
+import { redirectsStorage } from "./schema";
 import { createRedirectController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -23,7 +23,7 @@ export default function redirects(options?: RedirectsOptions): Module {
 	return {
 		id: "redirects",
 		version: "0.0.1",
-		schema: redirectsSchema,
+		storage: redirectsStorage,
 		exports: {
 			read: ["resolveRedirect", "activeRedirects"],
 		},

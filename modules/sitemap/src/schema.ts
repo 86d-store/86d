@@ -1,56 +1,51 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const sitemapSchema = {
-	sitemapConfig: {
-		fields: {
-			id: { type: "string", required: true },
-			baseUrl: { type: "string", required: true },
-			includeProducts: { type: "boolean", required: true },
-			includeCollections: { type: "boolean", required: true },
-			includePages: { type: "boolean", required: true },
-			includeBlog: { type: "boolean", required: true },
-			includeBrands: { type: "boolean", required: true },
-			defaultChangeFreq: { type: "string", required: true },
-			defaultPriority: { type: "number", required: true },
-			productChangeFreq: { type: "string", required: true },
-			productPriority: { type: "number", required: true },
-			collectionChangeFreq: { type: "string", required: true },
-			collectionPriority: { type: "number", required: true },
-			pageChangeFreq: { type: "string", required: true },
-			pagePriority: { type: "number", required: true },
-			blogChangeFreq: { type: "string", required: true },
-			blogPriority: { type: "number", required: true },
-			excludedPaths: { type: "json", required: false },
-			lastGenerated: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const sitemapSitemapConfigShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	baseUrl: z.string(),
+	includeProducts: z.boolean(),
+	includeCollections: z.boolean(),
+	includePages: z.boolean(),
+	includeBlog: z.boolean(),
+	includeBrands: z.boolean(),
+	defaultChangeFreq: z.string(),
+	defaultPriority: z.number(),
+	productChangeFreq: z.string(),
+	productPriority: z.number(),
+	collectionChangeFreq: z.string(),
+	collectionPriority: z.number(),
+	pageChangeFreq: z.string(),
+	pagePriority: z.number(),
+	blogChangeFreq: z.string(),
+	blogPriority: z.number(),
+	excludedPaths: z.record(z.string(), z.unknown()).optional(),
+	lastGenerated: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const sitemapSitemapEntryShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	loc: z.string().register(col, { index: true }),
+	lastmod: z.coerce.date().optional(),
+	changefreq: z.string(),
+	priority: z.number(),
+	source: z.string().register(col, { index: true }),
+	sourceId: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for sitemap. */
+export const sitemapStorage = {
+	kind: "relational",
+	tables: {
+		sitemapConfig: {
+			shape: sitemapSitemapConfigShape,
+		},
+		sitemapEntry: {
+			shape: sitemapSitemapEntryShape,
 		},
 	},
-	sitemapEntry: {
-		fields: {
-			id: { type: "string", required: true },
-			loc: { type: "string", required: true, index: true },
-			lastmod: { type: "date", required: false },
-			changefreq: { type: "string", required: true },
-			priority: { type: "number", required: true },
-			source: { type: "string", required: true, index: true },
-			sourceId: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
-
-export const sitemapTables = transcodeModuleSchema(sitemapSchema);
+} as const satisfies ModuleStorageDeclaration;

@@ -1,58 +1,47 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const seoSchema = {
-	metaTag: {
-		fields: {
-			id: { type: "string", required: true },
-			path: { type: "string", required: true },
-			title: { type: "string", required: false },
-			description: { type: "string", required: false },
-			canonicalUrl: { type: "string", required: false },
-			ogTitle: { type: "string", required: false },
-			ogDescription: { type: "string", required: false },
-			ogImage: { type: "string", required: false },
-			ogType: { type: "string", required: false },
-			twitterCard: { type: "string", required: false },
-			twitterTitle: { type: "string", required: false },
-			twitterDescription: { type: "string", required: false },
-			twitterImage: { type: "string", required: false },
-			noIndex: { type: "string", required: true, defaultValue: "false" },
-			noFollow: { type: "string", required: true, defaultValue: "false" },
-			jsonLd: { type: "json", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const seoMetaTagShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	path: z.string(),
+	title: z.string().optional(),
+	description: z.string().optional(),
+	canonicalUrl: z.string().optional(),
+	ogTitle: z.string().optional(),
+	ogDescription: z.string().optional(),
+	ogImage: z.string().optional(),
+	ogType: z.string().optional(),
+	twitterCard: z.string().optional(),
+	twitterTitle: z.string().optional(),
+	twitterDescription: z.string().optional(),
+	twitterImage: z.string().optional(),
+	noIndex: z.string().default("false"),
+	noFollow: z.string().default("false"),
+	jsonLd: z.record(z.string(), z.unknown()).optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const seoRedirectShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	fromPath: z.string(),
+	toPath: z.string(),
+	statusCode: z.string().default("301"),
+	active: z.string().default("true"),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for seo. */
+export const seoStorage = {
+	kind: "relational",
+	tables: {
+		metaTag: {
+			shape: seoMetaTagShape,
+		},
+		redirect: {
+			shape: seoRedirectShape,
 		},
 	},
-	redirect: {
-		fields: {
-			id: { type: "string", required: true },
-			fromPath: { type: "string", required: true },
-			toPath: { type: "string", required: true },
-			statusCode: { type: "string", required: true, defaultValue: "301" },
-			active: { type: "string", required: true, defaultValue: "true" },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
-
-export const seoTables = transcodeModuleSchema(seoSchema);
+} as const satisfies ModuleStorageDeclaration;

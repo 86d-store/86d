@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { subscriptionsSchema } from "./schema";
+import { subscriptionsStorage } from "./schema";
 import { createSubscriptionController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -25,7 +25,7 @@ export default function subscriptions(options?: SubscriptionsOptions): Module {
 	return {
 		id: "subscriptions",
 		version: "0.0.1",
-		schema: subscriptionsSchema,
+		storage: subscriptionsStorage,
 		exports: {
 			read: ["subscriptionStatus", "subscriptionPlan"],
 		},

@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { qrCodeSchema } from "./schema";
+import { qrCodeStorage } from "./schema";
 import { createQrCodeController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -29,7 +29,7 @@ export default function qrCode(options?: QrCodeOptions): Module {
 	return {
 		id: "qr-code",
 		version: "0.0.1",
-		schema: qrCodeSchema,
+		storage: qrCodeStorage,
 		exports: {
 			read: ["qrCodeTargetUrl", "qrCodeTargetType"],
 		},

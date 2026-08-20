@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { productFeedsSchema } from "./schema";
+import { productFeedsStorage } from "./schema";
 import { createProductFeedsController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -38,7 +38,7 @@ export default function productFeeds(options?: ProductFeedsOptions): Module {
 	return {
 		id: "product-feeds",
 		version: "0.0.1",
-		schema: productFeedsSchema,
+		storage: productFeedsStorage,
 		exports: {
 			read: ["feedData", "feedStatus", "feedOutput"],
 		},

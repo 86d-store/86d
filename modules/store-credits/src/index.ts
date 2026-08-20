@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { storeCreditCheckoutProvider } from "./capabilities";
-import { storeCreditsSchema } from "./schema";
+import { storeCreditsStorage } from "./schema";
 import { createStoreCreditController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -43,7 +43,7 @@ export default function storeCredits(options?: StoreCreditsOptions): Module {
 	return {
 		id: "store-credits",
 		version: "0.0.1",
-		schema: storeCreditsSchema,
+		storage: storeCreditsStorage,
 		capabilities: { provides: [storeCreditCheckoutProvider] },
 		exports: {
 			read: ["creditBalance", "creditAccountStatus"],

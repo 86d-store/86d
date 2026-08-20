@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
-import { doordashSchema } from "./schema";
+import { doordashStorage } from "./schema";
 import { createDoordashController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -40,7 +40,7 @@ export default function doordash(options?: DoordashOptions): Module {
 	return {
 		id: "doordash",
 		version: "0.1.0",
-		schema: doordashSchema,
+		storage: doordashStorage,
 		exports: {
 			read: ["deliveryStatus", "deliveryTrackingUrl"],
 		},

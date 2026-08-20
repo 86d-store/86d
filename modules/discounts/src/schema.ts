@@ -1,116 +1,77 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const discountsSchema = {
-	discount: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			description: { type: "string", required: false },
-			type: {
-				type: ["percentage", "fixed_amount", "free_shipping"],
-				required: true,
-			},
-			/** Percentage: 0-100. Fixed: amount in cents. Free shipping: ignored. */
-			value: { type: "number", required: true },
-			/** Minimum cart subtotal (in cents) required to apply */
-			minimumAmount: { type: "number", required: false },
-			/** Total redemption cap across all codes */
-			maximumUses: { type: "number", required: false },
-			usedCount: { type: "number", required: true, defaultValue: 0 },
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			startsAt: { type: "date", required: false },
-			endsAt: { type: "date", required: false },
-			/** "all" | "specific_products" | "specific_categories" */
-			appliesTo: {
-				type: ["all", "specific_products", "specific_categories"],
-				required: true,
-				defaultValue: "all",
-			},
-			/** JSON array of product/category IDs */
-			appliesToIds: { type: "json", required: false, defaultValue: [] },
-			/** Whether this discount stacks with others */
-			stackable: { type: "boolean", required: true, defaultValue: false },
-			metadata: { type: "json", required: false, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	discountCode: {
-		fields: {
-			id: { type: "string", required: true },
-			discountId: {
-				type: "string",
-				required: true,
-				references: { model: "discount", field: "id", onDelete: "cascade" },
-			},
-			code: { type: "string", required: true, unique: true },
-			usedCount: { type: "number", required: true, defaultValue: 0 },
-			/** Per-code usage limit (null = unlimited) */
-			maximumUses: { type: "number", required: false },
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	cartPriceRule: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			description: { type: "string", required: false },
-			type: {
-				type: ["percentage", "fixed_amount", "free_shipping"],
-				required: true,
-			},
-			value: { type: "number", required: true },
-			/** JSON array of CartPriceRuleCondition objects */
-			conditions: { type: "json", required: true, defaultValue: [] },
-			appliesTo: {
-				type: ["all", "specific_products", "specific_categories"],
-				required: true,
-				defaultValue: "all",
-			},
-			appliesToIds: { type: "json", required: false, defaultValue: [] },
-			/** Lower = higher priority */
-			priority: { type: "number", required: true, defaultValue: 0 },
-			stackable: { type: "boolean", required: true, defaultValue: false },
-			maximumUses: { type: "number", required: false },
-			usedCount: { type: "number", required: true, defaultValue: 0 },
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			startsAt: { type: "date", required: false },
-			endsAt: { type: "date", required: false },
-			metadata: { type: "json", required: false, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+export const discountsDiscountShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	description: z.string().optional(),
+	type: z.enum(["percentage", "fixed_amount", "free_shipping"]),
+	value: z.number(),
+	minimumAmount: z.number().optional(),
+	maximumUses: z.number().optional(),
+	usedCount: z.int().default(0),
+	isActive: z.boolean().default(true),
+	startsAt: z.coerce.date().optional(),
+	endsAt: z.coerce.date().optional(),
+	appliesTo: z
+		.enum(["all", "specific_products", "specific_categories"])
+		.default("all"),
+	appliesToIds: z.array(z.unknown()).default([]),
+	stackable: z.boolean().default(false),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
 
-export const discountsTables = transcodeModuleSchema(discountsSchema);
+export const discountsDiscountCodeShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	discountId: z.string().register(col, {
+		references: { table: "self.discount", column: "id", onDelete: "cascade" },
+	}),
+	code: z.string().register(col, { unique: true }),
+	usedCount: z.int().default(0),
+	maximumUses: z.number().optional(),
+	isActive: z.boolean().default(true),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const discountsCartPriceRuleShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	description: z.string().optional(),
+	type: z.enum(["percentage", "fixed_amount", "free_shipping"]),
+	value: z.number(),
+	conditions: z.array(z.unknown()).default([]),
+	appliesTo: z
+		.enum(["all", "specific_products", "specific_categories"])
+		.default("all"),
+	appliesToIds: z.array(z.unknown()).default([]),
+	priority: z.int().default(0),
+	stackable: z.boolean().default(false),
+	maximumUses: z.number().optional(),
+	usedCount: z.int().default(0),
+	isActive: z.boolean().default(true),
+	startsAt: z.coerce.date().optional(),
+	endsAt: z.coerce.date().optional(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for discounts. */
+export const discountsStorage = {
+	kind: "relational",
+	tables: {
+		discount: {
+			shape: discountsDiscountShape,
+		},
+		discountCode: {
+			shape: discountsDiscountCodeShape,
+		},
+		cartPriceRule: {
+			shape: discountsCartPriceRuleShape,
+		},
+	},
+} as const satisfies ModuleStorageDeclaration;

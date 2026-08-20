@@ -1,230 +1,135 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const invoicesSchema = {
-	invoice: {
-		fields: {
-			id: { type: "string", required: true },
-			/** Auto-generated invoice number (e.g. INV-20260309-0001) */
-			invoiceNumber: { type: "string", required: true, unique: true },
-			/** Optional linked order ID */
-			orderId: { type: "string", required: false, index: true },
-			/** Registered customer ID */
-			customerId: { type: "string", required: false, index: true },
-			/** Guest email for non-registered customers */
-			guestEmail: { type: "string", required: false },
-			/** Customer display name */
-			customerName: { type: "string", required: false },
-			/** Invoice lifecycle status */
-			status: {
-				type: [
-					"draft",
-					"sent",
-					"viewed",
-					"paid",
-					"partially_paid",
-					"overdue",
-					"void",
-				] as const,
-				required: true,
-			},
-			/** Payment terms for due date calculation */
-			paymentTerms: {
-				type: [
-					"due_on_receipt",
-					"net_7",
-					"net_15",
-					"net_30",
-					"net_45",
-					"net_60",
-					"net_90",
-				] as const,
-				required: true,
-			},
-			/** Date the invoice was formally issued */
-			issuedAt: { type: "date", required: false },
-			/** Date payment is due */
-			dueDate: { type: "date", required: false },
-			/** Subtotal before tax/shipping/discounts (cents) */
-			subtotal: { type: "number", required: true },
-			/** Tax amount (cents) */
-			taxAmount: { type: "number", required: true, defaultValue: 0 },
-			/** Shipping amount (cents) */
-			shippingAmount: { type: "number", required: true, defaultValue: 0 },
-			/** Discount amount (cents) */
-			discountAmount: { type: "number", required: true, defaultValue: 0 },
-			/** Grand total (cents) */
-			total: { type: "number", required: true },
-			/** Amount paid so far (cents) */
-			amountPaid: { type: "number", required: true, defaultValue: 0 },
-			/** Amount still owed (cents) */
-			amountDue: { type: "number", required: true },
-			/** Currency code */
-			currency: { type: "string", required: true },
-			/** Billing address snapshot */
-			billingAddress: { type: "json", required: false },
-			/** Customer-facing notes */
-			notes: { type: "string", required: false },
-			/** Internal-only notes */
-			internalNotes: { type: "string", required: false },
-			/** Flexible metadata */
-			metadata: { type: "json", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const invoicesInvoiceShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	invoiceNumber: z.string().register(col, { unique: true }),
+	orderId: z.string().register(col, { index: true }).optional(),
+	customerId: z.string().register(col, { index: true }).optional(),
+	guestEmail: z.string().optional(),
+	customerName: z.string().optional(),
+	status: z.enum([
+		"draft",
+		"sent",
+		"viewed",
+		"paid",
+		"partially_paid",
+		"overdue",
+		"void",
+	]),
+	paymentTerms: z.enum([
+		"due_on_receipt",
+		"net_7",
+		"net_15",
+		"net_30",
+		"net_45",
+		"net_60",
+		"net_90",
+	]),
+	issuedAt: z.coerce.date().optional(),
+	dueDate: z.coerce.date().optional(),
+	subtotal: z.number(),
+	taxAmount: z.int().default(0),
+	shippingAmount: z.int().default(0),
+	discountAmount: z.int().default(0),
+	total: z.number(),
+	amountPaid: z.int().default(0),
+	amountDue: z.number(),
+	currency: z.string(),
+	billingAddress: z.record(z.string(), z.unknown()).optional(),
+	notes: z.string().optional(),
+	internalNotes: z.string().optional(),
+	metadata: z.record(z.string(), z.unknown()).optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const invoicesInvoiceLineItemShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	invoiceId: z.string().register(col, {
+		references: { table: "self.invoice", column: "id", onDelete: "cascade" },
+	}),
+	description: z.string(),
+	quantity: z.number(),
+	unitPrice: z.number(),
+	amount: z.number(),
+	sku: z.string().optional(),
+	productId: z.string().optional(),
+	sortOrder: z.int().default(0),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const invoicesInvoicePaymentShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	invoiceId: z.string().register(col, {
+		references: { table: "self.invoice", column: "id", onDelete: "cascade" },
+	}),
+	amount: z.number(),
+	method: z.enum([
+		"card",
+		"bank_transfer",
+		"cash",
+		"check",
+		"store_credit",
+		"other",
+	]),
+	reference: z.string().optional(),
+	notes: z.string().optional(),
+	paidAt: z.coerce.date().default(() => new Date()),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const invoicesCreditNoteShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	invoiceId: z.string().register(col, {
+		references: { table: "self.invoice", column: "id", onDelete: "cascade" },
+	}),
+	creditNoteNumber: z.string().register(col, { unique: true }),
+	status: z.enum(["draft", "issued", "applied", "void"]),
+	amount: z.number(),
+	reason: z.string().optional(),
+	notes: z.string().optional(),
+	issuedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const invoicesCreditNoteLineItemShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	creditNoteId: z.string().register(col, {
+		references: {
+			table: "self.creditNote",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	description: z.string(),
+	quantity: z.number(),
+	unitPrice: z.number(),
+	amount: z.number(),
+	sortOrder: z.int().default(0),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for invoices. */
+export const invoicesStorage = {
+	kind: "relational",
+	tables: {
+		invoice: {
+			shape: invoicesInvoiceShape,
+		},
+		invoiceLineItem: {
+			shape: invoicesInvoiceLineItemShape,
+		},
+		invoicePayment: {
+			shape: invoicesInvoicePaymentShape,
+		},
+		creditNote: {
+			shape: invoicesCreditNoteShape,
+		},
+		creditNoteLineItem: {
+			shape: invoicesCreditNoteLineItemShape,
 		},
 	},
-	invoiceLineItem: {
-		fields: {
-			id: { type: "string", required: true },
-			invoiceId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "invoice",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			/** Line item description */
-			description: { type: "string", required: true },
-			/** Quantity */
-			quantity: { type: "number", required: true },
-			/** Unit price (cents) */
-			unitPrice: { type: "number", required: true },
-			/** Line total = quantity * unitPrice (cents) */
-			amount: { type: "number", required: true },
-			/** Optional SKU reference */
-			sku: { type: "string", required: false },
-			/** Optional product reference */
-			productId: { type: "string", required: false },
-			/** Display order */
-			sortOrder: { type: "number", required: true, defaultValue: 0 },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	invoicePayment: {
-		fields: {
-			id: { type: "string", required: true },
-			invoiceId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "invoice",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			/** Payment amount (cents) */
-			amount: { type: "number", required: true },
-			/** Payment method */
-			method: {
-				type: [
-					"card",
-					"bank_transfer",
-					"cash",
-					"check",
-					"store_credit",
-					"other",
-				] as const,
-				required: true,
-			},
-			/** External payment reference (transaction ID, check number) */
-			reference: { type: "string", required: false },
-			/** Payment notes */
-			notes: { type: "string", required: false },
-			/** When the payment was received */
-			paidAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	creditNote: {
-		fields: {
-			id: { type: "string", required: true },
-			/** Linked invoice */
-			invoiceId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "invoice",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			/** Auto-generated credit note number (e.g. CN-20260309-0001) */
-			creditNoteNumber: { type: "string", required: true, unique: true },
-			/** Credit note status */
-			status: {
-				type: ["draft", "issued", "applied", "void"] as const,
-				required: true,
-			},
-			/** Total credit amount (cents) */
-			amount: { type: "number", required: true },
-			/** Reason for credit */
-			reason: { type: "string", required: false },
-			/** Internal notes */
-			notes: { type: "string", required: false },
-			/** When the credit note was formally issued */
-			issuedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	creditNoteLineItem: {
-		fields: {
-			id: { type: "string", required: true },
-			creditNoteId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "creditNote",
-					field: "id",
-					onDelete: "cascade" as const,
-				},
-			},
-			/** Line item description */
-			description: { type: "string", required: true },
-			/** Quantity */
-			quantity: { type: "number", required: true },
-			/** Unit price (cents) */
-			unitPrice: { type: "number", required: true },
-			/** Line total (cents) */
-			amount: { type: "number", required: true },
-			/** Display order */
-			sortOrder: { type: "number", required: true, defaultValue: 0 },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

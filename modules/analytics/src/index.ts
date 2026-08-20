@@ -6,7 +6,7 @@ import type {
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
 import { GA4Provider } from "./providers/ga4";
-import { analyticsSchema, analyticsTables } from "./schema";
+import { analyticsStorage } from "./schema";
 import { createAnalyticsController } from "./service-impl";
 import { createClientConfigEndpoint } from "./store/endpoints/get-client-config";
 import { storeEndpoints } from "./store/endpoints/routes";
@@ -59,8 +59,7 @@ export default function analytics(options?: AnalyticsOptions): Module {
 	return {
 		id: "analytics",
 		version: "0.0.1",
-		schema: analyticsSchema,
-		tables: analyticsTables,
+		storage: analyticsStorage,
 		exports: {
 			read: [
 				"eventStats",

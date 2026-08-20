@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { referralsSchema } from "./schema";
+import { referralsStorage } from "./schema";
 import { createReferralController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -27,7 +27,7 @@ export default function referrals(options?: ReferralsOptions): Module {
 	return {
 		id: "referrals",
 		version: "0.0.1",
-		schema: referralsSchema,
+		storage: referralsStorage,
 		exports: {
 			read: ["referralCode", "referralStatus"],
 		},

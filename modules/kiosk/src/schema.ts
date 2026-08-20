@@ -1,56 +1,45 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const kioskSchema = {
-	kioskStation: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			location: { type: "string", required: false },
-			isOnline: { type: "boolean", required: true, defaultValue: false },
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			lastHeartbeat: { type: "date", required: false },
-			currentSessionId: { type: "string", required: false },
-			settings: { type: "json", required: true, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const kioskKioskStationShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	location: z.string().optional(),
+	isOnline: z.boolean().default(false),
+	isActive: z.boolean().default(true),
+	lastHeartbeat: z.coerce.date().optional(),
+	currentSessionId: z.string().optional(),
+	settings: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const kioskKioskSessionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	stationId: z.string(),
+	status: z.string().default("active"),
+	items: z.array(z.unknown()).default([]),
+	subtotal: z.int().default(0),
+	tax: z.int().default(0),
+	tip: z.int().default(0),
+	total: z.int().default(0),
+	paymentMethod: z.string().optional(),
+	paymentStatus: z.string().default("pending"),
+	startedAt: z.coerce.date().default(() => new Date()),
+	completedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for kiosk. */
+export const kioskStorage = {
+	kind: "relational",
+	tables: {
+		kioskStation: {
+			shape: kioskKioskStationShape,
+		},
+		kioskSession: {
+			shape: kioskKioskSessionShape,
 		},
 	},
-	kioskSession: {
-		fields: {
-			id: { type: "string", required: true },
-			stationId: { type: "string", required: true },
-			status: { type: "string", required: true, defaultValue: "active" },
-			items: { type: "json", required: true, defaultValue: [] },
-			subtotal: { type: "number", required: true, defaultValue: 0 },
-			tax: { type: "number", required: true, defaultValue: 0 },
-			tip: { type: "number", required: true, defaultValue: 0 },
-			total: { type: "number", required: true, defaultValue: 0 },
-			paymentMethod: { type: "string", required: false },
-			paymentStatus: {
-				type: "string",
-				required: true,
-				defaultValue: "pending",
-			},
-			startedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			completedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

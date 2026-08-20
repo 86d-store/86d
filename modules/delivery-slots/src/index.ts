@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { deliverySlotsSchema } from "./schema";
+import { deliverySlotsStorage } from "./schema";
 import { createDeliverySlotsController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -17,7 +17,7 @@ export default function deliverySlots(options?: DeliverySlotsOptions): Module {
 	return {
 		id: "delivery-slots",
 		version: "0.0.1",
-		schema: deliverySlotsSchema,
+		storage: deliverySlotsStorage,
 
 		requires: ["orders"],
 

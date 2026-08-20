@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { backordersSchema } from "./schema";
+import { backordersStorage } from "./schema";
 import { createBackordersController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -25,7 +25,7 @@ export default function backorders(options?: BackordersOptions): Module {
 	return {
 		id: "backorders",
 		version: "0.0.1",
-		schema: backordersSchema,
+		storage: backordersStorage,
 		requires: ["inventory"],
 		exports: {
 			read: ["backorderCount", "backorderEligibility"],

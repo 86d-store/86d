@@ -1,68 +1,47 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const bundleSchema = {
-	bundle: {
-		fields: {
-			id: { type: "string", required: true },
-			/** Display name for the bundle */
-			name: { type: "string", required: true },
-			/** URL-safe slug */
-			slug: { type: "string", required: true },
-			/** Short marketing description */
-			description: { type: "string", required: false },
-			/** active | draft | archived */
-			status: { type: "string", required: true },
-			/** fixed | percentage — how the bundle price is calculated */
-			discountType: { type: "string", required: true },
-			/** Discount amount (fixed price or percentage off) */
-			discountValue: { type: "number", required: true },
-			/** Minimum quantity of items required to activate */
-			minQuantity: { type: "number", required: false },
-			/** Maximum quantity of items allowed */
-			maxQuantity: { type: "number", required: false },
-			/** Start date for availability */
-			startsAt: { type: "string", required: false },
-			/** End date for availability */
-			endsAt: { type: "string", required: false },
-			/** Featured image URL */
-			imageUrl: { type: "string", required: false },
-			/** Sort order for display */
-			sortOrder: { type: "number", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const bundlesBundleShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	slug: z.string(),
+	description: z.string().optional(),
+	status: z.string(),
+	discountType: z.string(),
+	discountValue: z.number(),
+	minQuantity: z.number().optional(),
+	maxQuantity: z.number().optional(),
+	startsAt: z.string().optional(),
+	endsAt: z.string().optional(),
+	imageUrl: z.string().optional(),
+	sortOrder: z.number().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const bundlesBundleItemShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	bundleId: z.string(),
+	productId: z.string(),
+	variantId: z.string().optional(),
+	quantity: z.number(),
+	sortOrder: z.number().optional(),
+	productName: z.string().optional(),
+	productSlug: z.string().optional(),
+	productImageUrl: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for bundles. */
+export const bundlesStorage = {
+	kind: "relational",
+	tables: {
+		bundle: {
+			shape: bundlesBundleShape,
+		},
+		bundleItem: {
+			shape: bundlesBundleItemShape,
 		},
 	},
-	bundleItem: {
-		fields: {
-			id: { type: "string", required: true },
-			bundleId: { type: "string", required: true },
-			/** Product ID from the products module */
-			productId: { type: "string", required: true },
-			/** Optional variant ID */
-			variantId: { type: "string", required: false },
-			/** Quantity of this product in the bundle */
-			quantity: { type: "number", required: true },
-			/** Sort order within the bundle */
-			sortOrder: { type: "number", required: false },
-			/** Snapshot of product name at the time item was added */
-			productName: { type: "string", required: false },
-			/** Snapshot of product slug for building links */
-			productSlug: { type: "string", required: false },
-			/** Snapshot of product image URL */
-			productImageUrl: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

@@ -1,375 +1,242 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
-import {
-	checkoutRequestAuditActorSchema,
-	checkoutRequestCartSnapshotSchema,
-	checkoutRequestContactSchema,
-	checkoutRequestReasonSchema,
-} from "./checkout-request";
-import {
-	checkoutFinalizationAcceptedInputSchema,
-	checkoutFinalizationAttemptOutcomeSchema,
-	checkoutFinalizationAttentionSchema,
-	checkoutFinalizationCompensationOutcomeSchema,
-	checkoutFinalizationCompensationTargetSchema,
-	checkoutFinalizationResultSchema,
-} from "./finalization";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const checkoutSchema = {
-	checkoutSession: {
-		fields: {
-			id: { type: "string", required: true },
-			revision: { type: "number", required: true, defaultValue: 1 },
-			cartId: { type: "string", required: false },
-			customerId: { type: "string", required: false },
-			guestEmail: { type: "string", required: false },
-			status: {
-				type: ["pending", "processing", "completed", "expired", "abandoned"],
-				required: true,
-				defaultValue: "pending",
-			},
-			subtotal: { type: "number", required: true },
-			taxAmount: { type: "number", required: true, defaultValue: 0 },
-			shippingAmount: { type: "number", required: true, defaultValue: 0 },
-			discountAmount: { type: "number", required: true, defaultValue: 0 },
-			/** Amount applied from a gift card */
-			giftCardAmount: { type: "number", required: true, defaultValue: 0 },
-			/** Amount applied from Store credit */
-			storeCreditAmount: { type: "number", required: true, defaultValue: 0 },
-			total: { type: "number", required: true },
-			currency: { type: "string", required: true, defaultValue: "USD" },
-			/** Validated promo code applied to this session */
-			discountCode: { type: "string", required: false },
-			/** Gift card code applied to this session */
-			giftCardCode: { type: "string", required: false },
-			/** JSON snapshot of shipping address */
-			shippingAddress: { type: "json", required: false },
-			/** JSON snapshot of billing address */
-			billingAddress: { type: "json", required: false },
-			/** Display name of the selected shipping method */
-			shippingMethodName: { type: "string", required: false },
-			/** Payment method identifier or token from provider */
-			paymentMethod: { type: "string", required: false },
-			/** Payment intent ID from the payments module */
-			paymentIntentId: { type: "string", required: false },
-			/** Current payment status (pending, processing, succeeded, failed) */
-			paymentStatus: { type: "string", required: false },
-			/** Order ID once checkout is completed */
-			orderId: { type: "string", required: false },
-			metadata: { type: "json", required: false, defaultValue: {} },
-			expiresAt: { type: "date", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	checkoutLineItem: {
-		fields: {
-			id: { type: "string", required: true },
-			sessionId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "checkoutSession",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			productId: { type: "string", required: true },
-			variantId: { type: "string", required: false },
-			name: { type: "string", required: true },
-			sku: { type: "string", required: false },
-			price: { type: "number", required: true },
-			quantity: { type: "number", required: true, defaultValue: 1 },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	/** Dormant, Checkout-owned ledger for a future durable finalizer. */
-	checkoutFinalization: {
-		fields: {
-			id: { type: "string", required: true },
-			checkoutId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "checkoutSession",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			operationKey: { type: "string", required: true, returned: false },
-			inputDigest: { type: "string", required: true },
-			inputDigestVersion: { type: "number", required: true },
-			expectedRevision: { type: "number", required: true },
-			state: {
-				type: ["pending", "running", "compensating", "needs_attention"],
-				required: true,
-			},
-			currentStep: {
-				type: [
-					"checkout_revision",
-					"accepted_offer",
-					"shipping_and_tax",
-					"inventory",
-					"payment_connection",
-					"payment_outcome",
-					"order",
-					"commerce_commit",
-					"payment_settlement",
-					"checkout_completion",
-					"compensation",
-				],
-				required: true,
-			},
-			attemptCount: { type: "number", required: true },
-			compensationCount: { type: "number", required: true },
-			acceptedInput: {
-				type: "json",
-				required: true,
-				validator: {
-					input: checkoutFinalizationAcceptedInputSchema,
-					output: checkoutFinalizationAcceptedInputSchema,
-				},
-			},
-			result: {
-				type: "json",
-				required: true,
-				validator: {
-					input: checkoutFinalizationResultSchema,
-					output: checkoutFinalizationResultSchema,
-				},
-			},
-			needsAttention: {
-				type: "json",
-				required: false,
-				validator: {
-					input: checkoutFinalizationAttentionSchema,
-					output: checkoutFinalizationAttentionSchema,
-				},
-			},
-			createdAt: { type: "date", required: true },
-			updatedAt: { type: "date", required: true },
-		},
-	},
-	/** Idempotent evidence for each future orchestrator attempt. */
-	checkoutFinalizationAttempt: {
-		fields: {
-			id: { type: "string", required: true },
-			finalizationId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "checkoutFinalization",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			attemptKey: { type: "string", required: true, returned: false },
-			operationDigest: { type: "string", required: true },
-			operationDigestVersion: { type: "number", required: true },
-			sequence: { type: "number", required: true },
-			stateBefore: { type: ["pending", "running"], required: true },
-			stateAfter: {
-				type: ["pending", "running", "compensating", "needs_attention"],
-				required: true,
-			},
-			step: {
-				type: [
-					"checkout_revision",
-					"accepted_offer",
-					"shipping_and_tax",
-					"inventory",
-					"payment_connection",
-					"payment_outcome",
-					"order",
-					"commerce_commit",
-					"payment_settlement",
-					"checkout_completion",
-				],
-				required: true,
-			},
-			nextStep: {
-				type: [
-					"checkout_revision",
-					"accepted_offer",
-					"shipping_and_tax",
-					"inventory",
-					"payment_connection",
-					"payment_outcome",
-					"order",
-					"commerce_commit",
-					"payment_settlement",
-					"checkout_completion",
-					"compensation",
-				],
-				required: true,
-			},
-			outcome: {
-				type: "json",
-				required: true,
-				validator: {
-					input: checkoutFinalizationAttemptOutcomeSchema,
-					output: checkoutFinalizationAttemptOutcomeSchema,
-				},
-			},
-			result: {
-				type: "json",
-				required: false,
-				validator: {
-					input: checkoutFinalizationResultSchema,
-					output: checkoutFinalizationResultSchema,
-				},
-			},
-			recordedAt: { type: "date", required: true },
-		},
-	},
-	/** Append-only compensation/reconciliation evidence. */
-	checkoutFinalizationCompensation: {
-		fields: {
-			id: { type: "string", required: true },
-			finalizationId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "checkoutFinalization",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			compensationKey: { type: "string", required: true, returned: false },
-			operationDigest: { type: "string", required: true },
-			operationDigestVersion: { type: "number", required: true },
-			sequence: { type: "number", required: true },
-			action: {
-				type: [
-					"release_inventory_reservation",
-					"reverse_discount_redemption",
-					"reverse_gift_card_redemption",
-					"reverse_store_credit_debit",
-					"cancel_or_reconcile_payment",
-					"cancel_order",
-					"adjust_tax",
-					"void_shipping",
-					"other_reconciliation",
-				],
-				required: true,
-			},
-			target: {
-				type: "json",
-				required: true,
-				validator: {
-					input: checkoutFinalizationCompensationTargetSchema,
-					output: checkoutFinalizationCompensationTargetSchema,
-				},
-			},
-			outcome: {
-				type: "json",
-				required: true,
-				validator: {
-					input: checkoutFinalizationCompensationOutcomeSchema,
-					output: checkoutFinalizationCompensationOutcomeSchema,
-				},
-			},
-			recordedAt: { type: "date", required: true },
-		},
-	},
-	/** Serializes Finalization admission for one Checkout identity. */
-	checkoutFinalizationLock: {
-		fields: {
-			id: { type: "string", required: true },
-			checkoutId: { type: "string", required: true },
-		},
-	},
-	/** Non-binding request retained while a required Checkout decision is unavailable. */
-	checkoutRequest: {
-		fields: {
-			id: { type: "string", required: true },
-			requestDigest: { type: "string", required: true },
-			requestDigestVersion: { type: "number", required: true },
-			owner: { type: "json", required: true },
-			accessProofDigest: { type: "string", required: false, returned: false },
-			reason: {
-				type: "json",
-				required: true,
-				validator: {
-					input: checkoutRequestReasonSchema,
-					output: checkoutRequestReasonSchema,
-				},
-			},
-			contact: {
-				type: "json",
-				required: true,
-				validator: {
-					input: checkoutRequestContactSchema,
-					output: checkoutRequestContactSchema,
-				},
-			},
-			cartSnapshot: {
-				type: "json",
-				required: true,
-				validator: {
-					input: checkoutRequestCartSnapshotSchema,
-					output: checkoutRequestCartSnapshotSchema,
-				},
-			},
-			invitationState: {
-				type: ["not_invited", "invited", "reminded", "expired"],
-				required: true,
-				defaultValue: "not_invited",
-			},
-			invitedAt: { type: "date", required: false },
-			remindedAt: { type: "date", required: false },
-			invitationExpiresAt: { type: "date", required: false },
-			auditActor: {
-				type: "json",
-				required: true,
-				validator: {
-					input: checkoutRequestAuditActorSchema,
-					output: checkoutRequestAuditActorSchema,
-				},
-			},
-			expiresAt: { type: "date", required: true, index: true },
-			createdAt: { type: "date", required: true },
-			updatedAt: { type: "date", required: true },
-		},
-	},
-	/** Durable receipt that enforces operation-key replay and mismatch rejection. */
-	checkoutRequestOperation: {
-		fields: {
-			id: { type: "string", required: true },
-			operationKey: { type: "string", required: true },
-			requestDigest: { type: "string", required: true },
-			requestDigestVersion: { type: "number", required: true },
-			checkoutRequestId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "checkoutRequest",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			createdAt: { type: "date", required: true },
-		},
-	},
-	/** Stable owner-local row used to serialize one create operation. */
-	checkoutRequestLock: {
-		fields: {
-			id: { type: "string", required: true },
-		},
-	},
-} satisfies ModuleSchema;
+export const checkoutCheckoutSessionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	revision: z.int().default(1),
+	cartId: z.string().optional(),
+	customerId: z.string().optional(),
+	guestEmail: z.string().optional(),
+	status: z
+		.enum(["pending", "processing", "completed", "expired", "abandoned"])
+		.default("pending"),
+	subtotal: z.number(),
+	taxAmount: z.int().default(0),
+	shippingAmount: z.int().default(0),
+	discountAmount: z.int().default(0),
+	giftCardAmount: z.int().default(0),
+	storeCreditAmount: z.int().default(0),
+	total: z.number(),
+	currency: z.string().default("USD"),
+	discountCode: z.string().optional(),
+	giftCardCode: z.string().optional(),
+	shippingAddress: z.record(z.string(), z.unknown()).optional(),
+	billingAddress: z.record(z.string(), z.unknown()).optional(),
+	shippingMethodName: z.string().optional(),
+	paymentMethod: z.string().optional(),
+	paymentIntentId: z.string().optional(),
+	paymentStatus: z.string().optional(),
+	orderId: z.string().optional(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	expiresAt: z.coerce.date(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
 
-export const checkoutTables = transcodeModuleSchema(checkoutSchema);
+export const checkoutCheckoutLineItemShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	sessionId: z.string().register(col, {
+		references: {
+			table: "self.checkoutSession",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	productId: z.string(),
+	variantId: z.string().optional(),
+	name: z.string(),
+	sku: z.string().optional(),
+	price: z.number(),
+	quantity: z.int().default(1),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const checkoutCheckoutFinalizationShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	checkoutId: z.string().register(col, {
+		references: {
+			table: "self.checkoutSession",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	operationKey: z.string(),
+	inputDigest: z.string(),
+	inputDigestVersion: z.number(),
+	expectedRevision: z.number(),
+	state: z.enum(["pending", "running", "compensating", "needs_attention"]),
+	currentStep: z.enum([
+		"checkout_revision",
+		"accepted_offer",
+		"shipping_and_tax",
+		"inventory",
+		"payment_connection",
+		"payment_outcome",
+		"order",
+		"commerce_commit",
+		"payment_settlement",
+		"checkout_completion",
+		"compensation",
+	]),
+	attemptCount: z.number(),
+	compensationCount: z.number(),
+	acceptedInput: z.record(z.string(), z.unknown()),
+	result: z.record(z.string(), z.unknown()),
+	needsAttention: z.record(z.string(), z.unknown()).optional(),
+	createdAt: z.coerce.date(),
+	updatedAt: z.coerce.date(),
+});
+
+export const checkoutCheckoutFinalizationAttemptShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	finalizationId: z.string().register(col, {
+		references: {
+			table: "self.checkoutFinalization",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	attemptKey: z.string(),
+	operationDigest: z.string(),
+	operationDigestVersion: z.number(),
+	sequence: z.number(),
+	stateBefore: z.enum(["pending", "running"]),
+	stateAfter: z.enum(["pending", "running", "compensating", "needs_attention"]),
+	step: z.enum([
+		"checkout_revision",
+		"accepted_offer",
+		"shipping_and_tax",
+		"inventory",
+		"payment_connection",
+		"payment_outcome",
+		"order",
+		"commerce_commit",
+		"payment_settlement",
+		"checkout_completion",
+	]),
+	nextStep: z.enum([
+		"checkout_revision",
+		"accepted_offer",
+		"shipping_and_tax",
+		"inventory",
+		"payment_connection",
+		"payment_outcome",
+		"order",
+		"commerce_commit",
+		"payment_settlement",
+		"checkout_completion",
+		"compensation",
+	]),
+	outcome: z.record(z.string(), z.unknown()),
+	result: z.record(z.string(), z.unknown()).optional(),
+	recordedAt: z.coerce.date(),
+});
+
+export const checkoutCheckoutFinalizationCompensationShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	finalizationId: z.string().register(col, {
+		references: {
+			table: "self.checkoutFinalization",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	compensationKey: z.string(),
+	operationDigest: z.string(),
+	operationDigestVersion: z.number(),
+	sequence: z.number(),
+	action: z.enum([
+		"release_inventory_reservation",
+		"reverse_discount_redemption",
+		"reverse_gift_card_redemption",
+		"reverse_store_credit_debit",
+		"cancel_or_reconcile_payment",
+		"cancel_order",
+		"adjust_tax",
+		"void_shipping",
+		"other_reconciliation",
+	]),
+	target: z.record(z.string(), z.unknown()),
+	outcome: z.record(z.string(), z.unknown()),
+	recordedAt: z.coerce.date(),
+});
+
+export const checkoutCheckoutFinalizationLockShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	checkoutId: z.string(),
+});
+
+export const checkoutCheckoutRequestShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	requestDigest: z.string(),
+	requestDigestVersion: z.number(),
+	owner: z.record(z.string(), z.unknown()),
+	accessProofDigest: z.string().optional(),
+	reason: z.record(z.string(), z.unknown()),
+	contact: z.record(z.string(), z.unknown()),
+	cartSnapshot: z.record(z.string(), z.unknown()),
+	invitationState: z
+		.enum(["not_invited", "invited", "reminded", "expired"])
+		.default("not_invited"),
+	invitedAt: z.coerce.date().optional(),
+	remindedAt: z.coerce.date().optional(),
+	invitationExpiresAt: z.coerce.date().optional(),
+	auditActor: z.record(z.string(), z.unknown()),
+	expiresAt: z.coerce.date().register(col, { index: true }),
+	createdAt: z.coerce.date(),
+	updatedAt: z.coerce.date(),
+});
+
+export const checkoutCheckoutRequestOperationShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	operationKey: z.string(),
+	requestDigest: z.string(),
+	requestDigestVersion: z.number(),
+	checkoutRequestId: z.string().register(col, {
+		references: {
+			table: "self.checkoutRequest",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	createdAt: z.coerce.date(),
+});
+
+export const checkoutCheckoutRequestLockShape = z.object({
+	id: z.string().register(col, { pk: true }),
+});
+
+/** Native Relational storage for checkout. */
+export const checkoutStorage = {
+	kind: "relational",
+	tables: {
+		checkoutSession: {
+			shape: checkoutCheckoutSessionShape,
+		},
+		checkoutLineItem: {
+			shape: checkoutCheckoutLineItemShape,
+		},
+		checkoutFinalization: {
+			shape: checkoutCheckoutFinalizationShape,
+		},
+		checkoutFinalizationAttempt: {
+			shape: checkoutCheckoutFinalizationAttemptShape,
+		},
+		checkoutFinalizationCompensation: {
+			shape: checkoutCheckoutFinalizationCompensationShape,
+		},
+		checkoutFinalizationLock: {
+			shape: checkoutCheckoutFinalizationLockShape,
+		},
+		checkoutRequest: {
+			shape: checkoutCheckoutRequestShape,
+		},
+		checkoutRequestOperation: {
+			shape: checkoutCheckoutRequestOperationShape,
+		},
+		checkoutRequestLock: {
+			shape: checkoutCheckoutRequestLockShape,
+		},
+	},
+} as const satisfies ModuleStorageDeclaration;

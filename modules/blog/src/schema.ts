@@ -1,36 +1,35 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const blogSchema = {
-	post: {
-		fields: {
-			id: { type: "string", required: true },
-			title: { type: "string", required: true },
-			slug: { type: "string", required: true },
-			content: { type: "string", required: true },
-			excerpt: { type: "string", required: false },
-			coverImage: { type: "string", required: false },
-			author: { type: "string", required: false },
-			status: { type: "string", required: true, defaultValue: "draft" },
-			tags: { type: "json", required: true, defaultValue: [] },
-			category: { type: "string", required: false },
-			featured: { type: "boolean", required: true, defaultValue: false },
-			readingTime: { type: "number", required: true, defaultValue: 0 },
-			metaTitle: { type: "string", required: false },
-			metaDescription: { type: "string", required: false },
-			scheduledAt: { type: "date", required: false },
-			publishedAt: { type: "date", required: false },
-			views: { type: "number", required: true, defaultValue: 0 },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const blogPostShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	title: z.string(),
+	slug: z.string(),
+	content: z.string(),
+	excerpt: z.string().optional(),
+	coverImage: z.string().optional(),
+	author: z.string().optional(),
+	status: z.string().default("draft"),
+	tags: z.array(z.unknown()).default([]),
+	category: z.string().optional(),
+	featured: z.boolean().default(false),
+	readingTime: z.int().default(0),
+	metaTitle: z.string().optional(),
+	metaDescription: z.string().optional(),
+	scheduledAt: z.coerce.date().optional(),
+	publishedAt: z.coerce.date().optional(),
+	views: z.int().default(0),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for blog. */
+export const blogStorage = {
+	kind: "relational",
+	tables: {
+		post: {
+			shape: blogPostShape,
 		},
 	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

@@ -1,83 +1,70 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const gamificationSchema = {
-	game: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			description: { type: "string", required: false },
-			type: { type: "string", required: true, defaultValue: "wheel" },
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			requireEmail: { type: "boolean", required: true, defaultValue: true },
-			requireNewsletterOptIn: {
-				type: "boolean",
-				required: true,
-				defaultValue: false,
-			},
-			maxPlaysPerUser: { type: "number", required: true, defaultValue: 1 },
-			cooldownMinutes: { type: "number", required: true, defaultValue: 1440 },
-			totalPlays: { type: "number", required: true, defaultValue: 0 },
-			totalWins: { type: "number", required: true, defaultValue: 0 },
-			startDate: { type: "date", required: false },
-			endDate: { type: "date", required: false },
-			settings: { type: "json", required: true, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const gamificationGameShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	description: z.string().optional(),
+	type: z.string().default("wheel"),
+	isActive: z.boolean().default(true),
+	requireEmail: z.boolean().default(true),
+	requireNewsletterOptIn: z.boolean().default(false),
+	maxPlaysPerUser: z.int().default(1),
+	cooldownMinutes: z.int().default(1440),
+	totalPlays: z.int().default(0),
+	totalWins: z.int().default(0),
+	startDate: z.coerce.date().optional(),
+	endDate: z.coerce.date().optional(),
+	settings: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const gamificationPrizeShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	gameId: z.string(),
+	name: z.string(),
+	description: z.string().optional(),
+	type: z.string().default("discount-percent"),
+	value: z.string(),
+	probability: z.number(),
+	maxWins: z.int().default(-1),
+	currentWins: z.int().default(0),
+	discountCode: z.string().optional(),
+	productId: z.string().optional(),
+	isActive: z.boolean().default(true),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const gamificationPlayShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	gameId: z.string(),
+	email: z.string().optional(),
+	customerId: z.string().optional(),
+	result: z.string(),
+	prizeId: z.string().optional(),
+	prizeName: z.string().optional(),
+	prizeValue: z.string().optional(),
+	isRedeemed: z.boolean().default(false),
+	redeemedAt: z.coerce.date().optional(),
+	ipAddress: z.string().optional(),
+	userAgent: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for gamification. */
+export const gamificationStorage = {
+	kind: "relational",
+	tables: {
+		game: {
+			shape: gamificationGameShape,
+		},
+		prize: {
+			shape: gamificationPrizeShape,
+		},
+		play: {
+			shape: gamificationPlayShape,
 		},
 	},
-	prize: {
-		fields: {
-			id: { type: "string", required: true },
-			gameId: { type: "string", required: true },
-			name: { type: "string", required: true },
-			description: { type: "string", required: false },
-			type: {
-				type: "string",
-				required: true,
-				defaultValue: "discount-percent",
-			},
-			value: { type: "string", required: true },
-			probability: { type: "number", required: true },
-			maxWins: { type: "number", required: true, defaultValue: -1 },
-			currentWins: { type: "number", required: true, defaultValue: 0 },
-			discountCode: { type: "string", required: false },
-			productId: { type: "string", required: false },
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	play: {
-		fields: {
-			id: { type: "string", required: true },
-			gameId: { type: "string", required: true },
-			email: { type: "string", required: false },
-			customerId: { type: "string", required: false },
-			result: { type: "string", required: true },
-			prizeId: { type: "string", required: false },
-			prizeName: { type: "string", required: false },
-			prizeValue: { type: "string", required: false },
-			isRedeemed: { type: "boolean", required: true, defaultValue: false },
-			redeemedAt: { type: "date", required: false },
-			ipAddress: { type: "string", required: false },
-			userAgent: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

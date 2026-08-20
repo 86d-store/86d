@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { faqSchema } from "./schema";
+import { faqStorage } from "./schema";
 import { createFaqControllers } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -26,7 +26,7 @@ export default function faq(options?: FaqOptions): Module {
 	return {
 		id: "faq",
 		version: "1.0.0",
-		schema: faqSchema,
+		storage: faqStorage,
 		exports: {
 			read: ["faqCategories", "faqItems", "faqSearch"],
 		},

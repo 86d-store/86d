@@ -1,52 +1,37 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const pagesSchema = {
-	page: {
-		fields: {
-			id: { type: "string", required: true },
-			title: { type: "string", required: true },
-			slug: { type: "string", required: true, unique: true },
-			content: { type: "string", required: true },
-			excerpt: { type: "string", required: false },
-			status: {
-				type: ["draft", "published", "archived"],
-				required: true,
-				defaultValue: "draft",
-			},
-			template: { type: "string", required: false },
-			metaTitle: { type: "string", required: false },
-			metaDescription: { type: "string", required: false },
-			featuredImage: { type: "string", required: false },
-			position: { type: "number", required: true, defaultValue: 0 },
-			showInNavigation: {
-				type: "boolean",
-				required: true,
-				defaultValue: false,
-			},
-			parentId: {
-				type: "string",
-				required: false,
-				references: {
-					model: "page",
-					field: "id",
-					onDelete: "set null",
-				},
-			},
-			publishedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const pagesPageShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	title: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	content: z.string(),
+	excerpt: z.string().optional(),
+	status: z.enum(["draft", "published", "archived"]).default("draft"),
+	template: z.string().optional(),
+	metaTitle: z.string().optional(),
+	metaDescription: z.string().optional(),
+	featuredImage: z.string().optional(),
+	position: z.int().default(0),
+	showInNavigation: z.boolean().default(false),
+	parentId: z
+		.string()
+		.register(col, {
+			references: { table: "self.page", column: "id", onDelete: "set null" },
+		})
+		.optional(),
+	publishedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for pages. */
+export const pagesStorage = {
+	kind: "relational",
+	tables: {
+		page: {
+			shape: pagesPageShape,
 		},
 	},
-} satisfies ModuleSchema;
-
-export const pagesTables = transcodeModuleSchema(pagesSchema);
+} as const satisfies ModuleStorageDeclaration;

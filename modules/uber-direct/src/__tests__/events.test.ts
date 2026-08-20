@@ -18,11 +18,12 @@ describe("uber-direct events", () => {
 		expect(mod.version).toBe("0.1.0");
 	});
 
-	it("includes schema with delivery and quote entities", () => {
+	it("includes relational storage with delivery and quote tables", () => {
 		const mod = uberDirect();
-		expect(mod.schema).toBeDefined();
-		expect(mod.schema?.delivery).toBeDefined();
-		expect(mod.schema?.quote).toBeDefined();
+		expect(mod.storage?.kind).toBe("relational");
+		if (mod.storage?.kind !== "relational") return;
+		expect(mod.storage.tables?.delivery).toBeDefined();
+		expect(mod.storage.tables?.quote).toBeDefined();
 	});
 
 	it("declares admin pages", () => {

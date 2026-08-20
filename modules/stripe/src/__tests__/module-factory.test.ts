@@ -13,7 +13,7 @@ describe("stripe module factory", () => {
 	});
 
 	it("has an empty schema", () => {
-		expect(mod.schema).toEqual({});
+		expect(mod.storage).toEqual({ kind: "none" });
 	});
 
 	it("init is defined", () => {

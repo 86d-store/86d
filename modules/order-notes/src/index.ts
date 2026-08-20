@@ -6,7 +6,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { orderNotesSchema } from "./schema";
+import { orderNotesStorage } from "./schema";
 import { createOrderNotesController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -26,7 +26,7 @@ export default function orderNotes(options?: OrderNotesOptions): Module {
 	return {
 		id: "order-notes",
 		version: "0.0.1",
-		schema: orderNotesSchema,
+		storage: orderNotesStorage,
 		capabilities: {
 			accepts: [
 				acceptCapability(orderCustomerAuthorizeCapability, { optional: true }),

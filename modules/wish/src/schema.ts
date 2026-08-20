@@ -1,60 +1,52 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const wishSchema = {
-	wishProduct: {
-		fields: {
-			id: { type: "string", required: true },
-			localProductId: { type: "string", required: true },
-			wishProductId: { type: "string", required: false },
-			title: { type: "string", required: true },
-			status: { type: "string", required: true, defaultValue: "active" },
-			price: { type: "number", required: true },
-			shippingPrice: { type: "number", required: true },
-			quantity: { type: "number", required: true, defaultValue: 0 },
-			parentSku: { type: "string", required: false },
-			tags: { type: "json", required: true, defaultValue: [] },
-			lastSyncedAt: { type: "date", required: false },
-			reviewStatus: { type: "string", required: false },
-			error: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const wishWishProductShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	localProductId: z.string(),
+	wishProductId: z.string().optional(),
+	title: z.string(),
+	status: z.string().default("active"),
+	price: z.number(),
+	shippingPrice: z.number(),
+	quantity: z.int().default(0),
+	parentSku: z.string().optional(),
+	tags: z.array(z.unknown()).default([]),
+	lastSyncedAt: z.coerce.date().optional(),
+	reviewStatus: z.string().optional(),
+	error: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const wishWishOrderShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	wishOrderId: z.string(),
+	status: z.string().default("pending"),
+	items: z.array(z.unknown()).default([]),
+	orderTotal: z.number(),
+	shippingTotal: z.number(),
+	wishFee: z.number(),
+	customerName: z.string().optional(),
+	shippingAddress: z.record(z.string(), z.unknown()).default({}),
+	trackingNumber: z.string().optional(),
+	carrier: z.string().optional(),
+	shipByDate: z.coerce.date().optional(),
+	deliverByDate: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for wish. */
+export const wishStorage = {
+	kind: "relational",
+	tables: {
+		wishProduct: {
+			shape: wishWishProductShape,
+		},
+		wishOrder: {
+			shape: wishWishOrderShape,
 		},
 	},
-	wishOrder: {
-		fields: {
-			id: { type: "string", required: true },
-			wishOrderId: { type: "string", required: true },
-			status: { type: "string", required: true, defaultValue: "pending" },
-			items: { type: "json", required: true, defaultValue: [] },
-			orderTotal: { type: "number", required: true },
-			shippingTotal: { type: "number", required: true },
-			wishFee: { type: "number", required: true },
-			customerName: { type: "string", required: false },
-			shippingAddress: { type: "json", required: true, defaultValue: {} },
-			trackingNumber: { type: "string", required: false },
-			carrier: { type: "string", required: false },
-			shipByDate: { type: "date", required: false },
-			deliverByDate: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

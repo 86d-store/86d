@@ -20,7 +20,7 @@ import {
 	inventoryCheckoutV2Provider,
 } from "./reservation-provider";
 import { executeInventoryReservation } from "./reservations";
-import { inventorySchema, inventoryTables } from "./schema";
+import { inventoryStorage } from "./schema";
 import { createInventoryController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -60,8 +60,7 @@ export default function inventory(options?: InventoryOptions): Module {
 	return {
 		id: "inventory",
 		version: "0.0.1",
-		schema: inventorySchema,
-		tables: inventoryTables,
+		storage: inventoryStorage,
 		capabilities: {
 			provides: [inventoryCheckoutProvider, inventoryCheckoutV2Provider],
 		},

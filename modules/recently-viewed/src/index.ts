@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { recentlyViewedSchema } from "./schema";
+import { recentlyViewedStorage } from "./schema";
 import { createRecentlyViewedController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -25,7 +25,7 @@ export default function recentlyViewed(
 	return {
 		id: "recently-viewed",
 		version: "0.0.1",
-		schema: recentlyViewedSchema,
+		storage: recentlyViewedStorage,
 		exports: {
 			read: ["recentlyViewedProducts", "popularProducts"],
 		},

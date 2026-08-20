@@ -1,42 +1,40 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const brandsSchema = {
-	brand: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			slug: { type: "string", required: true, unique: true },
-			description: { type: "string", required: false },
-			logo: { type: "string", required: false },
-			bannerImage: { type: "string", required: false },
-			website: { type: "string", required: false },
-			isActive: { type: "boolean", required: true },
-			isFeatured: { type: "boolean", required: true },
-			position: { type: "number", required: true },
-			seoTitle: { type: "string", required: false },
-			seoDescription: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const brandsBrandShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	description: z.string().optional(),
+	logo: z.string().optional(),
+	bannerImage: z.string().optional(),
+	website: z.string().optional(),
+	isActive: z.boolean(),
+	isFeatured: z.boolean(),
+	position: z.number(),
+	seoTitle: z.string().optional(),
+	seoDescription: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const brandsBrandProductShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	brandId: z.string().register(col, { index: true }),
+	productId: z.string().register(col, { index: true }),
+	assignedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for brands. */
+export const brandsStorage = {
+	kind: "relational",
+	tables: {
+		brand: {
+			shape: brandsBrandShape,
+		},
+		brandProduct: {
+			shape: brandsBrandProductShape,
 		},
 	},
-	brandProduct: {
-		fields: {
-			id: { type: "string", required: true },
-			brandId: { type: "string", required: true, index: true },
-			productId: { type: "string", required: true, index: true },
-			assignedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

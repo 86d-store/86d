@@ -1,115 +1,77 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const etsySchema = {
-	listing: {
-		fields: {
-			id: { type: "string", required: true },
-			localProductId: { type: "string", required: true },
-			etsyListingId: { type: "string", required: false },
-			title: { type: "string", required: true },
-			description: { type: "string", required: false },
-			status: {
-				type: "string",
-				required: true,
-				defaultValue: "draft",
-			},
-			state: {
-				type: "string",
-				required: true,
-				defaultValue: "draft",
-			},
-			price: { type: "number", required: true },
-			quantity: { type: "number", required: true, defaultValue: 0 },
-			renewalDate: { type: "date", required: false },
-			whoMadeIt: {
-				type: "string",
-				required: true,
-				defaultValue: "i-did",
-			},
-			whenMadeIt: {
-				type: "string",
-				required: true,
-				defaultValue: "made_to_order",
-			},
-			isSupply: {
-				type: "boolean",
-				required: true,
-				defaultValue: false,
-			},
-			materials: { type: "json", required: true, defaultValue: [] },
-			tags: { type: "json", required: true, defaultValue: [] },
-			taxonomyId: { type: "string", required: false },
-			shippingProfileId: { type: "string", required: false },
-			views: { type: "number", required: true, defaultValue: 0 },
-			favorites: { type: "number", required: true, defaultValue: 0 },
-			lastSyncedAt: { type: "date", required: false },
-			error: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const etsyListingShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	localProductId: z.string(),
+	etsyListingId: z.string().optional(),
+	title: z.string(),
+	description: z.string().optional(),
+	status: z.string().default("draft"),
+	state: z.string().default("draft"),
+	price: z.number(),
+	quantity: z.int().default(0),
+	renewalDate: z.coerce.date().optional(),
+	whoMadeIt: z.string().default("i-did"),
+	whenMadeIt: z.string().default("made_to_order"),
+	isSupply: z.boolean().default(false),
+	materials: z.array(z.unknown()).default([]),
+	tags: z.array(z.unknown()).default([]),
+	taxonomyId: z.string().optional(),
+	shippingProfileId: z.string().optional(),
+	views: z.int().default(0),
+	favorites: z.int().default(0),
+	lastSyncedAt: z.coerce.date().optional(),
+	error: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const etsyEtsyOrderShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	etsyReceiptId: z.string(),
+	status: z.string().default("open"),
+	items: z.array(z.unknown()).default([]),
+	subtotal: z.number(),
+	shippingCost: z.number(),
+	etsyFee: z.number(),
+	processingFee: z.number(),
+	tax: z.number(),
+	total: z.number(),
+	buyerName: z.string().optional(),
+	buyerEmail: z.string().optional(),
+	shippingAddress: z.record(z.string(), z.unknown()).default({}),
+	giftMessage: z.string().optional(),
+	trackingNumber: z.string().optional(),
+	carrier: z.string().optional(),
+	shipDate: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const etsyEtsyReviewShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	etsyTransactionId: z.string(),
+	rating: z.number(),
+	review: z.string().optional(),
+	buyerName: z.string().optional(),
+	listingId: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for etsy. */
+export const etsyStorage = {
+	kind: "relational",
+	tables: {
+		listing: {
+			shape: etsyListingShape,
+		},
+		etsyOrder: {
+			shape: etsyEtsyOrderShape,
+		},
+		etsyReview: {
+			shape: etsyEtsyReviewShape,
 		},
 	},
-	etsyOrder: {
-		fields: {
-			id: { type: "string", required: true },
-			etsyReceiptId: { type: "string", required: true },
-			status: {
-				type: "string",
-				required: true,
-				defaultValue: "open",
-			},
-			items: { type: "json", required: true, defaultValue: [] },
-			subtotal: { type: "number", required: true },
-			shippingCost: { type: "number", required: true },
-			etsyFee: { type: "number", required: true },
-			processingFee: { type: "number", required: true },
-			tax: { type: "number", required: true },
-			total: { type: "number", required: true },
-			buyerName: { type: "string", required: false },
-			buyerEmail: { type: "string", required: false },
-			shippingAddress: {
-				type: "json",
-				required: true,
-				defaultValue: {},
-			},
-			giftMessage: { type: "string", required: false },
-			trackingNumber: { type: "string", required: false },
-			carrier: { type: "string", required: false },
-			shipDate: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	etsyReview: {
-		fields: {
-			id: { type: "string", required: true },
-			etsyTransactionId: { type: "string", required: true },
-			rating: { type: "number", required: true },
-			review: { type: "string", required: false },
-			buyerName: { type: "string", required: false },
-			listingId: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

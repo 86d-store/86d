@@ -1,74 +1,62 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const ebaySchema = {
-	listing: {
-		fields: {
-			id: { type: "string", required: true },
-			localProductId: { type: "string", required: true },
-			ebayItemId: { type: "string", required: false },
-			title: { type: "string", required: true },
-			status: { type: "string", required: true, defaultValue: "draft" },
-			listingType: {
-				type: "string",
-				required: true,
-				defaultValue: "fixed-price",
-			},
-			price: { type: "number", required: true },
-			auctionStartPrice: { type: "number", required: false },
-			currentBid: { type: "number", required: false },
-			bidCount: { type: "number", required: true, defaultValue: 0 },
-			quantity: { type: "number", required: true, defaultValue: 1 },
-			condition: { type: "string", required: true, defaultValue: "new" },
-			categoryId: { type: "string", required: false },
-			duration: { type: "string", required: false },
-			startTime: { type: "date", required: false },
-			endTime: { type: "date", required: false },
-			watchers: { type: "number", required: true, defaultValue: 0 },
-			views: { type: "number", required: true, defaultValue: 0 },
-			lastSyncedAt: { type: "date", required: false },
-			error: { type: "string", required: false },
-			metadata: { type: "json", required: true, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const ebayListingShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	localProductId: z.string(),
+	ebayItemId: z.string().optional(),
+	title: z.string(),
+	status: z.string().default("draft"),
+	listingType: z.string().default("fixed-price"),
+	price: z.number(),
+	auctionStartPrice: z.number().optional(),
+	currentBid: z.number().optional(),
+	bidCount: z.int().default(0),
+	quantity: z.int().default(1),
+	condition: z.string().default("new"),
+	categoryId: z.string().optional(),
+	duration: z.string().optional(),
+	startTime: z.coerce.date().optional(),
+	endTime: z.coerce.date().optional(),
+	watchers: z.int().default(0),
+	views: z.int().default(0),
+	lastSyncedAt: z.coerce.date().optional(),
+	error: z.string().optional(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const ebayEbayOrderShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	ebayOrderId: z.string(),
+	status: z.string().default("pending"),
+	items: z.array(z.unknown()).default([]),
+	subtotal: z.number(),
+	shippingCost: z.number(),
+	ebayFee: z.number(),
+	paymentProcessingFee: z.number(),
+	total: z.number(),
+	buyerUsername: z.string().optional(),
+	buyerName: z.string().optional(),
+	shippingAddress: z.record(z.string(), z.unknown()).default({}),
+	trackingNumber: z.string().optional(),
+	carrier: z.string().optional(),
+	shipDate: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for ebay. */
+export const ebayStorage = {
+	kind: "relational",
+	tables: {
+		listing: {
+			shape: ebayListingShape,
+		},
+		ebayOrder: {
+			shape: ebayEbayOrderShape,
 		},
 	},
-	ebayOrder: {
-		fields: {
-			id: { type: "string", required: true },
-			ebayOrderId: { type: "string", required: true },
-			status: { type: "string", required: true, defaultValue: "pending" },
-			items: { type: "json", required: true, defaultValue: [] },
-			subtotal: { type: "number", required: true },
-			shippingCost: { type: "number", required: true },
-			ebayFee: { type: "number", required: true },
-			paymentProcessingFee: { type: "number", required: true },
-			total: { type: "number", required: true },
-			buyerUsername: { type: "string", required: false },
-			buyerName: { type: "string", required: false },
-			shippingAddress: { type: "json", required: true, defaultValue: {} },
-			trackingNumber: { type: "string", required: false },
-			carrier: { type: "string", required: false },
-			shipDate: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

@@ -36,13 +36,34 @@ import type {
 import { SchemaCompileError } from "./compile/types";
 import type {
 	AnchorDeclaration,
+	ConfigValues,
 	CoreExtensionDeclaration,
+	ModuleStorageDeclaration,
 	ModuleStorageTier,
 	PublishedView,
+	StableSemVer,
 	TableDeclaration,
 } from "./declaration";
-import { moduleStorageTier } from "./declaration";
-import { transcodeModuleSchema } from "./transcode";
+import {
+	moduleStorageTier,
+	resolveModuleStorage,
+	storageConfig,
+	storageTables,
+} from "./declaration";
+import {
+	compileIsolationArtifacts,
+	DEFAULT_MODULE_STATEMENT_TIMEOUT_MS,
+	emitIsolationSql,
+	moduleStorageOrThrow,
+	STORE_LOGIN_ROLE,
+	STORE_OWNER_ROLE,
+} from "./isolation";
+import type { StorageValidationIssue } from "./storage-validate";
+import {
+	assertValidStorageDeclaration,
+	StorageDeclarationError,
+	validateStorageDeclaration,
+} from "./storage-validate";
 
 export type {
 	AnchorDeclaration,
@@ -54,30 +75,45 @@ export type {
 	CompileModuleResult,
 	CompileProvenance,
 	CompileReport,
+	ConfigValues,
 	ConstructProvenance,
 	CoreExtensionDeclaration,
 	FeatureManifest,
 	FeatureManifestEntry,
+	ModuleStorageDeclaration,
 	ModuleStorageTier,
 	PublishedView,
+	StableSemVer,
 	StorageParseIssue,
+	StorageValidationIssue,
 	TableDeclaration,
 };
 export {
+	assertValidStorageDeclaration,
 	buildFeatureManifest,
 	col,
+	compileIsolationArtifacts,
 	compileModuleDeclarations,
 	compileTableShape,
+	DEFAULT_MODULE_STATEMENT_TIMEOUT_MS,
+	emitIsolationSql,
 	emitSql,
 	findUnsupportedConstruct,
 	formatCompileReport,
 	isTranscodedModule,
 	listNotTranscodedModules,
 	ModuleStorageParseError,
+	moduleStorageOrThrow,
 	moduleStorageTier,
 	parseStorageRead,
 	parseStorageWrite,
+	resolveModuleStorage,
 	SchemaCompileError,
+	STORE_LOGIN_ROLE,
+	STORE_OWNER_ROLE,
+	StorageDeclarationError,
+	storageConfig,
+	storageTables,
 	summarizeLegacySchema,
-	transcodeModuleSchema,
+	validateStorageDeclaration,
 };

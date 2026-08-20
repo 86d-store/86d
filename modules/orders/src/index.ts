@@ -20,7 +20,7 @@ import {
 	orderLineQuantityValidateProvider,
 	orderPurchaseVerifyProvider,
 } from "./capabilities";
-import { ordersSchema, ordersTables } from "./schema";
+import { ordersStorage } from "./schema";
 import { RETURN_REASONS } from "./service";
 import { createOrderController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
@@ -75,8 +75,7 @@ export default function orders(options?: OrdersOptions): Module {
 	return {
 		id: "orders",
 		version: "0.0.1",
-		schema: ordersSchema,
-		tables: ordersTables,
+		storage: ordersStorage,
 		exports: {
 			read: [
 				"orderNumber",

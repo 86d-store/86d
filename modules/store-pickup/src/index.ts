@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { storePickupSchema } from "./schema";
+import { storePickupStorage } from "./schema";
 import { createStorePickupController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -17,7 +17,7 @@ export default function storePickup(options?: StorePickupOptions): Module {
 	return {
 		id: "store-pickup",
 		version: "0.0.1",
-		schema: storePickupSchema,
+		storage: storePickupStorage,
 
 		exports: {
 			read: [

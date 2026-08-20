@@ -1,45 +1,43 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const socialProofSchema = {
-	activityEvent: {
-		fields: {
-			id: { type: "string", required: true },
-			productId: { type: "string", required: true },
-			productName: { type: "string", required: true },
-			productSlug: { type: "string", required: true },
-			productImage: { type: "string", required: false },
-			eventType: { type: "string", required: true },
-			region: { type: "string", required: false },
-			country: { type: "string", required: false },
-			city: { type: "string", required: false },
-			quantity: { type: "number", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const socialProofActivityEventShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	productId: z.string(),
+	productName: z.string(),
+	productSlug: z.string(),
+	productImage: z.string().optional(),
+	eventType: z.string(),
+	region: z.string().optional(),
+	country: z.string().optional(),
+	city: z.string().optional(),
+	quantity: z.number().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const socialProofTrustBadgeShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	description: z.string().optional(),
+	icon: z.string(),
+	url: z.string().optional(),
+	position: z.string(),
+	priority: z.number(),
+	isActive: z.boolean(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for social-proof. */
+export const socialProofStorage = {
+	kind: "relational",
+	tables: {
+		activityEvent: {
+			shape: socialProofActivityEventShape,
+		},
+		trustBadge: {
+			shape: socialProofTrustBadgeShape,
 		},
 	},
-	trustBadge: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			description: { type: "string", required: false },
-			icon: { type: "string", required: true },
-			url: { type: "string", required: false },
-			position: { type: "string", required: true },
-			priority: { type: "number", required: true },
-			isActive: { type: "boolean", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

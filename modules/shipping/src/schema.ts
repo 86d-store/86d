@@ -1,484 +1,353 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const shippingSchema = {
-	shippingZone: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			/** ISO 3166-1 alpha-2 country codes; empty = all countries (wildcard) */
-			countries: { type: "json", required: true, defaultValue: [] },
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	shippingRate: {
-		fields: {
-			id: { type: "string", required: true },
-			zoneId: {
-				type: "string",
-				required: true,
-				references: { model: "shippingZone", field: "id", onDelete: "cascade" },
-			},
-			name: { type: "string", required: true },
-			/** Price in cents */
-			price: { type: "number", required: true, defaultValue: 0 },
-			/** Minimum order amount in cents */
-			minOrderAmount: { type: "number", required: false },
-			/** Maximum order amount in cents */
-			maxOrderAmount: { type: "number", required: false },
-			/** Minimum weight in grams */
-			minWeight: { type: "number", required: false },
-			/** Maximum weight in grams */
-			maxWeight: { type: "number", required: false },
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	shippingMethod: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			description: { type: "string", required: false },
-			/** Minimum estimated delivery days */
-			estimatedDaysMin: { type: "number", required: true },
-			/** Maximum estimated delivery days */
-			estimatedDaysMax: { type: "number", required: true },
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			/** Display order (lower = first) */
-			sortOrder: { type: "number", required: true, defaultValue: 0 },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	shippingCarrier: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			/** Unique code identifier, e.g. "fedex", "ups" */
-			code: { type: "string", required: true, unique: true },
-			/** Tracking URL template with {tracking} placeholder */
-			trackingUrlTemplate: { type: "string", required: false },
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	shipment: {
-		fields: {
-			id: { type: "string", required: true },
-			orderId: { type: "string", required: true },
-			carrierId: { type: "string", required: false },
-			methodId: { type: "string", required: false },
-			trackingNumber: { type: "string", required: false },
-			status: { type: "string", required: true, defaultValue: "pending" },
-			shippedAt: { type: "date", required: false },
-			deliveredAt: { type: "date", required: false },
-			estimatedDelivery: { type: "date", required: false },
-			notes: { type: "string", required: false },
-			externalShipmentId: { type: "string", required: false },
-			labelUrl: { type: "string", required: false },
-			publicTrackingUrl: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	shippingConnectionV2: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			normalizedName: {
-				type: "string",
-				required: true,
-				unique: true,
-				index: true,
-			},
-			provider: { type: "string", required: true, index: true },
-			mode: { type: ["test", "live"], required: true },
-			capabilities: { type: "json", required: true },
-			health: {
-				type: ["unknown", "healthy", "degraded", "unhealthy"],
-				required: true,
-				defaultValue: "unknown",
-			},
-			lifecycle: {
-				type: ["draft", "enabled", "disabled", "revoked"],
-				required: true,
-				defaultValue: "draft",
-				index: true,
-			},
-			secretReference: {
-				type: "string",
-				required: true,
-				returned: false,
-			},
-			originAddress: { type: "json", required: true },
-			healthCheckedAt: { type: "date", required: false },
-			enabledAt: { type: "date", required: false },
-			disabledAt: { type: "date", required: false },
-			revokedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	shippingQuoteRequestV2: {
-		fields: {
-			id: { type: "string", required: true },
-			quoteId: { type: "string", required: true, unique: true },
-			checkoutId: { type: "string", required: true, index: true },
-			checkoutRevision: { type: "number", required: true },
-			connectionId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "shippingConnectionV2",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			idempotencyKey: { type: "string", required: true },
-			requestDigest: { type: "string", required: true },
-			state: {
-				type: ["running", "succeeded", "failed"],
-				required: true,
-			},
-			attempt: { type: "number", required: true },
-			failureCode: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	shippingQuoteV2: {
-		fields: {
-			id: { type: "string", required: true },
-			checkoutId: { type: "string", required: true, index: true },
-			checkoutRevision: { type: "number", required: true },
-			connectionId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "shippingConnectionV2",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			providerQuoteReference: { type: "string", required: true },
-			destinationAddress: { type: "json", required: true },
-			originAddress: { type: "json", required: true },
-			addressFingerprint: { type: "string", required: true },
-			parcelPlan: { type: "json", required: true },
-			parcelPlanFingerprint: { type: "string", required: true },
-			currency: { type: "string", required: true },
-			status: {
-				type: ["active", "expired", "consumed"],
-				required: true,
-				defaultValue: "active",
-			},
-			issuedAt: { type: "date", required: true },
-			expiresAt: { type: "date", required: true, index: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	shippingOptionV2: {
-		fields: {
-			id: { type: "string", required: true },
-			quoteId: {
-				type: "string",
-				required: true,
-				index: true,
-				references: {
-					model: "shippingQuoteV2",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			connectionId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "shippingConnectionV2",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			providerQuoteReference: { type: "string", required: true },
-			providerRateReference: { type: "string", required: true },
-			carrier: { type: "string", required: true },
-			service: { type: "string", required: true },
-			amountMinor: { type: "number", required: true },
-			currency: { type: "string", required: true },
-			deliveryDays: { type: "number", required: false },
-			deliveryDate: { type: "string", required: false },
-			deliveryDateGuaranteed: { type: "boolean", required: true },
-			expiresAt: { type: "date", required: true, index: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	shippingLabelV2: {
-		fields: {
-			id: { type: "string", required: true },
-			fulfillmentId: { type: "string", required: true, index: true },
-			quoteId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "shippingQuoteV2",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			optionId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "shippingOptionV2",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			parcelReference: { type: "string", required: true },
-			connectionId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "shippingConnectionV2",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			idempotencyKey: { type: "string", required: true },
-			providerShipmentReference: { type: "string", required: true },
-			providerLabelReference: { type: "string", required: true },
-			providerTrackingReference: { type: "string", required: false },
-			trackingCode: { type: "string", required: false },
-			labelUrl: { type: "string", required: false },
-			amountMinor: { type: "number", required: true },
-			currency: { type: "string", required: true },
-			status: {
-				type: [
-					"pre_transit",
-					"in_transit",
-					"delivered",
-					"refund_pending",
-					"refunded",
-					"voided",
-					"needs_attention",
-				],
-				required: true,
-				defaultValue: "pre_transit",
-			},
-			purchasedAt: { type: "date", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	shippingTrackingV2: {
-		fields: {
-			id: { type: "string", required: true },
-			fulfillmentId: { type: "string", required: true, index: true },
-			labelId: {
-				type: "string",
-				required: true,
-				index: true,
-				references: {
-					model: "shippingLabelV2",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			parcelReference: { type: "string", required: true },
-			connectionId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "shippingConnectionV2",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			providerTrackerReference: { type: "string", required: true },
-			trackingCode: { type: "string", required: true },
-			status: { type: "string", required: true },
-			publicUrl: { type: "string", required: false },
-			providerOccurredAt: { type: "date", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	shippingLabelRefundV2: {
-		fields: {
-			id: { type: "string", required: true },
-			fulfillmentId: { type: "string", required: true, index: true },
-			labelId: {
-				type: "string",
-				required: true,
-				index: true,
-				references: {
-					model: "shippingLabelV2",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			connectionId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "shippingConnectionV2",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			idempotencyKey: { type: "string", required: true },
-			providerRefundReference: { type: "string", required: false },
-			status: {
-				type: ["pending", "succeeded", "failed", "needs_attention"],
-				required: true,
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	shippingPostageAdjustmentV2: {
-		fields: {
-			id: { type: "string", required: true },
-			fulfillmentId: { type: "string", required: true, index: true },
-			labelId: {
-				type: "string",
-				required: true,
-				index: true,
-				references: {
-					model: "shippingLabelV2",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			connectionId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "shippingConnectionV2",
-					field: "id",
-					onDelete: "restrict",
-				},
-			},
-			idempotencyKey: { type: "string", required: true },
-			providerAdjustmentReference: { type: "string", required: true },
-			kind: { type: ["debit", "credit"], required: true },
-			amountMinor: { type: "number", required: true },
-			currency: { type: "string", required: true },
-			recordedAt: { type: "date", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	shippingBoundaryLockV2: {
-		fields: {
-			id: { type: "string", required: true },
-		},
-	},
-} satisfies ModuleSchema;
+export const shippingShippingZoneShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	countries: z.array(z.unknown()).default([]),
+	isActive: z.boolean().default(true),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
 
-export const shippingTables = transcodeModuleSchema(shippingSchema);
+export const shippingShippingRateShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	zoneId: z.string().register(col, {
+		references: {
+			table: "self.shippingZone",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	name: z.string(),
+	price: z.int().default(0),
+	minOrderAmount: z.number().optional(),
+	maxOrderAmount: z.number().optional(),
+	minWeight: z.number().optional(),
+	maxWeight: z.number().optional(),
+	isActive: z.boolean().default(true),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const shippingShippingMethodShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	description: z.string().optional(),
+	estimatedDaysMin: z.number(),
+	estimatedDaysMax: z.number(),
+	isActive: z.boolean().default(true),
+	sortOrder: z.int().default(0),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const shippingShippingCarrierShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	code: z.string().register(col, { unique: true }),
+	trackingUrlTemplate: z.string().optional(),
+	isActive: z.boolean().default(true),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const shippingShipmentShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	orderId: z.string(),
+	carrierId: z.string().optional(),
+	methodId: z.string().optional(),
+	trackingNumber: z.string().optional(),
+	status: z.string().default("pending"),
+	shippedAt: z.coerce.date().optional(),
+	deliveredAt: z.coerce.date().optional(),
+	estimatedDelivery: z.coerce.date().optional(),
+	notes: z.string().optional(),
+	externalShipmentId: z.string().optional(),
+	labelUrl: z.string().optional(),
+	publicTrackingUrl: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const shippingShippingConnectionV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	normalizedName: z.string().register(col, { unique: true, index: true }),
+	provider: z.string().register(col, { index: true }),
+	mode: z.enum(["test", "live"]),
+	capabilities: z.record(z.string(), z.unknown()),
+	health: z
+		.enum(["unknown", "healthy", "degraded", "unhealthy"])
+		.default("unknown"),
+	lifecycle: z
+		.enum(["draft", "enabled", "disabled", "revoked"])
+		.register(col, { index: true })
+		.default("draft"),
+	secretReference: z.string(),
+	originAddress: z.record(z.string(), z.unknown()),
+	healthCheckedAt: z.coerce.date().optional(),
+	enabledAt: z.coerce.date().optional(),
+	disabledAt: z.coerce.date().optional(),
+	revokedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const shippingShippingQuoteRequestV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+	quoteId: z.string().register(col, { unique: true }),
+	checkoutId: z.string().register(col, { index: true }),
+	checkoutRevision: z.number(),
+	connectionId: z.string().register(col, {
+		references: {
+			table: "self.shippingConnectionV2",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	idempotencyKey: z.string(),
+	requestDigest: z.string(),
+	state: z.enum(["running", "succeeded", "failed"]),
+	attempt: z.number(),
+	failureCode: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const shippingShippingQuoteV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+	checkoutId: z.string().register(col, { index: true }),
+	checkoutRevision: z.number(),
+	connectionId: z.string().register(col, {
+		references: {
+			table: "self.shippingConnectionV2",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	providerQuoteReference: z.string(),
+	destinationAddress: z.record(z.string(), z.unknown()),
+	originAddress: z.record(z.string(), z.unknown()),
+	addressFingerprint: z.string(),
+	parcelPlan: z.record(z.string(), z.unknown()),
+	parcelPlanFingerprint: z.string(),
+	currency: z.string(),
+	status: z.enum(["active", "expired", "consumed"]).default("active"),
+	issuedAt: z.coerce.date(),
+	expiresAt: z.coerce.date().register(col, { index: true }),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const shippingShippingOptionV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+	quoteId: z.string().register(col, {
+		index: true,
+		references: {
+			table: "self.shippingQuoteV2",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	connectionId: z.string().register(col, {
+		references: {
+			table: "self.shippingConnectionV2",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	providerQuoteReference: z.string(),
+	providerRateReference: z.string(),
+	carrier: z.string(),
+	service: z.string(),
+	amountMinor: z.number(),
+	currency: z.string(),
+	deliveryDays: z.number().optional(),
+	deliveryDate: z.string().optional(),
+	deliveryDateGuaranteed: z.boolean(),
+	expiresAt: z.coerce.date().register(col, { index: true }),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const shippingShippingLabelV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+	fulfillmentId: z.string().register(col, { index: true }),
+	quoteId: z.string().register(col, {
+		references: {
+			table: "self.shippingQuoteV2",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	optionId: z.string().register(col, {
+		references: {
+			table: "self.shippingOptionV2",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	parcelReference: z.string(),
+	connectionId: z.string().register(col, {
+		references: {
+			table: "self.shippingConnectionV2",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	idempotencyKey: z.string(),
+	providerShipmentReference: z.string(),
+	providerLabelReference: z.string(),
+	providerTrackingReference: z.string().optional(),
+	trackingCode: z.string().optional(),
+	labelUrl: z.string().optional(),
+	amountMinor: z.number(),
+	currency: z.string(),
+	status: z
+		.enum([
+			"pre_transit",
+			"in_transit",
+			"delivered",
+			"refund_pending",
+			"refunded",
+			"voided",
+			"needs_attention",
+		])
+		.default("pre_transit"),
+	purchasedAt: z.coerce.date(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const shippingShippingTrackingV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+	fulfillmentId: z.string().register(col, { index: true }),
+	labelId: z.string().register(col, {
+		index: true,
+		references: {
+			table: "self.shippingLabelV2",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	parcelReference: z.string(),
+	connectionId: z.string().register(col, {
+		references: {
+			table: "self.shippingConnectionV2",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	providerTrackerReference: z.string(),
+	trackingCode: z.string(),
+	status: z.string(),
+	publicUrl: z.string().optional(),
+	providerOccurredAt: z.coerce.date(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const shippingShippingLabelRefundV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+	fulfillmentId: z.string().register(col, { index: true }),
+	labelId: z.string().register(col, {
+		index: true,
+		references: {
+			table: "self.shippingLabelV2",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	connectionId: z.string().register(col, {
+		references: {
+			table: "self.shippingConnectionV2",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	idempotencyKey: z.string(),
+	providerRefundReference: z.string().optional(),
+	status: z.enum(["pending", "succeeded", "failed", "needs_attention"]),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const shippingShippingPostageAdjustmentV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+	fulfillmentId: z.string().register(col, { index: true }),
+	labelId: z.string().register(col, {
+		index: true,
+		references: {
+			table: "self.shippingLabelV2",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	connectionId: z.string().register(col, {
+		references: {
+			table: "self.shippingConnectionV2",
+			column: "id",
+			onDelete: "restrict",
+		},
+	}),
+	idempotencyKey: z.string(),
+	providerAdjustmentReference: z.string(),
+	kind: z.enum(["debit", "credit"]),
+	amountMinor: z.number(),
+	currency: z.string(),
+	recordedAt: z.coerce.date(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const shippingShippingBoundaryLockV2Shape = z.object({
+	id: z.string().register(col, { pk: true }),
+});
+
+/** Native Relational storage for shipping. */
+export const shippingStorage = {
+	kind: "relational",
+	tables: {
+		shippingZone: {
+			shape: shippingShippingZoneShape,
+		},
+		shippingRate: {
+			shape: shippingShippingRateShape,
+		},
+		shippingMethod: {
+			shape: shippingShippingMethodShape,
+		},
+		shippingCarrier: {
+			shape: shippingShippingCarrierShape,
+		},
+		shipment: {
+			shape: shippingShipmentShape,
+		},
+		shippingConnectionV2: {
+			shape: shippingShippingConnectionV2Shape,
+		},
+		shippingQuoteRequestV2: {
+			shape: shippingShippingQuoteRequestV2Shape,
+		},
+		shippingQuoteV2: {
+			shape: shippingShippingQuoteV2Shape,
+		},
+		shippingOptionV2: {
+			shape: shippingShippingOptionV2Shape,
+		},
+		shippingLabelV2: {
+			shape: shippingShippingLabelV2Shape,
+		},
+		shippingTrackingV2: {
+			shape: shippingShippingTrackingV2Shape,
+		},
+		shippingLabelRefundV2: {
+			shape: shippingShippingLabelRefundV2Shape,
+		},
+		shippingPostageAdjustmentV2: {
+			shape: shippingShippingPostageAdjustmentV2Shape,
+		},
+		shippingBoundaryLockV2: {
+			shape: shippingShippingBoundaryLockV2Shape,
+		},
+	},
+} as const satisfies ModuleStorageDeclaration;

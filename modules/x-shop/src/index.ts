@@ -5,7 +5,7 @@ import type {
 } from "@86d-app/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
-import { xShopSchema } from "./schema";
+import { xShopStorage } from "./schema";
 import { createXShopController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -43,7 +43,7 @@ export default function xShop(options?: XShopOptions): Module {
 	return {
 		id: "x-shop",
 		version: "0.2.0",
-		schema: xShopSchema,
+		storage: xShopStorage,
 		exports: {
 			read: ["listingTitle", "listingStatus", "listingSyncStatus"],
 		},

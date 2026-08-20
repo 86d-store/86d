@@ -1,44 +1,36 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const fulfillmentSchema = {
-	/** One stable owner-local row per Order used to serialize allocations. */
-	fulfillmentOrderLock: {
-		fields: {
-			id: { type: "string", required: true },
-			orderId: { type: "string", required: true, unique: true },
+export const fulfillmentFulfillmentOrderLockShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	orderId: z.string().register(col, { unique: true }),
+});
+
+export const fulfillmentFulfillmentShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	orderId: z.string(),
+	status: z.string().default("pending"),
+	items: z.array(z.unknown()).default([]),
+	carrier: z.string().optional(),
+	trackingNumber: z.string().optional(),
+	trackingUrl: z.string().optional(),
+	notes: z.string().optional(),
+	shippedAt: z.coerce.date().optional(),
+	deliveredAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for fulfillment. */
+export const fulfillmentStorage = {
+	kind: "relational",
+	tables: {
+		fulfillmentOrderLock: {
+			shape: fulfillmentFulfillmentOrderLockShape,
+		},
+		fulfillment: {
+			shape: fulfillmentFulfillmentShape,
 		},
 	},
-	fulfillment: {
-		fields: {
-			id: { type: "string", required: true },
-			orderId: { type: "string", required: true },
-			/** pending | processing | shipped | delivered | cancelled */
-			status: { type: "string", required: true, defaultValue: "pending" },
-			/** JSON array of { lineItemId, quantity } */
-			items: { type: "json", required: true, defaultValue: [] },
-			/** Carrier name (e.g. UPS, FedEx, USPS, DHL) */
-			carrier: { type: "string", required: false },
-			/** Carrier tracking number */
-			trackingNumber: { type: "string", required: false },
-			/** Tracking URL */
-			trackingUrl: { type: "string", required: false },
-			/** Internal notes for admin staff */
-			notes: { type: "string", required: false },
-			/** Timestamp when items were shipped */
-			shippedAt: { type: "date", required: false },
-			/** Timestamp when delivery was confirmed */
-			deliveredAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

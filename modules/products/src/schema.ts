@@ -1,455 +1,227 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const productsSchema = {
-	product: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			name: {
-				type: "string",
-				required: true,
-			},
-			slug: {
-				type: "string",
-				required: true,
-				unique: true,
-			},
-			description: {
-				type: "string",
-				required: false,
-			},
-			shortDescription: {
-				type: "string",
-				required: false,
-			},
-			price: {
-				type: "number",
-				required: true,
-			},
-			compareAtPrice: {
-				type: "number",
-				required: false,
-			},
-			costPrice: {
-				type: "number",
-				required: false,
-			},
-			sku: {
-				type: "string",
-				required: false,
-				unique: true,
-			},
-			barcode: {
-				type: "string",
-				required: false,
-			},
-			inventory: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			trackInventory: {
-				type: "boolean",
-				required: true,
-				defaultValue: true,
-			},
-			allowBackorder: {
-				type: "boolean",
-				required: true,
-				defaultValue: false,
-			},
-			status: {
-				type: ["draft", "active", "archived"],
-				required: true,
-				defaultValue: "draft",
-			},
-			categoryId: {
-				type: "string",
-				required: false,
-				references: {
-					model: "category",
-					field: "id",
-					onDelete: "set null",
-				},
-			},
-			images: {
-				type: "json",
-				required: false,
-				defaultValue: [],
-			},
-			tags: {
-				type: "json",
-				required: false,
-				defaultValue: [],
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			weight: {
-				type: "number",
-				required: false,
-			},
-			weightUnit: {
-				type: ["kg", "lb", "oz", "g"],
-				required: false,
-				defaultValue: "kg",
-			},
-			isFeatured: {
-				type: "boolean",
-				required: true,
-				defaultValue: false,
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	productVariant: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			productId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "product",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			name: {
-				type: "string",
-				required: true,
-			},
-			sku: {
-				type: "string",
-				required: false,
-				unique: true,
-			},
-			barcode: {
-				type: "string",
-				required: false,
-			},
-			price: {
-				type: "number",
-				required: true,
-			},
-			compareAtPrice: {
-				type: "number",
-				required: false,
-			},
-			costPrice: {
-				type: "number",
-				required: false,
-			},
-			inventory: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			options: {
-				type: "json",
-				required: true,
-				defaultValue: {},
-			},
-			images: {
-				type: "json",
-				required: false,
-				defaultValue: [],
-			},
-			weight: {
-				type: "number",
-				required: false,
-			},
-			weightUnit: {
-				type: ["kg", "lb", "oz", "g"],
-				required: false,
-			},
-			position: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	category: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			name: {
-				type: "string",
-				required: true,
-			},
-			slug: {
-				type: "string",
-				required: true,
-				unique: true,
-			},
-			description: {
-				type: "string",
-				required: false,
-			},
-			parentId: {
-				type: "string",
-				required: false,
-				references: {
-					model: "category",
-					field: "id",
-					onDelete: "set null",
-				},
-			},
-			image: {
-				type: "string",
-				required: false,
-			},
-			position: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			isVisible: {
-				type: "boolean",
-				required: true,
-				defaultValue: true,
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	collection: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			name: {
-				type: "string",
-				required: true,
-			},
-			slug: {
-				type: "string",
-				required: true,
-				unique: true,
-			},
-			description: {
-				type: "string",
-				required: false,
-			},
-			image: {
-				type: "string",
-				required: false,
-			},
-			isFeatured: {
-				type: "boolean",
-				required: true,
-				defaultValue: false,
-			},
-			isVisible: {
-				type: "boolean",
-				required: true,
-				defaultValue: true,
-			},
-			position: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	collectionProduct: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			collectionId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "collection",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			productId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "product",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			position: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	/** Immutable Product, Variant, and accepted Category publication snapshot. */
-	catalogRevision: {
-		fields: {
-			id: { type: "string", required: true },
-			sequence: { type: "number", required: true, unique: true },
-			state: {
-				type: ["draft", "reviewed", "published", "superseded", "failed"],
-				required: true,
-				index: true,
-			},
-			baseRevisionId: { type: "string", required: false, index: true },
-			contentVersion: { type: "number", required: true },
-			contentDigest: { type: "string", required: true, index: true },
-			content: { type: "json", required: true },
-			createdAt: { type: "date", required: true },
-			createdBy: { type: "json", required: true },
-			createdAuthorityId: { type: "string", required: true },
-			reviewedAt: { type: "date", required: false },
-			reviewedBy: { type: "json", required: false },
-			reviewedAuthorityId: { type: "string", required: false },
-			publishedAt: { type: "date", required: false },
-			publishedBy: { type: "json", required: false },
-			publishedAuthorityId: { type: "string", required: false },
-			supersededAt: { type: "date", required: false },
-			supersededByRevisionId: {
-				type: "string",
-				required: false,
-				index: true,
-			},
-			failedAt: { type: "date", required: false },
-			failedBy: { type: "json", required: false },
-			failedAuthorityId: { type: "string", required: false },
-			failedFromState: { type: ["draft", "reviewed"], required: false },
-			failureReason: { type: "string", required: false },
-		},
-	},
-	/** One protected pointer serializes draft numbering and publication CAS. */
-	catalogRevisionHead: {
-		fields: {
-			id: { type: "string", required: true },
-			nextSequence: { type: "number", required: true },
-			publishedRevisionId: { type: "string", required: false },
-			publishedContentDigest: { type: "string", required: false },
-			updatedAt: { type: "date", required: true },
-		},
-	},
-	/** Stable row acquired with FOR UPDATE before any Catalog transition. */
-	catalogRevisionLock: {
-		fields: {
-			id: { type: "string", required: true },
-		},
-	},
-	/** Append-only transition explanation keyed by operation identity. */
-	catalogRevisionAudit: {
-		fields: {
-			id: { type: "string", required: true },
-			revisionId: { type: "string", required: true, index: true },
-			fromState: {
-				type: ["draft", "reviewed", "published", "superseded", "failed"],
-				required: false,
-			},
-			toState: {
-				type: ["draft", "reviewed", "published", "superseded", "failed"],
-				required: true,
-			},
-			actor: { type: "json", required: true },
-			authorityId: { type: "string", required: true },
-			commandExecutionId: { type: "string", required: false, index: true },
-			occurredAt: { type: "date", required: true },
-		},
-	},
-	/** Successful transition receipt prevents duplicate effects on Command retry. */
-	catalogRevisionOperation: {
-		fields: {
-			id: { type: "string", required: true },
-			action: {
-				type: ["create_draft", "review", "publish", "fail"],
-				required: true,
-			},
-			revisionId: { type: "string", required: true, index: true },
-			requestDigest: { type: "string", required: true },
-			decision: { type: "json", required: true },
-			createdAt: { type: "date", required: true },
-		},
-	},
-	/** Atomic Storefront, search, and feed read state for one publication. */
-	catalogPresentation: {
-		fields: {
-			id: { type: "string", required: true },
-			revisionId: { type: "string", required: true, index: true },
-			revisionSequence: { type: "number", required: true, index: true },
-			contentVersion: { type: "number", required: true },
-			contentDigest: { type: "string", required: true, index: true },
-			currency: { type: "string", required: true },
-			projectedAt: { type: "date", required: true },
-			storefront: { type: "json", required: true },
-			search: { type: "json", required: true },
-			feeds: { type: "json", required: true },
-		},
-	},
-} satisfies ModuleSchema;
+export const productsProductShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	description: z.string().optional(),
+	shortDescription: z.string().optional(),
+	price: z.number(),
+	compareAtPrice: z.number().optional(),
+	costPrice: z.number().optional(),
+	sku: z.string().register(col, { unique: true }).optional(),
+	barcode: z.string().optional(),
+	inventory: z.int().default(0),
+	trackInventory: z.boolean().default(true),
+	allowBackorder: z.boolean().default(false),
+	status: z.enum(["draft", "active", "archived"]).default("draft"),
+	categoryId: z
+		.string()
+		.register(col, {
+			references: {
+				table: "self.category",
+				column: "id",
+				onDelete: "set null",
+			},
+		})
+		.optional(),
+	images: z.array(z.unknown()).default([]),
+	tags: z.array(z.unknown()).default([]),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	weight: z.number().optional(),
+	weightUnit: z.enum(["kg", "lb", "oz", "g"]).default("kg"),
+	isFeatured: z.boolean().default(false),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
 
-export const productsTables = transcodeModuleSchema(productsSchema);
+export const productsProductVariantShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	productId: z.string().register(col, {
+		references: { table: "self.product", column: "id", onDelete: "cascade" },
+	}),
+	name: z.string(),
+	sku: z.string().register(col, { unique: true }).optional(),
+	barcode: z.string().optional(),
+	price: z.number(),
+	compareAtPrice: z.number().optional(),
+	costPrice: z.number().optional(),
+	inventory: z.int().default(0),
+	options: z.record(z.string(), z.unknown()).default({}),
+	images: z.array(z.unknown()).default([]),
+	weight: z.number().optional(),
+	weightUnit: z.enum(["kg", "lb", "oz", "g"]).optional(),
+	position: z.int().default(0),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const productsCategoryShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	description: z.string().optional(),
+	parentId: z
+		.string()
+		.register(col, {
+			references: {
+				table: "self.category",
+				column: "id",
+				onDelete: "set null",
+			},
+		})
+		.optional(),
+	image: z.string().optional(),
+	position: z.int().default(0),
+	isVisible: z.boolean().default(true),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const productsCollectionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	description: z.string().optional(),
+	image: z.string().optional(),
+	isFeatured: z.boolean().default(false),
+	isVisible: z.boolean().default(true),
+	position: z.int().default(0),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const productsCollectionProductShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	collectionId: z.string().register(col, {
+		references: {
+			table: "self.collection",
+			column: "id",
+			onDelete: "cascade",
+		},
+	}),
+	productId: z.string().register(col, {
+		references: { table: "self.product", column: "id", onDelete: "cascade" },
+	}),
+	position: z.int().default(0),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const productsCatalogRevisionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	sequence: z.number().register(col, { unique: true }),
+	state: z
+		.enum(["draft", "reviewed", "published", "superseded", "failed"])
+		.register(col, { index: true }),
+	baseRevisionId: z.string().register(col, { index: true }).optional(),
+	contentVersion: z.number(),
+	contentDigest: z.string().register(col, { index: true }),
+	content: z.record(z.string(), z.unknown()),
+	createdAt: z.coerce.date(),
+	createdBy: z.record(z.string(), z.unknown()),
+	createdAuthorityId: z.string(),
+	reviewedAt: z.coerce.date().optional(),
+	reviewedBy: z.record(z.string(), z.unknown()).optional(),
+	reviewedAuthorityId: z.string().optional(),
+	publishedAt: z.coerce.date().optional(),
+	publishedBy: z.record(z.string(), z.unknown()).optional(),
+	publishedAuthorityId: z.string().optional(),
+	supersededAt: z.coerce.date().optional(),
+	supersededByRevisionId: z.string().register(col, { index: true }).optional(),
+	failedAt: z.coerce.date().optional(),
+	failedBy: z.record(z.string(), z.unknown()).optional(),
+	failedAuthorityId: z.string().optional(),
+	failedFromState: z.enum(["draft", "reviewed"]).optional(),
+	failureReason: z.string().optional(),
+});
+
+export const productsCatalogRevisionHeadShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	nextSequence: z.number(),
+	publishedRevisionId: z.string().optional(),
+	publishedContentDigest: z.string().optional(),
+	updatedAt: z.coerce.date(),
+});
+
+export const productsCatalogRevisionLockShape = z.object({
+	id: z.string().register(col, { pk: true }),
+});
+
+export const productsCatalogRevisionAuditShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	revisionId: z.string().register(col, { index: true }),
+	fromState: z
+		.enum(["draft", "reviewed", "published", "superseded", "failed"])
+		.optional(),
+	toState: z.enum(["draft", "reviewed", "published", "superseded", "failed"]),
+	actor: z.record(z.string(), z.unknown()),
+	authorityId: z.string(),
+	commandExecutionId: z.string().register(col, { index: true }).optional(),
+	occurredAt: z.coerce.date(),
+});
+
+export const productsCatalogRevisionOperationShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	action: z.enum(["create_draft", "review", "publish", "fail"]),
+	revisionId: z.string().register(col, { index: true }),
+	requestDigest: z.string(),
+	decision: z.record(z.string(), z.unknown()),
+	createdAt: z.coerce.date(),
+});
+
+export const productsCatalogPresentationShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	revisionId: z.string().register(col, { index: true }),
+	revisionSequence: z.number().register(col, { index: true }),
+	contentVersion: z.number(),
+	contentDigest: z.string().register(col, { index: true }),
+	currency: z.string(),
+	projectedAt: z.coerce.date(),
+	storefront: z.record(z.string(), z.unknown()),
+	search: z.record(z.string(), z.unknown()),
+	feeds: z.record(z.string(), z.unknown()),
+});
+
+/** Native Relational storage for products. */
+export const productsStorage = {
+	kind: "relational",
+	tables: {
+		product: {
+			shape: productsProductShape,
+		},
+		productVariant: {
+			shape: productsProductVariantShape,
+		},
+		category: {
+			shape: productsCategoryShape,
+		},
+		collection: {
+			shape: productsCollectionShape,
+		},
+		collectionProduct: {
+			shape: productsCollectionProductShape,
+		},
+		catalogRevision: {
+			shape: productsCatalogRevisionShape,
+		},
+		catalogRevisionHead: {
+			shape: productsCatalogRevisionHeadShape,
+		},
+		catalogRevisionLock: {
+			shape: productsCatalogRevisionLockShape,
+		},
+		catalogRevisionAudit: {
+			shape: productsCatalogRevisionAuditShape,
+		},
+		catalogRevisionOperation: {
+			shape: productsCatalogRevisionOperationShape,
+		},
+		catalogPresentation: {
+			shape: productsCatalogPresentationShape,
+		},
+	},
+} as const satisfies ModuleStorageDeclaration;

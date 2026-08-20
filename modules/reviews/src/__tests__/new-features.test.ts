@@ -608,11 +608,13 @@ describe("reviews new features", () => {
 			expect(module.events?.emits).toContain("review.reported");
 		});
 
-		it("schema includes reviewVote and reviewReport tables", async () => {
+		it("storage includes reviewVote and reviewReport tables", async () => {
 			const mod = await import("../index");
 			const module = mod.default();
-			expect(module.schema).toHaveProperty("reviewVote");
-			expect(module.schema).toHaveProperty("reviewReport");
+			expect(module.storage?.kind).toBe("relational");
+			if (module.storage?.kind !== "relational") return;
+			expect(module.storage.tables).toHaveProperty("reviewVote");
+			expect(module.storage.tables).toHaveProperty("reviewReport");
 		});
 	});
 });

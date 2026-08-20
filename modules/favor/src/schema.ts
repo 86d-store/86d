@@ -1,55 +1,48 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const favorSchema = {
-	delivery: {
-		fields: {
-			id: { type: "string", required: true },
-			orderId: { type: "string", required: true },
-			externalId: { type: "string", required: false },
-			/** pending | assigned | en-route | arrived | completed | cancelled */
-			status: { type: "string", required: true },
-			pickupAddress: { type: "json", required: true },
-			dropoffAddress: { type: "json", required: true },
-			estimatedArrival: { type: "date", required: false },
-			actualArrival: { type: "date", required: false },
-			fee: { type: "number", required: true },
-			tip: { type: "number", required: true },
-			runnerName: { type: "string", required: false },
-			runnerPhone: { type: "string", required: false },
-			trackingUrl: { type: "string", required: false },
-			specialInstructions: { type: "string", required: false },
-			metadata: { type: "json", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const favorDeliveryShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	orderId: z.string(),
+	externalId: z.string().optional(),
+	status: z.string(),
+	pickupAddress: z.record(z.string(), z.unknown()),
+	dropoffAddress: z.record(z.string(), z.unknown()),
+	estimatedArrival: z.coerce.date().optional(),
+	actualArrival: z.coerce.date().optional(),
+	fee: z.number(),
+	tip: z.number(),
+	runnerName: z.string().optional(),
+	runnerPhone: z.string().optional(),
+	trackingUrl: z.string().optional(),
+	specialInstructions: z.string().optional(),
+	metadata: z.record(z.string(), z.unknown()),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const favorServiceAreaShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	isActive: z.boolean(),
+	zipCodes: z.record(z.string(), z.unknown()),
+	minOrderAmount: z.number(),
+	deliveryFee: z.number(),
+	estimatedMinutes: z.number(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for favor. */
+export const favorStorage = {
+	kind: "relational",
+	tables: {
+		delivery: {
+			shape: favorDeliveryShape,
+		},
+		serviceArea: {
+			shape: favorServiceAreaShape,
 		},
 	},
-	serviceArea: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			isActive: { type: "boolean", required: true },
-			zipCodes: { type: "json", required: true },
-			minOrderAmount: { type: "number", required: true },
-			deliveryFee: { type: "number", required: true },
-			estimatedMinutes: { type: "number", required: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

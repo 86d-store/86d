@@ -16,7 +16,7 @@ import {
 	TaxJarQuoteProviderV2,
 	taxJarMajorUnitsToMinorUnits,
 } from "./provider-v2";
-import { taxSchema, taxTables } from "./schema";
+import { taxStorage } from "./schema";
 import { createTaxController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -106,8 +106,7 @@ export default function tax(options?: TaxOptions): Module {
 	return {
 		id: "tax",
 		version: "0.0.1",
-		schema: taxSchema,
-		tables: taxTables,
+		storage: taxStorage,
 		capabilities: {
 			provides: [
 				createTaxQuoteV2Provider({ provider: taxJarV2Provider }),

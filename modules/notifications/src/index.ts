@@ -25,7 +25,7 @@ import {
 	notificationIntentInputSchema,
 } from "./intents";
 import { ResendProvider, TwilioProvider } from "./provider";
-import { notificationsSchema, notificationsTables } from "./schema";
+import { notificationsStorage } from "./schema";
 import { createNotificationsController } from "./service-impl";
 import { createStoreEndpoints } from "./store/endpoints/routes";
 
@@ -97,8 +97,7 @@ export default function notifications(options?: NotificationsOptions): Module {
 	return {
 		id: "notifications",
 		version: "0.1.0",
-		schema: notificationsSchema,
-		tables: notificationsTables,
+		storage: notificationsStorage,
 		capabilities: {
 			provides: [notificationCreateProvider],
 			accepts: [

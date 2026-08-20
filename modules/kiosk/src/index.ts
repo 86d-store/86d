@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { kioskSchema } from "./schema";
+import { kioskStorage } from "./schema";
 import { createKioskController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -32,7 +32,7 @@ export default function kiosk(options?: KioskOptions): Module {
 	return {
 		id: "kiosk",
 		version: "0.0.1",
-		schema: kioskSchema,
+		storage: kioskStorage,
 		exports: {
 			read: ["kioskSessionStatus", "kioskStationOnline"],
 		},

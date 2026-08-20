@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { navigationSchema, navigationTables } from "./schema";
+import { navigationStorage } from "./schema";
 import { createNavigationController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -30,8 +30,7 @@ export default function navigation(options?: NavigationOptions): Module {
 	return {
 		id: "navigation",
 		version: "0.0.1",
-		schema: navigationSchema,
-		tables: navigationTables,
+		storage: navigationStorage,
 		exports: {
 			read: ["menuName", "menuSlug", "menuItemLabel"],
 		},

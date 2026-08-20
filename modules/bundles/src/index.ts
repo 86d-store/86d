@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { bundleSchema } from "./schema";
+import { bundlesStorage } from "./schema";
 import { createBundleController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -26,7 +26,7 @@ export default function bundles(options?: BundleOptions): Module {
 	return {
 		id: "bundles",
 		version: "0.0.1",
-		schema: bundleSchema,
+		storage: bundlesStorage,
 		requires: {
 			products: { read: ["productTitle", "productPrice"] },
 		},

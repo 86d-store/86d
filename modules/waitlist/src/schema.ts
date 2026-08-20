@@ -1,22 +1,26 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const waitlistSchema = {
-	waitlistEntry: {
-		fields: {
-			id: { type: "string", required: true },
-			productId: { type: "string", required: true },
-			productName: { type: "string", required: true },
-			variantId: { type: "string", required: false },
-			variantLabel: { type: "string", required: false },
-			email: { type: "string", required: true },
-			customerId: { type: "string", required: false },
-			status: { type: "string", required: true },
-			notifiedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const waitlistWaitlistEntryShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	productId: z.string(),
+	productName: z.string(),
+	variantId: z.string().optional(),
+	variantLabel: z.string().optional(),
+	email: z.string(),
+	customerId: z.string().optional(),
+	status: z.string(),
+	notifiedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for waitlist. */
+export const waitlistStorage = {
+	kind: "relational",
+	tables: {
+		waitlistEntry: {
+			shape: waitlistWaitlistEntryShape,
 		},
 	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

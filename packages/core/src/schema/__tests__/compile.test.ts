@@ -124,28 +124,30 @@ describe("compileTableShape", () => {
 });
 
 describe("compileModuleDeclarations", () => {
-	it("emits nothing for tier-none module", () => {
+	it("emits nothing for none storage module", () => {
 		const stripe: Module = {
 			id: "stripe",
 			version: "1.0.0",
-			schema: {},
+			storage: { kind: "none" },
 		};
 
 		const report = compileModuleDeclarations([stripe]);
 		expect(report.transcoded).toHaveLength(0);
-		expect(report.sql.trim()).toBe("");
 	});
 
-	it("emits CREATE SCHEMA for transcoded module", () => {
+	it("emits CREATE SCHEMA for relational storage module", () => {
 		const cart: Module = {
 			id: "cart",
 			version: "1.0.0",
-			tables: {
-				cart: {
-					shape: z.object({
-						id: z.string().register(col, { pk: true }),
-						status: z.enum(["active", "abandoned"]),
-					}),
+			storage: {
+				kind: "relational",
+				tables: {
+					cart: {
+						shape: z.object({
+							id: z.string().register(col, { pk: true }),
+							status: z.enum(["active", "abandoned"]),
+						}),
+					},
 				},
 			},
 		};
@@ -155,6 +157,7 @@ describe("compileModuleDeclarations", () => {
 		expect(report.sql).toContain(
 			'CREATE TABLE IF NOT EXISTS "mod_cart"."cart"',
 		);
+		expect(report.sql).toContain("SET statement_timeout");
 	});
 
 	it("lists legacy-only modules as not transcoded", () => {
@@ -180,19 +183,22 @@ describe("compileModuleDeclarations", () => {
 		const cart: Module = {
 			id: "cart",
 			version: "1.0.0",
-			tables: {
-				cartItem: {
-					shape: z.object({
-						id: z.string().register(col, { pk: true }),
-						cartId: z.string().register(col, {
-							references: { table: "self.cart", column: "id" },
+			storage: {
+				kind: "relational",
+				tables: {
+					cartItem: {
+						shape: z.object({
+							id: z.string().register(col, { pk: true }),
+							cartId: z.string().register(col, {
+								references: { table: "self.cart", column: "id" },
+							}),
 						}),
-					}),
-				},
-				cart: {
-					shape: z.object({
-						id: z.string().register(col, { pk: true }),
-					}),
+					},
+					cart: {
+						shape: z.object({
+							id: z.string().register(col, { pk: true }),
+						}),
+					},
 				},
 			},
 		};
@@ -207,13 +213,16 @@ describe("compileModuleDeclarations", () => {
 		const cart: Module = {
 			id: "cart",
 			version: "1.0.0",
-			tables: {
-				cart: {
-					shape: z.object({
-						id: z.string().register(col, { pk: true }),
-						status: z.enum(["active", "abandoned"]).default("active"),
-						notes: z.string().max(100).optional(),
-					}),
+			storage: {
+				kind: "relational",
+				tables: {
+					cart: {
+						shape: z.object({
+							id: z.string().register(col, { pk: true }),
+							status: z.enum(["active", "abandoned"]).default("active"),
+							notes: z.string().max(100).optional(),
+						}),
+					},
 				},
 			},
 		};

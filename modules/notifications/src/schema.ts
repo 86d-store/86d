@@ -1,123 +1,95 @@
-import { transcodeModuleSchema } from "@86d-app/core/schema";
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const notificationsSchema = {
-	notification: {
-		fields: {
-			id: { type: "string", required: true },
-			customerId: { type: "string", required: true },
-			type: { type: "string", required: true, defaultValue: "info" },
-			channel: { type: "string", required: true, defaultValue: "in_app" },
-			priority: { type: "string", required: true, defaultValue: "normal" },
-			title: { type: "string", required: true },
-			body: { type: "string", required: true },
-			actionUrl: { type: "string", required: false },
-			metadata: { type: "json", required: true, defaultValue: {} },
-			read: { type: "boolean", required: true, defaultValue: false },
-			readAt: { type: "date", required: false },
-			deliveryExternalId: { type: "string", required: false },
-			deliveryStatus: { type: "string", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-	template: {
-		fields: {
-			id: { type: "string", required: true },
-			slug: { type: "string", required: true },
-			name: { type: "string", required: true },
-			type: { type: "string", required: true, defaultValue: "info" },
-			channel: { type: "string", required: true, defaultValue: "in_app" },
-			priority: { type: "string", required: true, defaultValue: "normal" },
-			titleTemplate: { type: "string", required: true },
-			bodyTemplate: { type: "string", required: true },
-			actionUrlTemplate: { type: "string", required: false },
-			variables: { type: "json", required: true, defaultValue: [] },
-			active: { type: "boolean", required: true, defaultValue: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	preference: {
-		fields: {
-			id: { type: "string", required: true },
-			customerId: { type: "string", required: true },
-			orderUpdates: { type: "boolean", required: true, defaultValue: true },
-			promotions: { type: "boolean", required: true, defaultValue: true },
-			shippingAlerts: { type: "boolean", required: true, defaultValue: true },
-			accountAlerts: { type: "boolean", required: true, defaultValue: true },
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	notificationIntentLock: {
-		fields: {
-			id: { type: "string", required: true },
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	notificationIntent: {
-		fields: {
-			id: { type: "string", required: true },
-			idempotencyKey: { type: "string", required: true, index: true },
-			requestFingerprint: { type: "string", required: true },
-			sourceEventId: { type: "string", required: true, index: true },
-			sourceModule: { type: "string", required: true, index: true },
-			templateKey: { type: "string", required: true },
-			channel: { type: "string", required: true },
-			recipient: { type: "string", required: true },
-			deliveryMode: { type: "string", required: true },
-			connectionId: { type: "string", required: false, index: true },
-			payload: { type: "json", required: true, defaultValue: {} },
-			status: {
-				type: "string",
-				required: true,
-				defaultValue: "pending",
-				index: true,
-			},
-			attempts: { type: "number", required: true, defaultValue: 0 },
-			acceptedRecipientUnits: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			providerMessageId: { type: "string", required: false, index: true },
-			lastError: { type: "string", required: false },
-			acceptedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+export const notificationsNotificationShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	customerId: z.string(),
+	type: z.string().default("info"),
+	channel: z.string().default("in_app"),
+	priority: z.string().default("normal"),
+	title: z.string(),
+	body: z.string(),
+	actionUrl: z.string().optional(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	read: z.boolean().default(false),
+	readAt: z.coerce.date().optional(),
+	deliveryExternalId: z.string().optional(),
+	deliveryStatus: z.string().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
 
-export const notificationsTables = transcodeModuleSchema(notificationsSchema);
+export const notificationsTemplateShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	slug: z.string(),
+	name: z.string(),
+	type: z.string().default("info"),
+	channel: z.string().default("in_app"),
+	priority: z.string().default("normal"),
+	titleTemplate: z.string(),
+	bodyTemplate: z.string(),
+	actionUrlTemplate: z.string().optional(),
+	variables: z.array(z.unknown()).default([]),
+	active: z.boolean().default(true),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const notificationsPreferenceShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	customerId: z.string(),
+	orderUpdates: z.boolean().default(true),
+	promotions: z.boolean().default(true),
+	shippingAlerts: z.boolean().default(true),
+	accountAlerts: z.boolean().default(true),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const notificationsNotificationIntentLockShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const notificationsNotificationIntentShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	idempotencyKey: z.string().register(col, { index: true }),
+	requestFingerprint: z.string(),
+	sourceEventId: z.string().register(col, { index: true }),
+	sourceModule: z.string().register(col, { index: true }),
+	templateKey: z.string(),
+	channel: z.string(),
+	recipient: z.string(),
+	deliveryMode: z.string(),
+	connectionId: z.string().register(col, { index: true }).optional(),
+	payload: z.record(z.string(), z.unknown()).default({}),
+	status: z.string().register(col, { index: true }).default("pending"),
+	attempts: z.int().default(0),
+	acceptedRecipientUnits: z.int().default(0),
+	providerMessageId: z.string().register(col, { index: true }).optional(),
+	lastError: z.string().optional(),
+	acceptedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for notifications. */
+export const notificationsStorage = {
+	kind: "relational",
+	tables: {
+		notification: {
+			shape: notificationsNotificationShape,
+		},
+		template: {
+			shape: notificationsTemplateShape,
+		},
+		preference: {
+			shape: notificationsPreferenceShape,
+		},
+		notificationIntentLock: {
+			shape: notificationsNotificationIntentLockShape,
+		},
+		notificationIntent: {
+			shape: notificationsNotificationIntentShape,
+		},
+	},
+} as const satisfies ModuleStorageDeclaration;

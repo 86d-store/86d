@@ -1,125 +1,45 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const formsSchema = {
-	form: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			name: {
-				type: "string",
-				required: true,
-			},
-			slug: {
-				type: "string",
-				required: true,
-				unique: true,
-			},
-			description: {
-				type: "string",
-				required: false,
-			},
-			/** JSON array of FormField definitions */
-			fields: {
-				type: "json",
-				required: true,
-				defaultValue: [],
-			},
-			/** Submit button label */
-			submitLabel: {
-				type: "string",
-				required: true,
-				defaultValue: "Submit",
-			},
-			/** Message shown after successful submission */
-			successMessage: {
-				type: "string",
-				required: true,
-				defaultValue: "Thank you for your submission.",
-			},
-			/** Whether the form accepts new submissions */
-			isActive: {
-				type: "boolean",
-				required: true,
-				defaultValue: true,
-			},
-			/** Optional email address to notify on submission */
-			notifyEmail: {
-				type: "string",
-				required: false,
-			},
-			/** Enable honeypot spam protection */
-			honeypotEnabled: {
-				type: "boolean",
-				required: true,
-				defaultValue: true,
-			},
-			/** Maximum submissions allowed (0 = unlimited) */
-			maxSubmissions: {
-				type: "number",
-				required: true,
-				defaultValue: 0,
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const formsFormShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	slug: z.string().register(col, { unique: true }),
+	description: z.string().optional(),
+	fields: z.array(z.unknown()).default([]),
+	submitLabel: z.string().default("Submit"),
+	successMessage: z.string().default("Thank you for your submission."),
+	isActive: z.boolean().default(true),
+	notifyEmail: z.string().optional(),
+	honeypotEnabled: z.boolean().default(true),
+	maxSubmissions: z.int().default(0),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const formsFormSubmissionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	formId: z.string().register(col, {
+		references: { table: "self.form", column: "id", onDelete: "cascade" },
+	}),
+	values: z.record(z.string(), z.unknown()),
+	ipAddress: z.string().optional(),
+	status: z.string().default("unread"),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for forms. */
+export const formsStorage = {
+	kind: "relational",
+	tables: {
+		form: {
+			shape: formsFormShape,
+		},
+		formSubmission: {
+			shape: formsFormSubmissionShape,
 		},
 	},
-	formSubmission: {
-		fields: {
-			id: {
-				type: "string",
-				required: true,
-			},
-			formId: {
-				type: "string",
-				required: true,
-				references: {
-					model: "form",
-					field: "id",
-					onDelete: "cascade",
-				},
-			},
-			/** JSON object of field name → submitted value */
-			values: {
-				type: "json",
-				required: true,
-			},
-			/** Submitter IP for rate limiting / spam detection */
-			ipAddress: {
-				type: "string",
-				required: false,
-			},
-			/** read / unread / spam / archived */
-			status: {
-				type: "string",
-				required: true,
-				defaultValue: "unread",
-			},
-			metadata: {
-				type: "json",
-				required: false,
-				defaultValue: {},
-			},
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

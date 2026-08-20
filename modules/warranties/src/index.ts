@@ -4,7 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { warrantiesSchema } from "./schema";
+import { warrantiesStorage } from "./schema";
 import { createWarrantyController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -34,7 +34,7 @@ export default function warranties(options?: WarrantiesOptions): Module {
 	return {
 		id: "warranties",
 		version: "0.0.1",
-		schema: warrantiesSchema,
+		storage: warrantiesStorage,
 
 		exports: {
 			read: ["warrantyStatus", "warrantyExpiration"],

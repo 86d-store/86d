@@ -1,75 +1,57 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const photoBoothSchema = {
-	photo: {
-		fields: {
-			id: { type: "string", required: true },
-			sessionId: { type: "string", required: true },
-			imageUrl: { type: "string", required: true },
-			thumbnailUrl: { type: "string", required: false },
-			caption: { type: "string", required: false },
-			email: { type: "string", required: false },
-			phoneNumber: { type: "string", required: false },
-			sendStatus: {
-				type: "string",
-				required: true,
-				defaultValue: "none",
-			},
-			tags: { type: "json", required: true, defaultValue: [] },
-			metadata: { type: "json", required: true, defaultValue: {} },
-			isPublic: { type: "boolean", required: true, defaultValue: true },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
+export const photoBoothPhotoShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	sessionId: z.string(),
+	imageUrl: z.string(),
+	thumbnailUrl: z.string().optional(),
+	caption: z.string().optional(),
+	email: z.string().optional(),
+	phoneNumber: z.string().optional(),
+	sendStatus: z.string().default("none"),
+	tags: z.array(z.unknown()).default([]),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	isPublic: z.boolean().default(true),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+export const photoBoothPhotoSessionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	description: z.string().optional(),
+	isActive: z.boolean().default(true),
+	photoCount: z.int().default(0),
+	startedAt: z.coerce.date().default(() => new Date()),
+	endedAt: z.coerce.date().optional(),
+	settings: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const photoBoothPhotoStreamShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	name: z.string(),
+	isLive: z.boolean().default(false),
+	photoCount: z.int().default(0),
+	settings: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for photo-booth. */
+export const photoBoothStorage = {
+	kind: "relational",
+	tables: {
+		photo: {
+			shape: photoBoothPhotoShape,
+		},
+		photoSession: {
+			shape: photoBoothPhotoSessionShape,
+		},
+		photoStream: {
+			shape: photoBoothPhotoStreamShape,
 		},
 	},
-	photoSession: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			description: { type: "string", required: false },
-			isActive: { type: "boolean", required: true, defaultValue: true },
-			photoCount: { type: "number", required: true, defaultValue: 0 },
-			startedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			endedAt: { type: "date", required: false },
-			settings: { type: "json", required: true, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	photoStream: {
-		fields: {
-			id: { type: "string", required: true },
-			name: { type: "string", required: true },
-			isLive: { type: "boolean", required: true, defaultValue: false },
-			photoCount: { type: "number", required: true, defaultValue: 0 },
-			settings: { type: "json", required: true, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;

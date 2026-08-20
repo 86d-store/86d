@@ -17,11 +17,12 @@ describe("favor events", () => {
 		expect(mod.version).toBe("0.1.0");
 	});
 
-	it("includes schema with delivery and serviceArea entities", () => {
+	it("includes relational storage with delivery and serviceArea tables", () => {
 		const mod = favor();
-		expect(mod.schema).toBeDefined();
-		expect(mod.schema?.delivery).toBeDefined();
-		expect(mod.schema?.serviceArea).toBeDefined();
+		expect(mod.storage?.kind).toBe("relational");
+		if (mod.storage?.kind !== "relational") return;
+		expect(mod.storage.tables?.delivery).toBeDefined();
+		expect(mod.storage.tables?.serviceArea).toBeDefined();
 	});
 
 	it("declares admin pages", () => {

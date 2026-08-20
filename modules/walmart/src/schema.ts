@@ -1,97 +1,75 @@
-import type { ModuleSchema } from "@86d-app/core/types/schema";
+import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema";
+import { z } from "@86d-app/core/zod";
 
-export const walmartSchema = {
-	item: {
-		fields: {
-			id: { type: "string", required: true },
-			localProductId: { type: "string", required: true },
-			walmartItemId: { type: "string", required: false },
-			sku: { type: "string", required: true },
-			title: { type: "string", required: true },
-			status: { type: "string", required: true, defaultValue: "unpublished" },
-			lifecycleStatus: {
-				type: "string",
-				required: true,
-				defaultValue: "active",
-			},
-			price: { type: "number", required: true },
-			quantity: { type: "number", required: true, defaultValue: 0 },
-			upc: { type: "string", required: false },
-			gtin: { type: "string", required: false },
-			brand: { type: "string", required: false },
-			category: { type: "string", required: false },
-			fulfillmentType: {
-				type: "string",
-				required: true,
-				defaultValue: "seller",
-			},
-			publishStatus: { type: "string", required: false },
-			lastSyncedAt: { type: "date", required: false },
-			error: { type: "string", required: false },
-			metadata: { type: "json", required: true, defaultValue: {} },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
+export const walmartItemShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	localProductId: z.string(),
+	walmartItemId: z.string().optional(),
+	sku: z.string(),
+	title: z.string(),
+	status: z.string().default("unpublished"),
+	lifecycleStatus: z.string().default("active"),
+	price: z.number(),
+	quantity: z.int().default(0),
+	upc: z.string().optional(),
+	gtin: z.string().optional(),
+	brand: z.string().optional(),
+	category: z.string().optional(),
+	fulfillmentType: z.string().default("seller"),
+	publishStatus: z.string().optional(),
+	lastSyncedAt: z.coerce.date().optional(),
+	error: z.string().optional(),
+	metadata: z.record(z.string(), z.unknown()).default({}),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const walmartWalmartOrderShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	purchaseOrderId: z.string(),
+	status: z.string().default("created"),
+	items: z.array(z.unknown()).default([]),
+	orderTotal: z.number(),
+	shippingTotal: z.number(),
+	walmartFee: z.number(),
+	tax: z.number(),
+	customerName: z.string().optional(),
+	shippingAddress: z.record(z.string(), z.unknown()).default({}),
+	trackingNumber: z.string().optional(),
+	carrier: z.string().optional(),
+	shipDate: z.coerce.date().optional(),
+	estimatedDelivery: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+	updatedAt: z.coerce.date().default(() => new Date()),
+});
+
+export const walmartFeedSubmissionShape = z.object({
+	id: z.string().register(col, { pk: true }),
+	feedId: z.string().optional(),
+	feedType: z.string(),
+	status: z.string().default("pending"),
+	totalItems: z.int().default(0),
+	successItems: z.int().default(0),
+	errorItems: z.int().default(0),
+	error: z.string().optional(),
+	submittedAt: z.coerce.date().default(() => new Date()),
+	completedAt: z.coerce.date().optional(),
+	createdAt: z.coerce.date().default(() => new Date()),
+});
+
+/** Native Relational storage for walmart. */
+export const walmartStorage = {
+	kind: "relational",
+	tables: {
+		item: {
+			shape: walmartItemShape,
+		},
+		walmartOrder: {
+			shape: walmartWalmartOrderShape,
+		},
+		feedSubmission: {
+			shape: walmartFeedSubmissionShape,
 		},
 	},
-	walmartOrder: {
-		fields: {
-			id: { type: "string", required: true },
-			purchaseOrderId: { type: "string", required: true },
-			status: { type: "string", required: true, defaultValue: "created" },
-			items: { type: "json", required: true, defaultValue: [] },
-			orderTotal: { type: "number", required: true },
-			shippingTotal: { type: "number", required: true },
-			walmartFee: { type: "number", required: true },
-			tax: { type: "number", required: true },
-			customerName: { type: "string", required: false },
-			shippingAddress: { type: "json", required: true, defaultValue: {} },
-			trackingNumber: { type: "string", required: false },
-			carrier: { type: "string", required: false },
-			shipDate: { type: "date", required: false },
-			estimatedDelivery: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			updatedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-				onUpdate: () => new Date(),
-			},
-		},
-	},
-	feedSubmission: {
-		fields: {
-			id: { type: "string", required: true },
-			feedId: { type: "string", required: false },
-			feedType: { type: "string", required: true },
-			status: { type: "string", required: true, defaultValue: "pending" },
-			totalItems: { type: "number", required: true, defaultValue: 0 },
-			successItems: { type: "number", required: true, defaultValue: 0 },
-			errorItems: { type: "number", required: true, defaultValue: 0 },
-			error: { type: "string", required: false },
-			submittedAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-			completedAt: { type: "date", required: false },
-			createdAt: {
-				type: "date",
-				required: true,
-				defaultValue: () => new Date(),
-			},
-		},
-	},
-} satisfies ModuleSchema;
+} as const satisfies ModuleStorageDeclaration;
