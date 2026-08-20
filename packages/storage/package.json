@@ -42,12 +42,12 @@
 	"devDependencies": {
 		"@biomejs/biome": "catalog:",
 		"@types/node": "catalog:node",
-		"@vercel/blob": "2.3.3",
+		"@vercel/blob": "2.8.0",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
 	},
 	"peerDependencies": {
-		"@vercel/blob": "2.3.3"
+		"@vercel/blob": "2.8.0"
 	},
 	"peerDependenciesMeta": {
 		"@vercel/blob": {

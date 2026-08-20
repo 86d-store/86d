@@ -65,6 +65,21 @@ const securityHeaders = [
 
 const withMDX = createMDX({});
 
+/**
+ * Next 16.3+ picks the nearest git root as the Turbopack workspace. A nested
+ * `apps/store/.git` (local leftover) shrinks that to the app and cannot resolve
+ * the hoisted `next` package. Point at the monorepo root only in that case —
+ * Docker copies have no nested `.git` and should keep the default `/app` root.
+ */
+function resolveTurbopackRoot(): string | undefined {
+	if (existsSync(join(import.meta.dirname, ".git"))) {
+		return join(import.meta.dirname, "../..");
+	}
+	return undefined;
+}
+
+const turbopackRoot = resolveTurbopackRoot();
+
 const nextConfig = withMDX({
 	...(process.env.DOCKER_BUILD === "true"
 		? { output: "standalone" as const }
@@ -72,6 +87,7 @@ const nextConfig = withMDX({
 	pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
 	transpilePackages: [...loadTranspilePackages(), "@86d-app/storage"],
 	turbopack: {
+		...(turbopackRoot ? { root: turbopackRoot } : {}),
 		rules: {
 			"*.txt": {
 				loaders: ["raw-loader"],

@@ -4,7 +4,7 @@ Thank you for your interest in improving 86d. The codebase is shaped for small, 
 
 ## Prerequisites
 
-- [Bun](https://bun.sh) v1.3.6+
+- [Bun](https://bun.sh) v1.3.14+
 - [Node.js](https://nodejs.org) 23, 24, or 25
 - [PostgreSQL](https://www.postgresql.org) v15+
 

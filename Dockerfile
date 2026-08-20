@@ -7,7 +7,7 @@
 # ============================================================================
 
 # ── Stage 1: Install dependencies ──────────────────────────────────────────
-FROM oven/bun:1.3.11 AS deps
+FROM oven/bun:1.3.14 AS deps
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -54,7 +54,7 @@ RUN for attempt in 1 2 3; do \
     exit 1
 
 # ── Stage 2: Build ─────────────────────────────────────────────────────────
-FROM oven/bun:1.3.11 AS builder
+FROM oven/bun:1.3.14 AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
@@ -77,19 +77,20 @@ ENV DOCKER_BUILD=true
 # next.config imports `env`, which requires a production-strength secret at
 # build time. Generate a throwaway value for this RUN only (not an image ENV);
 # runtime must supply BETTER_AUTH_SECRET via compose/orchestrator.
-RUN BETTER_AUTH_SECRET="$(openssl rand -base64 48)" \
+# oven/bun images do not ship openssl — use Bun's crypto instead.
+RUN BETTER_AUTH_SECRET="$(bun -e 'console.log(Buffer.from(crypto.getRandomValues(new Uint8Array(48))).toString("base64"))')" \
 	NODE_OPTIONS="--max-old-space-size=4096" \
 	bun run build:store
 
 # ── Stage 3: Install drizzle-kit for runtime migrations ────────────────────
-FROM oven/bun:1.3.11 AS drizzle-installer
+FROM oven/bun:1.3.14 AS drizzle-installer
 WORKDIR /app
 RUN echo '{"dependencies":{"drizzle-kit":"0.31.10","drizzle-orm":"0.45.2"}}' > package.json && \
     bun install --ignore-scripts
 
 # ── Stage 3b: Full `pg` tree for seed.ts ───────────────────────────────────
 # Standalone image + a lone `pg` copy is missing hoisted deps (e.g. pg-types).
-FROM oven/bun:1.3.11 AS pg-export
+FROM oven/bun:1.3.14 AS pg-export
 WORKDIR /app
 RUN echo '{"dependencies":{"pg":"8.20.0"}}' > package.json && bun install --ignore-scripts
 RUN mkdir -p /export && cd node_modules && \
@@ -99,7 +100,7 @@ RUN mkdir -p /export && cd node_modules && \
     done
 
 # ── Stage 4: Production runtime ────────────────────────────────────────────
-FROM oven/bun:1.3.11-slim AS runner
+FROM oven/bun:1.3.14-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
