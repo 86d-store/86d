@@ -1,6 +1,6 @@
 {
   "lockfileVersion": 1,
-  "generatedAt": "2026-08-20T02:05:34.106Z",
+  "generatedAt": "2026-08-20T16:40:56.058Z",
   "modules": {
     "abandoned-carts": {
       "source": "local",
@@ -363,7 +363,7 @@
       "source": "local",
       "packageName": "@86d-app/orders",
       "version": "0.0.41",
-      "integrity": "sha256-e7d642738b2299880861d64fd26b14d84a6bc81cd3653b2b8a5ecb4af78a1748",
+      "integrity": "sha256-6981127219b78436748e129e0a4793398183a320a7ed4e2cef003e33b80ac31e",
       "localPath": "modules/orders"
     },
     "pages": {
@@ -377,7 +377,7 @@
       "source": "local",
       "packageName": "@86d-app/payments",
       "version": "0.0.41",
-      "integrity": "sha256-9acafbf23d3cf6dbd4db4186fa2a0a2307ce2afe77cf34d29bf3da8277c371ee",
+      "integrity": "sha256-c8b85e12da6cf853055fbb362d03583191f30c582b22eaa23cdeecd87d5fec5b",
       "localPath": "modules/payments"
     },
     "paypal": {

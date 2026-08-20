@@ -18,7 +18,7 @@ import {
 	validateCommandGrantFacts,
 } from "./grants";
 
-export interface PrismaConfirmationIssueTransaction {
+export interface DrizzleConfirmationIssueTransaction {
 	confirmation: {
 		create(args: { data: Record<string, unknown> }): Promise<unknown>;
 	};
@@ -28,8 +28,8 @@ export interface PrismaConfirmationIssueTransaction {
 	$queryRawUnsafe<T = unknown>(query: string, ...values: unknown[]): Promise<T>;
 }
 
-export interface PrismaConfirmationIssueClient<
-	TTransaction extends PrismaConfirmationIssueTransaction,
+export interface DrizzleConfirmationIssueClient<
+	TTransaction extends DrizzleConfirmationIssueTransaction,
 > {
 	$transaction<T>(run: (transaction: TTransaction) => Promise<T>): Promise<T>;
 }
@@ -108,8 +108,8 @@ export interface StoreConfirmationIssuer {
 	): Promise<StoreConfirmationChallenge>;
 }
 
-export interface PrismaStoreConfirmationIssuerOptions<
-	TTransaction extends PrismaConfirmationIssueTransaction,
+export interface DrizzleStoreConfirmationIssuerOptions<
+	TTransaction extends DrizzleConfirmationIssueTransaction,
 > {
 	nonceDigestKey: string;
 	ttlMs?: number | undefined;
@@ -145,11 +145,11 @@ function databaseDate(value: unknown): Date {
  * Issues a Store Runtime challenge in one transaction. The nonce leaves the
  * module once and only its keyed digest is persisted.
  */
-export function createPrismaStoreConfirmationIssuer<
-	TTransaction extends PrismaConfirmationIssueTransaction,
+export function createDrizzleStoreConfirmationIssuer<
+	TTransaction extends DrizzleConfirmationIssueTransaction,
 >(
-	client: PrismaConfirmationIssueClient<TTransaction>,
-	options: PrismaStoreConfirmationIssuerOptions<TTransaction>,
+	client: DrizzleConfirmationIssueClient<TTransaction>,
+	options: DrizzleStoreConfirmationIssuerOptions<TTransaction>,
 ): StoreConfirmationIssuer {
 	if (new TextEncoder().encode(options.nonceDigestKey).byteLength < 32) {
 		throw new Error("Confirmation nonce digest key must be at least 32 bytes.");

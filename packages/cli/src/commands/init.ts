@@ -92,15 +92,17 @@ export async function init(args: string[]) {
 			const runMigrate = yes || (await confirm("Run database migrations?"));
 			if (runMigrate) {
 				const dbPkg = join(root, "packages/db");
-				const hasMigrations = existsSync(join(dbPkg, "prisma", "migrations"));
-				const migrateCmd = hasMigrations
-					? "bun prisma migrate deploy --schema prisma"
-					: "bun prisma db push --schema prisma --skip-generate";
-				try {
-					execSync(migrateCmd, { cwd: dbPkg, stdio: "inherit" });
-					success("Database migrations applied");
-				} catch {
-					warn("Migration failed — retry with: bun prisma migrate deploy");
+				const hasMigrations = existsSync(join(dbPkg, "drizzle"));
+				const migrateCmd = hasMigrations ? "bunx drizzle-kit migrate" : null;
+				if (!migrateCmd) {
+					warn("No Drizzle migrations found under packages/db/drizzle");
+				} else {
+					try {
+						execSync(migrateCmd, { cwd: dbPkg, stdio: "inherit" });
+						success("Database migrations applied");
+					} catch {
+						warn("Migration failed — retry with: bun run db:migrate");
+					}
 				}
 			}
 

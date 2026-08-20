@@ -11,7 +11,7 @@ describe("curated modules pin", () => {
 		expect(modules.map((module) => module.id).sort()).toEqual(
 			[...CURATED_STORE_MODULES].sort(),
 		);
-	});
+	}, 30_000);
 
 	it("matches transcoded count excluding tier-none modules", async () => {
 		const modules = await loadCuratedModules();
@@ -21,5 +21,5 @@ describe("curated modules pin", () => {
 		expect(transcoded.length).toBe(
 			CURATED_STORE_MODULES.length - TIER_NONE_CURATED_MODULES.length,
 		);
-	});
+	}, 30_000);
 });

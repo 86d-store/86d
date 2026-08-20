@@ -128,6 +128,13 @@ export interface ModuleRegistryConfig {
 		  }) => ModuleTransactionRunner)
 		| undefined;
 	/**
+	 * Optional writer for `core.party` / `core.subject` / `core.transaction`.
+	 * Money-owning Modules receive it on `ctx.coreMoney`.
+	 */
+	createCoreMoneyWriter?:
+		| (() => NonNullable<ModuleContext["coreMoney"]>)
+		| undefined;
+	/**
 	 * Event bus options.
 	 */
 	eventBusOptions?: EventBusOptions | undefined;
@@ -680,6 +687,7 @@ export class ModuleRegistry {
 					controllers: entry.controllers,
 					capabilities: this.createCapabilityInvoker(mod.id),
 					transactions: entry.transactions,
+					coreMoney: this.config.createCoreMoneyWriter?.(),
 				};
 
 				// Call init
@@ -747,6 +755,7 @@ export class ModuleRegistry {
 			controllers: entry.controllers,
 			capabilities: this.createCapabilityInvoker(moduleId),
 			transactions: entry.transactions,
+			coreMoney: this.config.createCoreMoneyWriter?.(),
 			storeId: this.resolvedStoreId,
 			events: this.eventBus
 				? createScopedEmitter(this.eventBus, moduleId)

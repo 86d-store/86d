@@ -19,7 +19,7 @@
 
 # Auth
 
-Authentication and authorization package for the 86d platform. Built on [better-auth](https://www.better-auth.com/) with Prisma adapter, email/password authentication, session cookie caching, and role-based admin access.
+Authentication and authorization package for the 86d platform. Built on [better-auth](https://www.better-auth.com/) with the Drizzle adapter, email/password authentication, session cookie caching, and role-based admin access.
 
 ## Installation
 
@@ -72,7 +72,7 @@ if (result.hasAccess) {
 
 The better-auth instance configured with:
 
-- **Database**: Prisma adapter with PostgreSQL provider
+- **Database**: Drizzle adapter with PostgreSQL provider
 - **Secret**: The validated `BETTER_AUTH_SECRET`, passed explicitly
 - **Email/Password**: Enabled
 - **Session**: Cookie caching with 5-minute TTL
@@ -113,4 +113,4 @@ interface StoreAccessResult {
 - Only the `"admin"` role grants store admin access.
 - Production startup rejects a missing or weak `BETTER_AUTH_SECRET`. Development and test use the environment package's explicit local-only fallback.
 - Session cookie cache reduces database lookups for 5 minutes per session.
-- The `db` workspace package provides the Prisma client used by the auth adapter.
+- The `db` workspace package provides the Drizzle client used by the auth adapter.

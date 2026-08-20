@@ -9,40 +9,15 @@
  */
 
 import type { EventBus, ModuleEvent } from "@86d-app/core/events";
-import type { Prisma } from "db";
+import type { Database } from "db";
+import { webhook, webhookDelivery } from "db/schema";
+import { and, eq, sql } from "drizzle-orm";
 import {
 	buildWebhookPayload,
 	deliverWebhook,
 	WEBHOOK_EVENT_TYPES,
 } from "lib/webhook-delivery";
 import { logger } from "utils/logger";
-
-/**
- * Minimal DB interface for webhook queries.
- */
-interface WebhookDb {
-	webhook: {
-		findMany(args: {
-			where: { storeId: string; isActive: boolean; events: { has: string } };
-			select: { id: boolean; url: boolean; secret: boolean };
-		}): Promise<Array<{ id: string; url: string; secret: string }>>;
-	};
-	webhookDelivery: {
-		create(args: {
-			data: {
-				webhookId: string;
-				eventType: string;
-				payload: Prisma.InputJsonValue | typeof Prisma.JsonNull;
-				status: string;
-				statusCode: number | null;
-				response: string | null;
-				attempts: number;
-				duration: number;
-				lastAttemptAt: Date;
-			};
-		}): Promise<unknown>;
-	};
-}
 
 /**
  * Register webhook delivery handlers on the event bus.
@@ -52,19 +27,25 @@ interface WebhookDb {
  */
 export function registerWebhookHandlers(
 	bus: EventBus,
-	db: WebhookDb,
+	db: Database,
 	storeId: string,
 ): () => void {
 	const handler = async (event: ModuleEvent) => {
 		try {
-			const webhooks = await db.webhook.findMany({
-				where: {
-					storeId,
-					isActive: true,
-					events: { has: event.type },
-				},
-				select: { id: true, url: true, secret: true },
-			});
+			const webhooks = await db
+				.select({
+					id: webhook.id,
+					url: webhook.url,
+					secret: webhook.secret,
+				})
+				.from(webhook)
+				.where(
+					and(
+						eq(webhook.storeId, storeId),
+						eq(webhook.isActive, true),
+						sql`${event.type} = ANY(${webhook.events})`,
+					),
+				);
 
 			if (webhooks.length === 0) return;
 
@@ -74,75 +55,49 @@ export function registerWebhookHandlers(
 				event.payload,
 			);
 
-			// Deliver to all matching webhooks concurrently
 			const results = await Promise.allSettled(
-				webhooks.map(async (webhook) => {
-					const result = await deliverWebhook(
-						webhook.url,
-						webhook.secret,
+				webhooks.map(async (hook) => {
+					const result = await deliverWebhook(hook.url, hook.secret, payload);
+					await db.insert(webhookDelivery).values({
+						id: crypto.randomUUID(),
+						cuid: `wd${crypto.randomUUID().replace(/-/g, "").slice(0, 28)}`,
+						webhookId: hook.id,
+						eventType: event.type,
 						payload,
-					);
-
-					// Log delivery (fire-and-forget)
-					db.webhookDelivery
-						.create({
-							data: {
-								webhookId: webhook.id,
-								eventType: event.type,
-								payload: JSON.parse(
-									JSON.stringify(payload),
-								) as Prisma.InputJsonValue,
-								status: result.success ? "delivered" : "failed",
-								statusCode: result.statusCode,
-								response: result.response,
-								attempts: result.attempts,
-								duration: result.duration,
-								lastAttemptAt: new Date(),
-							},
-						})
-						.catch((err) => {
-							logger.warn("Failed to log webhook delivery", {
-								webhookId: webhook.id,
-								error: err instanceof Error ? err.message : String(err),
-							});
-						});
-
-					return { webhookId: webhook.id, ...result };
+						status: result.success ? "success" : "failed",
+						statusCode: result.statusCode,
+						response: result.response,
+						attempts: result.attempts,
+						duration: result.duration,
+						lastAttemptAt: new Date().toISOString(),
+					});
+					return result;
 				}),
 			);
 
-			const delivered = results.filter(
-				(r) => r.status === "fulfilled" && r.value.success,
-			).length;
-			const failed = results.length - delivered;
-
+			const failed = results.filter((r) => r.status === "rejected").length;
 			if (failed > 0) {
 				logger.warn("Some webhook deliveries failed", {
-					event: event.type,
-					total: results.length,
-					delivered,
+					eventType: event.type,
 					failed,
+					total: webhooks.length,
 				});
 			}
-		} catch (err) {
-			logger.error("Webhook subscriber error", {
-				event: event.type,
-				error: err instanceof Error ? err.message : String(err),
+		} catch (error) {
+			logger.error("Webhook handler error", {
+				eventType: event.type,
+				reason: error instanceof Error ? error.message : String(error),
 			});
 		}
 	};
 
-	const unsubs = WEBHOOK_EVENT_TYPES.map((eventType) =>
+	const unsubscribers = WEBHOOK_EVENT_TYPES.map((eventType) =>
 		bus.on(eventType, handler),
 	);
 
-	logger.info("Webhook delivery handlers registered", {
-		events: WEBHOOK_EVENT_TYPES.length,
-	});
-
 	return () => {
-		for (const unsub of unsubs) {
-			unsub();
+		for (const unsubscribe of unsubscribers) {
+			unsubscribe();
 		}
 	};
 }

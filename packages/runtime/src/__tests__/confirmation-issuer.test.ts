@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createPrismaStoreConfirmationIssuer } from "../confirmation-issuer";
+import { createDrizzleStoreConfirmationIssuer } from "../confirmation-issuer";
 import {
 	computeCommandBindingHash,
 	computeConfirmationNonceDigest,
@@ -66,7 +66,7 @@ function harness(options?: {
 		storeId: target.id,
 	}));
 	let id = 0;
-	const issuer = createPrismaStoreConfirmationIssuer(client, {
+	const issuer = createDrizzleStoreConfirmationIssuer(client, {
 		nonceDigestKey,
 		createNonce: () => nonce,
 		createId: (kind) => `${kind}-${++id}`,

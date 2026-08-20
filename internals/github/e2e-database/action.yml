@@ -1,5 +1,5 @@
 name: E2E database bootstrap
-description: Create nanoid helper, push Prisma schema, and seed demo data
+description: Create nanoid helper, apply Drizzle migrations, and seed demo data
 
 runs:
   using: composite
@@ -10,10 +10,9 @@ runs:
         PGPASSWORD: postgres
       run: psql -h localhost -U postgres -d 86d -f "${{ github.action_path }}/nanoid.sql"
 
-    - name: Push database schema
+    - name: Apply database migrations
       shell: bash
-      working-directory: packages/db
-      run: bunx prisma db push --schema prisma --accept-data-loss
+      run: bun run db:migrate
 
     - name: Seed database
       shell: bash

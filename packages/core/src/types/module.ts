@@ -396,7 +396,7 @@ export type ModuleContext<
 	E extends ModuleEntityMap = ModuleEntityMap,
 > = {
 	/**
-	 * Secure data access (replaces direct Prisma access).
+	 * Secure data access (scoped to compiled Module tables).
 	 * Scoped to current module and store.
 	 *
 	 * @example
@@ -439,6 +439,39 @@ export type ModuleContext<
 
 	/** Owner-local atomic state and durable-event transaction seam. */
 	transactions?: ModuleTransactionRunner | undefined;
+
+	/**
+	 * Cross-Module money tables (`core.party` / `core.subject` / `core.transaction`).
+	 * Injected by the Store Runtime for Modules that settle money.
+	 */
+	coreMoney?:
+		| {
+				write(input: {
+					party: {
+						id: string;
+						kind: "person" | "organization";
+						displayName?: string | null;
+						email?: string | null;
+					};
+					subject: {
+						id: string;
+						kind: string;
+						ownerModule: string;
+						partyId: string;
+						currency: string;
+						expectedMinor: number;
+						settleState: "open" | "settled" | "void";
+					};
+					transaction: {
+						id: string;
+						subjectId: string;
+						authorizedMinor: number;
+						capturedMinor?: number;
+						refundedMinor?: number;
+					};
+				}): Promise<void>;
+		  }
+		| undefined;
 
 	/**
 	 * Store ID for current context.

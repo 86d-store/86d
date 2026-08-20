@@ -1,20 +1,23 @@
 # Runtime
 
-Store runtime engine. The bridge between sandboxed modules and the real platform. Modules never see Prisma, env vars, or each other — they only see what the runtime provides.
+Store runtime engine. The bridge between sandboxed modules and the real platform. Modules never see the database client, env vars, or each other — they only see what the runtime provides.
 
 ## Structure
 
 ```
 src/
-  adapters.ts                Adapter implementations for module data access
-  context.ts                 Runtime context creation
-  routers.ts                 Router setup for module endpoints
-  universal-data-service.ts  Unified data service backing ModuleDataService
+  adapters.ts                      Adapter implementations for module data access
+  compiled-module-data-service.ts  ModuleDataService over compiled mod_* tables
+  compiled-schema-boot.ts          Compile + apply Module DDL at boot
+  command-drizzle.ts               Command persistence (Drizzle)
+  grant-drizzle.ts                 Grant adapters (Drizzle)
+  drizzle-persistence-client.ts    Shared transactional persistence client
+  registry.ts                      Module registry boot and request context
 ```
 
 ## Responsibilities
 
-- Implements `ModuleDataService` against real Prisma/database layer
+- Implements `ModuleDataService` against compiled Postgres tables via Drizzle
 - Resolves typed capability contracts before adapter or Module initialization effects
 - Invokes each capability provider with only its owner Module's data, events, and options
 - Wires up adapters, authentication, and data services per request
@@ -43,6 +46,6 @@ Boot is resilient — individual module failures don't crash the store:
 
 ## Key details
 
-- Depends on: `@86d-app/core`, `better-call`, `packages/db`, `packages/env`
+- Depends on: `@86d-app/core`, `better-call`, `packages/db`, `drizzle-orm`
 - This is the ONLY package that touches both the module world and the platform world
-- `UniversalDataService` implements the `ModuleDataService` interface modules consume
+- `CompiledModuleDataService` implements the `ModuleDataService` interface modules consume

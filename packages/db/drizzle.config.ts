@@ -9,6 +9,4 @@ export default defineConfig({
 			process.env.DATABASE_URL ??
 			"postgresql://postgres:postgres@localhost:5434/postgres",
 	},
-	// Prisma's bookkeeping table is not part of the Store schema.
-	tablesFilter: ["!_prisma_migrations"],
 });

@@ -1,17 +1,13 @@
 /**
  * Server-side data prefetching for React Query hydration.
  *
- * Queries the database directly from server components and populates
- * the React Query cache so that client components get instant data
- * (no flash-of-empty-content on hydration).
- *
- * Query keys must match exactly what the module client produces:
- *   [moduleId, namespace, path, input?]
+ * Uses ModuleDataService over compiled Module tables (same path as Module
+ * endpoints) so SSR hydration matches production storage.
  */
 
-import { db } from "db";
-import env from "env";
+import type { ModuleDataService } from "@86d-app/core/types/module";
 import { cache } from "react";
+import { getModuleDataService } from "./module-data-access";
 
 type JsonData = Record<string, unknown>;
 
@@ -30,34 +26,12 @@ function strOrUndef(v: unknown): string | undefined {
 function numOrUndef(v: unknown): number | undefined {
 	return typeof v === "number" ? v : undefined;
 }
-function dateStr(v: unknown, fallback: Date): string {
+function dateStr(v: unknown, fallback: string): string {
 	if (typeof v === "string" || typeof v === "number") {
 		return new Date(v).toISOString();
 	}
-	return fallback.toISOString();
+	return fallback;
 }
-
-// ── Module ID resolution ─────────────────────────────────────────────────────
-
-const getModuleDbId = cache(
-	async (moduleName: string): Promise<string | null> => {
-		const storeId = env.STORE_ID;
-		if (!storeId) return null;
-
-		try {
-			const mod = await db.module.findFirst({
-				where: { storeId, name: moduleName },
-				select: { id: true },
-			});
-			return mod?.id ?? null;
-		} catch {
-			// DB unavailable (e.g. build time without DATABASE_URL)
-			return null;
-		}
-	},
-);
-
-// ── Products ─────────────────────────────────────────────────────────────────
 
 export interface PrefetchedProduct {
 	id: string;
@@ -82,15 +56,12 @@ export interface PrefetchedProduct {
 	updatedAt: string;
 }
 
-function toProduct(row: {
-	id: string;
-	data: JsonData;
-	createdAt: Date;
-	updatedAt: Date;
-}): PrefetchedProduct {
-	const d = row.data;
+function toProduct(d: JsonData): PrefetchedProduct {
+	const id = str(d.id);
+	const createdAt = dateStr(d.createdAt, new Date().toISOString());
+	const updatedAt = dateStr(d.updatedAt, createdAt);
 	return {
-		id: row.id,
+		id,
 		name: str(d.name),
 		slug: str(d.slug),
 		description: strOrUndef(d.description),
@@ -108,15 +79,15 @@ function toProduct(row: {
 		isFeatured: bool(d.isFeatured, false),
 		weight: numOrUndef(d.weight),
 		weightUnit: strOrUndef(d.weightUnit),
-		createdAt: dateStr(d.createdAt, row.createdAt),
-		updatedAt: dateStr(d.updatedAt, row.updatedAt),
+		createdAt,
+		updatedAt,
 	};
 }
 
-/**
- * Prefetch the default products listing (page 1, 12 items, sorted by createdAt desc).
- * Returns data in the shape that the /products endpoint returns.
- */
+async function productsData(): Promise<ModuleDataService | null> {
+	return getModuleDataService("products");
+}
+
 export const prefetchProducts = cache(
 	async (options?: {
 		page?: number;
@@ -124,48 +95,39 @@ export const prefetchProducts = cache(
 		sort?: string;
 		order?: "asc" | "desc";
 	}): Promise<{ products: PrefetchedProduct[]; total: number } | null> => {
-		const moduleId = await getModuleDbId("products");
-		if (!moduleId) return null;
+		const data = await productsData();
+		if (!data) return null;
 
 		const page = options?.page ?? 1;
 		const limit = options?.limit ?? 12;
 		const skip = (page - 1) * limit;
 
-		const [rows, totalCount] = await Promise.all([
-			db.moduleData.findMany({
-				where: {
-					moduleId,
-					entityType: "product",
-					data: { path: ["status"], equals: "active" },
-				},
-				orderBy: { createdAt: "desc" },
-				take: limit,
-				skip,
-				select: { id: true, data: true, createdAt: true, updatedAt: true },
-			}),
-			db.moduleData.count({
-				where: {
-					moduleId,
-					entityType: "product",
-					data: { path: ["status"], equals: "active" },
-				},
-			}),
-		]);
+		const rows = await data.findMany("product", {
+			where: { status: "active" },
+			orderBy: { createdAt: "desc" },
+			take: limit,
+			skip,
+		});
+		const countFn = (
+			data as ModuleDataService & {
+				count?: (
+					entityType: string,
+					where?: Record<string, unknown>,
+				) => Promise<number>;
+			}
+		).count;
+		const total =
+			typeof countFn === "function"
+				? await countFn.call(data, "product", { status: "active" })
+				: rows.length;
 
 		return {
-			products: rows.map((r) =>
-				toProduct(
-					r as { id: string; data: JsonData; createdAt: Date; updatedAt: Date },
-				),
-			),
-			total: totalCount,
+			products: rows.map((r) => toProduct(r as JsonData)),
+			total,
 		};
 	},
 );
 
-/**
- * Prefetch categories list.
- */
 export const prefetchCategories = cache(
 	async (): Promise<{
 		categories: Array<{
@@ -179,24 +141,19 @@ export const prefetchCategories = cache(
 			isVisible: boolean;
 		}>;
 	} | null> => {
-		const moduleId = await getModuleDbId("products");
-		if (!moduleId) return null;
+		const data = await productsData();
+		if (!data) return null;
 
-		const rows = await db.moduleData.findMany({
-			where: {
-				moduleId,
-				entityType: "category",
-				data: { path: ["isVisible"], equals: true },
-			},
+		const rows = await data.findMany("category", {
+			where: { isVisible: true },
 			orderBy: { createdAt: "asc" },
-			select: { id: true, data: true },
 		});
 
 		return {
 			categories: rows.map((r) => {
-				const d = r.data as JsonData;
+				const d = r as JsonData;
 				return {
-					id: r.id,
+					id: str(d.id),
 					name: str(d.name),
 					slug: str(d.slug),
 					description: strOrUndef(d.description),
@@ -210,10 +167,6 @@ export const prefetchCategories = cache(
 	},
 );
 
-/**
- * Prefetch a single product by slug (for product detail page).
- * Returns data in the shape that the /products/:id endpoint returns.
- */
 export const prefetchProductBySlug = cache(
 	async (
 		slug: string,
@@ -236,42 +189,27 @@ export const prefetchProductBySlug = cache(
 		};
 		id: string;
 	} | null> => {
-		const moduleId = await getModuleDbId("products");
-		if (!moduleId) return null;
+		const data = await productsData();
+		if (!data) return null;
 
-		const row = await db.moduleData.findFirst({
-			where: {
-				moduleId,
-				entityType: "product",
-				data: { path: ["slug"], equals: slug },
-			},
-			select: { id: true, data: true, createdAt: true, updatedAt: true },
+		const rows = await data.findMany("product", {
+			where: { slug },
+			take: 1,
 		});
+		const row = rows[0] as JsonData | undefined;
+		if (!row || row.status !== "active") return null;
 
-		if (!row?.data) return null;
-		const d = row.data as JsonData;
-		if (d.status !== "active") return null;
-
-		const product = toProduct(
-			row as { id: string; data: JsonData; createdAt: Date; updatedAt: Date },
-		);
-
-		// Fetch variants
-		const variantRows = await db.moduleData.findMany({
-			where: {
-				moduleId,
-				entityType: "productVariant",
-				data: { path: ["productId"], equals: row.id },
-			},
+		const product = toProduct(row);
+		const variantRows = await data.findMany("productVariant", {
+			where: { productId: product.id },
 			orderBy: { createdAt: "asc" },
-			select: { id: true, data: true, createdAt: true, updatedAt: true },
 		});
 
 		const variants = variantRows.map((v) => {
-			const vd = v.data as JsonData;
+			const vd = v as JsonData;
 			return {
-				id: v.id,
-				productId: row.id,
+				id: str(vd.id),
+				productId: product.id,
 				name: str(vd.name),
 				sku: strOrUndef(vd.sku),
 				price: num(vd.price),
@@ -280,11 +218,11 @@ export const prefetchProductBySlug = cache(
 				options: (vd.options as Record<string, string>) ?? {},
 				images: Array.isArray(vd.images) ? (vd.images as string[]) : [],
 				position: num(vd.position),
-				createdAt: dateStr(vd.createdAt, v.createdAt),
-				updatedAt: dateStr(vd.updatedAt, v.updatedAt),
+				createdAt: dateStr(vd.createdAt, product.createdAt),
+				updatedAt: dateStr(vd.updatedAt, product.updatedAt),
 			};
 		});
 
-		return { product: { ...product, variants }, id: row.id };
+		return { product: { ...product, variants }, id: product.id };
 	},
 );

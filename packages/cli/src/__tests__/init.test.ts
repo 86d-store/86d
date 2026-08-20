@@ -171,8 +171,8 @@ describe("init", () => {
 		// Seed script exists
 		mkdirSync(join(tempDir, "packages/db/src"), { recursive: true });
 		writeFileSync(join(tempDir, "packages/db/src/seed.ts"), "// seed");
-		// packages/db with migration directory
-		mkdirSync(join(tempDir, "packages/db/prisma/migrations"), {
+		// packages/db with Drizzle migrations
+		mkdirSync(join(tempDir, "packages/db/drizzle"), {
 			recursive: true,
 		});
 
@@ -187,7 +187,7 @@ describe("init", () => {
 		// Should have called bun install + migrate + seed
 		const calls = execSyncMock.mock.calls.map((c: unknown[]) => String(c[0]));
 		expect(calls.some((c) => c.includes("bun install"))).toBe(true);
-		expect(calls.some((c) => c.includes("migrate deploy"))).toBe(true);
+		expect(calls.some((c) => c.includes("drizzle-kit migrate"))).toBe(true);
 		expect(calls.some((c) => c.includes("--filter db seed"))).toBe(true);
 
 		// Seed call should pass APP_ADMIN_EMAIL and APP_ADMIN_PASSWORD env vars

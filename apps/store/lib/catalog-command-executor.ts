@@ -5,6 +5,7 @@ import type {
 	TargetReference,
 } from "@86d-app/core/commands";
 import type { ModuleDataTransaction } from "@86d-app/core/durable-events";
+import type { Module } from "@86d-app/core/types/module";
 import {
 	applyCatalogRevisionOperation,
 	type CatalogRevisionOperationFailureCode,
@@ -20,11 +21,18 @@ import {
 	createCommandExecutor,
 	defineCommand,
 } from "@86d-app/runtime/command";
-import { createPrismaCommandPersistence } from "@86d-app/runtime/command-prisma";
+import { createDrizzleCommandPersistence } from "@86d-app/runtime/command-drizzle";
+import { CompiledModuleDataService } from "@86d-app/runtime/compiled-module-data-service";
+import {
+	compiledForModule,
+	compileInstalledModules,
+} from "@86d-app/runtime/compiled-schema-boot";
+import { createDrizzlePersistenceClient } from "@86d-app/runtime/drizzle-persistence-client";
 import { computeCommandBindingHash } from "@86d-app/runtime/grants";
-import { UniversalDataService } from "@86d-app/runtime/universal-data-service";
-import { db, Prisma } from "db";
+import { getPool } from "db";
+import { drizzle } from "drizzle-orm/node-postgres";
 import env from "env";
+import { modules } from "../generated/api";
 import { ensureBooted } from "./api-registry";
 
 export const catalogDraftCommandReference = {
@@ -431,9 +439,9 @@ export function composeCatalogCommandExecutor<TTransaction>(
 }
 
 /**
- * Compose the Catalog Commands on Prisma persistence for the booted Store.
+ * Compose the Catalog Commands on Drizzle persistence for the booted Store.
  * Command completion, Catalog revision rows, and `catalog.published@1` share
- * one Prisma transaction. Transport remains a caller concern.
+ * one database transaction. Transport remains a caller concern.
  */
 export async function createCatalogCommandExecutor(
 	options: CatalogCommandExecutorOptions,
@@ -444,19 +452,26 @@ export async function createCatalogCommandExecutor(
 		throw new Error('Module "products" is not initialized.');
 	}
 	const storeId = env.STORE_ID;
+	const pool = getPool();
+	const persistenceClient = createDrizzlePersistenceClient(pool);
+	const compiled = compileInstalledModules(modules as Module[]);
 	return composeCatalogCommandExecutor({
 		...options,
 		storeId,
-		persistence: createPrismaCommandPersistence<Prisma.TransactionClient>(db, {
-			databaseNull: Prisma.DbNull,
-			jsonNull: Prisma.JsonNull,
-		}),
+		persistence: createDrizzleCommandPersistence(persistenceClient, {}),
 		runOnOwnerTransaction: async (transaction, operation) => {
-			const data = new UniversalDataService({
-				db: transaction,
+			const client = (transaction as { _poolClient?: import("pg").PoolClient })
+				._poolClient;
+			if (!client) {
+				throw new Error("Command transaction is missing a pool client.");
+			}
+			const txDb = drizzle(client);
+			const data = new CompiledModuleDataService({
+				db: txDb,
 				storeId,
 				moduleId: "products",
 				moduleDbId: productsModuleDbId,
+				compiled: compiledForModule(compiled, "products"),
 			});
 			return operation(data.currentTransaction());
 		},

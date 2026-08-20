@@ -10,7 +10,6 @@ import {
 	invitation,
 	log,
 	module,
-	moduleData,
 	moduleEventConsumption,
 	moduleEventDelivery,
 	moduleEventSequence,
@@ -210,23 +209,7 @@ export const moduleOutboxEventRelations = relations(
 
 export const moduleRelations = relations(module, ({ many }) => ({
 	moduleOutboxEvents: many(moduleOutboxEvent),
-	moduleData: many(moduleData),
 	moduleEventSequences: many(moduleEventSequence),
-}));
-
-export const moduleDataRelations = relations(moduleData, ({ one, many }) => ({
-	module: one(module, {
-		fields: [moduleData.moduleId],
-		references: [module.id],
-	}),
-	moduleDatum: one(moduleData, {
-		fields: [moduleData.parentId],
-		references: [moduleData.id],
-		relationName: "moduleData_parentId_moduleData_id",
-	}),
-	moduleData: many(moduleData, {
-		relationName: "moduleData_parentId_moduleData_id",
-	}),
 }));
 
 export const standingPermissionUseReservationRelations = relations(

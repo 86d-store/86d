@@ -104,10 +104,6 @@
 			"types": "./src/payment-provider.ts",
 			"default": "./src/payment-provider.ts"
 		},
-		"./prisma": {
-			"types": "./src/prisma/client.ts",
-			"default": "./src/prisma/client.ts"
-		},
 		"./sanitize": {
 			"types": "./src/sanitize.ts",
 			"default": "./src/sanitize.ts"
@@ -152,9 +148,8 @@
 		"build": "tsc",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
-		"clean": "git clean -xdf .cache .turbo dist node_modules src/prisma",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
 		"dev": "tsc",
-		"postinstall": "prisma generate",
 		"test": "vitest run",
 		"test:watch": "vitest watch",
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
@@ -170,10 +165,8 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "catalog:",
-		"@prisma/client": "catalog:prisma",
 		"@standard-schema/spec": "1.1.0",
 		"@types/react": "catalog:react",
-		"prisma": "catalog:prisma",
 		"react": "catalog:react",
 		"type-fest": "catalog:",
 		"typescript": "catalog:",

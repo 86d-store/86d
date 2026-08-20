@@ -67,9 +67,6 @@ RUN for attempt in 1 2 3; do \
     echo "bun install failed after 3 attempts" >&2; \
     exit 1
 
-# Generate Prisma client
-RUN cd packages/core && bunx prisma generate --schema prisma
-
 # Generate module imports (run directly with bun — tsx has CJS issues under bun on Linux)
 RUN bun internals/generators/src/generate-modules.ts
 
@@ -77,13 +74,17 @@ RUN bun internals/generators/src/generate-modules.ts
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV DOCKER_BUILD=true
-RUN bun run build:store
+# next.config imports `env`, which requires a production-strength secret at
+# build time. Scoped to this RUN so it is not an image ENV; runtime must supply
+# BETTER_AUTH_SECRET via compose/orchestrator.
+RUN BETTER_AUTH_SECRET="86d-image-build-placeholder-Kx9mQ2vL7nP4wR8tY1uA3sD6fG0hJ5cB" \
+	NODE_OPTIONS="--max-old-space-size=4096" \
+	bun run build:store
 
-# ── Stage 3: Install Prisma CLI for runtime migrations ─────────────────────
-# Separate stage so we can copy node_modules/prisma into the slim runner
-FROM oven/bun:1.3.11 AS prisma-installer
+# ── Stage 3: Install drizzle-kit for runtime migrations ────────────────────
+FROM oven/bun:1.3.11 AS drizzle-installer
 WORKDIR /app
-RUN echo '{"dependencies":{"prisma":"7.3.0"}}' > package.json && \
+RUN echo '{"dependencies":{"drizzle-kit":"0.31.10","drizzle-orm":"0.45.2"}}' > package.json && \
     bun install --ignore-scripts
 
 # ── Stage 3b: Full `pg` tree for seed.ts ───────────────────────────────────
@@ -119,30 +120,29 @@ COPY --from=builder /app/apps/store/public ./apps/store/public
 # Copy templates — MDX files are resolved at runtime and not traced by standalone
 COPY --from=builder /app/templates ./templates
 
-# Copy Prisma schema + config for runtime migrations
-# prisma.config.ts is required by Prisma 7 (defines datasource URL + schema path)
-COPY --from=builder /app/packages/db/prisma ./packages/db/prisma
-COPY --from=builder /app/packages/db/prisma.config.ts ./packages/db/prisma.config.ts
-COPY --from=builder /app/packages/core/prisma ./packages/core/prisma
-COPY --from=builder /app/packages/core/src/prisma ./packages/core/src/prisma
+# Drizzle migrations + config for runtime migrate
+COPY --from=builder /app/packages/db/drizzle ./packages/db/drizzle
+COPY --from=builder /app/packages/db/drizzle.config.ts ./packages/db/drizzle.config.ts
+COPY --from=builder /app/packages/db/src/schema ./packages/db/src/schema
 
-# Merge only `prisma` CLI + `pg` from prisma-installer. Copying the entire installer node_modules
-# overwrites Next standalone hoists (e.g. @prisma/instrumentation) and breaks symlinks under
-# apps/store/.next/node_modules → import-in-the-middle ENOENT at runtime.
-COPY --from=prisma-installer /app/node_modules/prisma /tmp/prisma-only/prisma
+# Merge drizzle-kit + pg into the standalone image without overwriting Next hoists.
+COPY --from=drizzle-installer /app/node_modules/drizzle-kit /tmp/drizzle-only/drizzle-kit
+COPY --from=drizzle-installer /app/node_modules/drizzle-orm /tmp/drizzle-only/drizzle-orm
 COPY --from=pg-export /export /tmp/pg-export
 RUN set -e; \
-    rm -rf ./node_modules/prisma ./node_modules/pg ./node_modules/pg-connection-string \
-      ./node_modules/pg-int8 ./node_modules/pg-pool ./node_modules/pg-protocol \
-      ./node_modules/pg-types ./node_modules/pgpass ./node_modules/postgres-array \
-      ./node_modules/postgres-bytea ./node_modules/postgres-date ./node_modules/postgres-interval \
-      ./node_modules/xtend 2>/dev/null || true; \
-    cp -a /tmp/prisma-only/prisma ./node_modules/prisma && \
+    rm -rf ./node_modules/drizzle-kit ./node_modules/drizzle-orm ./node_modules/pg \
+      ./node_modules/pg-connection-string ./node_modules/pg-int8 ./node_modules/pg-pool \
+      ./node_modules/pg-protocol ./node_modules/pg-types ./node_modules/pgpass \
+      ./node_modules/postgres-array ./node_modules/postgres-bytea ./node_modules/postgres-date \
+      ./node_modules/postgres-interval ./node_modules/xtend 2>/dev/null || true; \
+    mkdir -p ./node_modules && \
+    cp -a /tmp/drizzle-only/. ./node_modules/ && \
     cp -a /tmp/pg-export/. ./node_modules/ && \
-    rm -rf /tmp/prisma-only /tmp/pg-export
+    rm -rf /tmp/drizzle-only /tmp/pg-export
 
 # Copy seed script and its dependencies
 COPY --from=builder /app/packages/db/src/seed.ts ./packages/db/src/seed.ts
+COPY --from=builder /app/packages/db/src/index.ts ./packages/db/src/index.ts
 COPY --from=builder /app/packages/db/seed ./packages/db/seed
 COPY --from=builder /app/packages/db/package.json ./packages/db/package.json
 COPY --from=builder /app/internals/lib ./internals/lib
@@ -158,7 +158,6 @@ COPY internals/docker/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # Create uploads directory for local storage
-# Prisma downloads engine binaries into node_modules at runtime — needs write access
 RUN mkdir -p /app/uploads && \
     chown -R nextjs:nodejs /app/uploads && \
     chown -R nextjs:nodejs /app/node_modules

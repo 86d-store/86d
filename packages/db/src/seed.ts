@@ -478,30 +478,46 @@ async function insertModuleData(
 	entityId: string,
 	data: Record<string, unknown>,
 ) {
-	const moduleId = moduleIds[moduleName];
-	if (!moduleId) return;
-	const rowId = uuid(
-		`module-data:${STORE_ID}:${moduleName}:${entityType}:${entityId}`,
-	);
+	if (!moduleIds[moduleName]) return;
+	const record: Record<string, unknown> = {
+		...data,
+		id: entityId,
+	};
+	if (record.createdAt === undefined) {
+		record.createdAt = now;
+	}
+	if (record.updatedAt === undefined) {
+		record.updatedAt = now;
+	}
+
+	const columns = Object.keys(record);
+	const values = columns.map((key) => {
+		const value = record[key];
+		if (
+			value !== null &&
+			typeof value === "object" &&
+			!(value instanceof Date)
+		) {
+			return JSON.stringify(value);
+		}
+		return value;
+	});
+	const placeholders = columns.map((_, i) => `$${i + 1}`).join(", ");
+	const columnList = columns.map((c) => `"${c}"`).join(", ");
+	const updates = columns
+		.filter((c) => c !== "id")
+		.map((c) => `"${c}" = EXCLUDED."${c}"`)
+		.join(", ");
+
 	await client.query(
-		`INSERT INTO "ModuleData" (id, cuid, "entityType", "entityId", data, "moduleId", "createdAt", "updatedAt")
-		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-		 ON CONFLICT ("moduleId", "entityType", "entityId") DO UPDATE SET data = $5, "updatedAt" = $8`,
-		[
-			rowId,
-			cuid(),
-			entityType,
-			entityId,
-			JSON.stringify(data),
-			moduleId,
-			now,
-			now,
-		],
+		`INSERT INTO "mod_${moduleName}"."${entityType}" (${columnList})
+		 VALUES (${placeholders})
+		 ON CONFLICT ("id") DO UPDATE SET ${updates}`,
+		values,
 	);
 }
 
 async function seedAdminUser(client: pg.PoolClient) {
-	console.log("  Creating admin user...");
 	const hashedPassword = hashPassword(ADMIN_PASSWORD);
 
 	const userResult = await client.query<{ id: string }>(
@@ -548,7 +564,6 @@ async function seedAdminUser(client: pg.PoolClient) {
 }
 
 async function seedModules(client: pg.PoolClient) {
-	console.log("  Creating module records...");
 	await ensureStoreRecord(client);
 	for (const name of moduleNames) {
 		const result = await client.query<{ id: string }>(
@@ -575,14 +590,54 @@ async function seedModules(client: pg.PoolClient) {
 }
 
 async function resetManagedModuleData(client: pg.PoolClient) {
-	console.log("  Clearing existing seed-managed module data...");
-	const managedModuleIds = seededModuleNames
-		.map((name) => moduleIds[name])
-		.filter(Boolean);
-	if (managedModuleIds.length === 0) return;
-	await client.query(
-		`DELETE FROM "ModuleData" WHERE "moduleId" = ANY($1::uuid[])`,
-		[managedModuleIds],
+	for (const name of seededModuleNames) {
+		if (!moduleIds[name]) continue;
+		await client.query(
+			`DO $$ BEGIN
+			  IF EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = 'mod_${name}') THEN
+			    EXECUTE 'DROP SCHEMA IF EXISTS "mod_${name}" CASCADE';
+			  END IF;
+			END $$;`,
+		);
+	}
+}
+
+async function applySeedModuleSchema(client: pg.PoolClient) {
+	const { compileModuleDeclarations, emitSql } = await import(
+		"@86d-app/core/schema"
+	);
+	const { applyModuleDdl } = await import("./schema/apply-disposable-ddl");
+	const { CURATED_STORE_MODULES } = await import(
+		"@86d-app/core/curated-modules"
+	);
+	type SeedModule = import("@86d-app/core/types/module").Module;
+	const modulesDir = join(WORKSPACE_ROOT, "modules");
+	const loaded: SeedModule[] = [];
+
+	for (const moduleId of [
+		...CURATED_STORE_MODULES,
+		...seededModuleNames.filter(
+			(name) => !(CURATED_STORE_MODULES as readonly string[]).includes(name),
+		),
+	]) {
+		try {
+			const mod = await import(join(modulesDir, moduleId, "src/index.ts"));
+			if (typeof mod.default === "function") {
+				loaded.push(mod.default({}));
+			}
+		} catch {
+			// Module absent or unloadable — skip.
+		}
+	}
+	const report = compileModuleDeclarations(loaded);
+	const sql = emitSql(report.transcoded);
+	await applyModuleDdl(
+		{
+			exec: async (statement) => {
+				await client.query(statement);
+			},
+		},
+		sql,
 	);
 }
 
@@ -616,7 +671,6 @@ async function resolveProducts(
 }
 
 async function seedProducts(client: pg.PoolClient, assets: AssetResolver) {
-	console.log("  Creating categories...");
 	for (const category of categories) {
 		const image = await assets.resolveUrl(category.imagePath);
 		await insertModuleData(
@@ -638,8 +692,6 @@ async function seedProducts(client: pg.PoolClient, assets: AssetResolver) {
 			},
 		);
 	}
-
-	console.log("  Creating products and variants...");
 	const resolvedProducts = await resolveProducts(assets);
 	for (const product of resolvedProducts) {
 		await insertModuleData(client, "products", "product", product.id, {
@@ -704,7 +756,6 @@ function inventoryItemId(
 }
 
 async function seedCollections(client: pg.PoolClient, assets: AssetResolver) {
-	console.log("  Creating product collections...");
 	for (const collection of collections) {
 		const image = await assets.resolveUrl(collection.imagePath);
 		await insertModuleData(
@@ -745,7 +796,6 @@ async function seedCollectionsModule(
 	client: pg.PoolClient,
 	assets: AssetResolver,
 ) {
-	console.log("  Mirroring collections module data...");
 	for (const collection of collections) {
 		const image = await assets.resolveUrl(collection.imagePath);
 		await insertModuleData(
@@ -797,7 +847,6 @@ async function seedCollectionsModule(
 }
 
 async function seedBrands(client: pg.PoolClient, assets: AssetResolver) {
-	console.log("  Creating house brand...");
 	const brandId = uuid(`brand:${houseBrand.key}`);
 	await insertModuleData(client, "brands", "brand", brandId, {
 		id: brandId,
@@ -828,7 +877,6 @@ async function seedBrands(client: pg.PoolClient, assets: AssetResolver) {
 }
 
 async function seedCustomers(client: pg.PoolClient) {
-	console.log("  Creating customers...");
 	for (const customer of customers) {
 		await insertModuleData(
 			client,
@@ -870,7 +918,6 @@ async function seedCustomers(client: pg.PoolClient) {
 }
 
 async function seedSettings(client: pg.PoolClient) {
-	console.log("  Creating store settings...");
 	for (const setting of storeSettings) {
 		const settingId = uuid(`setting:${setting.key}`);
 		await insertModuleData(client, "settings", "storeSetting", settingId, {
@@ -884,7 +931,6 @@ async function seedSettings(client: pg.PoolClient) {
 }
 
 async function seedInventory(client: pg.PoolClient) {
-	console.log("  Creating inventory records...");
 	for (const product of products) {
 		const productId = productIds[product.key];
 		const quantity = product.variants.reduce(
@@ -928,7 +974,6 @@ async function seedInventory(client: pg.PoolClient) {
 }
 
 async function seedNavigation(client: pg.PoolClient) {
-	console.log("  Creating navigation menu...");
 	const menuId = uuid("menu:main");
 	await insertModuleData(client, "navigation", "menu", menuId, {
 		id: menuId,
@@ -960,7 +1005,6 @@ async function seedNavigation(client: pg.PoolClient) {
 }
 
 async function seedDemoOrder(client: pg.PoolClient) {
-	console.log("  Creating demo order...");
 	const orderId = uuid("order:demo");
 	const orderItems = demoOrder.items.map((item) => {
 		const product = productByKey[item.productKey];
@@ -1014,10 +1058,37 @@ async function seedDemoOrder(client: pg.PoolClient) {
 		type: "shipping",
 		...demoOrder.shippingAddress,
 	});
+
+	const partyId = uuid("core-party:demo-customer");
+	const subjectId = uuid("core-subject:demo-order");
+	const transactionId = uuid("core-transaction:demo-order");
+	const expectedMinor = Math.round(total * 100);
+	await client.query(
+		`INSERT INTO core.party (id, kind, "displayName", email)
+		 VALUES ($1, 'person', $2, $3)
+		 ON CONFLICT (id) DO UPDATE SET "displayName" = EXCLUDED."displayName", email = EXCLUDED.email`,
+		[
+			partyId,
+			customers.find((c) => c.key === demoOrder.customerKey)?.name ??
+				"Customer",
+			customers.find((c) => c.key === demoOrder.customerKey)?.email ?? null,
+		],
+	);
+	await client.query(
+		`INSERT INTO core.subject (id, kind, owner_module, party_id, currency, expected_minor, settle_state)
+		 VALUES ($1, 'order', 'orders', $2, $3, $4, 'settled')
+		 ON CONFLICT (id) DO UPDATE SET expected_minor = EXCLUDED.expected_minor, settle_state = EXCLUDED.settle_state`,
+		[subjectId, partyId, demoOrder.currency, expectedMinor],
+	);
+	await client.query(
+		`INSERT INTO core.transaction (id, subject_id, authorized_minor, captured_minor, refunded_minor)
+		 VALUES ($1, $2, $3, $3, 0)
+		 ON CONFLICT (id) DO UPDATE SET authorized_minor = EXCLUDED.authorized_minor, captured_minor = EXCLUDED.captured_minor`,
+		[transactionId, subjectId, expectedMinor],
+	);
 }
 
 async function seedReviews(client: pg.PoolClient) {
-	console.log("  Creating reviews...");
 	for (const review of reviews) {
 		const reviewId = uuid(`review:${review.productKey}:${review.authorEmail}`);
 		await insertModuleData(client, "reviews", "review", reviewId, {
@@ -1046,7 +1117,6 @@ async function seedReviews(client: pg.PoolClient) {
 }
 
 async function seedBlog(client: pg.PoolClient, assets: AssetResolver) {
-	console.log("  Creating journal posts...");
 	for (const post of blogPosts) {
 		await insertModuleData(client, "blog", "post", blogPostIds[post.key], {
 			id: blogPostIds[post.key],
@@ -1072,7 +1142,6 @@ async function seedBlog(client: pg.PoolClient, assets: AssetResolver) {
 }
 
 async function seedPages(client: pg.PoolClient, assets: AssetResolver) {
-	console.log("  Creating pages...");
 	for (const page of pages) {
 		await insertModuleData(client, "pages", "page", pageIds[page.key], {
 			id: pageIds[page.key],
@@ -1094,7 +1163,6 @@ async function seedPages(client: pg.PoolClient, assets: AssetResolver) {
 }
 
 async function seedShipping(client: pg.PoolClient) {
-	console.log("  Creating shipping zones and rates...");
 	for (const zone of shippingZones) {
 		await insertModuleData(
 			client,
@@ -1128,7 +1196,6 @@ async function seedShipping(client: pg.PoolClient) {
 }
 
 async function seedTax(client: pg.PoolClient) {
-	console.log("  Creating tax data...");
 	for (const rate of taxRates) {
 		await insertModuleData(
 			client,
@@ -1165,7 +1232,6 @@ async function seedTax(client: pg.PoolClient) {
 }
 
 async function seedDiscounts(client: pg.PoolClient) {
-	console.log("  Creating discounts...");
 	for (const discount of discounts) {
 		const discountId = uuid(`discount:${discount.key}`);
 		await insertModuleData(client, "discounts", "discount", discountId, {
@@ -1198,7 +1264,6 @@ async function seedDiscounts(client: pg.PoolClient) {
 }
 
 async function seedFaq(client: pg.PoolClient) {
-	console.log("  Creating FAQ...");
 	for (const category of faqCategories) {
 		await insertModuleData(
 			client,
@@ -1240,7 +1305,6 @@ async function seedFaq(client: pg.PoolClient) {
 }
 
 async function seedAnnouncements(client: pg.PoolClient) {
-	console.log("  Creating announcement...");
 	const announcementId = uuid("announcement:atelier");
 	await insertModuleData(
 		client,
@@ -1260,7 +1324,6 @@ async function seedAnnouncements(client: pg.PoolClient) {
 }
 
 async function seedSeo(client: pg.PoolClient) {
-	console.log("  Creating SEO metadata...");
 	for (const meta of seoMeta) {
 		const metaId = uuid(`seo:${meta.path}`);
 		await insertModuleData(client, "seo", "metaTag", metaId, {
@@ -1275,7 +1338,6 @@ async function seedSeo(client: pg.PoolClient) {
 }
 
 async function seedSearch(client: pg.PoolClient, assets: AssetResolver) {
-	console.log("  Creating search index...");
 	const resolvedProducts = await resolveProducts(assets);
 	for (const product of resolvedProducts) {
 		const indexId = uuid(`search-index:${product.key}`);
@@ -1310,7 +1372,6 @@ async function seedSearch(client: pg.PoolClient, assets: AssetResolver) {
 }
 
 async function seedNewsletter(client: pg.PoolClient) {
-	console.log("  Creating newsletter subscribers...");
 	for (const subscriber of newsletterSubscribers) {
 		const subscriberId = uuid(`newsletter:${subscriber.email}`);
 		await insertModuleData(client, "newsletter", "subscriber", subscriberId, {
@@ -1326,7 +1387,6 @@ async function seedNewsletter(client: pg.PoolClient) {
 }
 
 async function seedSocialProof(client: pg.PoolClient, assets: AssetResolver) {
-	console.log("  Creating social proof...");
 	for (const badge of trustBadges) {
 		const badgeId = uuid(`trust-badge:${badge.name}`);
 		await insertModuleData(client, "social-proof", "trustBadge", badgeId, {
@@ -1362,7 +1422,6 @@ async function seedSocialProof(client: pg.PoolClient, assets: AssetResolver) {
 }
 
 async function seedProductLabels(client: pg.PoolClient) {
-	console.log("  Creating product labels...");
 	for (const label of productLabels) {
 		await insertModuleData(
 			client,
@@ -1400,7 +1459,6 @@ async function seedProductLabels(client: pg.PoolClient) {
 }
 
 async function seedRedirects(client: pg.PoolClient) {
-	console.log("  Creating redirects...");
 	for (const redirect of redirects) {
 		const redirectId = uuid(`redirect:${redirect.sourcePath}`);
 		await insertModuleData(client, "redirects", "redirect", redirectId, {
@@ -1413,7 +1471,6 @@ async function seedRedirects(client: pg.PoolClient) {
 }
 
 async function seedSitemap(client: pg.PoolClient) {
-	console.log("  Creating sitemap config...");
 	const configId = uuid("sitemap-config");
 	await insertModuleData(client, "sitemap", "sitemapConfig", configId, {
 		id: configId,
@@ -1425,8 +1482,6 @@ async function seedSitemap(client: pg.PoolClient) {
 }
 
 async function seedWishlist(client: pg.PoolClient) {
-	console.log("  Creating wishlist items...");
-
 	const wishlists: Array<{
 		customerKey: string;
 		email: string;
@@ -1473,8 +1528,6 @@ async function seedWishlist(client: pg.PoolClient) {
 }
 
 async function seedLoyalty(client: pg.PoolClient) {
-	console.log("  Creating loyalty accounts...");
-
 	const accounts = [
 		{
 			customerKey: "eleanor-vale",
@@ -1513,8 +1566,6 @@ async function seedLoyalty(client: pg.PoolClient) {
 }
 
 async function seedFlashSales(client: pg.PoolClient) {
-	console.log("  Creating flash sale...");
-
 	const saleStartsAt = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
 	const saleEndsAt = new Date(
 		Date.now() + 30 * 24 * 60 * 60 * 1000,
@@ -1572,8 +1623,6 @@ async function seedFlashSales(client: pg.PoolClient) {
 }
 
 async function seedSubscriptions(client: pg.PoolClient) {
-	console.log("  Creating subscription plans and subscribers...");
-
 	const planId = uuid("subscription-plan:atelier-privilege");
 	await insertModuleData(client, "subscriptions", "subscriptionPlan", planId, {
 		id: planId,
@@ -1620,8 +1669,6 @@ async function seedSubscriptions(client: pg.PoolClient) {
 }
 
 async function seedBundles(client: pg.PoolClient) {
-	console.log("  Creating product bundles...");
-
 	const bundleId = uuid("bundle:atelier-weekend");
 	await insertModuleData(client, "bundles", "bundle", bundleId, {
 		id: bundleId,
@@ -1666,7 +1713,6 @@ async function seedBundles(client: pg.PoolClient) {
 }
 
 async function seedStoreLocator(client: pg.PoolClient) {
-	console.log("  Creating store locations...");
 	for (const location of storeLocations) {
 		await insertModuleData(
 			client,
@@ -1684,7 +1730,6 @@ async function seedStoreLocator(client: pg.PoolClient) {
 }
 
 async function seedStorePickup(client: pg.PoolClient) {
-	console.log("  Creating pickup windows...");
 	const pickupLocationId = uuid("pickup-location:flagship");
 	await insertModuleData(
 		client,
@@ -1712,7 +1757,6 @@ async function seedStorePickup(client: pg.PoolClient) {
 }
 
 async function seedDeliverySlots(client: pg.PoolClient) {
-	console.log("  Creating delivery schedules...");
 	for (const schedule of deliverySchedules) {
 		const scheduleId = uuid(`delivery-slot:${schedule.name}`);
 		await insertModuleData(
@@ -1731,8 +1775,6 @@ async function seedDeliverySlots(client: pg.PoolClient) {
 }
 
 async function seedGiftCards(client: pg.PoolClient) {
-	console.log("  Creating gift cards...");
-
 	const orderId = uuid("order:demo");
 
 	const cards = [
@@ -1825,8 +1867,6 @@ async function seedGiftCards(client: pg.PoolClient) {
 }
 
 async function seedAppointments(client: pg.PoolClient) {
-	console.log("  Creating appointment services and bookings...");
-
 	const personalShoppingId = uuid("appointment-service:personal-shopping");
 	const alterationsId = uuid("appointment-service:alterations");
 	const claireId = uuid("appointment-staff:claire-dubois");
@@ -1994,8 +2034,6 @@ async function seedAppointments(client: pg.PoolClient) {
 }
 
 async function seedMemberships(client: pg.PoolClient) {
-	console.log("  Creating membership plans and members...");
-
 	const clubPlanId = uuid("membership-plan:atelier-club");
 	const maisonPlanId = uuid("membership-plan:atelier-maison");
 
@@ -2175,8 +2213,6 @@ async function seedMemberships(client: pg.PoolClient) {
 }
 
 async function seedWarranties(client: pg.PoolClient) {
-	console.log("  Creating warranty plans and registrations...");
-
 	const manufacturerPlanId = uuid("warranty-plan:manufacturer-12");
 	const extendedPlanId = uuid("warranty-plan:atelier-protection-24");
 
@@ -2277,8 +2313,6 @@ async function seedWarranties(client: pg.PoolClient) {
 }
 
 async function seedAuctions(client: pg.PoolClient) {
-	console.log("  Creating auctions and bids...");
-
 	const auctionId = uuid("auction:observatory-chronograph:steel-slate");
 	const startsAt = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
 	const endsAt = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString();
@@ -2358,8 +2392,6 @@ async function seedAuctions(client: pg.PoolClient) {
 }
 
 async function seedStoreCredits(client: pg.PoolClient) {
-	console.log("  Creating store credit accounts...");
-
 	const accounts = [
 		{
 			customerKey: "eleanor-vale",
@@ -2438,8 +2470,6 @@ async function seedStoreCredits(client: pg.PoolClient) {
 }
 
 async function seedPreorders(client: pg.PoolClient) {
-	console.log("  Creating preorder campaigns...");
-
 	const campaignId = uuid("preorder-campaign:cashmere-fringe-scarf");
 	const campaignStart = new Date(
 		Date.now() - 7 * 24 * 60 * 60 * 1000,
@@ -2502,8 +2532,6 @@ async function seedPreorders(client: pg.PoolClient) {
 }
 
 async function seedReferrals(client: pg.PoolClient) {
-	console.log("  Creating referral codes and referrals...");
-
 	// Reward rule
 	const ruleId = uuid("referral-rule:default");
 	await insertModuleData(client, "referrals", "rewardRule", ruleId, {
@@ -2572,8 +2600,6 @@ async function seedReferrals(client: pg.PoolClient) {
 }
 
 async function seedAffiliates(client: pg.PoolClient) {
-	console.log("  Creating affiliates and links...");
-
 	const affiliates = [
 		{
 			key: "the-sartorial-edit",
@@ -2654,8 +2680,6 @@ async function seedAffiliates(client: pg.PoolClient) {
 }
 
 async function seedCustomerGroups(client: pg.PoolClient) {
-	console.log("  Creating customer groups...");
-
 	const groups = [
 		{
 			key: "vip",
@@ -2734,8 +2758,6 @@ async function seedCustomerGroups(client: pg.PoolClient) {
 }
 
 async function seedAbandonedCarts(client: pg.PoolClient) {
-	console.log("  Creating abandoned carts...");
-
 	const softScarf = productByKey["cashmere-fringe-scarf"];
 	const loafer = productByKey["regent-penny-loafer"];
 
@@ -2800,8 +2822,6 @@ async function seedAbandonedCarts(client: pg.PoolClient) {
 }
 
 async function seedDigitalDownloads(client: pg.PoolClient) {
-	console.log("  Creating digital downloads...");
-
 	// Downloadable leather care guide linked to the Grand Tour Passport Folio
 	const fileId = uuid("download-file:leather-care-guide");
 	await insertModuleData(
@@ -2846,8 +2866,6 @@ async function seedDigitalDownloads(client: pg.PoolClient) {
 }
 
 async function seedQuotes(client: pg.PoolClient) {
-	console.log("  Creating quotes...");
-
 	const quoteId = uuid("quote:marcus:chronographs-corp");
 	const expiresAt = new Date(
 		Date.now() + 14 * 24 * 60 * 60 * 1000,
@@ -2891,8 +2909,6 @@ async function seedQuotes(client: pg.PoolClient) {
 }
 
 async function seedReturns(client: pg.PoolClient) {
-	console.log("  Creating return requests...");
-
 	const orderId = uuid("order:demo");
 	const returnId = uuid("return:marcus:silk-twill-wrap");
 	const silkWrap = productByKey["silk-twill-wrap"];
@@ -2932,8 +2948,6 @@ async function seedReturns(client: pg.PoolClient) {
 }
 
 async function seedBackorders(client: pg.PoolClient) {
-	console.log("  Creating backorders...");
-
 	const loafer = productByKey["regent-penny-loafer"];
 	const estimatedDate = new Date(
 		Date.now() + 21 * 24 * 60 * 60 * 1000,
@@ -2989,8 +3003,6 @@ async function seedBackorders(client: pg.PoolClient) {
 }
 
 async function seedGiftRegistry(client: pg.PoolClient) {
-	console.log("  Creating gift registries...");
-
 	const registryId = uuid("gift-registry:eleanor:wedding");
 	const eventDate = new Date(
 		Date.now() + 180 * 24 * 60 * 60 * 1000,
@@ -3065,8 +3077,6 @@ async function seedGiftRegistry(client: pg.PoolClient) {
 }
 
 async function seedBulkPricing(client: pg.PoolClient) {
-	console.log("  Creating bulk pricing rules...");
-
 	const ruleId = uuid("bulk-pricing-rule:footwear-volume");
 
 	await insertModuleData(client, "bulk-pricing", "pricingRule", ruleId, {
@@ -3075,7 +3085,7 @@ async function seedBulkPricing(client: pg.PoolClient) {
 		description:
 			"Volume discounts on all Atelier footwear styles for wholesale and corporate accounts.",
 		scope: "collection",
-		targetId: collectionIds["footwear"],
+		targetId: collectionIds.footwear,
 		priority: 10,
 		active: true,
 		createdAt: now,
@@ -3123,8 +3133,6 @@ async function seedBulkPricing(client: pg.PoolClient) {
 }
 
 async function seedGiftWrapping(client: pg.PoolClient) {
-	console.log("  Creating gift wrapping options...");
-
 	const options = [
 		{
 			key: "classic",
@@ -3191,8 +3199,6 @@ async function seedGiftWrapping(client: pg.PoolClient) {
 }
 
 async function seedInvoices(client: pg.PoolClient) {
-	console.log("  Creating invoices...");
-
 	const invoiceId = uuid("invoice:demo-order");
 	const orderId = uuid("order:demo");
 	const issuedAt = new Date(
@@ -3252,8 +3258,6 @@ async function seedInvoices(client: pg.PoolClient) {
 }
 
 async function seedGamification(client: pg.PoolClient) {
-	console.log("  Creating gamification game...");
-
 	const gameId = uuid("game:atelier-spin");
 
 	await insertModuleData(client, "gamification", "game", gameId, {
@@ -3371,8 +3375,6 @@ async function seedGamification(client: pg.PoolClient) {
 }
 
 async function seedMultiCurrency(client: pg.PoolClient) {
-	console.log("  Creating currency configurations...");
-
 	const currencies = [
 		{
 			code: "USD",
@@ -3428,8 +3430,6 @@ async function seedMultiCurrency(client: pg.PoolClient) {
 }
 
 async function seedWaitlist(client: pg.PoolClient) {
-	console.log("  Creating waitlist entries...");
-
 	const chronograph = productByKey["observatory-chronograph"];
 
 	const entries = [
@@ -3464,7 +3464,6 @@ async function seedWaitlist(client: pg.PoolClient) {
 }
 
 async function seedCart(client: pg.PoolClient) {
-	console.log("  Creating cart records...");
 	const now = new Date().toISOString();
 
 	// Marcus: active cart with Observatory Chronograph
@@ -3519,7 +3518,6 @@ async function seedCart(client: pg.PoolClient) {
 }
 
 async function seedCheckout(client: pg.PoolClient) {
-	console.log("  Creating checkout session records...");
 	const now = new Date().toISOString();
 	const orderId = uuid("order:demo");
 	const sessionId = uuid("checkout:demo-order");
@@ -3570,7 +3568,6 @@ async function seedCheckout(client: pg.PoolClient) {
 }
 
 async function seedNotifications(client: pg.PoolClient) {
-	console.log("  Creating notification records...");
 	const now = new Date().toISOString();
 
 	// Templates
@@ -3680,7 +3677,6 @@ async function seedNotifications(client: pg.PoolClient) {
 }
 
 async function seedRecentlyViewed(client: pg.PoolClient) {
-	console.log("  Creating recently-viewed records...");
 	const now = new Date().toISOString();
 
 	const views = [
@@ -3728,7 +3724,6 @@ async function seedRecentlyViewed(client: pg.PoolClient) {
 }
 
 async function seedRecommendations(client: pg.PoolClient) {
-	console.log("  Creating recommendation records...");
 	const now = new Date().toISOString();
 
 	// Recommendation rules
@@ -3837,7 +3832,6 @@ async function seedRecommendations(client: pg.PoolClient) {
 }
 
 async function seedForms(client: pg.PoolClient) {
-	console.log("  Creating form records...");
 	const now = new Date().toISOString();
 
 	const formId = uuid("form:contact-us");
@@ -3915,7 +3909,6 @@ async function seedForms(client: pg.PoolClient) {
 }
 
 async function seedTipping(client: pg.PoolClient) {
-	console.log("  Creating tipping records...");
 	const now = new Date().toISOString();
 	const orderId = uuid("order:demo");
 
@@ -3946,7 +3939,6 @@ async function seedTipping(client: pg.PoolClient) {
 }
 
 async function seedOrderNotes(client: pg.PoolClient) {
-	console.log("  Creating order note records...");
 	const now = new Date().toISOString();
 	const orderId = uuid("order:demo");
 	const adminUserId = uuid("admin-user");
@@ -3981,7 +3973,6 @@ async function seedOrderNotes(client: pg.PoolClient) {
 }
 
 async function seedFulfillment(client: pg.PoolClient) {
-	console.log("  Creating fulfillment records...");
 	const now = new Date().toISOString();
 	const orderId = uuid("order:demo");
 	const fulfillmentId = uuid("fulfillment:demo-order");
@@ -4013,7 +4004,6 @@ async function seedFulfillment(client: pg.PoolClient) {
 }
 
 async function seedAuditLog(client: pg.PoolClient) {
-	console.log("  Creating audit log records...");
 	const adminUserId = uuid("admin-user");
 	const now = new Date().toISOString();
 
@@ -4061,7 +4051,6 @@ async function seedAuditLog(client: pg.PoolClient) {
 }
 
 async function seedVendors(client: pg.PoolClient) {
-	console.log("  Creating vendor records...");
 	const now = new Date().toISOString();
 
 	const vendorId = uuid("vendor:maison-tessier");
@@ -4115,7 +4104,6 @@ async function seedVendors(client: pg.PoolClient) {
 }
 
 async function seedTickets(client: pg.PoolClient) {
-	console.log("  Creating support ticket records...");
 	const now = new Date().toISOString();
 	const adminUserId = uuid("admin-user");
 
@@ -4191,7 +4179,6 @@ async function seedTickets(client: pg.PoolClient) {
 }
 
 async function seedProductQa(client: pg.PoolClient) {
-	console.log("  Creating product Q&A records...");
 	const now = new Date().toISOString();
 	const adminUserId = uuid("admin-user");
 
@@ -4262,7 +4249,6 @@ async function seedProductQa(client: pg.PoolClient) {
 }
 
 async function seedComparisons(client: pg.PoolClient) {
-	console.log("  Creating product comparison records...");
 	const now = new Date().toISOString();
 
 	const items = [
@@ -4313,7 +4299,6 @@ async function seedComparisons(client: pg.PoolClient) {
 }
 
 async function seedPriceLists(client: pg.PoolClient) {
-	console.log("  Creating price list records...");
 	const now = new Date().toISOString();
 
 	const priceListId = uuid("price-list:holiday-2026");
@@ -4386,7 +4371,6 @@ async function seedPriceLists(client: pg.PoolClient) {
 }
 
 async function seedProductFeeds(client: pg.PoolClient) {
-	console.log("  Creating product feed records...");
 	const now = new Date().toISOString();
 
 	const feedId = uuid("feed:google-shopping");
@@ -4445,7 +4429,6 @@ async function seedProductFeeds(client: pg.PoolClient) {
 }
 
 async function seedImportExport(client: pg.PoolClient) {
-	console.log("  Creating import/export job records...");
 	const now = new Date().toISOString();
 	const adminUserId = uuid("admin-user");
 
@@ -4482,7 +4465,6 @@ async function seedImportExport(client: pg.PoolClient) {
 }
 
 async function seedSavedAddresses(client: pg.PoolClient) {
-	console.log("  Creating saved address records...");
 	const now = new Date().toISOString();
 
 	const addresses = [
@@ -4531,7 +4513,6 @@ async function seedSavedAddresses(client: pg.PoolClient) {
 }
 
 async function seedMedia(client: pg.PoolClient) {
-	console.log("  Creating media library records...");
 	const now = new Date().toISOString();
 
 	const folderId = uuid("media-folder:products");
@@ -4612,7 +4593,6 @@ async function seedMedia(client: pg.PoolClient) {
 }
 
 async function seedAutomations(client: pg.PoolClient) {
-	console.log("  Creating automation records...");
 	const now = new Date().toISOString();
 
 	const automations = [
@@ -4693,7 +4673,6 @@ async function seedAutomations(client: pg.PoolClient) {
 }
 
 async function seedPayments(client: pg.PoolClient) {
-	console.log("  Creating payment records...");
 	const now = new Date().toISOString();
 	const orderId = uuid("order:demo");
 
@@ -4729,7 +4708,6 @@ async function seedPayments(client: pg.PoolClient) {
 }
 
 async function seedAnalytics(client: pg.PoolClient) {
-	console.log("  Creating analytics event records...");
 	const now = new Date().toISOString();
 
 	const events = [
@@ -4787,7 +4765,6 @@ async function seedAnalytics(client: pg.PoolClient) {
 }
 
 async function seedSocialSharing(client: pg.PoolClient) {
-	console.log("  Creating social sharing records...");
 	const now = new Date().toISOString();
 
 	const settingsId = uuid("share-settings:default");
@@ -4842,7 +4819,6 @@ async function seedSocialSharing(client: pg.PoolClient) {
 }
 
 async function seedQrCodes(client: pg.PoolClient) {
-	console.log("  Creating QR code records...");
 	const now = new Date().toISOString();
 
 	const codes = [
@@ -4903,7 +4879,6 @@ async function seedQrCodes(client: pg.PoolClient) {
 }
 
 async function seedKiosk(client: pg.PoolClient) {
-	console.log("  Creating kiosk records...");
 	const now = new Date().toISOString();
 
 	const stationId = uuid("kiosk-station:flagship");
@@ -4950,7 +4925,6 @@ async function seedKiosk(client: pg.PoolClient) {
 }
 
 async function seedAmazon(client: pg.PoolClient) {
-	console.log("  Creating Amazon channel records...");
 	const now = new Date().toISOString();
 
 	const listings = [
@@ -5027,7 +5001,6 @@ async function seedAmazon(client: pg.PoolClient) {
 }
 
 async function seedEbay(client: pg.PoolClient) {
-	console.log("  Creating eBay channel records...");
 	const now = new Date().toISOString();
 
 	const listings = [
@@ -5079,7 +5052,6 @@ async function seedEbay(client: pg.PoolClient) {
 }
 
 async function seedEtsy(client: pg.PoolClient) {
-	console.log("  Creating Etsy channel records...");
 	const now = new Date().toISOString();
 
 	const listings = [
@@ -5136,7 +5108,6 @@ async function seedEtsy(client: pg.PoolClient) {
 }
 
 async function seedTiktokShop(client: pg.PoolClient) {
-	console.log("  Creating TikTok Shop channel records...");
 	const now = new Date().toISOString();
 
 	const listings = [
@@ -5202,7 +5173,6 @@ async function seedTiktokShop(client: pg.PoolClient) {
 }
 
 async function seedGoogleShopping(client: pg.PoolClient) {
-	console.log("  Creating Google Shopping channel records...");
 	const now = new Date().toISOString();
 
 	const feedId = uuid("google-shopping-feed:us");
@@ -5265,7 +5235,6 @@ async function seedGoogleShopping(client: pg.PoolClient) {
 }
 
 async function seedFacebookShop(client: pg.PoolClient) {
-	console.log("  Creating Facebook Shop channel records...");
 	const now = new Date().toISOString();
 
 	const catalogId = uuid("fb-catalog:atelier");
@@ -5342,7 +5311,6 @@ async function seedFacebookShop(client: pg.PoolClient) {
 }
 
 async function seedInstagramShop(client: pg.PoolClient) {
-	console.log("  Creating Instagram Shop channel records...");
 	const now = new Date().toISOString();
 
 	const catalogSyncId = uuid("ig-catalog-sync:atelier");
@@ -5406,7 +5374,6 @@ async function seedInstagramShop(client: pg.PoolClient) {
 }
 
 async function seedWalmart(client: pg.PoolClient) {
-	console.log("  Creating Walmart channel records...");
 	const now = new Date().toISOString();
 
 	const items = [
@@ -5474,7 +5441,6 @@ async function seedWalmart(client: pg.PoolClient) {
 }
 
 async function seedXShop(client: pg.PoolClient) {
-	console.log("  Creating X Shop channel records...");
 	const now = new Date().toISOString();
 
 	const xListings = [
@@ -5532,7 +5498,6 @@ async function seedXShop(client: pg.PoolClient) {
 }
 
 async function seedPinterestShop(client: pg.PoolClient) {
-	console.log("  Creating Pinterest Shop channel records...");
 	const now = new Date().toISOString();
 
 	const catalogSyncId = uuid("pinterest-catalog-sync:atelier");
@@ -5599,7 +5564,6 @@ async function seedPinterestShop(client: pg.PoolClient) {
 }
 
 async function seedDoordash(client: pg.PoolClient) {
-	console.log("  Creating DoorDash delivery records...");
 	const now = new Date().toISOString();
 	const orderId = uuid("order:demo");
 
@@ -5659,7 +5623,6 @@ async function seedDoordash(client: pg.PoolClient) {
 }
 
 async function seedUberDirect(client: pg.PoolClient) {
-	console.log("  Creating Uber Direct delivery records...");
 	const now = new Date().toISOString();
 
 	const serviceAreaId = uuid("uber-direct-area:london-central");
@@ -5719,7 +5682,6 @@ async function seedUberDirect(client: pg.PoolClient) {
 }
 
 async function seedUberEats(client: pg.PoolClient) {
-	console.log("  Creating Uber Eats order records...");
 	const now = new Date().toISOString();
 
 	const menuSyncId = uuid("uber-eats-menu-sync:2026-05");
@@ -5751,7 +5713,6 @@ async function seedUberEats(client: pg.PoolClient) {
 }
 
 async function seedFavor(client: pg.PoolClient) {
-	console.log("  Creating Favor delivery records...");
 	const now = new Date().toISOString();
 
 	const serviceAreaId = uuid("favor-area:london-kensington");
@@ -5795,7 +5756,6 @@ async function seedFavor(client: pg.PoolClient) {
 }
 
 async function seedToast(client: pg.PoolClient) {
-	console.log("  Creating Toast POS sync records...");
 	const now = new Date().toISOString();
 
 	const syncRecord = uuid("toast-sync:products-bulk");
@@ -5833,7 +5793,6 @@ async function seedToast(client: pg.PoolClient) {
 }
 
 async function seedWish(client: pg.PoolClient) {
-	console.log("  Creating Wish channel records...");
 	const now = new Date().toISOString();
 
 	const wishProducts = [
@@ -5873,7 +5832,6 @@ async function seedWish(client: pg.PoolClient) {
 }
 
 async function seedPhotoBooth(client: pg.PoolClient) {
-	console.log("  Creating photo booth records...");
 	const now = new Date().toISOString();
 
 	const sessionId = uuid("photo-session:holiday-2026");
@@ -5936,11 +5894,6 @@ async function seedPhotoBooth(client: pg.PoolClient) {
 }
 
 async function main() {
-	console.log("🌱 Seeding 86d luxury demo database...\n");
-	console.log(`  Store ID: ${STORE_ID}`);
-	console.log(`  Database: ${DATABASE_URL?.replace(/\/\/.*@/, "//***@")}`);
-	console.log(`  Asset root: ${ASSET_ROOT}\n`);
-
 	const client = await pool.connect();
 	const storage = createStorageFromEnv();
 	const assets = createAssetResolver(storage);
@@ -5951,6 +5904,7 @@ async function main() {
 		await seedAdminUser(client);
 		await seedModules(client);
 		await resetManagedModuleData(client);
+		await applySeedModuleSchema(client);
 		await seedProducts(client, assets);
 		await seedCollections(client, assets);
 		await seedCollectionsModule(client, assets);
@@ -6049,24 +6003,6 @@ async function main() {
 		await seedWish(client);
 
 		await client.query("COMMIT");
-
-		console.log("\n✅ Seed complete!");
-		console.log("\n  Admin credentials:");
-		console.log(`    Email:    ${ADMIN_EMAIL}`);
-		console.log(
-			`    Password: ${ADMIN_PASSWORD === "password123" ? "password123" : "(as entered)"}`,
-		);
-		console.log(
-			`\n  ${summary.productCount} products, ${summary.categoryCount} categories, ${summary.collectionCount} collections`,
-		);
-		console.log(
-			`  ${products.reduce((sum, product) => sum + product.variants.length, 0)} variants`,
-		);
-		console.log(
-			`  ${customers.length} customers, 1 demo order, ${blogPosts.length} journal posts`,
-		);
-		console.log(`  ${moduleNames.length} modules registered`);
-		console.log(`  Assets uploaded under ${ASSET_KEY_PREFIX}\n`);
 	} catch (error) {
 		await client.query("ROLLBACK");
 		console.error("\n❌ Seed failed:", error);

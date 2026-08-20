@@ -3,6 +3,7 @@ import type {
 	AuthoritySnapshot,
 	CommandReference,
 } from "@86d-app/core/commands";
+import type { Module } from "@86d-app/core/types/module";
 import {
 	adjustInventoryStockFromCommand,
 	inventoryStockAdjustInputSchema,
@@ -14,11 +15,21 @@ import {
 	createCommandExecutor,
 	defineCommand,
 } from "@86d-app/runtime/command";
-import { createPrismaCommandPersistence } from "@86d-app/runtime/command-prisma";
+import { createDrizzleCommandPersistence } from "@86d-app/runtime/command-drizzle";
+import { CompiledModuleDataService } from "@86d-app/runtime/compiled-module-data-service";
+import {
+	compiledForModule,
+	compileInstalledModules,
+} from "@86d-app/runtime/compiled-schema-boot";
+import {
+	createDrizzlePersistenceClient,
+	type PersistenceTransaction,
+} from "@86d-app/runtime/drizzle-persistence-client";
 import { computeCommandBindingHash } from "@86d-app/runtime/grants";
-import { UniversalDataService } from "@86d-app/runtime/universal-data-service";
-import { db, Prisma } from "db";
+import { getPool } from "db";
+import { drizzle } from "drizzle-orm/node-postgres";
 import env from "env";
+import { modules } from "../generated/api";
 import { ensureBooted } from "./api-registry";
 
 export const inventoryStockAdjustCommandReference = {
@@ -110,7 +121,7 @@ function inventoryStockAdjustCommand(options: {
 	inventoryModuleDbId: string;
 	clock: () => Date;
 }) {
-	return defineCommand<Prisma.TransactionClient>()({
+	return defineCommand<PersistenceTransaction>()({
 		command: inventoryStockAdjustCommandReference,
 		ownerPlane: "store_runtime",
 		targetType: "store",
@@ -156,11 +167,15 @@ function inventoryStockAdjustCommand(options: {
 				};
 			}
 
-			const data = new UniversalDataService({
-				db: transaction,
+			const client = transaction._poolClient;
+			const txDb = drizzle(client);
+			const compiled = compileInstalledModules(modules as Module[]);
+			const data = new CompiledModuleDataService({
+				db: txDb,
 				storeId: options.storeId,
 				moduleId: "inventory",
 				moduleDbId: options.inventoryModuleDbId,
+				compiled: compiledForModule(compiled, "inventory"),
 			});
 			const adjustment = await adjustInventoryStockFromCommand(
 				data.currentTransaction(),
@@ -197,7 +212,7 @@ function inventoryStockAdjustCommand(options: {
 /**
  * Compose the first production Store mutation on the durable Command engine.
  * Command completion, audit, Inventory state, and its outbox fact use the same
- * Prisma transaction. Transport remains a caller concern.
+ * database transaction. Transport remains a caller concern.
  */
 export async function createInventoryCommandExecutor(
 	options: InventoryCommandExecutorOptions,
@@ -221,6 +236,7 @@ function composeInventoryCommandExecutor(
 	},
 ) {
 	const clock = options.clock ?? (() => new Date());
+	const persistenceClient = createDrizzlePersistenceClient(getPool());
 	return createCommandExecutor({
 		plane: "store_runtime",
 		definitions: [
@@ -231,10 +247,7 @@ function composeInventoryCommandExecutor(
 			}),
 		],
 		authority: options.authority,
-		persistence: createPrismaCommandPersistence<Prisma.TransactionClient>(db, {
-			databaseNull: Prisma.DbNull,
-			jsonNull: Prisma.JsonNull,
-		}),
+		persistence: createDrizzleCommandPersistence(persistenceClient, {}),
 		digestKey: options.digestKey,
 		clock,
 		...(options.createId === undefined ? {} : { createId: options.createId }),

@@ -27,7 +27,6 @@ vi.mock("env", () => ({
 }));
 vi.mock("db", () => ({
 	db: {},
-	Prisma: { DbNull: {}, JsonNull: {} },
 }));
 vi.mock("../api-registry", () => ({
 	ensureBooted: async () => ({

@@ -16,7 +16,7 @@ import type {
 	CommandPersistence,
 	PersistedCommandExecution,
 } from "./command";
-import type { PrismaCommandGrantTransaction } from "./grant-prisma";
+import type { DrizzleCommandGrantTransaction } from "./grant-drizzle";
 import type { CommandGrantAdapter, CommandGrantFacts } from "./grants";
 
 type DateValue = Date | string;
@@ -93,9 +93,9 @@ interface AuditEventFindManyArgs {
 	orderBy: [{ occurredAt: "asc" }, { sequence: "asc" }];
 }
 
-/** Narrow generated-Prisma surface kept behind Command persistence. */
-export interface PrismaCommandTransaction
-	extends PrismaCommandGrantTransaction {
+/** Narrow persistence surface kept behind Command adapters. */
+export interface DrizzleCommandTransaction
+	extends DrizzleCommandGrantTransaction {
 	commandExecution: {
 		create(args: CommandExecutionCreateArgs): Promise<unknown>;
 		findFirst(
@@ -115,22 +115,22 @@ export interface PrismaCommandTransaction
 	$executeRawUnsafe(query: string, ...values: unknown[]): Promise<number>;
 }
 
-export interface PrismaCommandClient<
-	TTransaction extends PrismaCommandTransaction,
+export interface DrizzleCommandClient<
+	TTransaction extends DrizzleCommandTransaction,
 > {
 	$transaction<T>(run: (transaction: TTransaction) => Promise<T>): Promise<T>;
 }
 
-interface PrismaCommandPersistenceOptions<
-	TTransaction extends PrismaCommandTransaction = PrismaCommandTransaction,
+interface DrizzleCommandPersistenceOptions<
+	TTransaction extends DrizzleCommandTransaction = DrizzleCommandTransaction,
 > {
-	/** Prisma.DbNull from the Store Runtime generated client. */
-	databaseNull: unknown;
-	/** Prisma.JsonNull from the Store Runtime generated client. */
-	jsonNull: unknown;
+	/** SQL NULL for jsonb columns that must clear a previous value. */
+	databaseNull?: unknown | undefined;
+	/** Explicit JSON null when a column must store JSON `null` rather than SQL NULL. */
+	jsonNull?: unknown | undefined;
+	grants?: CommandGrantAdapter<TTransaction> | undefined;
 	pollIntervalMs?: number | undefined;
 	maxPollAttempts?: number | undefined;
-	grants?: CommandGrantAdapter<TTransaction> | undefined;
 }
 
 function iso(value: DateValue): string {
@@ -144,7 +144,7 @@ function isUniqueConstraintError(error: unknown): boolean {
 		typeof error === "object" &&
 		error !== null &&
 		"code" in error &&
-		error.code === "P2002"
+		(error.code === "23505" || error.code === "P2002")
 	);
 }
 
@@ -273,7 +273,7 @@ function parseExecution(
 }
 
 async function loadExecution(
-	transaction: PrismaCommandTransaction,
+	transaction: DrizzleCommandTransaction,
 	id: string,
 ): Promise<PersistedCommandExecution | undefined> {
 	const record = await transaction.commandExecution.findUnique({
@@ -319,8 +319,8 @@ class GrantAdmissionDenied extends Error {
 	}
 }
 
-function defaultPrismaGrantAdapter<
-	T extends PrismaCommandTransaction,
+function defaultDrizzleGrantAdapter<
+	T extends DrizzleCommandTransaction,
 >(): CommandGrantAdapter<T> {
 	return {
 		async admit(transaction, request) {
@@ -351,15 +351,17 @@ function defaultPrismaGrantAdapter<
 }
 
 /** Durable Store-plane adapter with DB-enforced scoped idempotency. */
-export function createPrismaCommandPersistence<
-	TTransaction extends PrismaCommandTransaction,
+export function createDrizzleCommandPersistence<
+	TTransaction extends DrizzleCommandTransaction,
 >(
-	client: PrismaCommandClient<TTransaction>,
-	options: PrismaCommandPersistenceOptions<TTransaction>,
+	client: DrizzleCommandClient<TTransaction>,
+	options: DrizzleCommandPersistenceOptions<TTransaction>,
 ): CommandPersistence<TTransaction> {
 	const pollIntervalMs = options.pollIntervalMs ?? 25;
 	const maxPollAttempts = options.maxPollAttempts ?? 200;
-	const grants = options.grants ?? defaultPrismaGrantAdapter<TTransaction>();
+	const grants = options.grants ?? defaultDrizzleGrantAdapter<TTransaction>();
+	const databaseNull = options.databaseNull ?? null;
+	const jsonNull = options.jsonNull ?? null;
 
 	async function get(
 		executionId: string,
@@ -585,14 +587,14 @@ export function createPrismaCommandPersistence<
 							execution.status === "succeeded"
 								? {
 										status: "succeeded",
-										result: execution.result ?? options.jsonNull,
-										failure: options.databaseNull,
+										result: execution.result ?? jsonNull,
+										failure: databaseNull,
 										completedAt: new Date(completedAt),
 									}
 								: {
 										status: "failed",
-										result: options.databaseNull,
-										failure: execution.failure ?? options.jsonNull,
+										result: databaseNull,
+										failure: execution.failure ?? jsonNull,
 										completedAt: new Date(completedAt),
 									},
 					});

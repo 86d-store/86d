@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createPrismaStoreGrantAdministration } from "../grant-administration";
+import { createDrizzleStoreGrantAdministration } from "../grant-administration";
 
 const databaseNow = new Date("2026-08-11T20:00:00.000Z");
 const principal = {
@@ -108,7 +108,7 @@ function harness(options?: {
 			},
 	);
 	let id = 0;
-	const administration = createPrismaStoreGrantAdministration(client, {
+	const administration = createDrizzleStoreGrantAdministration(client, {
 		createId: (kind) => `${options?.idPrefix ?? ""}${kind}-${++id}`,
 		authorize,
 		resolveTargetScope,

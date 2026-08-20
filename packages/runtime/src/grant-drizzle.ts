@@ -14,12 +14,12 @@ import {
 	normalizeBaseRevisions,
 } from "./grants";
 
-export interface PrismaCommandGrantTransaction {
+export interface DrizzleCommandGrantTransaction {
 	$queryRawUnsafe<T = unknown>(query: string, ...values: unknown[]): Promise<T>;
 	$executeRawUnsafe(query: string, ...values: unknown[]): Promise<number>;
 }
 
-export interface PrismaCommandGrantAdapterOptions {
+export interface DrizzleCommandGrantAdapterOptions {
 	nonceDigestKey: string;
 	createReservationId?: (() => string) | undefined;
 	createAuditId?: (() => string) | undefined;
@@ -117,7 +117,7 @@ function parseChangeSet(row: ApprovalRow) {
 	});
 }
 
-async function admitApproval<T extends PrismaCommandGrantTransaction>(
+async function admitApproval<T extends DrizzleCommandGrantTransaction>(
 	transaction: T,
 	request: CommandGrantAdmissionRequest<T>,
 ) {
@@ -222,7 +222,7 @@ async function admitApproval<T extends PrismaCommandGrantTransaction>(
 	};
 }
 
-async function admitConfirmation<T extends PrismaCommandGrantTransaction>(
+async function admitConfirmation<T extends DrizzleCommandGrantTransaction>(
 	transaction: T,
 	request: CommandGrantAdmissionRequest<T>,
 	proof: { id: string; nonce: string },
@@ -313,7 +313,7 @@ async function admitConfirmation<T extends PrismaCommandGrantTransaction>(
 	};
 }
 
-function authoritativeScope<T extends PrismaCommandGrantTransaction>(
+function authoritativeScope<T extends DrizzleCommandGrantTransaction>(
 	request: CommandGrantAdmissionRequest<T>,
 	businessId: string | undefined,
 	storeId: string | undefined,
@@ -332,7 +332,7 @@ function authoritativeScope<T extends PrismaCommandGrantTransaction>(
 	return { businessId, storeId, globalOnly: false };
 }
 
-async function admitStanding<T extends PrismaCommandGrantTransaction>(
+async function admitStanding<T extends DrizzleCommandGrantTransaction>(
 	transaction: T,
 	request: CommandGrantAdmissionRequest<T>,
 	createReservationId: () => string,
@@ -471,9 +471,9 @@ async function admitStanding<T extends PrismaCommandGrantTransaction>(
 }
 
 /** Durable grant admission performed inside the Command claim transaction. */
-export function createPrismaCommandGrantAdapter<
-	T extends PrismaCommandGrantTransaction,
->(options: PrismaCommandGrantAdapterOptions): CommandGrantAdapter<T> {
+export function createDrizzleCommandGrantAdapter<
+	T extends DrizzleCommandGrantTransaction,
+>(options: DrizzleCommandGrantAdapterOptions): CommandGrantAdapter<T> {
 	if (new TextEncoder().encode(options.nonceDigestKey).byteLength < 32) {
 		throw new Error("Confirmation nonce digest key must be at least 32 bytes.");
 	}

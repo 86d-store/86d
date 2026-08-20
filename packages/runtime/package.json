@@ -13,13 +13,9 @@
 			"types": "./src/command.ts",
 			"default": "./src/command.ts"
 		},
-		"./command-prisma": {
-			"types": "./src/command-prisma.ts",
-			"default": "./src/command-prisma.ts"
-		},
-		"./command-prisma.typecheck": {
-			"types": "./src/command-prisma.typecheck.ts",
-			"default": "./src/command-prisma.typecheck.ts"
+		"./command-drizzle": {
+			"types": "./src/command-drizzle.ts",
+			"default": "./src/command-drizzle.ts"
 		},
 		"./commands": {
 			"types": "./src/commands.ts",
@@ -49,9 +45,9 @@
 			"types": "./src/grant-memory.ts",
 			"default": "./src/grant-memory.ts"
 		},
-		"./grant-prisma": {
-			"types": "./src/grant-prisma.ts",
-			"default": "./src/grant-prisma.ts"
+		"./grant-drizzle": {
+			"types": "./src/grant-drizzle.ts",
+			"default": "./src/grant-drizzle.ts"
 		},
 		"./grants": {
 			"types": "./src/grants.ts",
@@ -61,17 +57,17 @@
 			"types": "./src/registry.ts",
 			"default": "./src/registry.ts"
 		},
-		"./universal-data-service": {
-			"types": "./src/universal-data-service.ts",
-			"default": "./src/universal-data-service.ts"
+		"./compiled-module-data-service": {
+			"types": "./src/compiled-module-data-service.ts",
+			"default": "./src/compiled-module-data-service.ts"
 		},
-		"./table-backed-data-service": {
-			"types": "./src/table-backed-data-service.ts",
-			"default": "./src/table-backed-data-service.ts"
+		"./compiled-schema-boot": {
+			"types": "./src/compiled-schema-boot.ts",
+			"default": "./src/compiled-schema-boot.ts"
 		},
-		"./dual-read-data-service": {
-			"types": "./src/dual-read-data-service.ts",
-			"default": "./src/dual-read-data-service.ts"
+		"./drizzle-persistence-client": {
+			"types": "./src/drizzle-persistence-client.ts",
+			"default": "./src/drizzle-persistence-client.ts"
 		}
 	},
 	"files": [
@@ -90,14 +86,14 @@
 	"dependencies": {
 		"@86d-app/core": "workspace:*",
 		"better-call": "1.3.5",
+		"db": "workspace:*",
+		"drizzle-orm": "0.45.2",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"db": "workspace:*",
-		"drizzle-orm": "0.45.2",
 		"@biomejs/biome": "catalog:",
 		"@electric-sql/pglite": "0.4.1",
-		"@prisma/client": "catalog:prisma",
+		"db": "workspace:*",
 		"type-fest": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"

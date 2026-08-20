@@ -28,7 +28,7 @@ import {
 	normalizeBaseRevisions,
 } from "./grants";
 
-export interface PrismaGrantAdministrationTransaction {
+export interface DrizzleGrantAdministrationTransaction {
 	changeSet: {
 		create(args: { data: Record<string, unknown> }): Promise<unknown>;
 		updateMany(args: {
@@ -62,8 +62,8 @@ export interface PrismaGrantAdministrationTransaction {
 	$queryRawUnsafe<T = unknown>(query: string, ...values: unknown[]): Promise<T>;
 }
 
-export interface PrismaGrantAdministrationClient<
-	TTransaction extends PrismaGrantAdministrationTransaction,
+export interface DrizzleGrantAdministrationClient<
+	TTransaction extends DrizzleGrantAdministrationTransaction,
 > {
 	$transaction<T>(run: (transaction: TTransaction) => Promise<T>): Promise<T>;
 }
@@ -239,8 +239,8 @@ type GrantOperation =
 	| "standing_permission.revoke"
 	| "standing_permission.resolve_ambiguous";
 
-export interface PrismaStoreGrantAdministrationOptions<
-	TTransaction extends PrismaGrantAdministrationTransaction,
+export interface DrizzleStoreGrantAdministrationOptions<
+	TTransaction extends DrizzleGrantAdministrationTransaction,
 > {
 	createId?:
 		| ((
@@ -436,7 +436,7 @@ function databaseDate(value: unknown): Date {
 	return parsed;
 }
 
-async function databaseNow<T extends PrismaGrantAdministrationTransaction>(
+async function databaseNow<T extends DrizzleGrantAdministrationTransaction>(
 	transaction: T,
 ): Promise<Date> {
 	const rows = await transaction.$queryRawUnsafe<Array<{ now: Date | string }>>(
@@ -477,11 +477,11 @@ const lockedChangeSetQuery = `SELECT jsonb_build_object(
 ) AS "changeSet" FROM "ChangeSet" c WHERE c."id" = $1 FOR UPDATE`;
 
 /** Durable, Store-plane grant lifecycle administration behind one interface. */
-export function createPrismaStoreGrantAdministration<
-	TTransaction extends PrismaGrantAdministrationTransaction,
+export function createDrizzleStoreGrantAdministration<
+	TTransaction extends DrizzleGrantAdministrationTransaction,
 >(
-	client: PrismaGrantAdministrationClient<TTransaction>,
-	options: PrismaStoreGrantAdministrationOptions<TTransaction>,
+	client: DrizzleGrantAdministrationClient<TTransaction>,
+	options: DrizzleStoreGrantAdministrationOptions<TTransaction>,
 ): StoreGrantAdministration {
 	const createId =
 		options.createId ??

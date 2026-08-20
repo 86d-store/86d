@@ -4,12 +4,21 @@
  */
 
 import type { Primitive } from "@86d-app/core/types/helper";
+import type { Module } from "@86d-app/core/types/module";
+import { CompiledModuleDataService } from "@86d-app/runtime/compiled-module-data-service";
+import {
+	applyCompiledModuleSchema,
+	type CompiledSchemaBundle,
+	compiledForModule,
+	compileInstalledModules,
+} from "@86d-app/runtime/compiled-schema-boot";
 import { ModuleRegistry } from "@86d-app/runtime/registry";
-import { UniversalDataService } from "@86d-app/runtime/universal-data-service";
 import { getStoreConfig } from "@86d-app/sdk/get-store-config";
 import { loadFromTemplate } from "@86d-app/sdk/load-from-template";
 import type { Config } from "@86d-app/sdk/types";
-import { db, Prisma } from "db";
+import { db, getPool } from "db";
+import { module } from "db/schema";
+import { and, eq } from "drizzle-orm";
 import env from "env";
 import { logger } from "utils/logger";
 import { modules } from "../generated/api";
@@ -41,31 +50,47 @@ let registry: ModuleRegistry | null = null;
 let bootPromise: Promise<void> | null = null;
 let subscribersRegistered = false;
 let storeOwnedConfig: Config | null = null;
+let compiledSchema: CompiledSchemaBundle | null = null;
+let compiledSchemaApplied = false;
 
-/**
- * One owner-scoped data service per booted Module.
- *
- * `moduleId` is the logical Module package ID and carries durable-event source
- * identity; `moduleDbId` is the persisted `Module` row UUID used for
- * owner-scoped foreign keys. Passing the UUID as the logical ID breaks the
- * durable-event ownership guard and violates the outbox foreign key, so both
- * are forwarded explicitly.
- */
-const moduleDataServices = new Map<string, UniversalDataService>();
+const moduleDataServices = new Map<string, CompiledModuleDataService>();
+
+async function ensureCompiledSchema(): Promise<CompiledSchemaBundle> {
+	if (!compiledSchema) {
+		compiledSchema = compileInstalledModules(modules as Module[]);
+	}
+	if (!compiledSchemaApplied) {
+		const pool = getPool();
+		await applyCompiledModuleSchema(
+			{
+				exec: async (statement) => {
+					await pool.query(statement);
+				},
+			},
+			compiledSchema,
+		);
+		compiledSchemaApplied = true;
+	}
+	return compiledSchema;
+}
 
 function moduleDataService(params: {
 	storeId: string;
 	moduleId: string;
 	moduleDbId: string;
-}): UniversalDataService {
+}): CompiledModuleDataService {
+	if (!compiledSchema) {
+		throw new Error("Compiled Module schema is not ready.");
+	}
 	const key = `${params.storeId}${params.moduleId}${params.moduleDbId}`;
 	const existing = moduleDataServices.get(key);
 	if (existing) return existing;
-	const created = new UniversalDataService({
+	const created = new CompiledModuleDataService({
 		db,
 		storeId: params.storeId,
 		moduleId: params.moduleId,
 		moduleDbId: params.moduleDbId,
+		compiled: compiledForModule(compiledSchema, params.moduleId),
 	});
 	moduleDataServices.set(key, created);
 	return created;
@@ -101,8 +126,6 @@ function getRegistry(): ModuleRegistry {
 		throw new Error("STORE_ID not configured");
 	}
 	if (!registry) {
-		// Module options are Store-owned runtime configuration. Managed and legacy
-		// Control Plane responses cannot change Module behavior at this seam.
 		const platformOptions = getStoreOwnedModuleOptions();
 
 		registry = new ModuleRegistry(
@@ -111,34 +134,43 @@ function getRegistry(): ModuleRegistry {
 			{
 				resolveStoreId: async (id) => id,
 				upsertModuleRecord: async (params) => {
-					const record = await db.module.upsert({
-						where: {
-							storeId_name: {
-								storeId: params.storeId,
-								name: params.moduleId,
-							},
-						},
-						create: {
-							name: params.moduleId,
-							version: params.version,
-							storeId: params.storeId,
-							// Write factory defaults on first creation only. User-configured
-							// settings (saved via the dashboard) must not be overwritten on
-							// subsequent boots — only the version is updated on UPDATE.
-							settings: params.options
-								? JSON.stringify(params.options)
-								: Prisma.JsonNull,
-						},
-						update: {
-							version: params.version,
-						},
+					const existing = await db
+						.select({ id: module.id })
+						.from(module)
+						.where(
+							and(
+								eq(module.storeId, params.storeId),
+								eq(module.name, params.moduleId),
+							),
+						)
+						.limit(1);
+					if (existing[0]) {
+						await db
+							.update(module)
+							.set({ version: params.version })
+							.where(eq(module.id, existing[0].id));
+						return existing[0].id;
+					}
+					const id = crypto.randomUUID();
+					const cuid = `m${id.replace(/-/g, "").slice(0, 29)}`;
+					await db.insert(module).values({
+						id,
+						cuid,
+						name: params.moduleId,
+						version: params.version,
+						storeId: params.storeId,
+						settings: params.options ?? null,
 					});
-					return record.id;
+					return id;
 				},
 				createDataService: (params) => moduleDataService(params),
-				// The same owner-scoped service is the transaction runner, so state
-				// and its durable events commit through one database transaction.
 				createTransactionRunner: (params) => moduleDataService(params),
+				createCoreMoneyWriter: () => ({
+					write: async (input) => {
+						const { writeCoreMoney } = await import("db");
+						await writeCoreMoney(db, input);
+					},
+				}),
 			},
 			platformOptions,
 		);
@@ -147,6 +179,7 @@ function getRegistry(): ModuleRegistry {
 }
 
 export async function ensureBooted(): Promise<ModuleRegistry> {
+	await ensureCompiledSchema();
 	const reg = getRegistry();
 	if (reg.isReady()) {
 		return reg;
@@ -164,7 +197,6 @@ export async function ensureBooted(): Promise<ModuleRegistry> {
 	if (!subscribersRegistered) {
 		const bus = reg.getEventBus();
 		if (bus) {
-			// Email notifications
 			if (!process.env.RESEND_API_KEY) {
 				logger.debug("Email notifications disabled (RESEND_API_KEY not set)");
 			} else {
@@ -190,8 +222,6 @@ export async function ensureBooted(): Promise<ModuleRegistry> {
 					let enabledEvents: Set<string> | undefined;
 
 					if (storeId) {
-						// The workload identity names the Store; a caller-supplied id
-						// would let a request choose whose configuration it reads.
 						const config = await getStoreConfig({
 							templatePath: resolveTemplatePath(),
 						});
@@ -234,7 +264,6 @@ export async function ensureBooted(): Promise<ModuleRegistry> {
 				}
 			}
 
-			// Webhook delivery
 			try {
 				const storeId = env.STORE_ID;
 				if (storeId) {

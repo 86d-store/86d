@@ -14,9 +14,31 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("db", () => ({
 	db: {
-		module: { upsert: vi.fn() },
+		select: vi.fn(() => ({
+			from: vi.fn(() => ({
+				where: vi.fn(() => ({
+					limit: vi.fn().mockResolvedValue([]),
+				})),
+			})),
+		})),
+		insert: vi.fn(() => ({
+			values: vi.fn().mockResolvedValue(undefined),
+		})),
+		update: vi.fn(() => ({
+			set: vi.fn(() => ({
+				where: vi.fn().mockResolvedValue(undefined),
+			})),
+		})),
 	},
-	Prisma: { JsonNull: null },
+	module: { id: "id", storeId: "storeId", name: "name" },
+	getPool: vi.fn(),
+	writeCoreMoney: vi.fn(),
+}));
+
+vi.mock("@86d-app/runtime/compiled-schema-boot", () => ({
+	compileInstalledModules: vi.fn(() => ({ compiled: [], sql: "" })),
+	compiledForModule: vi.fn(() => []),
+	applyCompiledModuleSchema: vi.fn(),
 }));
 
 vi.mock("env", () => ({
@@ -42,8 +64,8 @@ vi.mock("@86d-app/runtime/registry", () => ({
 	),
 }));
 
-vi.mock("@86d-app/runtime/universal-data-service", () => ({
-	UniversalDataService: vi.fn(),
+vi.mock("@86d-app/runtime/compiled-module-data-service", () => ({
+	CompiledModuleDataService: vi.fn(),
 }));
 
 vi.mock("@86d-app/sdk/get-store-config", () => ({

@@ -1,31 +1,18 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { PGlite } from "@electric-sql/pglite";
 import { pgcrypto } from "@electric-sql/pglite/contrib/pgcrypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { applyFrameworkMigrations } from "../schema/apply-disposable-ddl";
 
-const migrationsDirectory = resolve(
-	import.meta.dirname,
-	"../../prisma/migrations",
-);
 let database: PGlite;
 
 beforeAll(async () => {
 	database = new PGlite({ extensions: { pgcrypto } });
-	for (const migration of readdirSync(migrationsDirectory, {
-		withFileTypes: true,
-	})
-		.filter((entry) => entry.isDirectory())
-		.map((entry) => entry.name)
-		.sort()) {
-		await database.exec(
-			readFileSync(
-				resolve(migrationsDirectory, migration, "migration.sql"),
-				"utf8",
-			),
-		);
-	}
-}, 15_000);
+	await applyFrameworkMigrations({
+		exec: async (statement) => {
+			await database.exec(statement);
+		},
+	});
+}, 30_000);
 
 afterAll(async () => {
 	await database.close();

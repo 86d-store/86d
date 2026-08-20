@@ -1,9 +1,17 @@
 import { randomUUID } from "node:crypto";
 import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { toNextJsHandler } from "better-auth/next-js";
 import { admin, genericOAuth } from "better-auth/plugins";
 import { db } from "db";
+import {
+	account,
+	invitation,
+	passkey,
+	session,
+	user,
+	verification,
+} from "db/schema";
 import env from "env";
 
 const apiUrl = env["86D_API_URL"];
@@ -90,7 +98,17 @@ const socialProviders = managedAdminOAuth
 	: [];
 
 export const auth = betterAuth({
-	database: prismaAdapter(db, { provider: "postgresql" }),
+	database: drizzleAdapter(db, {
+		provider: "pg",
+		schema: {
+			user,
+			session,
+			account,
+			verification,
+			passkey,
+			invitation,
+		},
+	}),
 	secret: env.BETTER_AUTH_SECRET,
 	emailAndPassword: { enabled: true },
 	session: {

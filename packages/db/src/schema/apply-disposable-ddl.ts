@@ -1,11 +1,26 @@
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const drizzleDir = join(import.meta.dirname, "../../drizzle");
+function packageRoot(): string {
+	const here =
+		typeof import.meta.dirname === "string"
+			? import.meta.dirname
+			: dirname(fileURLToPath(import.meta.url));
+	return join(here, "../..");
+}
+
+function drizzleDir(): string {
+	return join(packageRoot(), "drizzle");
+}
+
+function initSqlPath(): string {
+	return join(packageRoot(), "../../internals/docker/init.sql");
+}
 
 /** Load Drizzle migration statements split on statement breakpoints. */
 export function loadCoreMigration(name = "0001_core_tables.sql"): string[] {
-	return readFileSync(join(drizzleDir, name), "utf8")
+	return readFileSync(join(drizzleDir(), name), "utf8")
 		.split("--> statement-breakpoint")
 		.map((part) => part.trim())
 		.filter(Boolean);
@@ -68,6 +83,33 @@ export async function applyModuleDdl(
 ): Promise<void> {
 	for (const statement of splitModuleDdlStatements(sql)) {
 		await executor.exec(statement);
+	}
+}
+
+/** Apply ordered framework Drizzle migrations (baseline through current). */
+export async function applyFrameworkMigrations(
+	executor: SqlExecutor,
+): Promise<void> {
+	await executor.exec(readFileSync(initSqlPath(), "utf8"));
+	const migrations = [
+		"0000_baseline.sql",
+		"0001_core_tables.sql",
+		"0002_drop_module_data.sql",
+		"0003_core_money_invariant.sql",
+		"0004_command_grant_integrity.sql",
+		"0005_module_outbox_integrity.sql",
+	];
+	for (const name of migrations) {
+		if (
+			name === "0004_command_grant_integrity.sql" ||
+			name === "0005_module_outbox_integrity.sql"
+		) {
+			await executor.exec(readFileSync(join(drizzleDir(), name), "utf8"));
+			continue;
+		}
+		for (const statement of loadCoreMigration(name)) {
+			await executor.exec(statement);
+		}
 	}
 }
 

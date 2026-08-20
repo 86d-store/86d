@@ -14,7 +14,6 @@ build/
 *.tsbuildinfo
 
 # Generated code
-packages/db/src/prisma/
 apps/store/generated/
 
 # Environment (keep .env.example)

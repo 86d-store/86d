@@ -19,7 +19,7 @@
 
 # DB
 
-Database package for the 86d platform. Provides a singleton Prisma client configured with the PrismaPg adapter for PostgreSQL.
+Database package for the Store Runtime. Provides a lazy Drizzle client over `pg.Pool`, framework + `core.*` schema, migrations, and demo seed.
 
 ## Installation
 
@@ -30,17 +30,11 @@ npm install db
 ## Usage
 
 ```ts
-import { db } from "db";
+import { db, getPool } from "db";
+import { user } from "db/schema";
+import { eq } from "drizzle-orm";
 
-const users = await db.user.findMany();
-```
-
-### Access Prisma utilities
-
-```ts
-import { Prisma } from "db";
-
-type UserCreateInput = Prisma.UserCreateInput;
+const rows = await db.select().from(user).where(eq(user.email, "admin@example.com"));
 ```
 
 ## Configuration
@@ -49,48 +43,24 @@ type UserCreateInput = Prisma.UserCreateInput;
 |---|---|---|
 | `DATABASE_URL` | Yes (runtime) | PostgreSQL connection string |
 
-The client is **lazy-initialized** — it is only created when first accessed at runtime, not at import time. This allows the store app to build without a database. If `DATABASE_URL` is not set when the client is first used, an error is thrown.
+The client is **lazy-initialized** — created on first access, not at import time — so the store app can build without a database. If `DATABASE_URL` is missing when the client is first used, an error is thrown.
 
 ## Schema Management
 
-This package uses a multi-file Prisma schema located in the `prisma/` directory:
-
-| File | Contents |
-|---|---|
-| `schema.prisma` | Datasource and generator configuration |
-| `modules.prisma` | Module data models |
-| `auth.prisma` | Authentication models (better-auth) |
-| `assets.prisma` | Asset and media models |
-| `logs.prisma` | Logging models |
-| `webhooks.prisma` | Webhook models |
-
-### Generate client
+Framework tables and `core.*` live under `src/schema/` and are migrated with Drizzle Kit:
 
 ```sh
-# Run from packages/core/
-bunx prisma generate
+# From packages/db/
+bun run migrate
+
+# From repo root
+bun run db:migrate
 ```
 
-### Run migrations
-
-```sh
-# Run from packages/db/
-bunx prisma migrate dev
-```
-
-## API Reference
-
-### `db`
-
-Lazy-initialized `PrismaClient` proxy. The actual connection is created on first property access. In non-production environments, the client is cached on `globalThis` to survive hot module reloads.
-
-### `Prisma`
-
-Re-exported Prisma namespace providing access to types, enums, and utilities like `Prisma.JsonValue`, `Prisma.sql`, etc.
+Compiled Module tables (`mod_*`) are applied at Store boot from Zod + `col` (or the compiler adapter for Modules not yet rewritten).
 
 ## Notes
 
-- The Prisma client is generated in `packages/core/src/prisma/` (gitignored) and imported via `@86d-app/core/prisma`.
-- Always use the `db` export from this package rather than instantiating `PrismaClient` directly.
-- The seed script (`src/seed.ts`) seeds the luxury-house demo catalog for development and E2E.
+- Prefer `import { db } from "db"` and table imports from `db/schema`.
+- Seed (`src/seed.ts`) loads the luxury-house demo catalog for development and E2E.
 - Run `bun run seed` from this package or `bun run db:seed` from the repo root.

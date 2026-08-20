@@ -30,7 +30,10 @@ describe("disposable DDL apply", () => {
 			"transaction",
 		]);
 
-		const modTables = await db.query<{ schemaname: string; tablename: string }>(
+		const modTables = await db.query<{
+			schemaname: string;
+			tablename: string;
+		}>(
 			`SELECT schemaname, tablename FROM pg_tables
        WHERE schemaname IN ('mod_products', 'mod_cart')
        ORDER BY schemaname, tablename`,
@@ -47,5 +50,5 @@ describe("disposable DDL apply", () => {
 				(row) => row.schemaname === "mod_cart" && row.tablename === "cart",
 			),
 		).toBe(true);
-	});
+	}, 30_000);
 });

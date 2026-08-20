@@ -1,42 +1,38 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-const coreCommandsSchema = readFileSync(
-	new URL("../../prisma/commands.prisma", import.meta.url),
-	"utf8",
-);
-const databaseCommandsSchema = readFileSync(
-	new URL("../../../db/prisma/commands.prisma", import.meta.url),
+const drizzleTables = readFileSync(
+	new URL("../../../db/src/schema/tables.ts", import.meta.url),
 	"utf8",
 );
 const grantIntegrityMigration = readFileSync(
 	new URL(
-		"../../../db/prisma/migrations/20260812090000_command_grant_integrity/migration.sql",
+		"../../../db/drizzle/0004_command_grant_integrity.sql",
 		import.meta.url,
 	),
 	"utf8",
 );
 
 describe("Command grant persistence schema", () => {
-	it("keeps the generated-client and migration-owner schemas identical", () => {
-		expect(coreCommandsSchema).toBe(databaseCommandsSchema);
-	});
-
 	it("models exact review, confirmation, standing, and normalized grant bindings", () => {
-		expect(coreCommandsSchema).toContain("changeSetHashVersion Int");
-		expect(coreCommandsSchema).toMatch(/proposal\s+Json/);
-		expect(coreCommandsSchema).toContain("supersedesChangeSetId String?");
-		expect(coreCommandsSchema).toContain("commandBindingHashVersion Int?");
-		expect(coreCommandsSchema).toMatch(/grantUse\s+Json\?/);
-		expect(coreCommandsSchema).toMatch(/commandName\s+String/);
-		expect(coreCommandsSchema).toContain("bindingHashVersion Int");
-		expect(coreCommandsSchema).toContain("grantorType String");
-		expect(coreCommandsSchema).toMatch(/commandExecutionId\s+String/);
-		expect(coreCommandsSchema).toContain(
-			'@@unique([commandExecutionId], map: "StandingPermissionUseReservation_commandExecutionId_key")',
+		expect(drizzleTables).toContain("changeSetHashVersion");
+		expect(drizzleTables).toContain("proposal: jsonb()");
+		expect(drizzleTables).toContain("supersedesChangeSetId");
+		expect(drizzleTables).toContain("commandBindingHashVersion");
+		expect(drizzleTables).toContain("grantUse: jsonb()");
+		expect(drizzleTables).toContain("commandName: varchar({ length: 200 })");
+		expect(drizzleTables).toContain("bindingHashVersion");
+		expect(drizzleTables).toContain("grantorType");
+		expect(drizzleTables).toContain("commandExecutionId");
+		expect(drizzleTables).toContain(
+			'"StandingPermissionUseReservation_commandExecutionId_key"',
 		);
-		expect(coreCommandsSchema).toMatch(/approvalId\s+String\?\s+@unique/);
-		expect(coreCommandsSchema).not.toContain("@@index([approvalId])");
+		expect(drizzleTables).toContain(
+			'uniqueIndex("CommandExecution_approvalId_key")',
+		);
+		expect(drizzleTables).not.toMatch(
+			/index\("Approval_approvalId_idx"\)|@@index\(\[approvalId\]\)/,
+		);
 	});
 
 	it("installs database enforcement for immutable grants and atomic reservations", () => {
@@ -75,7 +71,7 @@ describe("Command grant persistence schema", () => {
 			"A Business Command requires a Business-global StandingPermission",
 		);
 		expect(grantIntegrityMigration).toContain(
-			'CREATE UNIQUE INDEX "StandingPermissionUseReservation_commandExecutionId_key"',
+			'CREATE FUNCTION "validate_command_grant_use"',
 		);
 		expect(grantIntegrityMigration).toContain(
 			'UPDATE "Approval" SET "invalidatedAt" = CURRENT_TIMESTAMP',

@@ -22,7 +22,7 @@ interface ClaimedDelivery {
 }
 
 interface DispatcherConfig {
-	// biome-ignore lint/suspicious/noExplicitAny: generated Prisma client is kept behind this adapter
+	// biome-ignore lint/suspicious/noExplicitAny: persistence client is kept behind this adapter
 	db: any;
 	storeId: string;
 	consumers: readonly AnyDurableEventConsumer[];
@@ -241,7 +241,7 @@ export class DurableEventDispatcher {
 
 		try {
 			const outcome = await this.config.db.$transaction(
-				// biome-ignore lint/suspicious/noExplicitAny: generated Prisma transaction is adapter-private
+				// biome-ignore lint/suspicious/noExplicitAny: transaction client is adapter-private
 				async (transaction: any) => {
 					const fenced = (await transaction.$queryRawUnsafe(
 						`SELECT "consumer", "eventId", "leaseToken", "leaseOwner", "state"

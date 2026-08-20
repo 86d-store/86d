@@ -2,13 +2,13 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	queryRaw: vi.fn(),
+	execute: vi.fn(),
 	healthCheck: vi.fn(),
 	rateLimitCheck: vi.fn().mockReturnValue({ allowed: true, resetAt: 0 }),
 }));
 
 vi.mock("db", () => ({
-	db: { $queryRaw: mocks.queryRaw },
+	db: { execute: mocks.execute },
 }));
 
 vi.mock("~/lib/storage", () => ({
@@ -29,13 +29,13 @@ const { GET } = await import("../route");
 
 describe("GET /api/health", () => {
 	beforeEach(() => {
-		mocks.queryRaw.mockReset();
+		mocks.execute.mockReset();
 		mocks.healthCheck.mockReset();
 		mocks.rateLimitCheck.mockReturnValue({ allowed: true, resetAt: 0 });
 	});
 
 	it("returns 200 and healthy status when DB and storage are up", async () => {
-		mocks.queryRaw.mockResolvedValue([{ "?column?": 1 }]);
+		mocks.execute.mockResolvedValue([{ "?column?": 1 }]);
 		mocks.healthCheck.mockResolvedValue(true);
 
 		const response = await GET(makeRequest());
@@ -50,7 +50,7 @@ describe("GET /api/health", () => {
 	});
 
 	it("returns 200 and degraded status when storage is down but DB is up", async () => {
-		mocks.queryRaw.mockResolvedValue([{ "?column?": 1 }]);
+		mocks.execute.mockResolvedValue([{ "?column?": 1 }]);
 		mocks.healthCheck.mockResolvedValue(false);
 
 		const response = await GET(makeRequest());
@@ -63,7 +63,7 @@ describe("GET /api/health", () => {
 	});
 
 	it("returns 503 and unhealthy status when DB is down", async () => {
-		mocks.queryRaw.mockRejectedValue(new Error("Connection refused"));
+		mocks.execute.mockRejectedValue(new Error("Connection refused"));
 		mocks.healthCheck.mockResolvedValue(true);
 
 		const response = await GET(makeRequest());
@@ -75,7 +75,7 @@ describe("GET /api/health", () => {
 	});
 
 	it("returns 503 when both DB and storage are down", async () => {
-		mocks.queryRaw.mockRejectedValue(new Error("DB down"));
+		mocks.execute.mockRejectedValue(new Error("DB down"));
 		mocks.healthCheck.mockRejectedValue(new Error("Storage down"));
 
 		const response = await GET(makeRequest());
@@ -88,7 +88,7 @@ describe("GET /api/health", () => {
 	});
 
 	it("returns 200 degraded when storage throws (non-critical)", async () => {
-		mocks.queryRaw.mockResolvedValue([{ "?column?": 1 }]);
+		mocks.execute.mockResolvedValue([{ "?column?": 1 }]);
 		mocks.healthCheck.mockRejectedValue(new Error("Storage unavailable"));
 
 		const response = await GET(makeRequest());
@@ -100,7 +100,7 @@ describe("GET /api/health", () => {
 	});
 
 	it("includes an ISO timestamp in the response", async () => {
-		mocks.queryRaw.mockResolvedValue([]);
+		mocks.execute.mockResolvedValue([]);
 		mocks.healthCheck.mockResolvedValue(true);
 
 		const response = await GET(makeRequest());

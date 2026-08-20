@@ -1,4 +1,7 @@
-import type { ModuleDataService } from "@86d-app/core/types/module";
+import type {
+	ModuleContext,
+	ModuleDataService,
+} from "@86d-app/core/types/module";
 import type {
 	AddNoteParams,
 	CreateOrderParams,
@@ -86,7 +89,9 @@ function inferTrackingUrl(
 
 export function createOrderController(
 	data: ModuleDataService,
+	options?: { coreMoney?: ModuleContext["coreMoney"] },
 ): OrderController {
+	const coreMoney = options?.coreMoney;
 	async function recordAttribution(
 		order: Order,
 		input: {
@@ -292,6 +297,39 @@ export function createOrderController(
 					addr.id,
 					addr as Record<string, unknown>,
 				);
+			}
+
+			if (!existing && coreMoney) {
+				const partyId =
+					order.customerId &&
+					/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+						order.customerId,
+					)
+						? order.customerId
+						: id;
+				await coreMoney.write({
+					party: {
+						id: partyId,
+						kind: "person",
+						email: order.guestEmail ?? null,
+					},
+					subject: {
+						id,
+						kind: "order",
+						ownerModule: "orders",
+						partyId,
+						currency: order.currency,
+						expectedMinor: order.total,
+						settleState: "open",
+					},
+					transaction: {
+						id,
+						subjectId: id,
+						authorizedMinor: order.total,
+						capturedMinor: 0,
+						refundedMinor: 0,
+					},
+				});
 			}
 
 			return existing ?? order;

@@ -68,7 +68,7 @@ packages/
 templates/
   brisa/             Default store template
 internals/           Repo tooling (generators, registry, CI actions)
-packages/db/         Prisma client + demo seed
+packages/db/         Drizzle client + demo seed
 ```
 
 ## CLI

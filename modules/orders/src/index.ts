@@ -127,7 +127,9 @@ export default function orders(options?: OrdersOptions): Module {
 		},
 
 		init: async (ctx: ModuleContext) => {
-			const controller = createOrderController(ctx.data);
+			const controller = createOrderController(ctx.data, {
+				coreMoney: ctx.coreMoney,
+			});
 
 			return {
 				controllers: { order: controller },

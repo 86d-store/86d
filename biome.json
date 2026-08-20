@@ -168,8 +168,6 @@
 			"!**/.next",
 			"!**/.cache",
 			"!**/node_modules",
-			"!**/src/prisma",
-			"!**/src/prisma-edge",
 			"!**/e2e/.results",
 			"!**/e2e/.auth",
 			"!apps/registry/registry.json",

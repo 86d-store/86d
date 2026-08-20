@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// ── Hoisted mocks ─────────────────────────────────────────────────────────────
-
-const mockModuleUpsert = vi.hoisted(() => vi.fn());
 const capturedRegistryConfig = vi.hoisted(
 	() => ({ value: undefined }) as { value: RegistryConfig | undefined },
 );
@@ -11,8 +8,26 @@ const dataServiceConstructions = vi.hoisted(
 );
 
 vi.mock("db", () => ({
-	db: { module: { upsert: mockModuleUpsert } },
-	Prisma: { JsonNull: null },
+	db: {
+		select: vi.fn(() => ({
+			from: vi.fn(() => ({
+				where: vi.fn(() => ({
+					limit: vi.fn().mockResolvedValue([]),
+				})),
+			})),
+		})),
+		insert: vi.fn(() => ({
+			values: vi.fn().mockResolvedValue(undefined),
+		})),
+		update: vi.fn(() => ({
+			set: vi.fn(() => ({
+				where: vi.fn().mockResolvedValue(undefined),
+			})),
+		})),
+	},
+	module: { id: "id", storeId: "storeId", name: "name" },
+	getPool: vi.fn(),
+	writeCoreMoney: vi.fn(),
 }));
 
 vi.mock("env", () => ({
@@ -46,8 +61,8 @@ vi.mock("@86d-app/runtime/registry", () => ({
 	},
 }));
 
-vi.mock("@86d-app/runtime/universal-data-service", () => ({
-	UniversalDataService: class {
+vi.mock("@86d-app/runtime/compiled-module-data-service", () => ({
+	CompiledModuleDataService: class {
 		readonly config: Record<string, unknown>;
 		constructor(config: Record<string, unknown>) {
 			this.config = config;
@@ -57,6 +72,12 @@ vi.mock("@86d-app/runtime/universal-data-service", () => ({
 			return undefined;
 		}
 	},
+}));
+
+vi.mock("@86d-app/runtime/compiled-schema-boot", () => ({
+	compileInstalledModules: vi.fn(() => ({ compiled: [], sql: "" })),
+	compiledForModule: vi.fn(() => []),
+	applyCompiledModuleSchema: vi.fn(),
 }));
 
 vi.mock("@86d-app/sdk/get-store-config", () => ({
@@ -71,8 +92,6 @@ vi.mock("~/lib/template-path", () => ({
 	resolveTemplatePath: vi.fn().mockReturnValue("/templates/brisa"),
 }));
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 type ModuleIdentity = {
 	storeId: string;
 	moduleId: string;
@@ -83,8 +102,6 @@ type RegistryConfig = {
 	createDataService: (params: ModuleIdentity) => unknown;
 	createTransactionRunner?: (params: ModuleIdentity) => unknown;
 };
-
-// ── Import under test ─────────────────────────────────────────────────────────
 
 import { ensureBooted } from "../api-registry";
 
@@ -101,7 +118,6 @@ async function registryConfig(): Promise<RegistryConfig> {
 describe("Module data identity", () => {
 	beforeEach(() => {
 		dataServiceConstructions.length = 0;
-		mockModuleUpsert.mockResolvedValue({ id: MODULE_DB_ID });
 	});
 
 	it("gives the data service the logical Module ID, not the persisted UUID", async () => {
@@ -133,8 +149,6 @@ describe("Module data identity", () => {
 		const data = config.createDataService(identity);
 		const runner = config.createTransactionRunner?.(identity);
 
-		// One owner-scoped service backs both seams, so owner state and its
-		// durable events commit through a single database transaction.
 		expect(runner).toBe(data);
 		expect(dataServiceConstructions).toHaveLength(1);
 		expect(dataServiceConstructions[0]).toMatchObject(identity);

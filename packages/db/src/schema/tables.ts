@@ -908,67 +908,6 @@ export const standingPermission = pgTable(
 	],
 );
 
-export const moduleData = pgTable(
-	"ModuleData",
-	{
-		id: uuid().primaryKey().notNull(),
-		cuid: varchar({ length: 30 }).notNull(),
-		entityType: varchar({ length: 100 }).notNull(),
-		entityId: varchar({ length: 255 }).notNull(),
-		data: jsonb(),
-		createdAt: timestamp({ precision: 3, mode: "string" })
-			.default(sql`CURRENT_TIMESTAMP`)
-			.notNull(),
-		updatedAt: timestamp({ precision: 3, mode: "string" })
-			.default(sql`CURRENT_TIMESTAMP`)
-			.notNull(),
-		moduleId: uuid().notNull(),
-		parentId: uuid(),
-	},
-	(table) => [
-		uniqueIndex("ModuleData_cuid_key").using(
-			"btree",
-			table.cuid.asc().nullsLast(),
-		),
-		index("ModuleData_entityType_entityId_idx").using(
-			"btree",
-			table.entityType.asc().nullsLast(),
-			table.entityId.asc().nullsLast(),
-		),
-		uniqueIndex("ModuleData_id_key").using("btree", table.id.asc().nullsLast()),
-		uniqueIndex("ModuleData_moduleId_entityType_entityId_key").using(
-			"btree",
-			table.moduleId.asc().nullsLast(),
-			table.entityType.asc().nullsLast(),
-			table.entityId.asc().nullsLast(),
-		),
-		index("ModuleData_moduleId_entityType_idx").using(
-			"btree",
-			table.moduleId.asc().nullsLast(),
-			table.entityType.asc().nullsLast(),
-		),
-		index("ModuleData_moduleId_parentId_idx").using(
-			"btree",
-			table.moduleId.asc().nullsLast(),
-			table.parentId.asc().nullsLast(),
-		),
-		foreignKey({
-			columns: [table.moduleId],
-			foreignColumns: [module.id],
-			name: "ModuleData_moduleId_fkey",
-		})
-			.onUpdate("cascade")
-			.onDelete("cascade"),
-		foreignKey({
-			columns: [table.parentId],
-			foreignColumns: [table.id],
-			name: "ModuleData_parentId_fkey",
-		})
-			.onUpdate("cascade")
-			.onDelete("cascade"),
-	],
-);
-
 export const file = pgTable(
 	"File",
 	{

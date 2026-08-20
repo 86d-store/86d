@@ -150,7 +150,9 @@ export default function payments(options?: PaymentsOptions): Module {
 		},
 		durableEvents: { emits: [paymentTransitionConfirmedV1] },
 		init: async (ctx: ModuleContext) => {
-			const controller = createPaymentController(ctx.data, options?.provider);
+			const controller = createPaymentController(ctx.data, options?.provider, {
+				coreMoney: ctx.coreMoney,
+			});
 			const aggregates = createPaymentAggregateStore(
 				ctx.data,
 				ctx.transactions,

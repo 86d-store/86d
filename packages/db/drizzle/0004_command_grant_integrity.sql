@@ -1,82 +1,8 @@
 BEGIN;
 
--- M1C establishes exact, immutable grant bindings for Store Runtime Commands.
--- The new review/challenge/grant facts cannot be inferred from legacy rows.
--- Fail closed instead of manufacturing authority if those artifacts already exist.
--- Keep preflight and enforcement DDL on one stable snapshot. Reads remain
--- available while authority writes wait, closing the legacy-insert race.
+-- Grant binding enforcement (functions, checks, triggers). Table columns live in 0000_baseline.
 LOCK TABLE "CommandExecution", "Approval", "Confirmation", "ChangeSet", "StandingPermission", "StandingPermissionUseReservation" IN SHARE ROW EXCLUSIVE MODE;
 
-DO $$
-BEGIN
-    IF EXISTS (SELECT 1 FROM "ChangeSet" LIMIT 1)
-        OR EXISTS (SELECT 1 FROM "Approval" LIMIT 1)
-        OR EXISTS (SELECT 1 FROM "Confirmation" LIMIT 1)
-        OR EXISTS (SELECT 1 FROM "StandingPermission" LIMIT 1)
-        OR EXISTS (SELECT 1 FROM "StandingPermissionUseReservation" LIMIT 1)
-    THEN
-        RAISE EXCEPTION 'Cannot add M1C grant bindings: existing grant artifacts require explicit review and migration';
-    END IF;
-
-    IF EXISTS (
-        SELECT 1
-        FROM "CommandExecution"
-        WHERE "actionLevel" <> 'automatic'
-        LIMIT 1
-    ) THEN
-        RAISE EXCEPTION 'Cannot add M1C grant bindings: existing non-automatic Command executions require explicit review and migration';
-    END IF;
-END $$;
-
-ALTER TABLE "CommandExecution"
-    ADD COLUMN "requestDigestVersion" INTEGER NOT NULL DEFAULT 1,
-    ADD COLUMN "commandBindingHashVersion" INTEGER,
-    ADD COLUMN "commandBindingHash" CHAR(64),
-    ADD COLUMN "grantUse" JSONB;
-
-UPDATE "CommandExecution"
-SET "grantUse" = '{"kind":"automatic"}'::jsonb
-WHERE "actionLevel" = 'automatic';
-
-ALTER TABLE "ChangeSet"
-    ADD COLUMN "changeSetHashVersion" INTEGER NOT NULL DEFAULT 1,
-    ADD COLUMN "proposal" JSONB NOT NULL,
-    ADD COLUMN "supersedesChangeSetId" VARCHAR(255);
-
-ALTER TABLE "Confirmation"
-    ADD COLUMN "commandName" VARCHAR(200) NOT NULL,
-    ADD COLUMN "commandVersion" INTEGER NOT NULL,
-    ADD COLUMN "bindingHashVersion" INTEGER NOT NULL;
-
-ALTER TABLE "StandingPermission"
-    ADD COLUMN "grantorType" VARCHAR(64) NOT NULL,
-    ADD COLUMN "grantorId" VARCHAR(255) NOT NULL,
-    ADD COLUMN "grantor" JSONB NOT NULL;
-
-ALTER TABLE "StandingPermissionUseReservation"
-    ALTER COLUMN "amount" DROP NOT NULL,
-    ALTER COLUMN "currency" DROP NOT NULL;
-
-ALTER TABLE "ChangeSet"
-    ADD CONSTRAINT "ChangeSet_supersedesChangeSetId_fkey"
-    FOREIGN KEY ("supersedesChangeSetId") REFERENCES "ChangeSet"("id")
-    ON DELETE RESTRICT ON UPDATE CASCADE;
-
-CREATE INDEX "ChangeSet_supersedesChangeSetId_idx"
-    ON "ChangeSet"("supersedesChangeSetId");
-
-DROP INDEX "CommandExecution_approvalId_idx";
-CREATE UNIQUE INDEX "CommandExecution_approvalId_key"
-    ON "CommandExecution"("approvalId");
-
-DROP INDEX "StandingPermissionUseReservation_permission_execution_key";
-DROP INDEX "StandingPermissionUseReservation_commandExecutionId_idx";
-CREATE UNIQUE INDEX "StandingPermissionUseReservation_commandExecutionId_key"
-    ON "StandingPermissionUseReservation"("commandExecutionId");
-
--- Reusable immutable validators keep JSON snapshots aligned with indexed scalar
--- columns. A malformed snapshot must not evade a scalar lookup or bind to a
--- different actor, authority, or target.
 CREATE FUNCTION "command_target_reference_is_valid"(value JSONB) RETURNS BOOLEAN AS $$
 BEGIN
     IF jsonb_typeof(value) IS DISTINCT FROM 'object'
@@ -421,7 +347,7 @@ ALTER TABLE "Confirmation"
         );
 
 ALTER TABLE "StandingPermission"
-    DROP CONSTRAINT "StandingPermission_currency_required_check",
+    DROP CONSTRAINT IF EXISTS "StandingPermission_currency_required_check",
     ADD CONSTRAINT "StandingPermission_grantee_json_check"
         CHECK ("command_actor_reference_matches"("grantee", "granteeType", "granteeId")),
     ADD CONSTRAINT "StandingPermission_grantor_json_check"
@@ -455,8 +381,8 @@ ALTER TABLE "StandingPermission"
 -- Existing M1A checks only required a currency when either financial field was
 -- present. The M1C tuple check above is the complete, stricter invariant.
 ALTER TABLE "StandingPermission"
-    DROP CONSTRAINT "StandingPermission_perOperationAmount_check",
-    DROP CONSTRAINT "StandingPermission_aggregateAmount_check";
+    DROP CONSTRAINT IF EXISTS "StandingPermission_perOperationAmount_check",
+    DROP CONSTRAINT IF EXISTS "StandingPermission_aggregateAmount_check";
 
 ALTER TABLE "StandingPermissionUseReservation"
     ADD CONSTRAINT "StandingPermissionUseReservation_amount_currency_check"

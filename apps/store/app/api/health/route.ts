@@ -1,4 +1,5 @@
 import { db } from "db";
+import { sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { createRateLimiter } from "utils/rate-limit";
 import { getStorage } from "~/lib/storage";
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
 
 	// Database — critical (503 if down)
 	try {
-		await db.$queryRaw`SELECT 1`;
+		await db.execute(sql`SELECT 1`);
 		checks.database = "ok";
 	} catch {
 		checks.database = "error";

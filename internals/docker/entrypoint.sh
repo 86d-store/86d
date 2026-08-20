@@ -27,47 +27,26 @@ if [ -n "$DATABASE_URL" ]; then
   echo "✓ Database is ready"
 fi
 
-# ── Run migrations ────────────────────────────────────────────────────────
-if [ "$SKIP_MIGRATIONS" != "true" ] && [ -d "packages/db/prisma" ]; then
-  echo "→ Running database migrations..."
-  cd packages/db
-  if [ -d "prisma/migrations" ]; then
-    # Migrations carry every model, so deploy is the whole schema story here.
-    deploy_out=$(bunx prisma migrate deploy --schema prisma 2>&1) || deploy_failed=1
-    printf '%s\n' "$deploy_out"
-    if [ -n "${deploy_failed:-}" ]; then
-      # Docker's init.sql creates pgcrypto and nanoid(), so `public` is already
-      # non-empty on the first deploy and Prisma reports P3005. Migration 0 is
-      # that same nanoid function: record it as applied and deploy the rest.
-      # Baseline, never `db push` — db push reconciles a difference by dropping
-      # whatever the schema does not declare, and a store's data is that
-      # difference on every start after the first.
-      if printf '%s' "$deploy_out" | grep -q 'P3005'; then
-        echo "→ Baselining migration 0 (nanoid already present from init.sql)"
-        bunx prisma migrate resolve --applied 0 --schema prisma || {
-          echo "✗ Baseline failed"
-          exit 1
-        }
-        bunx prisma migrate deploy --schema prisma || {
-          echo "✗ Migration failed after baseline"
-          exit 1
-        }
-      else
-        echo "✗ Migration failed"
-        exit 1
-      fi
-    fi
-  else
-    # No migrations directory: a scratch database being built from the models.
-    # This branch never runs from a checkout of this repository, which ships
-    # prisma/migrations, and the Dockerfile copies the directory into the image.
-    echo "→ No migrations found; building schema from models"
-    bunx prisma db push --schema prisma --accept-data-loss 2>&1 || {
-      echo "✗ Schema push failed"
+# ── Run nanoid/pgcrypto bootstrap, then migrations ─────────────────────
+if [ "$SKIP_MIGRATIONS" != "true" ] && [ -d "packages/db/drizzle" ]; then
+  if [ -f "internals/docker/init.sql" ] && [ -n "$DATABASE_URL" ]; then
+    echo "→ Ensuring nanoid() / pgcrypto..."
+    bun -e '
+      import pg from "pg";
+      import { readFileSync } from "node:fs";
+      const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+      await pool.query(readFileSync("internals/docker/init.sql", "utf8"));
+      await pool.end();
+    ' || {
+      echo "✗ Database bootstrap failed"
       exit 1
     }
   fi
-  cd /app
+  echo "→ Running database migrations..."
+  (cd packages/db && bunx drizzle-kit migrate) || {
+    echo "✗ Migration failed"
+    exit 1
+  }
   echo "✓ Migrations complete"
 fi
 

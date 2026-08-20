@@ -1,9 +1,8 @@
 /**
  * Store Runtime database schema.
  *
- * Introspected from the Prisma schema this replaces, so the table, column,
- * index, and constraint names are byte-identical to what is already deployed.
  * Drizzle owns the schema from here; `packages/db` is its only owner.
+ * Framework tables live in `tables.ts`; cross-Module money tables in `core.ts`.
  */
 import {
 	accountRelations,
@@ -15,7 +14,6 @@ import {
 	fileRelations,
 	invitationRelations,
 	logRelations,
-	moduleDataRelations,
 	moduleEventConsumptionRelations,
 	moduleEventDeliveryRelations,
 	moduleEventSequenceRelations,
@@ -43,7 +41,6 @@ import {
 	invitation,
 	log,
 	module,
-	moduleData,
 	moduleEventConsumption,
 	moduleEventDelivery,
 	moduleEventSequence,
@@ -81,8 +78,6 @@ export {
 	log,
 	logRelations,
 	module,
-	moduleData,
-	moduleDataRelations,
 	moduleEventConsumption,
 	moduleEventConsumptionRelations,
 	moduleEventDelivery,

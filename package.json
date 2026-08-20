@@ -24,15 +24,13 @@
 		"postinstall": "bun run generate:modules -- --frozen",
 		"generate:modules": "tsx internals/generators/src/generate-modules.ts",
 		"compile:schema": "tsx internals/generators/src/compile-module-schema.ts",
-		"backfill:report": "dotenv -- tsx internals/generators/src/backfill-report.ts",
-		"money:report": "dotenv -- tsx internals/generators/src/money-report.ts",
 		"generate:registry": "tsx apps/registry/src/generate-manifest.ts",
 		"generate:docs": "tsx internals/generators/src/generate-component-docs.ts",
 		"changeset": "changeset",
 		"version-packages": "changeset version",
 		"release": "turbo run build --filter=./packages/* --filter=./modules/* && changeset publish",
 		"86d": "tsx packages/cli/src/index.ts",
-		"prisma": "cd packages/db && dotenv -e ../../.env -- bun run prisma",
+		"db:migrate": "dotenv -- bun run --filter db migrate",
 		"db:seed": "dotenv -- bun run --filter db seed",
 		"seed:fetch-luxury-assets": "bun run --filter db seed:fetch-luxury-assets",
 		"bump-version": "tsx internals/generators/src/bump-version.ts",
@@ -113,10 +111,6 @@
 		},
 		"node": {
 			"@types/node": "25.9.3"
-		},
-		"prisma": {
-			"@prisma/client": "7.8.0",
-			"prisma": "7.8.0"
 		},
 		"react": {
 			"@types/react": "19.2.14",

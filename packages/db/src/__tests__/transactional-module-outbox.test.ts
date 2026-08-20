@@ -1,32 +1,19 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { PGlite } from "@electric-sql/pglite";
 import { pgcrypto } from "@electric-sql/pglite/contrib/pgcrypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { applyFrameworkMigrations } from "../schema/apply-disposable-ddl";
 
-const migrationsDirectory = resolve(
-	import.meta.dirname,
-	"../../prisma/migrations",
-);
 const moduleId = "11111111-1111-4111-8111-111111111111";
 const storeId = "22222222-2222-4222-8222-222222222222";
 let database: PGlite;
 
 beforeAll(async () => {
 	database = new PGlite({ extensions: { pgcrypto } });
-	for (const migration of readdirSync(migrationsDirectory, {
-		withFileTypes: true,
-	})
-		.filter((entry) => entry.isDirectory())
-		.map((entry) => entry.name)
-		.sort()) {
-		await database.exec(
-			readFileSync(
-				resolve(migrationsDirectory, migration, "migration.sql"),
-				"utf8",
-			),
-		);
-	}
+	await applyFrameworkMigrations({
+		exec: async (statement) => {
+			await database.exec(statement);
+		},
+	});
 
 	await database.query(
 		`INSERT INTO "Module" (
@@ -34,7 +21,7 @@ beforeAll(async () => {
 		) VALUES ($1::uuid, 'outbox-test-module', 'inventory', '1.0.0', $2::uuid, now(), now())`,
 		[moduleId, storeId],
 	);
-}, 15_000);
+}, 30_000);
 
 afterAll(async () => {
 	await database.close();

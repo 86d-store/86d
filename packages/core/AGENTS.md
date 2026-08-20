@@ -13,11 +13,10 @@ src/
   adapters.ts       Adapter pattern definitions
   client/
     index.ts        Auto-generated React hooks from module endpoints
-  types/
-    helper.ts       Utility types
-    module.ts       Module interface, ModuleContext, ModuleDataService
-    schema.ts       ModuleSchema type (Zod-based model definitions)
-  prisma/           Database access helpers
+    types/
+      helper.ts       Utility types
+      module.ts       Module interface, ModuleContext, ModuleDataService
+      schema.ts       ModuleSchema type (Zod-based model definitions)
 ```
 
 ## Key exports
@@ -35,12 +34,12 @@ src/
 ## Isolation boundary
 
 This package defines the sandbox that modules operate within. Modules depend ONLY on `@86d-app/core`:
-- `ModuleDataService` is the sole interface for a module's own data — no Prisma, no direct DB
+- `ModuleDataService` is the sole interface for a module's own data — no direct DB client
 - `ModuleContext` provides everything a module needs at runtime — no env vars, no platform package imports
 - Modules can use `fetch()` for external HTTP requests
 - Module components export as `MDXComponents` for the store's component registry
 
-The runtime (`packages/runtime`) implements these interfaces against the real platform (Prisma, env, etc.), but modules never see that layer.
+The runtime (`packages/runtime`) implements these interfaces against Drizzle and compiled Module tables, but modules never see that layer.
 
 ## Inter-module capabilities
 

@@ -47,11 +47,11 @@ apps/
 modules/             First-party Modules, one directory each (cart, products, orders, checkout, ...)
 packages/
   core/              Module system: isolation boundary, contracts, types, sanitization, test-utils
-  runtime/           Store runtime: ModuleRegistry, UniversalDataService
+  runtime/           Store runtime: ModuleRegistry, CompiledModuleDataService
   cli/               CLI tool (dev, init, module, template, generate, status, doctor)
   registry/          Git-based module registry (resolve, fetch, cache)
   storage/           Storage abstraction (local FS, Vercel Blob, S3-compatible)
-  db/                Prisma client singleton (PrismaPg adapter)
+  db/                Drizzle client singleton (lazy Pool; framework + core schema)
   auth/              Better Auth (sessions, admin role, 86d.app SSO)
   emails/            Email templates: React components sent via the Resend SDK
   env/               Zod env validation (includes STORAGE_CLIENT)
@@ -75,9 +75,9 @@ Package presence, generated registry metadata, or an existing endpoint does not 
 
 ## Module system
 
-Every Module currently exports a factory to a Module object with `id`, `version`, `schema`, `endpoints`, and optional `init`. Modules depend **only** on `@86d-app/core` (one exception: `managed-payments` also depends on `@86d-app/sdk`). All database access goes through `ModuleDataService` provided by the runtime, which today reads and writes JSON `ModuleData`. The target Module contract, storage tiers, and compiled DDL are defined in [`../prd/contexts/store-runtime/module-system.md`](../prd/contexts/store-runtime/module-system.md). Target isolation is Postgres roles and published views, not in-process table prohibition.
+Every Module currently exports a factory to a Module object with `id`, `version`, `schema`, `endpoints`, and optional `init`. Modules depend **only** on `@86d-app/core` (one exception: `managed-payments` also depends on `@86d-app/sdk`). All database access goes through `ModuleDataService` provided by the runtime, which reads and writes compiled Postgres tables under `mod_<moduleId>`. The Module contract, storage tiers, and compiled DDL are defined in [`../prd/contexts/store-runtime/module-system.md`](../prd/contexts/store-runtime/module-system.md). Target isolation is Postgres roles and published views, not in-process table prohibition.
 
-**Storage authority (current):** JSON `ModuleData` is production storage. Compiled `mod_<moduleId>` tables are a **test/dev shadow** only — dual-read compares JSON to shadow in tests; production boot constructs one data service (`UniversalDataService`). Do **not** apply compiled DDL or run backfill against a Store with merchant data.
+**Storage authority:** Drizzle owns framework tables (auth, commands, outbox, files, logs, webhooks) and `core.*`. Boot compiles installed Module schemas (Zod + `col`, or adapter-fed field maps for Modules not yet rewritten) to DDL, applies that schema, and constructs one `ModuleDataService` over those tables. The JSON `ModuleData` path was removed in plan 027.
 
 The target cross-Module boundary uses typed synchronous capability calls for immediate business decisions and a durable transactional outbox with versioned, idempotent events for completed changes. The current `requires` and `exports` contracts and in-memory event behavior are migration state where they do not meet that boundary.
 

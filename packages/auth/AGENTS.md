@@ -1,6 +1,6 @@
 # Auth
 
-Authentication and authorization layer built on better-auth with Prisma adapter and Next.js integration.
+Authentication and authorization layer built on better-auth with Drizzle adapter and Next.js integration.
 
 ## Structure
 
@@ -13,7 +13,7 @@ src/
 
 ## Key exports
 
-- `auth` — better-auth instance configured with Prisma + PostgreSQL, email/password, session cookie cache, admin plugin
+- `auth` — better-auth instance configured with Drizzle + PostgreSQL, email/password, session cookie cache, admin plugin
 - `handler` — `toNextJsHandler(auth)` for use in Next.js API routes
 - `Session` — inferred session type from `auth.$Infer.Session`
 - `getSession()` — server action that reads session from Next.js `headers()`
@@ -30,7 +30,7 @@ src/
 ## Dependencies
 
 - `better-auth` — auth framework
-- `db` (workspace) — Prisma client for database access
+- `db` (workspace) — Drizzle client for database access
 - `env` (workspace) — validated auth secret and managed OAuth configuration
 - `next` (peer, optional) — needed for `actions.ts` server headers
 

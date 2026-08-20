@@ -1,6 +1,4 @@
 import { getStoreConfig } from "@86d-app/sdk/get-store-config";
-import { db } from "db";
-import env from "env";
 import { cache } from "react";
 import { getBaseUrl } from "utils/url";
 import type {
@@ -8,6 +6,7 @@ import type {
 	LlmsCollection,
 	LlmsProduct,
 } from "../../../packages/lib/src/llms-content";
+import { getModuleDataService } from "./module-data-access";
 import { resolveTemplatePath } from "./template-path";
 
 const getStoreConfigCached = cache(async () =>
@@ -76,49 +75,19 @@ interface SitemapEntry {
  * Resolve the products module DB ID for the current store.
  * Cached per request via React `cache()`.
  */
-const getProductsModuleId = cache(async (): Promise<string | null> => {
-	const storeId = env.STORE_ID;
-	if (!storeId) return null;
-
-	try {
-		const mod = await db.module.findFirst({
-			where: {
-				storeId,
-				name: "products",
-			},
-			select: { id: true },
-		});
-		return mod?.id ?? null;
-	} catch {
-		// DB unavailable (e.g. build time without DATABASE_URL)
-		return null;
-	}
-});
+const getProductsData = cache(async () => getModuleDataService("products"));
 
 /**
  * Fetch a single product by slug for metadata generation.
  */
 export const fetchProductForSeo = cache(
 	async (slug: string): Promise<ProductSeo | null> => {
-		const moduleId = await getProductsModuleId();
-		if (!moduleId) return null;
+		const data = await getProductsData();
+		if (!data) return null;
 
-		const row = await db.moduleData.findFirst({
-			where: {
-				moduleId,
-				entityType: "product",
-				data: {
-					path: ["slug"],
-					equals: slug,
-				},
-			},
-			select: { data: true, updatedAt: true },
-		});
-
-		if (!row?.data) return null;
-
-		const d = row.data as JsonData;
-		if (d.status !== "active") return null;
+		const rows = await data.findMany("product", { where: { slug }, take: 1 });
+		const d = rows[0] as JsonData | undefined;
+		if (d?.status !== "active") return null;
 
 		return {
 			name: (d.name as string) ?? "",
@@ -131,7 +100,10 @@ export const fetchProductForSeo = cache(
 			images: normalizeImages(d.images),
 			status: (d.status as string) ?? "draft",
 			sku: (d.sku as string) ?? null,
-			updatedAt: row.updatedAt.toISOString(),
+			updatedAt:
+				typeof d.updatedAt === "string"
+					? d.updatedAt
+					: new Date().toISOString(),
 		};
 	},
 );
@@ -142,32 +114,25 @@ export const fetchProductForSeo = cache(
  */
 export const fetchCollectionForSeo = cache(
 	async (slug: string): Promise<CollectionSeo | null> => {
-		const moduleId = await getProductsModuleId();
-		if (!moduleId) return null;
+		const data = await getProductsData();
+		if (!data) return null;
 
-		const row = await db.moduleData.findFirst({
-			where: {
-				moduleId,
-				entityType: "collection",
-				data: {
-					path: ["slug"],
-					equals: slug,
-				},
-			},
-			select: { data: true, updatedAt: true },
+		const rows = await data.findMany("collection", {
+			where: { slug },
+			take: 1,
 		});
-
-		if (!row?.data) return null;
-
-		const d = row.data as JsonData;
-		if (d.isVisible === false) return null;
+		const d = rows[0] as JsonData | undefined;
+		if (!d || d.isVisible === false) return null;
 
 		return {
 			name: (d.name as string) ?? "",
 			slug: (d.slug as string) ?? slug,
 			description: (d.description as string) ?? null,
 			image: (d.image as string) ?? null,
-			updatedAt: row.updatedAt.toISOString(),
+			updatedAt:
+				typeof d.updatedAt === "string"
+					? d.updatedAt
+					: new Date().toISOString(),
 		};
 	},
 );
@@ -176,55 +141,30 @@ export const fetchCollectionForSeo = cache(
  * Resolve a module's DB ID for the current store by module name.
  * Cached per request via React `cache()`.
  */
-const getModuleIdByName = cache(
-	async (moduleName: string): Promise<string | null> => {
-		const storeId = env.STORE_ID;
-		if (!storeId) return null;
-
-		try {
-			const mod = await db.module.findFirst({
-				where: {
-					storeId,
-					name: moduleName,
-				},
-				select: { id: true },
-			});
-			return mod?.id ?? null;
-		} catch {
-			// DB unavailable (e.g. build time without DATABASE_URL)
-			return null;
-		}
-	},
+const getNamedModuleData = cache(async (moduleName: string) =>
+	getModuleDataService(moduleName),
 );
 
 /**
  * Fetch all active product slugs + updatedAt for the sitemap.
  */
 export async function fetchProductSlugsForSitemap(): Promise<SitemapEntry[]> {
-	const moduleId = await getProductsModuleId();
-	if (!moduleId) return [];
+	const data = await getProductsData();
+	if (!data) return [];
 
-	const rows = await db.moduleData.findMany({
-		where: {
-			moduleId,
-			entityType: "product",
-			data: {
-				path: ["status"],
-				equals: "active",
-			},
-		},
-		select: { data: true, updatedAt: true },
-	});
+	const rows = await data.findMany("product", { where: { status: "active" } });
 
 	return rows
-		.filter((r) => {
-			const d = r.data as JsonData | null;
-			return d && typeof d.slug === "string";
-		})
-		.map((r) => ({
-			slug: (r.data as JsonData).slug as string,
-			updatedAt: r.updatedAt,
-		}));
+		.filter((r) => typeof (r as JsonData).slug === "string")
+		.map((r) => {
+			const d = r as JsonData;
+			return {
+				slug: d.slug as string,
+				updatedAt: new Date(
+					typeof d.updatedAt === "string" ? d.updatedAt : Date.now(),
+				),
+			};
+		});
 }
 
 /**
@@ -233,30 +173,24 @@ export async function fetchProductSlugsForSitemap(): Promise<SitemapEntry[]> {
 export async function fetchCollectionSlugsForSitemap(): Promise<
 	SitemapEntry[]
 > {
-	const moduleId = await getProductsModuleId();
-	if (!moduleId) return [];
+	const data = await getProductsData();
+	if (!data) return [];
 
-	const rows = await db.moduleData.findMany({
-		where: {
-			moduleId,
-			entityType: "collection",
-			data: {
-				path: ["isVisible"],
-				equals: true,
-			},
-		},
-		select: { data: true, updatedAt: true },
+	const rows = await data.findMany("collection", {
+		where: { isVisible: true },
 	});
 
 	return rows
-		.filter((r) => {
-			const d = r.data as JsonData | null;
-			return d && typeof d.slug === "string";
-		})
-		.map((r) => ({
-			slug: (r.data as JsonData).slug as string,
-			updatedAt: r.updatedAt,
-		}));
+		.filter((r) => typeof (r as JsonData).slug === "string")
+		.map((r) => {
+			const d = r as JsonData;
+			return {
+				slug: d.slug as string,
+				updatedAt: new Date(
+					typeof d.updatedAt === "string" ? d.updatedAt : Date.now(),
+				),
+			};
+		});
 }
 
 /**
@@ -328,25 +262,12 @@ interface BlogPostSeo {
  */
 export const fetchBlogPostForSeo = cache(
 	async (slug: string): Promise<BlogPostSeo | null> => {
-		const moduleId = await getModuleIdByName("blog");
-		if (!moduleId) return null;
+		const data = await getNamedModuleData("blog");
+		if (!data) return null;
 
-		const row = await db.moduleData.findFirst({
-			where: {
-				moduleId,
-				entityType: "post",
-				data: {
-					path: ["slug"],
-					equals: slug,
-				},
-			},
-			select: { data: true, updatedAt: true },
-		});
-
-		if (!row?.data) return null;
-
-		const d = row.data as JsonData;
-		if (d.status !== "published") return null;
+		const posts = await data.findMany("post", { where: { slug }, take: 1 });
+		const d = posts[0] as JsonData | undefined;
+		if (d?.status !== "published") return null;
 
 		return {
 			title: (d.title as string) ?? "",
@@ -355,7 +276,10 @@ export const fetchBlogPostForSeo = cache(
 			coverImage: (d.coverImage as string) ?? null,
 			author: (d.author as string) ?? null,
 			category: (d.category as string) ?? null,
-			updatedAt: row.updatedAt.toISOString(),
+			updatedAt:
+				typeof d.updatedAt === "string"
+					? d.updatedAt
+					: new Date().toISOString(),
 		};
 	},
 );
@@ -364,63 +288,52 @@ export const fetchBlogPostForSeo = cache(
  * Fetch all published blog post slugs + updatedAt for the sitemap.
  */
 export async function fetchBlogPostSlugsForSitemap(): Promise<SitemapEntry[]> {
-	const moduleId = await getModuleIdByName("blog");
-	if (!moduleId) return [];
+	const data = await getNamedModuleData("blog");
+	if (!data) return [];
 
-	const rows = await db.moduleData.findMany({
-		where: {
-			moduleId,
-			entityType: "post",
-			data: {
-				path: ["status"],
-				equals: "published",
-			},
-		},
-		select: { data: true, updatedAt: true },
-	});
+	const rows = await data.findMany("post", { where: { status: "published" } });
 
 	return rows
-		.filter((r) => {
-			const d = r.data as JsonData | null;
-			return d && typeof d.slug === "string";
-		})
-		.map((r) => ({
-			slug: (r.data as JsonData).slug as string,
-			updatedAt: r.updatedAt,
-		}));
+		.filter((r) => typeof (r as JsonData).slug === "string")
+		.map((r) => {
+			const d = r as JsonData;
+			return {
+				slug: d.slug as string,
+				updatedAt: new Date(
+					typeof d.updatedAt === "string" ? d.updatedAt : Date.now(),
+				),
+			};
+		});
 }
 
 /**
  * Fetch active flash sale slugs for the sitemap.
  */
 export async function fetchFlashSaleSlugsForSitemap(): Promise<SitemapEntry[]> {
-	const moduleId = await getModuleIdByName("flash-sales");
-	if (!moduleId) return [];
+	const data = await getNamedModuleData("flash-sales");
+	if (!data) return [];
 
 	const now = new Date().toISOString();
-	const rows = await db.moduleData.findMany({
-		where: {
-			moduleId,
-			entityType: "flashSale",
-			data: {
-				path: ["status"],
-				equals: "active",
-			},
-		},
-		select: { data: true, updatedAt: true },
+	const rows = await data.findMany("flashSale", {
+		where: { status: "active" },
 	});
 
 	return rows
 		.filter((r) => {
-			const d = r.data as JsonData | null;
-			if (!d || typeof d.slug !== "string") return false;
+			const d = r as JsonData;
+			if (typeof d.slug !== "string") return false;
 			const endsAt = typeof d.endsAt === "string" ? d.endsAt : null;
 			return !endsAt || endsAt > now;
 		})
-		.map((r) => ({
-			slug: (r.data as JsonData).slug as string,
-			updatedAt: r.updatedAt,
-		}));
+		.map((r) => {
+			const d = r as JsonData;
+			return {
+				slug: d.slug as string,
+				updatedAt: new Date(
+					typeof d.updatedAt === "string" ? d.updatedAt : Date.now(),
+				),
+			};
+		});
 }
 
 /**
@@ -429,29 +342,27 @@ export async function fetchFlashSaleSlugsForSitemap(): Promise<SitemapEntry[]> {
 export async function fetchAuctionIdsForSitemap(): Promise<
 	Array<{ id: string; updatedAt: Date }>
 > {
-	const moduleId = await getModuleIdByName("auctions");
-	if (!moduleId) return [];
+	const data = await getNamedModuleData("auctions");
+	if (!data) return [];
 
 	const now = new Date().toISOString();
-	const rows = await db.moduleData.findMany({
-		where: {
-			moduleId,
-			entityType: "auction",
-			data: {
-				path: ["status"],
-				equals: "active",
-			},
-		},
-		select: { entityId: true, updatedAt: true, data: true },
-	});
+	const rows = await data.findMany("auction", { where: { status: "active" } });
 
 	return rows
 		.filter((r) => {
-			const d = r.data as JsonData | null;
-			const endsAt = d && typeof d.endsAt === "string" ? d.endsAt : null;
+			const d = r as JsonData;
+			const endsAt = typeof d.endsAt === "string" ? d.endsAt : null;
 			return !endsAt || endsAt > now;
 		})
-		.map((r) => ({ id: r.entityId, updatedAt: r.updatedAt }));
+		.map((r) => {
+			const d = r as JsonData;
+			return {
+				id: d.id as string,
+				updatedAt: new Date(
+					typeof d.updatedAt === "string" ? d.updatedAt : Date.now(),
+				),
+			};
+		});
 }
 
 /**
@@ -460,26 +371,27 @@ export async function fetchAuctionIdsForSitemap(): Promise<
 export async function fetchPreorderCampaignIdsForSitemap(): Promise<
 	Array<{ id: string; updatedAt: Date }>
 > {
-	const moduleId = await getModuleIdByName("preorders");
-	if (!moduleId) return [];
+	const data = await getNamedModuleData("preorders");
+	if (!data) return [];
 
 	const now = new Date().toISOString();
-	const rows = await db.moduleData.findMany({
-		where: {
-			moduleId,
-			entityType: "campaign",
-		},
-		select: { entityId: true, updatedAt: true, data: true },
-	});
+	const rows = await data.findMany("campaign", {});
 
 	return rows
 		.filter((r) => {
-			const d = r.data as JsonData | null;
-			if (!d) return false;
+			const d = r as JsonData;
 			const endDate = typeof d.endDate === "string" ? d.endDate : null;
 			return !endDate || endDate > now;
 		})
-		.map((r) => ({ id: r.entityId, updatedAt: r.updatedAt }));
+		.map((r) => {
+			const d = r as JsonData;
+			return {
+				id: d.id as string,
+				updatedAt: new Date(
+					typeof d.updatedAt === "string" ? d.updatedAt : Date.now(),
+				),
+			};
+		});
 }
 
 // ── llms-full.txt content fetchers ──────────────────────────────────────────
@@ -490,27 +402,19 @@ export type { LlmsBlogPost, LlmsCollection, LlmsProduct };
  * Fetch all active products for llms-full.txt.
  */
 export async function fetchProductsForLlms(): Promise<LlmsProduct[]> {
-	const moduleId = await getProductsModuleId();
-	if (!moduleId) return [];
+	const data = await getProductsData();
+	if (!data) return [];
 
-	const rows = await db.moduleData.findMany({
-		where: {
-			moduleId,
-			entityType: "product",
-			data: { path: ["status"], equals: "active" },
-		},
+	const rows = await data.findMany("product", {
+		where: { status: "active" },
 		orderBy: { createdAt: "desc" },
 		take: 500,
-		select: { data: true },
 	});
 
 	return rows
-		.filter((r) => {
-			const d = r.data as JsonData | null;
-			return d && typeof d.slug === "string";
-		})
+		.filter((r) => typeof (r as JsonData).slug === "string")
 		.map((r) => {
-			const d = r.data as JsonData;
+			const d = r as JsonData;
 			return {
 				name: (d.name as string) ?? "",
 				slug: d.slug as string,
@@ -525,27 +429,19 @@ export async function fetchProductsForLlms(): Promise<LlmsProduct[]> {
  * Fetch all visible collections for llms-full.txt.
  */
 export async function fetchCollectionsForLlms(): Promise<LlmsCollection[]> {
-	const moduleId = await getProductsModuleId();
-	if (!moduleId) return [];
+	const data = await getProductsData();
+	if (!data) return [];
 
-	const rows = await db.moduleData.findMany({
-		where: {
-			moduleId,
-			entityType: "collection",
-			data: { path: ["isVisible"], equals: true },
-		},
+	const rows = await data.findMany("collection", {
+		where: { isVisible: true },
 		orderBy: { createdAt: "asc" },
 		take: 200,
-		select: { data: true },
 	});
 
 	return rows
-		.filter((r) => {
-			const d = r.data as JsonData | null;
-			return d && typeof d.slug === "string";
-		})
+		.filter((r) => typeof (r as JsonData).slug === "string")
 		.map((r) => {
-			const d = r.data as JsonData;
+			const d = r as JsonData;
 			return {
 				name: (d.name as string) ?? "",
 				slug: d.slug as string,
@@ -558,27 +454,19 @@ export async function fetchCollectionsForLlms(): Promise<LlmsCollection[]> {
  * Fetch all published blog posts for llms-full.txt.
  */
 export async function fetchBlogPostsForLlms(): Promise<LlmsBlogPost[]> {
-	const moduleId = await getModuleIdByName("blog");
-	if (!moduleId) return [];
+	const data = await getNamedModuleData("blog");
+	if (!data) return [];
 
-	const rows = await db.moduleData.findMany({
-		where: {
-			moduleId,
-			entityType: "post",
-			data: { path: ["status"], equals: "published" },
-		},
+	const rows = await data.findMany("post", {
+		where: { status: "published" },
 		orderBy: { createdAt: "desc" },
 		take: 200,
-		select: { data: true },
 	});
 
 	return rows
-		.filter((r) => {
-			const d = r.data as JsonData | null;
-			return d && typeof d.slug === "string";
-		})
+		.filter((r) => typeof (r as JsonData).slug === "string")
 		.map((r) => {
-			const d = r.data as JsonData;
+			const d = r as JsonData;
 			return {
 				title: (d.title as string) ?? "",
 				slug: d.slug as string,

@@ -1,4 +1,4 @@
-import { db } from "db";
+import { getPool } from "db";
 import { ensureBooted } from "../lib/api-registry";
 import { runDurableEventWorker } from "../lib/durable-event-worker";
 import { drainDurableEventsBatch } from "../lib/durable-events";
@@ -14,12 +14,10 @@ try {
 		drain: () => drainDurableEventsBatch(registry),
 		maxBatches: configuredMaxBatches,
 	});
-
-	console.info(JSON.stringify({ worker: "durable-events", ...result }));
 	if (result.failed > 0 || result.deadLettered > 0) process.exitCode = 1;
 } catch (error) {
 	console.error("Durable event worker failed", error);
 	process.exitCode = 1;
 } finally {
-	await db.$disconnect();
+	await getPool().end();
 }

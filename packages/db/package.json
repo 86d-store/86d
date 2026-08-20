@@ -9,6 +9,10 @@
 			"types": "./src/index.ts",
 			"default": "./src/index.ts"
 		},
+		"./schema": {
+			"types": "./src/schema/index.ts",
+			"default": "./src/schema/index.ts"
+		},
 		"./schema/apply-disposable-ddl": {
 			"types": "./src/schema/apply-disposable-ddl.ts",
 			"default": "./src/schema/apply-disposable-ddl.ts"
@@ -23,6 +27,7 @@
 		"check": "biome check src seed",
 		"check:fix": "biome check --write --unsafe src seed",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"migrate": "drizzle-kit migrate",
 		"seed": "tsx src/seed.ts",
 		"seed:fetch-luxury-assets": "tsx seed/fetch-luxury-stock-assets.ts",
 		"test": "vitest run",
@@ -31,10 +36,8 @@
 	"dependencies": {
 		"@86d-app/core": "workspace:*",
 		"@86d-app/storage": "workspace:*",
-		"@prisma/adapter-pg": "7.8.0",
 		"drizzle-orm": "0.45.2",
-		"pg": "8.21.0",
-		"prisma": "catalog:prisma"
+		"pg": "8.21.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "catalog:",

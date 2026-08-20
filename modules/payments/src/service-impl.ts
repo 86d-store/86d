@@ -1,4 +1,7 @@
-import type { ModuleDataService } from "@86d-app/core/types/module";
+import type {
+	ModuleContext,
+	ModuleDataService,
+} from "@86d-app/core/types/module";
 import type {
 	PaymentController,
 	PaymentIntent,
@@ -11,11 +14,15 @@ import type {
 export function createPaymentController(
 	data: ModuleDataService,
 	provider?: PaymentProvider,
-	options?: { allowOfflineForDevelopment?: boolean | undefined },
+	options?: {
+		allowOfflineForDevelopment?: boolean | undefined;
+		coreMoney?: ModuleContext["coreMoney"];
+	},
 ): PaymentController {
 	const allowOffline =
 		options?.allowOfflineForDevelopment === true &&
 		process.env.NODE_ENV !== "production";
+	const coreMoney = options?.coreMoney;
 	/** Sum of all succeeded refund amounts for an intent. */
 	async function totalRefunded(intentId: string): Promise<number> {
 		const refunds = await data.findMany("refund", {
@@ -114,6 +121,38 @@ export function createPaymentController(
 				id,
 				updated as Record<string, unknown>,
 			);
+			if (newStatus === "succeeded" && coreMoney) {
+				const partyId =
+					intent.customerId &&
+					/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+						intent.customerId,
+					)
+						? intent.customerId
+						: id;
+				await coreMoney.write({
+					party: {
+						id: partyId,
+						kind: "person",
+						email: intent.email ?? null,
+					},
+					subject: {
+						id,
+						kind: "payment",
+						ownerModule: "payments",
+						partyId,
+						currency: intent.currency,
+						expectedMinor: intent.amount,
+						settleState: "settled",
+					},
+					transaction: {
+						id,
+						subjectId: id,
+						authorizedMinor: intent.amount,
+						capturedMinor: intent.amount,
+						refundedMinor: 0,
+					},
+				});
+			}
 			return updated;
 		},
 

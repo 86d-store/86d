@@ -30,7 +30,8 @@ services:
       - "${POSTGRES_PUBLISH_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # nanoid + pgcrypto are created by packages/db/prisma/migrations/0 — do not mount internals/docker/init.sql or Postgres gets duplicate nanoid() overloads and db push fails
+      # nanoid + pgcrypto for schema defaults (CREATE OR REPLACE; safe on fresh volumes)
+      - ./internals/docker/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d 86d"]
       interval: 5s
