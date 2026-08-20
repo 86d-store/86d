@@ -21,7 +21,7 @@ Run `86d doctor` to verify the project is healthy before you make changes.
 
 ## Development loop
 
-Four health gates must pass before a pull request can merge (CI `ci/cd` job, in this order):
+Four health gates must pass before a pull request can merge (CI `ci/cd` job, after commitlint):
 
 ```bash
 bun run check       # Biome lint + format
@@ -30,7 +30,7 @@ bun run test        # Vitest unit tests
 bun run build       # Production build
 ```
 
-Run them locally and fix everything they flag. The same `ci/cd` job also runs on pushes to `main`. Playwright E2E (`bun run test:e2e`) runs in CI only on `main`, not on pull requests.
+Run them locally and fix everything they flag. The same `ci/cd` job also runs on pushes to `main` (commitlint first). Playwright E2E (`bun run test:e2e`) runs in CI only on `main`, not on pull requests.
 
 ## Commit messages
 

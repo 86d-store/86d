@@ -179,14 +179,15 @@ Beta shows one clear warning on first enablement. Experimental requires explicit
 
 PR / `ci/cd` gates (in order; all must exit zero):
 
-1. `bun run check` — one repo-root Biome pass, so `internals/`, `tests/`, `templates/`, and root config files are covered, not just package `src/`
-2. `bun run typecheck`
-3. `bun run test`
-4. `bun run build`
+1. commitlint — Conventional Commits on the PR range or push range
+2. `bun run check` — one repo-root Biome pass, so `internals/`, `tests/`, `templates/`, and root config files are covered, not just package `src/`
+3. `bun run typecheck`
+4. `bun run test`
+5. `bun run build`
 
 `bun run test:e2e` — against an already running, seeded store — runs in CI only on pushes to `main`.
 
-CI (`.github/workflows/ci.yml`) runs `ci/cd` on pull requests, merge queue, and pushes to `main` (`bun check` → typecheck → unit tests → `bun run build` via `internals/github/ci-cd`). Commitlint runs on pull requests and pushes to `main`. E2E (`test:e2e`) runs only on pushes to `main`.
+CI (`.github/workflows/ci.yml`) runs `ci/cd` on pull requests, merge queue, and pushes to `main` (commitlint → `bun check` → typecheck → unit tests → `bun run build` via `internals/github/ci-cd`). E2E (`test:e2e`) runs only on pushes to `main`.
 
 ## Git safety
 

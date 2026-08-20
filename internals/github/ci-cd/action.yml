@@ -1,9 +1,25 @@
 name: ci/cd
-description: Lint, typecheck, unit test, then production build
+description: Commitlint, lint, typecheck, unit test, then production build
 
 runs:
   using: composite
   steps:
+    - name: Validate commit messages (pull request)
+      if: github.event_name == 'pull_request'
+      shell: bash
+      run: bunx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+    - name: Validate commit messages (push)
+      if: github.event_name == 'push'
+      shell: bash
+      run: |
+        before="${{ github.event.before }}"
+        if [ "$before" = "0000000000000000000000000000000000000000" ]; then
+          bunx commitlint --last --verbose
+        else
+          bunx commitlint --from "$before" --to "${{ github.sha }}" --verbose
+        fi
+
     - name: Copy env
       shell: bash
       run: cp .env.example .env
