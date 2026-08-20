@@ -30,7 +30,7 @@ export type PublishedView = Readonly<{
 
 export type ModuleStorageTier = "none" | "config" | "extension" | "own";
 
-/** Infer storage tier from a Module's declaration fields. */
+/** Infer the temporary compatibility tier until every Module declares an explicit `storage.kind`. */
 export function moduleStorageTier(module: {
 	tables?: Readonly<Record<string, TableDeclaration>>;
 	extends?: Readonly<Record<string, CoreExtensionDeclaration>>;

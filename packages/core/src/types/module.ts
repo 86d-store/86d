@@ -825,7 +825,7 @@ export type Module = {
 	 */
 	schema?: ModuleSchema;
 
-	/** Target storage: own tables in `mod_<moduleId>`. Absent with no `extends`/`anchors` means Tier None. */
+	/** Compatibility declaration for own tables in `mod_<moduleId>`. Temporary inference from absence is not the target `storage.kind` contract. */
 	tables?: Readonly<Record<string, TableDeclaration>>;
 
 	/** Target storage: typed columns on a core table (`x_<moduleId>__*`). */

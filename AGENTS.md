@@ -75,9 +75,9 @@ Package presence, generated registry metadata, or an existing endpoint does not 
 
 ## Module system
 
-Every Module currently exports a factory to a Module object with `id`, `version`, `schema`, `endpoints`, and optional `init`. Modules depend **only** on `@86d-app/core` (one exception: `managed-payments` also depends on `@86d-app/sdk`). All database access goes through `ModuleDataService` provided by the runtime, which reads and writes compiled Postgres tables under `mod_<moduleId>`. The Module contract, storage tiers, and compiled DDL are defined in [`../prd/contexts/store-runtime/module-system.md`](../prd/contexts/store-runtime/module-system.md). Target isolation is Postgres roles and published views, not in-process table prohibition.
+Every Module currently exports a factory with `id`, `version`, `endpoints`, and optional `init`. Most first-party Modules still expose a legacy `Module.schema` field map. The migrated subset also exposes adapter-produced `tables` from `transcodeModuleSchema`; legacy-only Modules are reported as not transcoded. Modules depend **only** on `@86d-app/core` (one exception: `managed-payments` also depends on `@86d-app/sdk`). Database access goes through `ModuleDataService`, which reaches compiled Postgres tables under `mod_<moduleId>` where a compiled declaration exists. The Module contract and target storage kinds are defined in [`../prd/contexts/store-runtime/module-system.md`](../prd/contexts/store-runtime/module-system.md).
 
-**Storage authority:** Drizzle owns framework tables (auth, commands, outbox, files, logs, webhooks) and `core.*`. Boot compiles installed Module schemas (Zod + `col`, or adapter-fed field maps for Modules not yet rewritten) to DDL, applies that schema, and constructs one `ModuleDataService` over those tables. The JSON `ModuleData` path was removed in plan 027.
+**Storage authority:** Drizzle owns framework tables (auth, commands, outbox, files, logs, webhooks) and `core.*`. The committed bridge compiles installed `tables`; current first-party table declarations are adapter-fed legacy field maps, not native storage authoring. The removed JSON path is not a fallback. The target requires one explicit `storage.kind` (`none`, `config`, or `relational`); Relational storage uses direct Zod `tables`, `extends`, `anchors`, and `publishes`, with no `Module.schema` or transcoder. Treat that target as future until the Module storage and isolation plan closes.
 
 The target cross-Module boundary uses typed synchronous capability calls for immediate business decisions and a durable transactional outbox with versioned, idempotent events for completed changes. The current `requires` and `exports` contracts and in-memory event behavior are migration state where they do not meet that boundary.
 
@@ -86,7 +86,7 @@ Admin pages declare a `group` and optional `subgroup` for the 2-level sidebar. G
 ```
 modules/<name>/src/
   index.ts              Factory + types + admin nav (no `export { … } from` barrels)
-  schema.ts             Zod schemas
+  schema.ts             Legacy `Module.schema` field map during migration
   service.ts            Business-logic interface
   service-impl.ts       Business-logic implementation
   store/endpoints/      Public endpoints
@@ -146,7 +146,7 @@ Templates live in `templates/<name>/`. The store app resolves them via tsconfig 
 - Biome handles formatting and linting in one repo-root pass (`bun run check`). Domains: `next` (all), `react` (recommended), `tailwind`, `turborepo`, `types`; test files also enable `test` and `playwright`. Tailwind class sorting is enforced via `useSortedClasses`.
 - No `any`, `@ts-expect-error`, `@ts-ignore`, or `biome-ignore`. Fix the type or the code.
 - Module `src/index.ts` must not use `export { … } from` (Biome `noBarrelFile`). Keep the factory and its own declarations in the entry; named package-root exports use import-then-export. Type-only `export type { … } from` is allowed. Consumers still import from `@86d-app/<module>` or the existing `"./*"` subpath map.
-- `@86d-app/core` exposes subpath exports only — there is no package-root import. Common paths: `@86d-app/core/sanitize`, `@86d-app/core/state` (MobX), `@86d-app/core/client/*` (React Query hooks, provider, client), `@86d-app/core/test-utils`.
+- `@86d-app/core` exposes subpath exports only — there is no package-root import. Module types come from `@86d-app/core/types/module`; target storage declarations use `col` and declaration types from `@86d-app/core/schema` plus `z` from `@86d-app/core/zod`. Other common paths are `@86d-app/core/sanitize`, `@86d-app/core/state` (MobX), `@86d-app/core/client/*` (React Query hooks, provider, client), and `@86d-app/core/test-utils`.
 - Store app path alias: `~/` for local imports (not bare `lib/`, which conflicts with `packages/lib`).
 - Use the `@86d-app/storage` abstraction. Never import `@vercel/blob` directly.
 - Tests use `@86d-app/core/test-utils` mock data services. Never hit a real database.

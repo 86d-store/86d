@@ -35,7 +35,7 @@ Edit `config.json` to customize:
 | Key | Description | Default |
 |-----|-------------|---------|
 | `name` | Store display name | `"86d Starter Kit"` |
-| `modules` | Enabled Modules as explicit package names | 100 bundled first-party Modules |
+| `modules` | Enabled Modules as explicit package names | The curated packages listed in `config.json` |
 | `advanced` | Versioned opt-in for selected Experimental Modules | Version `1`, enabled |
 | `moduleOptions` | Per-module config | Cart: 7d expiry, 100 max items |
 | `variables.light` | Light theme OKLCH tokens | Neutral palette |
