@@ -1,0 +1,29 @@
+name: ci/cd
+description: Lint, typecheck, unit test, then production build
+
+runs:
+  using: composite
+  steps:
+    - name: Copy env
+      shell: bash
+      run: cp .env.example .env
+
+    - name: Lint and format (Biome)
+      shell: bash
+      run: bun check
+
+    - name: Generate modules
+      shell: bash
+      run: bun run generate:modules
+
+    - name: Typecheck
+      shell: bash
+      run: bun typecheck
+
+    - name: Unit tests
+      shell: bash
+      run: bun run test
+
+    - name: Build
+      shell: bash
+      run: bun run build

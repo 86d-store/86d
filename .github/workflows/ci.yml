@@ -33,53 +33,25 @@ jobs:
       - name: Validate commit messages
         run: bunx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
-  check:
+  ci-cd:
+    name: ci/cd
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup
         uses: ./internals/github/setup
 
-      - name: Copy env
-        uses: ./internals/github/copy-env
+      - name: Lint, typecheck, test, build
+        uses: ./internals/github/ci-cd
 
-      - name: Check
-        run: bun check
-
-  typecheck:
+  e2e:
+    name: e2e
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup
-        uses: ./internals/github/setup
-
-      - name: Generate modules
-        run: bun run generate:modules
-
-      - name: Typecheck
-        run: bun typecheck
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup
-        uses: ./internals/github/setup
-
-      - name: Copy env
-        uses: ./internals/github/copy-env
-
-      - name: Unit tests
-        run: bun run test
-
-  test-e2e:
-    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: write
-    needs: [typecheck]
     services:
       postgres:
         image: postgres:16
@@ -122,7 +94,7 @@ jobs:
         run: bun test:e2e
 
       - name: Update visual snapshots
-        if: always() && github.ref == 'refs/heads/main'
+        if: always()
         uses: ./internals/github/update-visual-snapshots
 
       - uses: actions/upload-artifact@v4

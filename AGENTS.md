@@ -177,15 +177,16 @@ Beta shows one clear warning on first enablement. Experimental requires explicit
 
 ## Health gates
 
-All five must exit zero before committing:
+PR / `ci/cd` gates (in order; all must exit zero):
 
-1. `bun run typecheck`
-2. `bun run check` — one repo-root Biome pass, so `internals/`, `tests/`, `templates/`, and root config files are covered, not just package `src/`
+1. `bun run check` — one repo-root Biome pass, so `internals/`, `tests/`, `templates/`, and root config files are covered, not just package `src/`
+2. `bun run typecheck`
 3. `bun run test`
 4. `bun run build`
-5. `bun run test:e2e` — against an already running, seeded store
 
-CI (`.github/workflows/ci.yml`) runs `check` (repo-root `bun check`), `typecheck`, `test`, `test:e2e`, and commitlint; `internals/github` holds its composite Actions.
+`bun run test:e2e` — against an already running, seeded store — runs in CI only on pushes to `main`.
+
+CI (`.github/workflows/ci.yml`) runs commitlint plus the `ci/cd` job on pull requests (`bun check` → typecheck → unit tests → `bun run build` via `internals/github/ci-cd`). E2E (`test:e2e`) runs only on pushes to `main`.
 
 ## Git safety
 
@@ -201,7 +202,7 @@ Every commit follows [Conventional Commits](https://www.conventionalcommits.org/
 
 **Agent rules:**
 
-- Commit only when the user asks, or when finishing a self-contained slice that passes all five health gates. Pre-commit runs Biome on staged files via lint-staged.
+- Commit only when the user asks, or when finishing a self-contained slice that passes the PR health gates. Pre-commit runs Biome on staged files via lint-staged.
 - One logical change per commit. Split unrelated work (for example a store UI fix and a module schema change) into separate commits.
 - Let the hooks run: `git commit --no-verify` only when the user explicitly requests it.
 - Run `bunx changeset` when a published package or module API changes, and commit the generated file in a separate `chore(repo): add changeset` commit when appropriate.

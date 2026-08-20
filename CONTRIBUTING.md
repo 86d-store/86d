@@ -21,17 +21,16 @@ Run `86d doctor` to verify the project is healthy before you make changes.
 
 ## Development loop
 
-Five health gates must pass before a pull request can merge:
+Four health gates must pass before a pull request can merge (CI `ci/cd` job, in this order):
 
 ```bash
-bun run typecheck   # TypeScript
 bun run check       # Biome lint + format
+bun run typecheck   # TypeScript
 bun run test        # Vitest unit tests
-bun run test:e2e    # Playwright + visual snapshots
 bun run build       # Production build
 ```
 
-Run them locally and fix everything they flag. CI runs the same five.
+Run them locally and fix everything they flag. Playwright E2E (`bun run test:e2e`) runs in CI only on `main`, not on pull requests.
 
 ## Commit messages
 
