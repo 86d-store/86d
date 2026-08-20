@@ -1,8 +1,22 @@
 "use client";
 
 import { useModuleClient } from "@86d-app/core/client/provider";
-import { isSafeUrl } from "@86d-app/core/sanitize";
 import { useEffect, useRef, useState } from "react";
+
+/** Return an http(s) URL for img.src, or undefined. Rebuilds via URL.href so the sink is not the raw input. */
+function safeHttpImageSrc(value: string): string | undefined {
+	const trimmed = value.trim();
+	if (!trimmed) return undefined;
+	try {
+		const parsed = new URL(trimmed);
+		if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+			return parsed.href;
+		}
+	} catch {
+		return undefined;
+	}
+	return undefined;
+}
 
 function useBrandsAdminApi() {
 	const client = useModuleClient();
@@ -150,6 +164,7 @@ function BrandForm({
 	const inputCls =
 		"w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-1";
 	const labelCls = "mb-1 block font-medium text-foreground text-sm";
+	const logoSrc = safeHttpImageSrc(logo);
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-5">
@@ -229,9 +244,9 @@ function BrandForm({
 						placeholder="https://example.com/logo.png"
 						className={inputCls}
 					/>
-					{logo.trim() && isSafeUrl(logo) && (
+					{logoSrc && (
 						<img
-							src={logo}
+							src={logoSrc}
 							alt="Logo preview"
 							className="mt-2 h-10 w-auto rounded object-contain"
 						/>
