@@ -71,7 +71,7 @@ Dockerfile           Multi-stage build (deps → build → runtime)
 docker-compose.yml   One-command local deployment (postgres + MinIO + store)
 ```
 
-Package presence, generated registry metadata, or an existing endpoint does not establish product maturity. Each capability earns Stable through its versioned contract, failure behavior, tests, documentation, and required production smoke evidence. Unproven capabilities remain Beta or Experimental without blocking public access.
+Package presence, generated registry metadata, or an existing endpoint does not establish product maturity. Inspect each capability's evidence and follow the canonical [Module maturity](#module-maturity) rules instead of assigning status from the source tree.
 
 ## Module system
 
@@ -165,9 +165,7 @@ Templates live in `templates/<name>/`. The store app resolves them via tsconfig 
 
 ## Module maturity
 
-A capability may be **Stable**, **Beta**, **Experimental**, or **Deprecated**. Stable requires a real schema and behavior, bounded and authenticated endpoints, complete failure handling, usable Storefront and Store Admin states where applicable, realistic provider fixtures, verified webhook handling, critical-path tests, relevant visual coverage, accurate documentation, and required production smoke evidence. A clean source tree or complete CRUD surface alone is insufficient.
-
-Beta shows one clear warning on first enablement. Experimental requires explicit advanced opt-in. Deprecated prevents new enablement by default and provides a supported transition. Registry generation records versioned maturity, `maturityEvidence`, commit SHA, and a hash of the complete Module subtree — machine-written fields, so inspect the evidence itself rather than inferring maturity from a field's presence.
+Maturity enablement behavior is defined in [`../prd/launch.md`](../prd/launch.md#maturity-model). Registry generation records versioned maturity, `maturityEvidence`, commit SHA, and a hash of the complete Module subtree — machine-written fields, so inspect the evidence itself rather than inferring maturity from a field's presence.
 
 ## Testing
 
@@ -177,17 +175,9 @@ Beta shows one clear warning on first enablement. Experimental requires explicit
 
 ## Health gates
 
-PR / `ci/cd` gates (in order; all must exit zero):
+Use the scripts in `package.json` (`check`, `typecheck`, `test`, `build`) and the repository `ci/cd` composite Action. `bun run check` is one repo-root Biome pass, so `internals/`, `tests/`, `templates/`, and root config files are covered, not just package `src/`. Playwright (`test:e2e`) needs an already running, seeded Store. Authenticated setup fails if the admin session cannot be created.
 
-1. commitlint — Conventional Commits on the PR range or push range
-2. `bun run check` — one repo-root Biome pass, so `internals/`, `tests/`, `templates/`, and root config files are covered, not just package `src/`
-3. `bun run typecheck`
-4. `bun run test`
-5. `bun run build`
-
-`bun run test:e2e` — against an already running, seeded store — runs in CI only on pushes to `main`.
-
-CI (`.github/workflows/ci.yml`) runs `ci/cd` on pull requests, merge queue, and pushes to `main` (commitlint → `bun check` → typecheck → unit tests → `bun run build` via `internals/github/ci-cd`). E2E (`test:e2e`) runs only on pushes to `main`.
+CI event and gate selection live in `.github/workflows/ci.yml` and `internals/github/ci-cd/action.yml`; read those files instead of copying the matrix into repository guides.
 
 ## Git safety
 

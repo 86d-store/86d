@@ -25,6 +25,30 @@ describe("payment activation containment", () => {
 		expect((await controller.getIntent(intent.id))?.status).toBe("pending");
 	});
 
+	it("keeps managed tokenization contained without returning browser configuration", async () => {
+		const route = payments().endpoints?.store?.["/payments/managed/prepare"];
+		expect(route).toBeDefined();
+		const endpoint = route as unknown as Record<string, unknown>;
+		const handler =
+			typeof endpoint.handler === "function" ? endpoint.handler : route;
+		const response = (await (handler as CallableFunction)({
+			body: {
+				bindingId: "binding_1",
+				merchantPaymentAccountId: "account_1",
+				mode: "sandbox",
+				option: "card",
+			},
+			context: {},
+		})) as Response;
+
+		expect(response.status).toBe(503);
+		expect(await response.json()).toEqual({
+			code: "PAYMENT_ACTIVATION_REQUIRED",
+			error:
+				"Managed Payment tokenization remains contained until production evidence exists.",
+		});
+	});
+
 	it("cannot record a refund without a configured provider", async () => {
 		const data = createMockDataService();
 		const controller = createPaymentController(data);

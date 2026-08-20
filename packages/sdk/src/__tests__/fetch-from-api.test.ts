@@ -62,25 +62,7 @@ describe("fetchFromApi", () => {
 		);
 	});
 
-	it("includes Authorization header when API key provided", async () => {
-		globalThis.fetch = vi.fn().mockResolvedValue({
-			ok: true,
-			json: () => Promise.resolve(createValidApiResponse()),
-		});
-
-		await fetchFromApi("abc-123", "https://api.86d.app", "my-api-key");
-
-		expect(globalThis.fetch).toHaveBeenCalledWith(
-			expect.any(String),
-			expect.objectContaining({
-				headers: expect.objectContaining({
-					Authorization: "Bearer my-api-key",
-				}),
-			}),
-		);
-	});
-
-	it("does not include Authorization header without API key", async () => {
+	it("does not include an Authorization header", async () => {
 		globalThis.fetch = vi.fn().mockResolvedValue({
 			ok: true,
 			json: () => Promise.resolve(createValidApiResponse()),

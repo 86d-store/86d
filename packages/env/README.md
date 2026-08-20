@@ -44,7 +44,6 @@ console.log(env.DATABASE_URL);  // string | undefined
 | `NODE_ENV` | `"development" \| "production" \| "test"` | `"development"` | Runtime environment |
 | `STORE_ID` | `string` | `"demo5b9d-..."` | Store identifier |
 | `86D_API_URL` | `url` | `"https://api.86d.app"` | Control Plane API base URL |
-| `86D_API_KEY` | `string` | — | Legacy managed Store API key |
 | `86D_STORE_ID` | `uuid` | — | Public managed Store identifier |
 | `86D_WORKLOAD_CREDENTIAL` | `string` | — | Opaque managed workload credential |
 | `86D_TELEMETRY` | `"managed-runtime-diagnostics-v1"` | — | Explicitly enables the bounded Managed Runtime Diagnostics v1 contract |

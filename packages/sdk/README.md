@@ -78,11 +78,7 @@ short-lived workload token.
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `storeId` | Legacy migration-only Store UUID | `process.env.STORE_ID` |
-| `apiBaseUrl` | 86d API base URL | `process.env.86D_API_URL` or `https://api.86d.app` |
-| `apiKey` | Legacy migration-only API key | `process.env.86D_API_KEY` |
-| `templatePath` | Path to config.json | Required when no STORE_ID |
-| `fallbackToTemplateOnError` | Use template if API fails | `false` |
+| `templatePath` | Path to template config.json | Required when no managed workload trio is present |
 
 ## Types
 
@@ -98,14 +94,14 @@ import { DEFAULT_CONFIG } from "@86d-app/sdk";
 
 ## API endpoint
 
-When `STORE_ID` is set, the SDK calls:
+When the managed workload trio is present, the SDK calls:
 
 ```
 GET {apiBaseUrl}/v1/stores/{storeId}
-Authorization: Bearer {apiKey}  # if apiKey provided
 ```
 
-Managed configuration uses a short-lived `runtime.config:read` workload token.
+The workload client obtains a short-lived `runtime.config:read` token and
+authenticates the request. A static Store API key is not accepted.
 The response is validated as a strict, fail-closed `RemoteStoreConfig` and
 contains only theme identity, Store name/assets, installed Module names, and
 managed billing status. Unknown fields are rejected. Module settings,

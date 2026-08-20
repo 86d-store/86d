@@ -5,8 +5,8 @@ SDK package for 86d store configuration and API integration.
 ## Purpose
 
 Resolves store configuration from either:
-- **86d hosted API** — when `STORE_ID` is set (valid UUID)
-- **Template config.json** — when `STORE_ID` is absent or invalid
+- **86d Control Plane** — when the managed workload trio is present (`86D_STORE_ID`, `86D_API_URL`, `86D_WORKLOAD_CREDENTIAL`)
+- **Template config.json** — when `templatePath` is provided and no managed workload is configured
 
 ## Structure
 
@@ -24,7 +24,7 @@ packages/sdk/
 
 - `getStoreConfig(options?)` — async; primary entry point
 - `loadFromTemplate(templatePath)` — sync; load from local JSON
-- `fetchFromApi(storeId, apiBaseUrl, apiKey?)` — async; fetch from API
+- `fetchFromApi(storeId, apiBaseUrl, fetcher?)` — async; fetch from API. Managed `getStoreConfig` authenticates with a workload token.
 - `Config`, `RemoteStoreConfig`, `DEFAULT_CONFIG`, `GetStoreConfigOptions`
 
 Managed fetches request
@@ -35,9 +35,7 @@ fail closed in both versions.
 
 ## Environment variables
 
-- `STORE_ID` — optional UUID; when set and valid, fetches from API
-- `86D_API_URL` — optional; default `https://api.86d.app`
-- `86D_API_KEY` — optional; Bearer token for API auth
+Managed identity is `86D_STORE_ID`, `86D_API_URL`, and `86D_WORKLOAD_CREDENTIAL`. Standalone `STORE_ID` remains for local data isolation. See `packages/env/src/index.ts`.
 
 ## Usage
 
@@ -46,7 +44,6 @@ import { getStoreConfig } from "@86d-app/sdk";
 
 const config = await getStoreConfig({
   templatePath: "/path/to/templates/brisa/config.json",
-  fallbackToTemplateOnError: true,
 });
 ```
 

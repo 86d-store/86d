@@ -271,13 +271,12 @@ function mergeThemeVariables(
 }
 
 /**
- * Fetch store config from the 86d hosted API.
- * Used when STORE_ID is set and valid.
+ * Fetch store config from the 86d Control Plane.
+ * Managed callers authenticate with a workload token via `fetcher`.
  */
 export async function fetchFromApi(
 	storeId: string,
 	apiBaseUrl: string,
-	apiKey?: string,
 	fetcher: typeof globalThis.fetch = globalThis.fetch,
 ): Promise<RemoteStoreConfig> {
 	const normalizedBase = apiBaseUrl.replace(/\/$/, "");
@@ -289,9 +288,6 @@ export async function fetchFromApi(
 		Accept: STORE_RUNTIME_CONFIG_V2_MEDIA_TYPE,
 		"Content-Type": "application/json",
 	};
-	if (apiKey) {
-		headers.Authorization = `Bearer ${apiKey}`;
-	}
 
 	const res = await fetcher(url, { headers });
 

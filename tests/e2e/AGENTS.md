@@ -21,7 +21,7 @@ tests/e2e/
 - Fixtures extend Playwright `test` with typed page-objects (`storefront`, `admin`, `dashboard`)
 - All tests use `waitForLoadState("networkidle")` — never `waitForTimeout()`
 - Admin elements use `data-testid` (e.g., `stat-card`, `stat-value`) for stable selectors
-- Tests skip gracefully when preconditions fail (out-of-stock, missing pages)
+- Out-of-stock catalog cases skip the rest of that test. Authenticated setup fails if the admin session cannot be created.
 - Credentials default to seed data: `admin@example.com` / `password123`
 
 ## Config

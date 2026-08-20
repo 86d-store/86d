@@ -22,7 +22,6 @@ src/
 | `NODE_ENV` | `"development" \| "production" \| "test"` | No | `"development"` |
 | `STORE_ID` | `string` | No | `"demo5b9d-c517-4c65-896e-8edef5cf5a94"` |
 | `86D_API_URL` | `url` | No | `"https://api.86d.app"` |
-| `86D_API_KEY` | `string` | No | — |
 | `DATABASE_URL` | `string` | No | — |
 | `NEXT_PUBLIC_STORE_URL` | `url` | No | — |
 | `NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID` | `string` | No | — |

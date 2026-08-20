@@ -57,7 +57,6 @@ export async function getStoreConfig(
 		return fetchFromApi(
 			managedWorkload.storeId,
 			managedWorkload.apiBaseUrl,
-			undefined,
 			(url, init) => client.request(STORE_CONFIG_RESOURCE, url, init),
 		);
 	}
