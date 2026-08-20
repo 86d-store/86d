@@ -78,9 +78,15 @@ ENV DOCKER_BUILD=true
 # build time. Generate a throwaway value for this RUN only (not an image ENV);
 # runtime must supply BETTER_AUTH_SECRET via compose/orchestrator.
 # oven/bun images do not ship openssl — use Bun's crypto instead.
+#
+# Bun 1.3.x on Linux arm64 can SIGSEGV after a successful `next build` (route
+# table printed, standalone output written). Treat the layer as success when the
+# standalone server artifact exists; otherwise surface the original exit code.
 RUN BETTER_AUTH_SECRET="$(bun -e 'console.log(Buffer.from(crypto.getRandomValues(new Uint8Array(48))).toString("base64"))')" \
 	NODE_OPTIONS="--max-old-space-size=4096" \
-	bun run build:store
+	sh -c 'bun run build:store; status=$?; \
+	if [ -f apps/store/.next/standalone/apps/store/server.js ]; then exit 0; fi; \
+	exit $status'
 
 # ── Stage 3: Install drizzle-kit for runtime migrations ────────────────────
 FROM oven/bun:1.3.14 AS drizzle-installer

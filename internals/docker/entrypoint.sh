@@ -43,17 +43,21 @@ if [ "$SKIP_MIGRATIONS" != "true" ] && [ -d "packages/db/drizzle" ]; then
     }
   fi
   echo "→ Running database migrations..."
-  (cd packages/db && bunx drizzle-kit migrate) || {
+  # Use the image-local drizzle-kit + drizzle-orm. `bunx drizzle-kit` can
+  # download a mismatched kit that rejects the vendored ORM ("Please install
+  # latest version of drizzle-orm").
+  (cd packages/db && bun /app/node_modules/drizzle-kit/bin.cjs migrate) || {
     echo "✗ Migration failed"
     exit 1
   }
   echo "✓ Migrations complete"
 fi
 
-# ── Seed database (only on first run) ─────────────────────────────────────
+# ── Seed database when AUTO_SEED=true (idempotent upserts) ────────────────
 if [ "$AUTO_SEED" = "true" ] && [ -f "packages/db/src/seed.ts" ]; then
   echo "→ Seeding database..."
-  if ! (cd packages/db && bun run seed) 2>&1; then
+  # Run with Bun directly — production image does not ship `tsx`.
+  if ! (cd packages/db && bun src/seed.ts) 2>&1; then
     echo "✗ Seed failed"
     exit 1
   fi

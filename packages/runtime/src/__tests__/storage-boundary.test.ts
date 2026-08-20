@@ -96,4 +96,50 @@ describe("storage-boundary Zod parse", () => {
 			status: "active",
 		});
 	});
+
+	it("rejects malformed stored rows with Module-and-field errors on read", async () => {
+		// email() stays Zod-only (no DDL CHECK), so raw SQL can plant a bad row.
+		const strictShape = z.object({
+			id: z.string().register(col, { pk: true }),
+			name: z.string().email(),
+			slug: z.string(),
+			status: z.enum(["active", "draft"]),
+			createdAt: z.string().optional(),
+			updatedAt: z.string().optional(),
+		});
+		const module: Module = {
+			id: "products_read",
+			version: "0.0.1",
+			tables: { product: { shape: strictShape } },
+		};
+		const report = compileModuleDeclarations([module]);
+		const sql = emitSql(report.transcoded);
+		for (const statement of splitModuleDdlStatements(sql)) {
+			await client.exec(statement);
+		}
+
+		await client.exec(`
+			INSERT INTO mod_products_read."product" (id, name, slug, status)
+			VALUES ('prod_bad_read', 'not-an-email', 'coat', 'active')
+		`);
+
+		const data = new CompiledModuleDataService({
+			db,
+			storeId: "11111111-1111-1111-1111-111111111111",
+			moduleId: "products_read",
+			moduleDbId: "33333333-3333-3333-3333-333333333333",
+			compiled: report.transcoded,
+		});
+
+		try {
+			await data.get("product", "prod_bad_read");
+			expect.unreachable("expected ModuleStorageParseError");
+		} catch (error) {
+			expect(error).toBeInstanceOf(ModuleStorageParseError);
+			const parseError = error as ModuleStorageParseError;
+			expect(parseError.issues[0]?.moduleId).toBe("products_read");
+			expect(parseError.issues[0]?.tableName).toBe("product");
+			expect(parseError.issues[0]?.fieldName).toBe("name");
+		}
+	});
 });

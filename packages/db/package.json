@@ -28,8 +28,8 @@
 		"check:fix": "biome check --write --unsafe src seed",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
 		"migrate": "drizzle-kit migrate",
-		"seed": "tsx src/seed.ts",
-		"seed:fetch-luxury-assets": "tsx seed/fetch-luxury-stock-assets.ts",
+		"seed": "bun src/seed.ts",
+		"seed:fetch-luxury-assets": "bun seed/fetch-luxury-stock-assets.ts",
 		"test": "vitest run",
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},

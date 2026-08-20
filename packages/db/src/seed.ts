@@ -39,6 +39,7 @@ import {
 	customers,
 	demoOrder,
 	discounts,
+	houseBrand,
 	navigationItems,
 	newsletterSubscribers,
 	pages,
@@ -200,6 +201,8 @@ type ResolvedProduct = SeedProduct & {
 const adminUserId = uuid("admin-user");
 const adminAccountId = uuid("admin-account");
 const moduleIds: Record<string, string> = {};
+/** Compiled column allowlists keyed by `module.entity` for seed writes. */
+const compiledSeedColumns = new Map<string, ReadonlySet<string>>();
 const moduleNames = [...CURATED_STORE_MODULES];
 const seededModuleNames = moduleNames.filter(
 	(name) => !(TIER_NONE_CURATED_MODULES as readonly string[]).includes(name),
@@ -273,16 +276,21 @@ async function insertModuleData(
 			`Seed attempted to write ${moduleName}.${entityType} but Module "${moduleName}" has no compiled tables.`,
 		);
 	}
+	const allowed = compiledSeedColumns.get(`${moduleName}.${entityType}`);
+	if (!allowed) {
+		throw new Error(
+			`Seed attempted to write ${moduleName}.${entityType} but no compiled columns were registered.`,
+		);
+	}
 	const record: Record<string, unknown> = {
-		...data,
 		id: entityId,
 	};
-	if (record.createdAt === undefined) {
-		record.createdAt = now;
+	for (const [key, value] of Object.entries(data)) {
+		if (key === "id" || allowed.has(key)) {
+			record[key] = value;
+		}
 	}
-	if (record.updatedAt === undefined) {
-		record.updatedAt = now;
-	}
+	record.id = entityId;
 
 	const columns = Object.keys(record);
 	const values = columns.map((key) => {
@@ -403,6 +411,16 @@ async function applySeedModuleSchema(client: pg.PoolClient) {
 		if (!compiledIds.has(moduleId)) {
 			throw new Error(
 				`Seed expects compiled tables for Module "${moduleId}", but none were produced.`,
+			);
+		}
+	}
+
+	compiledSeedColumns.clear();
+	for (const moduleResult of report.transcoded) {
+		for (const table of moduleResult.tables) {
+			compiledSeedColumns.set(
+				`${moduleResult.moduleId}.${table.tableName}`,
+				new Set(table.columns.map((column) => column.name)),
 			);
 		}
 	}
@@ -1120,6 +1138,7 @@ async function seedCheckout(client: pg.PoolClient) {
 
 	await insertModuleData(client, "checkout", "checkoutSession", sessionId, {
 		id: sessionId,
+		revision: 1,
 		cartId: uuid("cart:eleanor-vale:completed"),
 		customerId: customerIds["eleanor-vale"],
 		orderId,
@@ -1128,8 +1147,11 @@ async function seedCheckout(client: pg.PoolClient) {
 		taxAmount: 7697,
 		shippingAmount: 0,
 		discountAmount: 0,
+		giftCardAmount: 0,
+		storeCreditAmount: 0,
 		total: 97197,
 		currency: "USD",
+		expiresAt: now,
 		completedAt: now,
 		createdAt: now,
 		updatedAt: now,
@@ -1155,7 +1177,7 @@ async function seedCheckout(client: pg.PoolClient) {
 			id: lineItemId,
 			sessionId,
 			productId: item.productId,
-			productName: item.productName,
+			name: item.productName,
 			quantity: item.quantity,
 			price: item.price,
 			createdAt: now,
