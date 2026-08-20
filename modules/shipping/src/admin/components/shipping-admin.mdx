@@ -1,0 +1,19 @@
+<div>
+  <div className="mb-6 flex items-start justify-between">
+    <div>
+      <h1 className="font-bold text-2xl text-foreground">Shipping</h1>
+      <p className="mt-1 text-muted-foreground text-sm">
+        {props.subtitle}
+      </p>
+    </div>
+    <button
+      type="button"
+      onClick={props.onAddZone}
+      className="rounded-md bg-foreground px-3 py-2 font-medium text-background text-sm hover:opacity-90"
+    >
+      Add zone
+    </button>
+  </div>
+
+  {props.content}
+</div>

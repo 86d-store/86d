@@ -1,0 +1,51 @@
+# 86d
+
+> 86d is a modern, AI-native, open-source commerce platform designed to help you sell now and sell out. It's modular, flexible, and made for everyone.
+
+## About
+
+Dynamic commerce infrastructure built from modular components.
+
+86d is a modular architecture where features exist as isolated, interchangeable pieces of code. Swap modules, customize components, or build solutions tailored to your problems.
+
+Stores are deployed in isolated environments, giving you complete control over your data and infrastructure. Modules are open source and, with agentic assistance, fast and easy to extend.
+
+Our mission is to liberate digital commerce.
+
+## Core Features
+
+Open source modules with customizable MDX components. Agentic AI assistance. Isolated, single-tenant deployments. Built-in best practices for accessibility, generative engine optimization (GEO), security, and performance.
+
+## AI-Native
+
+Every layer of the platform is built to work with AI—from generative search engines and chatbots to autonomous agents. Your store is structured so AI can understand, surface, and sell your products.
+
+## Open Source
+
+Modules are fully open source. The deployment platform and store runtime are not—these handle payments, authentication, and data storage, where security and performance can't be compromised.
+
+## Security
+
+Every store deploys in a fully isolated, single-tenant environment. All data is stored with ISO 27001, ISO 27701, SOC 2 Type 2, CCPA, and GDPR compliant providers. Payments are processed with PCI DSS compliant providers.
+
+## Technologies
+
+TypeScript monorepos powered by Bun, with Next.js applications.
+
+## Pricing
+
+$0 per month. Deploy as many businesses, stores, members, and modules as you need. No credit card required.
+
+Transaction fees start at 5% + $0.30 USD per successful transaction. This covers payment processing, fraud protection, and other infrastructure costs.
+
+Profits are distributed back to the community through bug bounties, grants, scholarships, incentives, and other contributions.
+
+## Who Is It For
+
+Anyone who sells online—regardless of what you sell or how large your operation is.
+
+## Links
+
+- [GitHub](https://github.com/86d-app/86d)
+- [npm](https://www.npmjs.com/package/86d)
+- [X](https://x.com/86d_app)

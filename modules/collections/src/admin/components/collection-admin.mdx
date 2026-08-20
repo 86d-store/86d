@@ -1,0 +1,131 @@
+# Collections
+
+Manage product collections for merchandising and storefront organization.
+
+<div className="space-y-6">
+  {props.stats && (
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="rounded-lg border p-4">
+        <div className="text-2xl font-bold">{props.stats.totalCollections}</div>
+        <div className="text-sm text-muted-foreground">Total</div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-2xl font-bold">{props.stats.activeCollections}</div>
+        <div className="text-sm text-muted-foreground">Active</div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-2xl font-bold">{props.stats.featuredCollections}</div>
+        <div className="text-sm text-muted-foreground">Featured</div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-2xl font-bold">{props.stats.manualCollections}</div>
+        <div className="text-sm text-muted-foreground">Manual</div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-2xl font-bold">{props.stats.automaticCollections}</div>
+        <div className="text-sm text-muted-foreground">Automatic</div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-2xl font-bold">{props.stats.totalProducts}</div>
+        <div className="text-sm text-muted-foreground">Products</div>
+      </div>
+    </div>
+  )}
+
+  {props.error && (
+    <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+      {props.error}
+    </div>
+  )}
+
+  {props.isLoading ? (
+    <div className="py-8 text-center text-muted-foreground">Loading collections...</div>
+  ) : props.collections.length === 0 ? (
+    <div className="py-8 text-center text-muted-foreground">
+      No collections yet. Create your first collection to start organizing products.
+    </div>
+  ) : (
+    <table className="w-full text-sm">
+      <thead>
+        <tr className="border-b text-left">
+          <th className="pb-2 font-medium">Title</th>
+          <th className="pb-2 font-medium">Type</th>
+          <th className="pb-2 font-medium">Status</th>
+          <th className="pb-2 font-medium">Featured</th>
+          <th className="pb-2 font-medium">Position</th>
+          <th className="pb-2 font-medium">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {props.collections.map((c) => (
+          <tr key={c.id} className="border-b">
+            <td className="py-2">
+              <div className="font-medium">{c.title}</div>
+              <div className="text-xs text-muted-foreground">/{c.slug}</div>
+            </td>
+            <td className="py-2 capitalize">{c.type}</td>
+            <td className="py-2">
+              <span className={c.isActive ? "text-green-600" : "text-muted-foreground"}>
+                {c.isActive ? "Active" : "Draft"}
+              </span>
+            </td>
+            <td className="py-2">{c.isFeatured ? "Yes" : "No"}</td>
+            <td className="py-2">{c.position}</td>
+            <td className="py-2">
+              {props.deleteConfirm === c.id ? (
+                <span className="space-x-2">
+                  <button
+                    type="button"
+                    className="text-destructive underline"
+                    onClick={() => props.onDelete(c.id)}
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    type="button"
+                    className="underline"
+                    onClick={() => props.onDeleteConfirm(null)}
+                  >
+                    Cancel
+                  </button>
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  className="text-destructive underline"
+                  onClick={() => props.onDeleteConfirm(c.id)}
+                >
+                  Delete
+                </button>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+
+  {props.total > props.pageSize && (
+    <div className="flex items-center gap-4">
+      <button
+        type="button"
+        disabled={props.skip === 0}
+        onClick={() => props.onPageChange(Math.max(0, props.skip - props.pageSize))}
+        className="rounded border px-3 py-1 text-sm disabled:opacity-50"
+      >
+        Previous
+      </button>
+      <span className="text-sm text-muted-foreground">
+        {props.skip + 1}–{Math.min(props.skip + props.pageSize, props.total)} of {props.total}
+      </span>
+      <button
+        type="button"
+        disabled={props.skip + props.pageSize >= props.total}
+        onClick={() => props.onPageChange(props.skip + props.pageSize)}
+        className="rounded border px-3 py-1 text-sm disabled:opacity-50"
+      >
+        Next
+      </button>
+    </div>
+  )}
+</div>

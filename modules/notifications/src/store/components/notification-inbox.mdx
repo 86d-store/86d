@@ -1,0 +1,84 @@
+<div className="mx-auto max-w-2xl">
+  <div className="mb-4 flex items-center justify-between">
+    <h2 className="font-semibold text-foreground text-lg">{props.title}</h2>
+    <div className="flex items-center gap-2">
+      <select
+        value={props.readFilter}
+        onChange={(e) => props.onReadFilterChange(e.target.value)}
+        className="h-8 rounded-md border border-border bg-background px-2 text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        <option value="">All</option>
+        <option value="false">Unread</option>
+        <option value="true">Read</option>
+      </select>
+      {props.hasUnread && (
+        <button
+          type="button"
+          onClick={props.onMarkAllRead}
+          disabled={props.markAllReadPending}
+          className="rounded-md px-2 py-1 text-primary text-xs hover:bg-primary/10 disabled:opacity-50"
+        >
+          Mark all read
+        </button>
+      )}
+    </div>
+  </div>
+
+  {props.loading ? (
+    <div className="space-y-3">
+      {[0, 1, 2].map((i) => (
+        <div key={`skel-${i}`} className="rounded-lg border border-border bg-card p-4">
+          <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
+          <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-muted" />
+        </div>
+      ))}
+    </div>
+  ) : props.notifications.length === 0 ? (
+    <div className="rounded-lg border border-border bg-card px-6 py-12 text-center">
+      <p className="text-muted-foreground text-sm">{props.emptyMessage}</p>
+    </div>
+  ) : (
+    <div className="space-y-2">
+      {props.notifications.map((n) => (
+        <div
+          key={n.id}
+          className={`rounded-lg border bg-card p-4 transition-colors ${
+            n.read
+              ? "border-border"
+              : "border-primary/20 bg-primary/5"
+          }`}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <p className={`text-foreground text-sm ${!n.read ? "font-semibold" : ""}`}>
+                {n.title}
+              </p>
+              <p className="mt-1 text-muted-foreground text-sm">{n.body}</p>
+              <div className="mt-2 flex items-center gap-3">
+                <span className="text-muted-foreground text-xs">{n.timeAgo}</span>
+                {n.actionUrl && (
+                  <a
+                    href={n.actionUrl}
+                    className="text-primary text-xs hover:underline"
+                  >
+                    View details
+                  </a>
+                )}
+              </div>
+            </div>
+            {!n.read && (
+              <button
+                type="button"
+                onClick={() => props.onMarkRead(n.id)}
+                className="shrink-0 rounded-md px-2 py-1 text-muted-foreground text-xs hover:bg-muted hover:text-foreground"
+                title="Mark as read"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>

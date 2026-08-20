@@ -1,0 +1,55 @@
+{
+	"name": "@86d-app/saved-addresses",
+	"version": "0.0.41",
+	"description": "Customer address book module for 86d commerce platform",
+	"keywords": [
+		"commerce",
+		"addresses",
+		"address-book",
+		"86d"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/saved-addresses"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/address-overview": {
+			"types": "./src/admin/components/address-overview.tsx",
+			"default": "./src/admin/components/address-overview.tsx"
+		},
+		"./components": {
+			"types": "./src/store/components/mdx.tsx",
+			"default": "./src/store/components/mdx.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

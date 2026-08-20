@@ -1,0 +1,25 @@
+import Link from "next/link";
+
+{/* Form List — displays available forms as navigable cards */}
+
+export default function FormListTemplate({ title, forms }) {
+  return (
+    <section className="form-list">
+      <h2 className="mb-6 text-2xl font-semibold">{title}</h2>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {forms.map((form) => (
+          <Link
+            key={form.id}
+            href={`/forms/${form.slug}`}
+            className="group rounded-lg border border-gray-200 p-5 transition-colors hover:border-gray-400 dark:border-gray-800 dark:hover:border-gray-600"
+          >
+            <h3 className="font-medium text-foreground group-hover:underline">{form.name}</h3>
+            {form.description && (
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{form.description}</p>
+            )}
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}

@@ -1,0 +1,61 @@
+{
+	"name": "@86d-app/gamification",
+	"version": "0.0.41",
+	"description": "Gamified promotions module for 86d commerce platform — spin the wheel, scratch cards, slot machine",
+	"keywords": [
+		"commerce",
+		"gamification",
+		"promotions",
+		"spin-the-wheel",
+		"scratch-card",
+		"86d"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/gamification"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/game-list": {
+			"types": "./src/admin/components/game-list.tsx",
+			"default": "./src/admin/components/game-list.tsx"
+		},
+		"./admin/components/gamification-admin": {
+			"types": "./src/admin/components/gamification-admin.tsx",
+			"default": "./src/admin/components/gamification-admin.tsx"
+		},
+		"./components": {
+			"types": "./src/store/components/mdx.tsx",
+			"default": "./src/store/components/mdx.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

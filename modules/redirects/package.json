@@ -1,0 +1,52 @@
+{
+	"name": "@86d-app/redirects",
+	"version": "0.0.41",
+	"description": "URL redirect management — 301/302/307/308 redirects for SEO and URL migration",
+	"keywords": [
+		"commerce",
+		"redirects",
+		"seo",
+		"url-management",
+		"301-redirect"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/redirects"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/redirects-admin": {
+			"types": "./src/admin/components/redirects-admin.tsx",
+			"default": "./src/admin/components/redirects-admin.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

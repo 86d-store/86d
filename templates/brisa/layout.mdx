@@ -1,0 +1,69 @@
+import Footer from "./footer.mdx";
+
+<a
+  href="#main-content"
+  className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:font-medium focus:text-foreground focus:text-sm focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
+>
+  Skip to main content
+</a>
+
+<AnnouncementBar position="top" />
+
+<StoreNavbar
+  config={props.config}
+  navItems={[
+    { label: "Shop", href: "/products" },
+    { label: "Collections", href: "/collections" },
+    { label: "New arrivals", href: "/products?sort=createdAt&order=desc" },
+    { label: "Blog", href: "/blog" },
+  ]}
+  actions={<CartButton />}
+/>
+
+<main id="main-content" className="min-h-[calc(100dvh-4rem)]">
+  <Cart />
+  {props.children}
+</main>
+
+<Footer
+  logo={{
+    url: "/",
+    lightSrc: props.config.logo.light,
+    darkSrc: props.config.logo.dark,
+    alt: props.config.name,
+    title: props.config.name,
+  }}
+  storeName={props.config.name}
+  sections={[
+    {
+      title: "Shop",
+      links: [
+        { name: "All products", href: "/products" },
+        { name: "Collections", href: "/collections" },
+        { name: "New arrivals", href: "/products?sort=createdAt&order=desc" },
+        { name: "Gift cards", href: "/gift-cards" },
+      ],
+    },
+    {
+      title: "Company",
+      links: [
+        { name: "About", href: "/about" },
+        { name: "Contact", href: "/contact" },
+        { name: "Blog", href: "/blog" },
+      ],
+    },
+    {
+      title: "Account",
+      links: [
+        { name: "Orders", href: "/account/orders" },
+        { name: "Track order", href: "/track" },
+        { name: "My account", href: "/account" },
+        { name: "Search", href: "/search" },
+      ],
+    },
+  ]}
+/>
+
+<AnnouncementBar position="bottom" />
+<AnnouncementPopup />
+<ComparisonBar />

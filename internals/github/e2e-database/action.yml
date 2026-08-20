@@ -1,0 +1,20 @@
+name: E2E database bootstrap
+description: Create nanoid helper, push Prisma schema, and seed demo data
+
+runs:
+  using: composite
+  steps:
+    - name: Create nanoid function
+      shell: bash
+      env:
+        PGPASSWORD: postgres
+      run: psql -h localhost -U postgres -d 86d -f "${{ github.action_path }}/nanoid.sql"
+
+    - name: Push database schema
+      shell: bash
+      working-directory: packages/db
+      run: bunx prisma db push --schema prisma --accept-data-loss
+
+    - name: Seed database
+      shell: bash
+      run: bun run db:seed

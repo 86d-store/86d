@@ -1,0 +1,18 @@
+<div>
+  <div className="mb-6 flex items-center justify-between">
+    <h2 className="font-semibold text-gray-900 text-lg dark:text-gray-100">
+      Your Addresses
+    </h2>
+    <span className="text-gray-500 text-sm dark:text-gray-400">
+      {props.addressCount} {props.addressCount === 1 ? "address" : "addresses"}
+    </span>
+  </div>
+
+  {props.error && (
+    <div className="mb-4 rounded-lg bg-red-50 p-3 text-red-700 text-sm dark:bg-red-950 dark:text-red-300">
+      {props.error}
+    </div>
+  )}
+
+  {props.content}
+</div>

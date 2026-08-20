@@ -1,0 +1,31 @@
+{props.isLoading ? (
+  <div className="flex min-h-40 items-center justify-center">
+    <div className="h-8 w-8 animate-spin rounded-full border-4 border-muted-foreground/20 border-t-primary" />
+  </div>
+) : !props.isActive ? (
+  <div className="rounded-xl border border-border bg-muted/30 p-8 text-center">
+    <p className="font-medium text-foreground">QR code not found or inactive.</p>
+    <p className="mt-1 text-muted-foreground text-sm">
+      This QR code is no longer available. Please check with the merchant.
+    </p>
+  </div>
+) : (
+  <div className="flex min-h-40 flex-col items-center justify-center gap-4 rounded-xl border border-border bg-card p-8 text-center">
+    <div className="h-10 w-10 animate-spin rounded-full border-4 border-muted-foreground/20 border-t-primary" />
+    <div>
+      {props.label && (
+        <p className="font-medium text-foreground text-sm">{props.label}</p>
+      )}
+      <p className="text-muted-foreground text-sm">Redirecting you…</p>
+    </div>
+    {props.targetUrl && (
+      <button
+        type="button"
+        onClick={props.onGoNow}
+        className="text-primary text-sm underline hover:opacity-80"
+      >
+        Go now →
+      </button>
+    )}
+  </div>
+)}

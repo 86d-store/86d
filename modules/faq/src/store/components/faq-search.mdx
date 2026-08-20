@@ -1,0 +1,58 @@
+import Link from "next/link";
+
+{/* FAQ Search — search bar with live results */}
+
+export default function FaqSearchTemplate({
+  query,
+  onChange,
+  results,
+  isLoading,
+  hasSearched,
+  placeholder,
+}) {
+  return (
+    <div className="faq-search">
+      <div className="relative mb-6">
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-gray-400 focus:outline-none transition-colors text-base"
+          aria-label="Search FAQ"
+        />
+        {isLoading && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+            Searching...
+          </div>
+        )}
+      </div>
+
+      {hasSearched && !isLoading && (
+        <div className="faq-search-results">
+          {results.length > 0 ? (
+            <ul className="space-y-3">
+              {results.map((item) => (
+                <li key={item.id}>
+                  <Link
+                    href={`/faq/item/${item.slug}`}
+                    className="block p-4 rounded-lg border border-gray-100 hover:border-gray-300 transition-colors"
+                  >
+                    <h3 className="font-medium mb-1">{item.question}</h3>
+                    <p className="text-sm text-gray-500 line-clamp-2">
+                      {item.answer}
+                    </p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-500 text-center py-4">
+              No results found for &ldquo;{query}&rdquo;
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,169 @@
+<div>
+  <div className="mb-6">
+    <h1 className="font-bold text-2xl text-foreground">Analytics Settings</h1>
+    <p className="mt-1 text-muted-foreground text-sm">
+      Configure event tracking and error monitoring providers.
+    </p>
+  </div>
+
+  {props.isLoading ? (
+    <div className="space-y-4">
+      <div className="h-32 animate-pulse rounded-lg border border-border bg-muted/30" />
+      <div className="h-32 animate-pulse rounded-lg border border-border bg-muted/30" />
+    </div>
+  ) : props.error ? (
+    <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive text-sm">
+      Failed to load settings: {props.error}
+    </div>
+  ) : (
+    <div className="space-y-6">
+      <div className="rounded-lg border border-border bg-card p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">Google Tag Manager</h3>
+              <p className="text-muted-foreground text-sm">Track events with GA4 via GTM dataLayer</p>
+            </div>
+          </div>
+          {props.data?.gtm.configured ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/10 px-3 py-1 font-medium text-green-600 text-xs dark:text-green-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+              Connected
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 font-medium text-amber-600 text-xs dark:text-amber-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              Not configured
+            </span>
+          )}
+        </div>
+        {props.data?.gtm.configured ? (
+          <div className="mt-4 rounded-md bg-muted/30 p-3">
+            <div>
+              <p className="text-muted-foreground text-xs">Container ID</p>
+              <p className="mt-0.5 font-mono text-foreground text-sm">{props.data.gtm.containerId}</p>
+            </div>
+          </div>
+        ) : (
+          <p className="mt-3 text-muted-foreground text-sm">
+            Set <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID</code> environment variable to enable Google Tag Manager event forwarding.
+          </p>
+        )}
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">GA4 Measurement Protocol</h3>
+              <p className="text-muted-foreground text-sm">Server-side event forwarding to Google Analytics 4</p>
+            </div>
+          </div>
+          {props.data?.ga4?.status === "connected" ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/10 px-3 py-1 font-medium text-green-600 text-xs dark:text-green-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+              Connected
+            </span>
+          ) : props.data?.ga4?.status === "error" ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-1 font-medium text-red-600 text-xs dark:text-red-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+              Error
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 font-medium text-amber-600 text-xs dark:text-amber-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              Not configured
+            </span>
+          )}
+        </div>
+        {props.data?.ga4?.status === "connected" ? (
+          <div className="mt-4 rounded-md bg-muted/30 p-3">
+            <div>
+              <p className="text-muted-foreground text-xs">Measurement ID</p>
+              <p className="mt-0.5 font-mono text-foreground text-sm">{props.data.ga4.measurementId}</p>
+            </div>
+          </div>
+        ) : props.data?.ga4?.status === "error" ? (
+          <div className="mt-4 rounded-md border border-red-500/40 bg-red-500/5 p-3 text-red-700 text-sm dark:text-red-300">
+            {props.data.ga4.error ?? "Could not reach the GA4 Measurement Protocol. Check your measurement ID and API secret."}
+          </div>
+        ) : (
+          <p className="mt-3 text-muted-foreground text-sm">
+            Set <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">GA4_MEASUREMENT_ID</code> and <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">GA4_API_SECRET</code> environment variables to enable server-side event forwarding to Google Analytics 4.
+          </p>
+        )}
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-500"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">Sentry</h3>
+              <p className="text-muted-foreground text-sm">Error tracking and performance monitoring</p>
+            </div>
+          </div>
+          {props.data?.sentry.status === "connected" ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/10 px-3 py-1 font-medium text-green-600 text-xs dark:text-green-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+              Connected
+            </span>
+          ) : props.data?.sentry.status === "error" ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-1 font-medium text-red-600 text-xs dark:text-red-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+              Error
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 font-medium text-amber-600 text-xs dark:text-amber-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              Not configured
+            </span>
+          )}
+        </div>
+        {props.data?.sentry.status === "connected" ? (
+          <div className="mt-4 rounded-md bg-muted/30 p-3 space-y-2">
+            <div>
+              <p className="text-muted-foreground text-xs">DSN</p>
+              <p className="mt-0.5 font-mono text-foreground text-sm">{props.data.sentry.dsn}</p>
+            </div>
+            {props.data.sentry.host && (
+              <div>
+                <p className="text-muted-foreground text-xs">Host</p>
+                <p className="mt-0.5 font-mono text-foreground text-sm">{props.data.sentry.host}</p>
+              </div>
+            )}
+          </div>
+        ) : props.data?.sentry.status === "error" ? (
+          <div className="mt-4 rounded-md border border-red-500/40 bg-red-500/5 p-3 text-red-700 text-sm dark:text-red-300">
+            {props.data.sentry.error ?? "Sentry DSN is invalid. Check the format: https://publicKey@host/projectId"}
+          </div>
+        ) : (
+          <p className="mt-3 text-muted-foreground text-sm">
+            Set <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">SENTRY_DSN</code> environment variable to enable error tracking and performance monitoring.
+          </p>
+        )}
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h3 className="mb-2 font-semibold text-foreground">Event forwarding</h3>
+        <ul className="space-y-2 text-muted-foreground text-sm">
+          <li><strong className="text-foreground">Database</strong> — all events are always stored in the local database for analytics dashboards</li>
+          <li><strong className="text-foreground">GTM dataLayer</strong> — when configured, client-side events are pushed to Google Tag Manager with GA4 event name mapping</li>
+          <li><strong className="text-foreground">GA4 Measurement Protocol</strong> — when configured, events are forwarded server-side to Google Analytics 4 with GA4 recommended event names</li>
+          <li><strong className="text-foreground">Sentry</strong> — when configured, unhandled errors and performance data are captured automatically via the store instrumentation layer</li>
+        </ul>
+        <p className="mt-3 text-muted-foreground text-xs">
+          Providers can be enabled independently. When a provider is not configured, events are still tracked locally.
+        </p>
+      </div>
+    </div>
+  )}
+</div>

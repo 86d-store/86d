@@ -1,0 +1,117 @@
+{props.isLoading ? (
+  <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    {Array.from({ length: 8 }).map((_, i) => (
+      <div key={`skel-${i}`} className="aspect-square animate-pulse rounded-xl border border-border bg-muted/30" />
+    ))}
+  </div>
+) : props.photos.length === 0 ? (
+  <div className="rounded-xl border border-dashed border-border p-10 text-center">
+    <p className="font-medium text-foreground">No photos yet</p>
+    <p className="mt-1 text-muted-foreground text-sm">Photos captured at this event will appear here.</p>
+  </div>
+) : (
+  <div className="space-y-5">
+    <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      {props.photos.map((photo) => (
+        <button
+          key={photo.id}
+          type="button"
+          onClick={() => props.onSelect(photo)}
+          className="group relative aspect-square overflow-hidden rounded-xl border border-border bg-muted transition-all hover:border-foreground/20 hover:shadow-md"
+        >
+          <img
+            src={photo.thumbnailUrl ?? photo.imageUrl}
+            alt={photo.caption ?? "Photo"}
+            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          />
+          {photo.caption && (
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+              <p className="truncate text-white text-xs">{photo.caption}</p>
+            </div>
+          )}
+        </button>
+      ))}
+    </div>
+
+    {/* Pagination */}
+    {(props.page > 1 || props.hasMore) && (
+      <div className="flex items-center justify-center gap-3">
+        <button
+          type="button"
+          disabled={props.page <= 1}
+          onClick={props.onPrevPage}
+          className="rounded-lg border border-border px-4 py-2 text-sm transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span className="text-muted-foreground text-sm">Page {props.page}</span>
+        <button
+          type="button"
+          disabled={!props.hasMore}
+          onClick={props.onNextPage}
+          className="rounded-lg border border-border px-4 py-2 text-sm transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+    )}
+
+    {/* Lightbox */}
+    {props.selected && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={props.onClose}>
+        <div className="relative max-h-[90vh] max-w-2xl w-full space-y-4" onClick={(e) => e.stopPropagation()}>
+          <div className="relative overflow-hidden rounded-xl bg-black">
+            <img
+              src={props.selected.imageUrl}
+              alt={props.selected.caption ?? "Photo"}
+              className="max-h-[60vh] w-full object-contain"
+            />
+            <button
+              type="button"
+              onClick={props.onClose}
+              className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
+            >
+              ✕
+            </button>
+          </div>
+          {props.selected.caption && (
+            <p className="text-center text-sm text-white">{props.selected.caption}</p>
+          )}
+
+          {/* Send form */}
+          <div className="rounded-xl bg-white p-4 dark:bg-neutral-900">
+            <p className="mb-3 font-medium text-foreground text-sm">Send this photo to yourself</p>
+            {props.sendSuccess ? (
+              <p className="text-emerald-600 text-sm">✓ Sent successfully!</p>
+            ) : (
+              <form onSubmit={props.onSend} className="space-y-2">
+                <input
+                  type="email"
+                  value={props.sendEmail}
+                  onChange={(e) => props.onSendEmailChange(e.target.value)}
+                  placeholder="Email address"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/40"
+                />
+                <input
+                  type="tel"
+                  value={props.sendPhone}
+                  onChange={(e) => props.onSendPhoneChange(e.target.value)}
+                  placeholder="Phone number (optional)"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/40"
+                />
+                {props.sendError && <p className="text-destructive text-xs">{props.sendError}</p>}
+                <button
+                  type="submit"
+                  disabled={props.isSending}
+                  className="w-full rounded-lg bg-foreground px-4 py-2 font-medium text-background text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+                >
+                  {props.isSending ? "Sending…" : "Send Photo"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+)}

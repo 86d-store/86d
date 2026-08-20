@@ -1,0 +1,208 @@
+{props.isLoading ? (
+  <div className="space-y-4">
+    {Array.from({ length: 3 }).map((_, i) => (
+      <div
+        key={`skel-${i}`}
+        className="h-24 animate-pulse rounded-xl border border-border bg-muted/30"
+      />
+    ))}
+  </div>
+) : props.isError ? (
+  <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center">
+    <p className="font-medium text-destructive text-sm">
+      Failed to load dashboard. Please try again.
+    </p>
+  </div>
+) : props.isNotAffiliate ? (
+  <div className="rounded-xl border border-border bg-muted/30 p-8 text-center">
+    <p className="font-semibold text-foreground">Not an affiliate yet</p>
+    <p className="mt-1 text-muted-foreground text-sm">
+      Apply to join the affiliate program to get started.
+    </p>
+  </div>
+) : props.isPending ? (
+  <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-800 dark:bg-amber-950/30">
+    <p className="font-semibold text-amber-800 dark:text-amber-200">Application under review</p>
+    <p className="mt-1 text-amber-700 text-sm dark:text-amber-300">
+      Your affiliate application is pending approval. We'll notify you once it's reviewed.
+    </p>
+  </div>
+) : props.isSuspended ? (
+  <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center">
+    <p className="font-semibold text-destructive">Account suspended</p>
+    <p className="mt-1 text-muted-foreground text-sm">
+      Your affiliate account has been suspended. Please contact support for assistance.
+    </p>
+  </div>
+) : (
+  <div className="space-y-8">
+    {/* Header */}
+    <div className="flex items-center justify-between">
+      <div>
+        <h2 className="font-semibold text-foreground text-xl">Affiliate Dashboard</h2>
+        <p className="mt-0.5 text-muted-foreground text-sm">
+          {props.affiliate?.commissionRate}% commission rate
+        </p>
+      </div>
+      <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 font-medium text-emerald-800 text-xs dark:bg-emerald-900/30 dark:text-emerald-400">
+        Active
+      </span>
+    </div>
+
+    {/* Balance stats */}
+    {props.balance && (
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <p className="text-muted-foreground text-xs uppercase tracking-wider">Pending earnings</p>
+          <p className="mt-1.5 font-bold text-2xl text-foreground">
+            {props.formatCurrency(props.balance.pending, props.balance.currency)}
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-5">
+          <p className="text-muted-foreground text-xs uppercase tracking-wider">Approved earnings</p>
+          <p className="mt-1.5 font-bold text-2xl text-emerald-600 dark:text-emerald-400">
+            {props.formatCurrency(props.balance.approved, props.balance.currency)}
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-5">
+          <p className="text-muted-foreground text-xs uppercase tracking-wider">Total paid out</p>
+          <p className="mt-1.5 font-bold text-2xl text-foreground">
+            {props.formatCurrency(props.balance.paid, props.balance.currency)}
+          </p>
+        </div>
+      </div>
+    )}
+
+    {/* Create link */}
+    <div className="rounded-xl border border-border bg-card p-5">
+      <h3 className="mb-3 font-medium text-foreground text-sm">Create affiliate link</h3>
+      <form onSubmit={props.onCreateLink} className="flex gap-2">
+        <input
+          type="url"
+          required
+          maxLength={2000}
+          value={props.newTargetUrl}
+          onChange={(e) => props.onNewTargetUrlChange(e.target.value)}
+          placeholder="https://example.com/product"
+          className="min-w-0 flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-1"
+        />
+        <button
+          type="submit"
+          disabled={props.isCreatingLink || !props.newTargetUrl}
+          className="rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-opacity hover:opacity-90 disabled:opacity-60"
+        >
+          {props.isCreatingLink ? "Creating…" : "Create link"}
+        </button>
+      </form>
+      {props.createError && (
+        <p className="mt-2 text-destructive text-sm" role="alert">{props.createError}</p>
+      )}
+    </div>
+
+    {/* Links */}
+    <div>
+      <h3 className="mb-3 font-medium text-foreground text-sm">Your links</h3>
+      {props.links.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border p-6 text-center">
+          <p className="text-muted-foreground text-sm">No links yet. Create your first link above.</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-border rounded-xl border border-border overflow-hidden">
+          {props.links.map((link) => {
+            const refUrl = (() => {
+              try {
+                const u = new URL(link.targetUrl);
+                u.searchParams.set("ref", link.code);
+                return u.toString();
+              } catch {
+                return `${link.targetUrl}?ref=${link.code}`;
+              }
+            })();
+            return (
+              <div key={link.id} className="flex items-center gap-4 bg-card px-4 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-mono text-foreground text-xs">{refUrl}</p>
+                  <p className="mt-0.5 text-muted-foreground text-xs">
+                    {link.clickCount} clicks · {link.conversionCount} conversions
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => props.onCopy(link)}
+                  className="shrink-0 rounded-md border border-border px-3 py-1.5 text-foreground text-xs transition-colors hover:bg-muted"
+                >
+                  {props.copiedId === link.id ? "Copied!" : "Copy"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+
+    {/* Recent conversions */}
+    {props.conversions.length > 0 && (
+      <div>
+        <h3 className="mb-3 font-medium text-foreground text-sm">Recent conversions</h3>
+        <div className="divide-y divide-border rounded-xl border border-border overflow-hidden">
+          {props.conversions.map((conv) => (
+            <div key={conv.id} className="flex items-center justify-between gap-4 bg-card px-4 py-3">
+              <div>
+                <p className="text-foreground text-sm">
+                  {props.formatCurrency(conv.amount)}
+                  <span className="ml-2 text-muted-foreground text-xs">
+                    → {props.formatCurrency(conv.commission)} commission
+                  </span>
+                </p>
+                <p className="mt-0.5 text-muted-foreground text-xs">{props.formatDate(conv.createdAt)}</p>
+              </div>
+              <span
+                className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium text-xs ${
+                  conv.status === "approved"
+                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
+                    : conv.status === "rejected"
+                      ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                      : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+                }`}
+              >
+                {conv.status}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {/* Payout history */}
+    {props.payouts.length > 0 && (
+      <div>
+        <h3 className="mb-3 font-medium text-foreground text-sm">Payout history</h3>
+        <div className="divide-y divide-border rounded-xl border border-border overflow-hidden">
+          {props.payouts.map((payout) => (
+            <div key={payout.id} className="flex items-center justify-between gap-4 bg-card px-4 py-3">
+              <div>
+                <p className="font-medium text-foreground text-sm">
+                  {props.formatCurrency(payout.amount)}
+                </p>
+                <p className="mt-0.5 text-muted-foreground text-xs">
+                  {payout.method.replace(/_/g, " ")} · {props.formatDate(payout.createdAt)}
+                </p>
+              </div>
+              <span
+                className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium text-xs ${
+                  payout.status === "completed"
+                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
+                    : payout.status === "failed"
+                      ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                      : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                }`}
+              >
+                {payout.status}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+)}

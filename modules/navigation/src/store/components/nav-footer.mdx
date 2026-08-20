@@ -1,0 +1,52 @@
+{props.isLoading ? (
+  <nav className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-4" aria-label="Footer">
+    {Array.from({ length: 4 }).map((_, i) => (
+      <div key={`footer-skeleton-${i}`} className="space-y-3">
+        <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+        <div className="h-3 w-24 animate-pulse rounded bg-muted" />
+        <div className="h-3 w-16 animate-pulse rounded bg-muted" />
+        <div className="h-3 w-28 animate-pulse rounded bg-muted" />
+      </div>
+    ))}
+  </nav>
+) : props.columns.length === 0 ? null : (
+  <nav
+    className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-4"
+    aria-label={props.menuName || "Footer navigation"}
+  >
+    {props.columns.map((col) => (
+      <div key={col.id}>
+        {col.children.length > 0 ? (
+          <>
+            <h3 className="font-semibold text-foreground text-sm tracking-wide">
+              {col.label}
+            </h3>
+            <ul className="mt-3 space-y-2">
+              {col.children.map((child) => (
+                <li key={child.id}>
+                  <a
+                    href={child.href}
+                    target={child.openInNewTab ? "_blank" : undefined}
+                    rel={child.openInNewTab ? "noopener noreferrer" : undefined}
+                    className={`text-muted-foreground text-sm transition-colors hover:text-foreground ${child.cssClass ?? ""}`}
+                  >
+                    {child.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <a
+            href={col.href}
+            target={col.openInNewTab ? "_blank" : undefined}
+            rel={col.openInNewTab ? "noopener noreferrer" : undefined}
+            className={`font-semibold text-foreground text-sm transition-colors hover:text-foreground/80 ${col.cssClass ?? ""}`}
+          >
+            {col.label}
+          </a>
+        )}
+      </div>
+    ))}
+  </nav>
+)}

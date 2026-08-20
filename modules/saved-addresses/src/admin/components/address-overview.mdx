@@ -1,0 +1,73 @@
+<div className="space-y-6">
+  <div className="flex items-center justify-between">
+    <div>
+      <h2 className="font-semibold text-2xl">Saved Addresses</h2>
+      <p className="text-muted-foreground text-sm">Manage customer address books</p>
+    </div>
+  </div>
+
+  <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
+    <div className="rounded-lg border bg-card p-4">
+      <p className="font-medium text-2xl">{props.summary.totalAddresses}</p>
+      <p className="text-muted-foreground text-sm">Total Addresses</p>
+    </div>
+    <div className="rounded-lg border bg-card p-4">
+      <p className="font-medium text-2xl">{props.summary.uniqueCountries}</p>
+      <p className="text-muted-foreground text-sm">Countries</p>
+    </div>
+  </div>
+
+  {props.countryCounts.length > 0 && (
+    <div className="rounded-lg border bg-card p-4">
+      <h3 className="mb-3 font-medium text-sm">Country Breakdown</h3>
+      <div className="flex flex-wrap gap-2">
+        {props.countryCounts.map((cc) => (
+          <button
+            key={cc.country}
+            type="button"
+            onClick={() => props.onCountrySelect(cc.country)}
+            className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs transition-colors hover:bg-muted ${
+              props.countryFilter === cc.country
+                ? "border-foreground bg-muted font-medium"
+                : "border-border"
+            }`}
+          >
+            {cc.country}
+            <span className="text-muted-foreground">({cc.count})</span>
+          </button>
+        ))}
+        {props.countryFilter && (
+          <button
+            type="button"
+            onClick={() => props.onCountrySelect("")}
+            className="inline-flex items-center rounded-full border border-border px-3 py-1 text-muted-foreground text-xs hover:bg-muted"
+          >
+            Clear filter
+          </button>
+        )}
+      </div>
+    </div>
+  )}
+
+  {props.error && (
+    <div className="rounded-lg bg-destructive/10 p-3 text-destructive text-sm">
+      {props.error}
+    </div>
+  )}
+
+  <div className="flex items-center gap-2">
+    <input
+      type="text"
+      placeholder="Filter by Customer ID..."
+      value={props.customerIdFilter}
+      onChange={(e) => props.onCustomerIdFilterChange(e.target.value)}
+      className="rounded-md border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground"
+    />
+  </div>
+
+  <div className="rounded-lg border bg-card">
+    <div className="p-4">
+      {props.itemsContent}
+    </div>
+  </div>
+</div>

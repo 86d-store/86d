@@ -1,0 +1,13 @@
+# Nixpacks config for Railway and other Nixpacks hosts (monorepo root = 86d store platform).
+# Template: https://railway.com/deploy/86d
+[phases.setup]
+nixPkgs = ["...", "bun"]
+
+[phases.install]
+cmds = ["bun install --ignore-scripts"]
+
+[phases.build]
+cmds = ["bun run generate:modules", "bun run build:store"]
+
+[start]
+cmd = "cd apps/store && bun run start -- -p ${PORT:-3000}"

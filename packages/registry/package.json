@@ -1,0 +1,79 @@
+{
+	"name": "@86d-app/registry",
+	"version": "0.0.41",
+	"description": "Module registry for 86d — resolve, fetch, and cache modules from local, GitHub, or npm sources",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "packages/registry"
+	},
+	"license": "MIT",
+	"type": "module",
+	"exports": {
+		"./admission": {
+			"types": "./src/admission.ts",
+			"default": "./src/admission.ts"
+		},
+		"./config": {
+			"types": "./src/config.ts",
+			"default": "./src/config.ts"
+		},
+		"./fetcher": {
+			"types": "./src/fetcher.ts",
+			"default": "./src/fetcher.ts"
+		},
+		"./integrity": {
+			"types": "./src/integrity.ts",
+			"default": "./src/integrity.ts"
+		},
+		"./lockfile": {
+			"types": "./src/lockfile.ts",
+			"default": "./src/lockfile.ts"
+		},
+		"./manifest": {
+			"types": "./src/manifest.ts",
+			"default": "./src/manifest.ts"
+		},
+		"./maturity": {
+			"types": "./src/maturity.ts",
+			"default": "./src/maturity.ts"
+		},
+		"./paths": {
+			"types": "./src/paths.ts",
+			"default": "./src/paths.ts"
+		},
+		"./resolver": {
+			"types": "./src/resolver.ts",
+			"default": "./src/resolver.ts"
+		},
+		"./specifier": {
+			"types": "./src/specifier.ts",
+			"default": "./src/specifier.ts"
+		},
+		"./template": {
+			"types": "./src/template.ts",
+			"default": "./src/template.ts"
+		},
+		"./types": {
+			"types": "./src/types.ts",
+			"default": "./src/types.ts"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/node": "catalog:node",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

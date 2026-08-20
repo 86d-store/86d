@@ -1,0 +1,75 @@
+<div>
+  <div className="mb-6 flex items-center justify-between">
+    <div>
+      <h1 className="font-semibold text-foreground text-lg">Categories</h1>
+      {props.total > 0 && (
+        <p className="mt-1 text-muted-foreground text-sm">
+          {props.total} {props.total === 1 ? "category" : "categories"} total
+        </p>
+      )}
+    </div>
+    <button
+      type="button"
+      onClick={props.onCreateNew}
+      className="rounded-md bg-foreground px-4 py-2 font-semibold text-background text-sm transition-opacity hover:opacity-90"
+    >
+      New category
+    </button>
+  </div>
+
+  <div className="overflow-hidden rounded-lg border border-border bg-card">
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-border border-b bg-muted/50">
+            <th className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider">
+              Name
+            </th>
+            <th className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider">
+              Slug
+            </th>
+            <th className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider">
+              Visible
+            </th>
+            <th className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider">
+              Position
+            </th>
+            <th className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider">
+              Products
+            </th>
+            <th className="px-4 py-3 text-right font-medium text-muted-foreground text-xs uppercase tracking-wider">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {props.tableBody}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {props.totalPages > 1 && (
+    <div className="mt-4 flex items-center justify-center gap-2">
+      <button
+        type="button"
+        onClick={props.onPrevPage}
+        disabled={props.page === 1}
+        className="rounded-md border border-border px-3 py-1.5 text-foreground text-sm hover:bg-muted disabled:opacity-50"
+      >
+        Previous
+      </button>
+      <span className="text-muted-foreground text-sm">
+        Page {props.page} of {props.totalPages}
+      </span>
+      <button
+        type="button"
+        onClick={props.onNextPage}
+        disabled={props.page === props.totalPages}
+        className="rounded-md border border-border px-3 py-1.5 text-foreground text-sm hover:bg-muted disabled:opacity-50"
+      >
+        Next
+      </button>
+    </div>
+  )}
+</div>

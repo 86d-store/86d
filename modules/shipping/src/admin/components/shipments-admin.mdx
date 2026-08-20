@@ -1,0 +1,22 @@
+<div>
+  <div className="mb-6 flex items-start justify-between">
+    <div>
+      <h1 className="font-bold text-2xl text-foreground">Shipments</h1>
+      <p className="mt-1 text-muted-foreground text-sm">
+        {props.subtitle}
+      </p>
+    </div>
+    <div className="flex items-center gap-3">
+      {props.filter}
+      <button
+        type="button"
+        onClick={props.onAddShipment}
+        className="rounded-md bg-foreground px-3 py-2 font-medium text-background text-sm hover:opacity-90"
+      >
+        Create shipment
+      </button>
+    </div>
+  </div>
+
+  {props.content}
+</div>

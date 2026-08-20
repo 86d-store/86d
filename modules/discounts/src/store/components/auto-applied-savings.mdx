@@ -1,0 +1,29 @@
+<div className="rounded-lg border border-blue-200 bg-blue-50/50 px-4 py-3 dark:border-blue-800 dark:bg-blue-950/30">
+  <div className="mb-2 flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-blue-600 dark:text-blue-400">
+      <path fillRule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clipRule="evenodd" />
+    </svg>
+    <span className="font-medium text-blue-800 text-sm dark:text-blue-200">
+      Savings applied automatically
+    </span>
+  </div>
+  <div className="space-y-1.5">
+    {props.items.map((item) => (
+      <div key={item.id} className="flex items-center justify-between text-sm">
+        <span className="text-blue-700 dark:text-blue-300">{item.name}</span>
+        <span className="font-medium text-blue-800 dark:text-blue-200">
+          {item.amountFormatted}
+        </span>
+      </div>
+    ))}
+  </div>
+  {props.hasMultiple && (
+    <div className="mt-2 flex items-center justify-between border-t border-blue-200 pt-2 text-sm dark:border-blue-800">
+      <span className="font-medium text-blue-800 dark:text-blue-200">Total auto-savings</span>
+      <span className="font-semibold text-blue-800 dark:text-blue-200">
+        −{props.totalFormatted}
+        {props.freeShipping && " + Free shipping"}
+      </span>
+    </div>
+  )}
+</div>

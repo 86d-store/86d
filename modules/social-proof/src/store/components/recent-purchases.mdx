@@ -1,0 +1,27 @@
+import Link from "next/link";
+
+<div className="flex flex-col gap-2">
+  {props.purchases.map((purchase) => (
+    <Link
+      key={purchase.id}
+      href={`/products/${purchase.productSlug}`}
+      className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-accent"
+    >
+      {purchase.productImage && (
+        <img
+          src={purchase.productImage}
+          alt={purchase.productName}
+          className="h-10 w-10 rounded object-cover"
+        />
+      )}
+      <div className="flex flex-1 flex-col">
+        <span className="font-medium text-sm">{purchase.productName}</span>
+        <span className="text-muted-foreground text-xs">
+          Someone{purchase.city ? ` in ${purchase.city}` : ""} purchased
+          {purchase.quantity > 1 ? ` ${purchase.quantity}` : ""}
+          {" · "}{purchase.timeAgo}
+        </span>
+      </div>
+    </Link>
+  ))}
+</div>

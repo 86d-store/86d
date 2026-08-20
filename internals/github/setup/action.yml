@@ -1,0 +1,26 @@
+name: "Setup and install"
+description: "Common setup steps for Actions"
+
+runs:
+  using: composite
+  steps:
+    - uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: ".nvmrc"
+
+    - shell: bash
+      run: bun install
+
+    # public/biome.json is root:false (extends the 86d composite root). When this
+    # repo is checked out alone, create a minimal parent root so Biome still loads.
+    - name: Biome parent root for standalone CI
+      shell: bash
+      run: |
+        parent="$(dirname "$GITHUB_WORKSPACE")"
+        if [ ! -f "$parent/biome.json" ]; then
+          printf '%s\n' '{ "css": { "parser": { "tailwindDirectives": true } } }' > "$parent/biome.json"
+        fi

@@ -1,0 +1,52 @@
+{
+	"name": "@86d-app/sdk",
+	"version": "0.0.4",
+	"private": true,
+	"license": "MIT",
+	"type": "module",
+	"exports": {
+		"./fetch-from-api": {
+			"types": "./src/fetch-from-api.ts",
+			"default": "./src/fetch-from-api.ts"
+		},
+		"./get-store-config": {
+			"types": "./src/get-store-config.ts",
+			"default": "./src/get-store-config.ts"
+		},
+		"./load-from-template": {
+			"types": "./src/load-from-template.ts",
+			"default": "./src/load-from-template.ts"
+		},
+		"./managed-runtime-diagnostics": {
+			"types": "./src/managed-runtime-diagnostics.ts",
+			"default": "./src/managed-runtime-diagnostics.ts"
+		},
+		"./types": {
+			"types": "./src/types.ts",
+			"default": "./src/types.ts"
+		},
+		"./workload-identity-proof": {
+			"types": "./src/workload-identity-proof.ts",
+			"default": "./src/workload-identity-proof.ts"
+		},
+		"./workload-token-client": {
+			"types": "./src/workload-token-client.ts",
+			"default": "./src/workload-token-client.ts"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"typescript": "catalog:"
+	}
+}

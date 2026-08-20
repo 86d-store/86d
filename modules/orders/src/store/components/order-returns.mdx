@@ -1,0 +1,29 @@
+<div className="mt-6">
+  <div className="mb-4 flex items-center justify-between">
+    <h3 className="font-semibold text-foreground text-lg">Returns</h3>
+    {props.canReturn && !props.showForm && (
+      <button
+        type="button"
+        onClick={props.onShowForm}
+        className="rounded-lg border border-border px-3 py-1.5 text-sm transition-colors hover:bg-muted"
+      >
+        Request Return
+      </button>
+    )}
+  </div>
+
+  {props.formContent}
+
+  {!props.hasReturns && !props.showForm ? (
+    <div className="rounded-xl border border-border bg-muted/30 py-8 text-center">
+      <p className="text-muted-foreground text-sm">No return requests</p>
+      {props.canReturn && (
+        <p className="mt-1 text-muted-foreground text-xs">
+          Need to return an item? Click &ldquo;Request Return&rdquo; above.
+        </p>
+      )}
+    </div>
+  ) : (
+    props.returnsListContent
+  )}
+</div>

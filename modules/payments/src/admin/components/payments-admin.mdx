@@ -1,0 +1,27 @@
+<div>
+  <div className="mb-6">
+    <h1 className="font-bold text-2xl text-foreground">Payments</h1>
+    <p className="mt-1 text-muted-foreground text-sm">
+      Track payment intents and refunds
+    </p>
+  </div>
+
+  <div className="mb-6 flex gap-1 border-border border-b">
+    {["intents", "refunds"].map((t) => (
+      <button
+        key={t}
+        type="button"
+        onClick={() => props.onTabChange(t)}
+        className={`-mb-px border-b-2 px-4 py-2 font-medium text-sm capitalize transition-colors ${
+          props.tab === t
+            ? "border-foreground text-foreground"
+            : "border-transparent text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        {t}
+      </button>
+    ))}
+  </div>
+
+  {props.tabContent}
+</div>

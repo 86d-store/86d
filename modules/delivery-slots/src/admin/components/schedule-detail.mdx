@@ -1,0 +1,156 @@
+# Schedule Detail
+
+{props.loading ? (
+  <div className="py-12 text-center text-muted-foreground text-sm">Loading schedule…</div>
+) : !props.schedule ? (
+  <div className="py-12 text-center text-muted-foreground text-sm">Schedule not found.</div>
+) : props.editing ? (
+  <form onSubmit={props.onUpdate} className="space-y-4 rounded-lg border border-border bg-card p-4">
+    <h3 className="font-semibold text-foreground text-sm">Edit Schedule</h3>
+    {props.updateError && (
+      <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-destructive text-sm">{props.updateError}</div>
+    )}
+    <div className="grid gap-3 sm:grid-cols-2">
+      <div>
+        <label htmlFor="sd-name" className="mb-1 block text-foreground text-sm font-medium">Name *</label>
+        <input
+          id="sd-name"
+          type="text"
+          required
+          value={props.form.name ?? ""}
+          onChange={(e) => props.onFormChange("name", e.target.value)}
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        />
+      </div>
+      <div>
+        <label htmlFor="sd-day" className="mb-1 block text-foreground text-sm font-medium">Day of week</label>
+        <select
+          id="sd-day"
+          value={props.form.dayOfWeek ?? 0}
+          onChange={(e) => props.onFormChange("dayOfWeek", Number(e.target.value))}
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        >
+          {props.dayNames.map((day, i) => <option key={i} value={i}>{day}</option>)}
+        </select>
+      </div>
+      <div>
+        <label htmlFor="sd-start" className="mb-1 block text-foreground text-sm font-medium">Start time</label>
+        <input
+          id="sd-start"
+          type="time"
+          required
+          value={props.form.startTime ?? ""}
+          onChange={(e) => props.onFormChange("startTime", e.target.value)}
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        />
+      </div>
+      <div>
+        <label htmlFor="sd-end" className="mb-1 block text-foreground text-sm font-medium">End time</label>
+        <input
+          id="sd-end"
+          type="time"
+          required
+          value={props.form.endTime ?? ""}
+          onChange={(e) => props.onFormChange("endTime", e.target.value)}
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        />
+      </div>
+      <div>
+        <label htmlFor="sd-capacity" className="mb-1 block text-foreground text-sm font-medium">Capacity</label>
+        <input
+          id="sd-capacity"
+          type="number"
+          min="1"
+          required
+          value={props.form.capacity ?? 1}
+          onChange={(e) => props.onFormChange("capacity", Number(e.target.value))}
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        />
+      </div>
+      <div>
+        <label htmlFor="sd-surcharge" className="mb-1 block text-foreground text-sm font-medium">Surcharge (cents)</label>
+        <input
+          id="sd-surcharge"
+          type="number"
+          min="0"
+          value={props.form.surchargeInCents ?? 0}
+          onChange={(e) => props.onFormChange("surchargeInCents", Number(e.target.value))}
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        />
+      </div>
+    </div>
+    <label className="flex cursor-pointer items-center gap-2 text-sm">
+      <input
+        type="checkbox"
+        checked={props.form.active ?? true}
+        onChange={(e) => props.onFormChange("active", e.target.checked)}
+        className="rounded border-border accent-foreground"
+      />
+      <span className="text-foreground">Active</span>
+    </label>
+    <div className="flex gap-2 pt-1">
+      <button
+        type="submit"
+        disabled={props.isUpdating}
+        className="rounded-md bg-foreground px-4 py-2 font-medium text-background text-sm hover:opacity-90 disabled:opacity-50"
+      >
+        {props.isUpdating ? "Saving…" : "Save Changes"}
+      </button>
+      <button
+        type="button"
+        onClick={props.onCancelEdit}
+        className="rounded-md border border-border px-4 py-2 text-foreground text-sm hover:bg-muted"
+      >
+        Cancel
+      </button>
+    </div>
+  </form>
+) : (
+  <div className="space-y-6">
+    <div className="flex items-center justify-between">
+      <div />
+      <button
+        type="button"
+        onClick={props.onStartEdit}
+        className="rounded-md border border-border px-3 py-1.5 text-foreground text-sm hover:bg-muted"
+      >
+        Edit
+      </button>
+    </div>
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div className="rounded-lg border border-border bg-card px-4 py-3">
+        <div className="text-muted-foreground text-xs">Name</div>
+        <div className="mt-0.5 font-semibold text-foreground">{props.schedule.name}</div>
+      </div>
+      <div className="rounded-lg border border-border bg-card px-4 py-3">
+        <div className="text-muted-foreground text-xs">Day</div>
+        <div className="mt-0.5 font-semibold text-foreground">{props.dayNames[props.schedule.dayOfWeek]}</div>
+      </div>
+      <div className="rounded-lg border border-border bg-card px-4 py-3">
+        <div className="text-muted-foreground text-xs">Time Window</div>
+        <div className="mt-0.5 font-semibold text-foreground">{props.schedule.startTime} – {props.schedule.endTime}</div>
+      </div>
+      <div className="rounded-lg border border-border bg-card px-4 py-3">
+        <div className="text-muted-foreground text-xs">Capacity</div>
+        <div className="mt-0.5 font-semibold text-foreground">{props.schedule.capacity} bookings</div>
+      </div>
+      <div className="rounded-lg border border-border bg-card px-4 py-3">
+        <div className="text-muted-foreground text-xs">Surcharge</div>
+        <div className="mt-0.5 font-semibold text-foreground">
+          {props.schedule.surchargeInCents === 0 ? "None" : `$${(props.schedule.surchargeInCents / 100).toFixed(2)}`}
+        </div>
+      </div>
+      <div className="rounded-lg border border-border bg-card px-4 py-3">
+        <div className="text-muted-foreground text-xs">Status</div>
+        <div className="mt-0.5">
+          <span className={`inline-flex rounded-full px-2 py-0.5 font-medium text-xs ${props.schedule.active ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"}`}>
+            {props.schedule.active ? "Active" : "Inactive"}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div className="text-muted-foreground text-xs">
+      Last updated {new Date(props.schedule.updatedAt).toLocaleDateString()}
+    </div>
+  </div>
+)}

@@ -1,0 +1,67 @@
+{!props.mounted ? (
+  <div className="flex min-h-[40vh] items-center justify-center">
+    <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-foreground" aria-label="Loading" />
+  </div>
+) : (
+  <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+    {/* Success icon */}
+    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="text-green-600 dark:text-green-400"
+        aria-hidden="true"
+      >
+        <path d="M20 6 9 17l-5-5" />
+      </svg>
+    </div>
+
+    {/* Heading */}
+    <h1 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
+      Thank you for your order!
+    </h1>
+
+    {/* Order number */}
+    {props.orderId ? (
+      <p className="mt-3 text-muted-foreground">
+        Your order{" "}
+        <span className="font-mono font-medium text-foreground">
+          {props.orderId}
+        </span>{" "}
+        has been placed.
+      </p>
+    ) : (
+      <p className="mt-3 text-muted-foreground">Your order has been placed.</p>
+    )}
+
+    {/* Confirmation message */}
+    <p className="mt-2 text-muted-foreground text-sm">
+      You'll receive a confirmation email with your order details shortly.
+    </p>
+
+    {/* Actions */}
+    <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+      {props.orderId && (
+        <a
+          href={`/account/orders`}
+          className="rounded-md border border-border px-5 py-2.5 text-foreground text-sm transition-colors hover:bg-muted"
+        >
+          View order history
+        </a>
+      )}
+      <a
+        href="/"
+        className="rounded-md bg-foreground px-5 py-2.5 font-medium text-background text-sm transition-opacity hover:opacity-85"
+      >
+        Continue shopping
+      </a>
+    </div>
+  </div>
+)}

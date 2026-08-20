@@ -1,0 +1,77 @@
+{
+    "$schema": "https://turbo.build/schema.json",
+    "ui": "stream",
+    "globalEnv": [
+        "NODE_ENV",
+        "ENABLE_EXPERIMENTAL_COREPACK",
+        "VERCEL_FORCE_NO_BUILD_CACHE",
+        "APP_URL",
+        "SITE_URL",
+        "DATABASE_URL",
+        "DATABASE_URL_UNPOOLED",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "STORE_ID",
+        "86D_STORE_ID",
+        "86D_API_URL",
+        "86D_WORKLOAD_CREDENTIAL",
+        "STORAGE_CLIENT",
+        "STORAGE_LOCAL_DIR",
+        "STORAGE_LOCAL_BASE_URL"
+    ],
+    "globalPassThroughEnv": [
+        "COREPACK_HOME"
+    ],
+    "globalDependencies": [
+        ".env",
+        ".env.local",
+        ".env.development.local",
+        ".env.test.local",
+        ".env.production.local"
+    ],
+    "tasks": {
+        "build": {
+            "dependsOn": [
+                "^build"
+            ],
+            "outputs": [
+                "dist/**",
+                ".next/**",
+                "build/**"
+            ]
+        },
+        "store#dev": {
+            "cache": false,
+            "persistent": true,
+            "env": [
+                "STORE_ID"
+            ]
+        },
+        "dev": {
+            "cache": false,
+            "persistent": true
+        },
+        "clean": {
+            "cache": false
+        },
+        "typecheck": {
+            "dependsOn": [
+                "^build"
+            ],
+            "outputs": []
+        },
+        "check": {
+            "outputs": []
+        },
+        "check:fix": {
+            "cache": false,
+            "outputs": []
+        },
+        "test": {
+            "dependsOn": [
+                "^build"
+            ],
+            "outputs": []
+        }
+    }
+}

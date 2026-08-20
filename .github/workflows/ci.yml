@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  pull_request:
+    branches: ["*"]
+  push:
+    branches: ["main"]
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+# You can leverage Vercel Remote Caching with Turbo to speed up your builds
+# @link https://turborepo.org/docs/core-concepts/remote-caching#remote-caching-on-vercel-builds
+env:
+  FORCE_COLOR: 3
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        uses: ./internals/github/setup
+
+      - name: Validate commit messages
+        run: bunx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./internals/github/setup
+
+      - name: Copy env
+        uses: ./internals/github/copy-env
+
+      - name: Check
+        run: bun check
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./internals/github/setup
+
+      - name: Generate modules
+        run: bun run generate:modules
+
+      - name: Typecheck
+        run: bun typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./internals/github/setup
+
+      - name: Copy env
+        uses: ./internals/github/copy-env
+
+      - name: Unit tests
+        run: bun run test
+
+  test-e2e:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs: [typecheck]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: 86d
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/86d
+      DATABASE_URL_UNPOOLED: postgresql://postgres:postgres@localhost:5432/86d
+      BETTER_AUTH_SECRET: ci-test-secret-not-for-production
+      # Force IPv4 in CI (some runners resolve `localhost` to ::1 first).
+      E2E_STORE_URL: http://127.0.0.1:3000
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./internals/github/setup
+
+      - name: Copy env
+        uses: ./internals/github/copy-env
+
+      - name: Generate modules
+        run: bun run generate:modules
+
+      - name: Bootstrap database
+        uses: ./internals/github/e2e-database
+
+      - name: Start store for E2E
+        uses: ./internals/github/e2e-store
+
+      - name: E2E tests
+        run: bun test:e2e
+
+      - name: Update visual snapshots
+        if: always() && github.ref == 'refs/heads/main'
+        uses: ./internals/github/update-visual-snapshots
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: warn

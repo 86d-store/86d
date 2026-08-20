@@ -1,0 +1,105 @@
+{
+	"name": "@86d-app/runtime",
+	"version": "0.0.4",
+	"private": true,
+	"license": "MIT",
+	"type": "module",
+	"exports": {
+		"./adapters": {
+			"types": "./src/adapters.ts",
+			"default": "./src/adapters.ts"
+		},
+		"./command": {
+			"types": "./src/command.ts",
+			"default": "./src/command.ts"
+		},
+		"./command-prisma": {
+			"types": "./src/command-prisma.ts",
+			"default": "./src/command-prisma.ts"
+		},
+		"./command-prisma.typecheck": {
+			"types": "./src/command-prisma.typecheck.ts",
+			"default": "./src/command-prisma.typecheck.ts"
+		},
+		"./commands": {
+			"types": "./src/commands.ts",
+			"default": "./src/commands.ts"
+		},
+		"./commands/store-runtime-tracer": {
+			"types": "./src/commands/store-runtime-tracer.ts",
+			"default": "./src/commands/store-runtime-tracer.ts"
+		},
+		"./confirmation-issuer": {
+			"types": "./src/confirmation-issuer.ts",
+			"default": "./src/confirmation-issuer.ts"
+		},
+		"./durable-event-dispatcher": {
+			"types": "./src/durable-event-dispatcher.ts",
+			"default": "./src/durable-event-dispatcher.ts"
+		},
+		"./grant-administration": {
+			"types": "./src/grant-administration.ts",
+			"default": "./src/grant-administration.ts"
+		},
+		"./grant-lifecycle.typecheck": {
+			"types": "./src/grant-lifecycle.typecheck.ts",
+			"default": "./src/grant-lifecycle.typecheck.ts"
+		},
+		"./grant-memory": {
+			"types": "./src/grant-memory.ts",
+			"default": "./src/grant-memory.ts"
+		},
+		"./grant-prisma": {
+			"types": "./src/grant-prisma.ts",
+			"default": "./src/grant-prisma.ts"
+		},
+		"./grants": {
+			"types": "./src/grants.ts",
+			"default": "./src/grants.ts"
+		},
+		"./registry": {
+			"types": "./src/registry.ts",
+			"default": "./src/registry.ts"
+		},
+		"./universal-data-service": {
+			"types": "./src/universal-data-service.ts",
+			"default": "./src/universal-data-service.ts"
+		},
+		"./table-backed-data-service": {
+			"types": "./src/table-backed-data-service.ts",
+			"default": "./src/table-backed-data-service.ts"
+		},
+		"./dual-read-data-service": {
+			"types": "./src/dual-read-data-service.ts",
+			"default": "./src/dual-read-data-service.ts"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*",
+		"better-call": "1.3.5",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"db": "workspace:*",
+		"drizzle-orm": "0.45.2",
+		"@biomejs/biome": "catalog:",
+		"@electric-sql/pglite": "0.4.1",
+		"@prisma/client": "catalog:prisma",
+		"type-fest": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

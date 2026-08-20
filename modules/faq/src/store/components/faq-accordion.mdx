@@ -1,0 +1,88 @@
+import Link from "next/link";
+
+{/* FAQ Accordion — collapsible question/answer pairs */}
+
+export default function FaqAccordionTemplate({
+  title,
+  categories,
+  items,
+  categorySlug,
+  openId,
+  onToggle,
+  onVote,
+  votePending,
+}) {
+  return (
+    <section className="faq-accordion">
+      <h2 className="text-2xl font-semibold mb-6">{title}</h2>
+
+      {!categorySlug && categories.length > 0 && (
+        <nav className="faq-categories mb-8">
+          <ul className="flex flex-wrap gap-2">
+            {categories.map((cat) => (
+              <li key={cat.id}>
+                <Link
+                  href={`/faq/${cat.slug}`}
+                  className="inline-block px-4 py-2 rounded-full border border-gray-200 hover:border-gray-400 transition-colors text-sm"
+                >
+                  {cat.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+
+      {items.length > 0 ? (
+        <div className="space-y-2">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="border border-gray-200 rounded-lg overflow-hidden"
+            >
+              <button
+                type="button"
+                onClick={() => onToggle(item.id)}
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+                aria-expanded={openId === item.id}
+              >
+                <span className="font-medium pr-4">{item.question}</span>
+                <span className="text-gray-400 flex-shrink-0">
+                  {openId === item.id ? "−" : "+"}
+                </span>
+              </button>
+              {openId === item.id && (
+                <div className="px-4 pb-4">
+                  <div className="text-gray-600 leading-relaxed mb-3">
+                    {item.answer}
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-gray-400">
+                    <span>Was this helpful?</span>
+                    <button
+                      type="button"
+                      onClick={() => onVote(item.id, true)}
+                      disabled={votePending}
+                      className="hover:text-green-600 transition-colors"
+                    >
+                      👍 {item.helpfulCount}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onVote(item.id, false)}
+                      disabled={votePending}
+                      className="hover:text-red-600 transition-colors"
+                    >
+                      👎 {item.notHelpfulCount}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : categorySlug ? (
+        <p className="text-gray-500">No questions in this category yet.</p>
+      ) : null}
+    </section>
+  );
+}

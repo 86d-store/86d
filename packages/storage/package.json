@@ -1,0 +1,57 @@
+{
+	"name": "@86d-app/storage",
+	"version": "0.0.41",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "packages/storage"
+	},
+	"license": "MIT",
+	"type": "module",
+	"exports": {
+		"./types": {
+			"types": "./src/types.ts",
+			"default": "./src/types.ts"
+		},
+		"./factory": {
+			"types": "./src/factory.ts",
+			"default": "./src/factory.ts"
+		},
+		"./local": {
+			"types": "./src/local.ts",
+			"default": "./src/local.ts"
+		},
+		"./s3": {
+			"types": "./src/s3.ts",
+			"default": "./src/s3.ts"
+		},
+		"./vercel": {
+			"types": "./src/vercel.ts",
+			"default": "./src/vercel.ts"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/node": "catalog:node",
+		"@vercel/blob": "2.3.3",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	},
+	"peerDependencies": {
+		"@vercel/blob": "2.3.3"
+	},
+	"peerDependenciesMeta": {
+		"@vercel/blob": {
+			"optional": true
+		}
+	}
+}

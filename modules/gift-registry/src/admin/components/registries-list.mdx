@@ -1,0 +1,82 @@
+# Gift Registries
+
+Manage customer gift registries — wedding, baby, birthday, and more.
+
+<div className="space-y-4">
+  {props.summary && (
+    <div className="grid grid-cols-4 gap-4">
+      <div className="rounded-lg border p-4">
+        <div className="text-sm text-muted-foreground">Total Registries</div>
+        <div className="text-2xl font-bold">{props.summary.totalRegistries}</div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-sm text-muted-foreground">Active</div>
+        <div className="text-2xl font-bold">{props.summary.active}</div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-sm text-muted-foreground">Items Purchased</div>
+        <div className="text-2xl font-bold">{props.summary.totalPurchased}</div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-sm text-muted-foreground">Revenue</div>
+        <div className="text-2xl font-bold">
+          ${(props.summary.totalRevenue / 100).toFixed(2)}
+        </div>
+      </div>
+    </div>
+  )}
+
+  <div className="flex items-center gap-2">
+    <select
+      className="rounded border px-3 py-1.5 text-sm"
+      value={props.statusFilter}
+      onChange={(e) => props.onStatusChange(e.target.value)}
+    >
+      <option value="">All statuses</option>
+      <option value="active">Active</option>
+      <option value="completed">Completed</option>
+      <option value="archived">Archived</option>
+    </select>
+  </div>
+
+  {props.loading ? (
+    <div className="py-12 text-center text-muted-foreground">Loading registries…</div>
+  ) : props.registries.length === 0 ? (
+    <div className="py-12 text-center text-muted-foreground">No registries found.</div>
+  ) : (
+    <div className="overflow-x-auto rounded-lg border">
+      <table className="w-full text-sm">
+        <thead className="border-b bg-muted/50">
+          <tr>
+            <th className="px-4 py-3 text-left font-medium">Title</th>
+            <th className="px-4 py-3 text-left font-medium">Customer</th>
+            <th className="px-4 py-3 text-left font-medium">Type</th>
+            <th className="px-4 py-3 text-left font-medium">Status</th>
+            <th className="px-4 py-3 text-left font-medium">Progress</th>
+            <th className="px-4 py-3 text-left font-medium">Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          {props.registries.map((reg) => (
+            <tr key={reg.id} className="border-b last:border-0 hover:bg-muted/30">
+              <td className="px-4 py-3 font-medium">{reg.title}</td>
+              <td className="px-4 py-3 text-muted-foreground">{reg.customerName}</td>
+              <td className="px-4 py-3">{props.typeLabels[reg.type] || reg.type}</td>
+              <td className="px-4 py-3">
+                <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${props.statusColors[reg.status] || ""}`}>
+                  {reg.status}
+                </span>
+              </td>
+              <td className="px-4 py-3">
+                {reg.purchasedCount}/{reg.itemCount} items
+              </td>
+              <td className="px-4 py-3 text-muted-foreground">
+                {new Date(reg.createdAt).toLocaleDateString()}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</div>

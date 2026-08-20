@@ -1,0 +1,21 @@
+<fieldset className="flex gap-0.5 border-0 p-0">
+  <legend className="sr-only">Select rating</legend>
+  {[1, 2, 3, 4, 5].map((n) => (
+    <button
+      key={n}
+      type="button"
+      aria-label={`${n} star${n !== 1 ? "s" : ""}`}
+      aria-pressed={props.value === n}
+      className={`text-2xl leading-none transition-colors ${
+        n <= (props.hover || props.value)
+          ? "text-amber-400"
+          : "text-gray-200 hover:text-amber-200 dark:text-gray-700"
+      }`}
+      onClick={() => props.onChange(n)}
+      onMouseEnter={() => props.onHover(n)}
+      onMouseLeave={() => props.onHover(0)}
+    >
+      ★
+    </button>
+  ))}
+</fieldset>

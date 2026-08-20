@@ -1,0 +1,16 @@
+<section className="py-8">
+  <h2 className="mb-4 font-semibold text-foreground text-xl">My Tickets</h2>
+
+  {props.isEmpty ? (
+    <div className="rounded-xl border border-border bg-muted/30 py-12 text-center">
+      <p className="font-medium text-foreground text-sm">No tickets yet</p>
+      <p className="mt-1 text-muted-foreground text-sm">
+        Your support tickets will appear here once you submit one.
+      </p>
+    </div>
+  ) : (
+    <>
+      {props.ticketListContent}
+    </>
+  )}
+</section>

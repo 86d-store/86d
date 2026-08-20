@@ -1,0 +1,50 @@
+{
+	"name": "@86d-app/instagram-shop",
+	"version": "0.0.41",
+	"description": "Instagram Shopping sales channel module for 86d commerce platform",
+	"keywords": [
+		"commerce",
+		"sales-channel",
+		"86d"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/instagram-shop"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/instagram-shop-admin": {
+			"types": "./src/admin/components/instagram-shop-admin.tsx",
+			"default": "./src/admin/components/instagram-shop-admin.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

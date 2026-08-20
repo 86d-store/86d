@@ -1,0 +1,35 @@
+<div>
+  <div className="mb-6">
+    <h1 className="font-bold text-2xl text-foreground">SEO</h1>
+    <p className="mt-1 text-muted-foreground text-sm">
+      Manage meta tags, redirects, and search engine visibility.
+    </p>
+  </div>
+
+  <div className="mb-4 flex gap-2">
+    <button
+      type="button"
+      onClick={() => props.onTabChange("meta")}
+      className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+        props.activeTab === "meta"
+          ? "bg-primary text-primary-foreground"
+          : "bg-muted text-muted-foreground hover:text-foreground"
+      }`}
+    >
+      Meta Tags
+    </button>
+    <button
+      type="button"
+      onClick={() => props.onTabChange("redirects")}
+      className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+        props.activeTab === "redirects"
+          ? "bg-primary text-primary-foreground"
+          : "bg-muted text-muted-foreground hover:text-foreground"
+      }`}
+    >
+      Redirects
+    </button>
+  </div>
+
+  {props.content}
+</div>

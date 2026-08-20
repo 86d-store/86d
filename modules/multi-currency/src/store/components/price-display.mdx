@@ -1,0 +1,12 @@
+{props.isLoading ? (
+  <span className={`inline-block h-5 w-16 animate-pulse rounded bg-muted ${props.className ?? ""}`} />
+) : (
+  <span className={props.className}>
+    {props.compareAtPrice && (
+      <span className="mr-1.5 text-muted-foreground line-through">
+        {props.compareAtPrice}
+      </span>
+    )}
+    <span className="font-medium text-foreground">{props.price}</span>
+  </span>
+)}

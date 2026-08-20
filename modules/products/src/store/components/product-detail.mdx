@@ -1,0 +1,44 @@
+<div className="py-4 sm:py-6">
+  {/* Breadcrumbs */}
+  {props.breadcrumbs}
+
+  <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+    {/* Image gallery */}
+    {props.imageGallery}
+
+    {/* Product info */}
+    <div className="flex flex-col gap-4 lg:sticky lg:top-20 lg:self-start">
+      {props.brandInfo}
+      {props.categoryLink}
+      {props.labelsBlock}
+      <h1 className="font-display font-semibold text-foreground text-xl tracking-tight sm:text-2xl">
+        {props.name}
+      </h1>
+      {props.reviewSummaryLink}
+      {props.priceBlock}
+      {props.loyaltyPoints}
+      {props.flashDeal}
+      {props.activityBadge}
+      {props.stockBadge}
+      {props.shortDescription}
+      {props.variantSelector}
+      {props.addToCartBlock}
+      <div className="flex flex-wrap gap-2">
+        {props.wishlistButton}
+        {props.compareButton}
+      </div>
+      {props.pricingTiers}
+      {props.trustBadges}
+      {props.outOfStockNotice}
+      {props.descriptionBlock}
+      {props.tagsBlock}
+      {props.socialSharing}
+    </div>
+  </div>
+
+  {props.reviewsSection}
+  {props.questionsSection}
+  {props.recommendedProducts}
+  {props.relatedProducts}
+  {props.recentlyViewed}
+</div>

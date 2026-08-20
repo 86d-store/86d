@@ -1,0 +1,64 @@
+<div className="space-y-6">
+  <h1 className="font-bold text-2xl text-foreground">Wishlist</h1>
+  {props.summary && (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="rounded-lg border border-border bg-card p-5">
+        <p className="font-medium text-muted-foreground text-sm">
+          Total Wishlist Items
+        </p>
+        <p className="mt-1 font-semibold text-2xl text-foreground">
+          {props.summary.totalItems}
+        </p>
+      </div>
+      <div className="rounded-lg border border-border bg-card p-5">
+        <p className="font-medium text-muted-foreground text-sm">
+          Unique Products Saved
+        </p>
+        <p className="mt-1 font-semibold text-2xl text-foreground">
+          {props.summary.topProducts.length}
+        </p>
+      </div>
+    </div>
+  )}
+
+  {props.summary && props.summary.topProducts.length > 0 && (
+    <div className="rounded-lg border border-border bg-card">
+      <div className="border-border border-b px-5 py-3">
+        <h3 className="font-semibold text-foreground text-sm">
+          Most Wishlisted Products
+        </h3>
+      </div>
+      <div className="divide-y divide-border">
+        {props.summary.topProducts.map((product) => (
+          <div
+            key={product.productId}
+            className="flex items-center justify-between px-5 py-3"
+          >
+            <span className="text-foreground text-sm">
+              {product.productName}
+            </span>
+            <span className="rounded-full bg-muted px-2.5 py-0.5 font-medium text-muted-foreground text-xs">
+              {product.count} {product.count === 1 ? "save" : "saves"}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {props.error && (
+    <div className="rounded-lg bg-destructive/10 p-3 text-destructive text-sm">
+      {props.error}
+    </div>
+  )}
+
+  <div className="rounded-lg border border-border bg-card">
+    <div className="border-border border-b px-5 py-3">
+      <h3 className="font-semibold text-foreground text-sm">
+        All Wishlist Items
+      </h3>
+    </div>
+
+    {props.itemsContent}
+  </div>
+</div>

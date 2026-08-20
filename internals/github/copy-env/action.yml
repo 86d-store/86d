@@ -1,0 +1,8 @@
+name: Copy environment file
+description: Copy .env.example to .env for local CI runs
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: cp .env.example .env

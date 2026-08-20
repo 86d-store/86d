@@ -1,0 +1,208 @@
+# Delivery Slots
+
+Manage delivery time windows — set capacity, surcharges, and availability by day of the week.
+
+<div className="space-y-4">
+  {props.summary && (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="rounded-lg border border-border bg-card px-4 py-3">
+        <p className="text-muted-foreground text-xs">Schedules</p>
+        <p className="font-semibold text-foreground text-2xl tabular-nums">{props.summary.totalSchedules}</p>
+      </div>
+      <div className="rounded-lg border border-border bg-card px-4 py-3">
+        <p className="text-muted-foreground text-xs">Active</p>
+        <p className="font-semibold text-foreground text-2xl tabular-nums">{props.summary.activeSchedules}</p>
+      </div>
+      <div className="rounded-lg border border-border bg-card px-4 py-3">
+        <p className="text-muted-foreground text-xs">Bookings</p>
+        <p className="font-semibold text-foreground text-2xl tabular-nums">{props.summary.confirmedBookings}</p>
+      </div>
+      <div className="rounded-lg border border-border bg-card px-4 py-3">
+        <p className="text-muted-foreground text-xs">Surcharge Revenue</p>
+        <p className="font-semibold text-foreground text-2xl tabular-nums">
+          ${(props.summary.totalSurchargeRevenue / 100).toFixed(2)}
+        </p>
+      </div>
+    </div>
+  )}
+
+  <div className="flex items-center justify-between gap-2">
+    <select
+      className="rounded-md border border-border bg-background px-3 py-1.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      value={props.activeFilter}
+      onChange={(e) => props.onActiveChange(e.target.value)}
+    >
+      <option value="">All</option>
+      <option value="true">Active</option>
+      <option value="false">Inactive</option>
+    </select>
+    {!props.showCreate && (
+      <button
+        type="button"
+        onClick={props.onShowCreate}
+        className="rounded-md bg-foreground px-3 py-1.5 font-medium text-background text-sm hover:opacity-90"
+      >
+        Add Schedule
+      </button>
+    )}
+  </div>
+
+  {props.showCreate && (
+    <form onSubmit={props.onSubmitCreate} className="rounded-lg border border-border bg-card p-4 space-y-4">
+      <h3 className="font-semibold text-foreground text-sm">New Delivery Schedule</h3>
+      {props.formError && (
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-destructive text-sm">{props.formError}</div>
+      )}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label htmlFor="ds-name" className="mb-1 block text-foreground text-sm font-medium">Name *</label>
+          <input
+            id="ds-name"
+            type="text"
+            required
+            value={props.form.name}
+            onChange={(e) => props.onFormChange("name", e.target.value)}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            placeholder="Morning delivery"
+          />
+        </div>
+        <div>
+          <label htmlFor="ds-day" className="mb-1 block text-foreground text-sm font-medium">Day of week</label>
+          <select
+            id="ds-day"
+            value={props.form.dayOfWeek}
+            onChange={(e) => props.onFormChange("dayOfWeek", Number(e.target.value))}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            {props.dayNames.map((day, i) => <option key={i} value={i}>{day}</option>)}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="ds-start" className="mb-1 block text-foreground text-sm font-medium">Start time</label>
+          <input
+            id="ds-start"
+            type="time"
+            required
+            value={props.form.startTime}
+            onChange={(e) => props.onFormChange("startTime", e.target.value)}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+        </div>
+        <div>
+          <label htmlFor="ds-end" className="mb-1 block text-foreground text-sm font-medium">End time</label>
+          <input
+            id="ds-end"
+            type="time"
+            required
+            value={props.form.endTime}
+            onChange={(e) => props.onFormChange("endTime", e.target.value)}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+        </div>
+        <div>
+          <label htmlFor="ds-capacity" className="mb-1 block text-foreground text-sm font-medium">Capacity</label>
+          <input
+            id="ds-capacity"
+            type="number"
+            min="1"
+            required
+            value={props.form.capacity}
+            onChange={(e) => props.onFormChange("capacity", Number(e.target.value))}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+        </div>
+        <div>
+          <label htmlFor="ds-surcharge" className="mb-1 block text-foreground text-sm font-medium">Surcharge (cents)</label>
+          <input
+            id="ds-surcharge"
+            type="number"
+            min="0"
+            value={props.form.surchargeInCents}
+            onChange={(e) => props.onFormChange("surchargeInCents", Number(e.target.value))}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+        </div>
+      </div>
+      <label className="flex cursor-pointer items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={props.form.active}
+          onChange={(e) => props.onFormChange("active", e.target.checked)}
+          className="rounded border-border accent-foreground"
+        />
+        <span className="text-foreground">Active</span>
+      </label>
+      <div className="flex gap-2 pt-1">
+        <button
+          type="submit"
+          disabled={props.isCreating}
+          className="rounded-md bg-foreground px-4 py-2 font-medium text-background text-sm hover:opacity-90 disabled:opacity-50"
+        >
+          {props.isCreating ? "Creating..." : "Create Schedule"}
+        </button>
+        <button
+          type="button"
+          onClick={props.onHideCreate}
+          className="rounded-md border border-border px-4 py-2 text-foreground text-sm hover:bg-muted"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  )}
+
+  {props.loading ? (
+    <div className="py-12 text-center text-muted-foreground text-sm">Loading delivery schedules…</div>
+  ) : props.schedules.length === 0 ? (
+    <div className="rounded-lg border border-border bg-card p-10 text-center">
+      <p className="font-medium text-foreground text-sm">No delivery schedules yet</p>
+      <p className="mt-1 text-muted-foreground text-xs">Create a schedule to define available delivery windows.</p>
+    </div>
+  ) : (
+    <div className="overflow-x-auto rounded-lg border border-border">
+      <table className="w-full text-left text-sm">
+        <thead className="border-border border-b bg-muted/50">
+          <tr>
+            <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs">Name</th>
+            <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs">Day</th>
+            <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs">Window</th>
+            <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs">Capacity</th>
+            <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs">Surcharge</th>
+            <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs">Status</th>
+            <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs" />
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {props.schedules.map((s) => (
+            <tr key={s.id} className="hover:bg-muted/30">
+              <td className="px-4 py-3 font-medium text-foreground">{s.name}</td>
+              <td className="px-4 py-3 text-muted-foreground">{props.dayNames[s.dayOfWeek]}</td>
+              <td className="px-4 py-3 text-muted-foreground">{s.startTime} – {s.endTime}</td>
+              <td className="px-4 py-3 tabular-nums text-muted-foreground">{s.capacity}</td>
+              <td className="px-4 py-3 tabular-nums text-muted-foreground">
+                {s.surchargeInCents === 0
+                  ? "Free"
+                  : `$${(s.surchargeInCents / 100).toFixed(2)}`}
+              </td>
+              <td className="px-4 py-3">
+                <span className={`rounded-full px-2 py-0.5 font-medium text-xs ${s.active ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"}`}>
+                  {s.active ? "Active" : "Inactive"}
+                </span>
+              </td>
+              <td className="px-4 py-3">
+                <button
+                  type="button"
+                  disabled={props.isDeletingId === s.id}
+                  onClick={() => props.onDelete(s.id)}
+                  className="text-muted-foreground text-xs hover:text-destructive disabled:opacity-50"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</div>

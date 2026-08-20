@@ -1,0 +1,12 @@
+<>
+  <button
+    type="button"
+    onClick={props.onClick}
+    disabled={props.disabled}
+    className={props.buttonClass}
+  >
+    {props.heartIcon}
+    {props.label}
+  </button>
+  {props.error && <p className="mt-1 text-red-600 text-xs">{props.error}</p>}
+</>

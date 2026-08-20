@@ -1,0 +1,20 @@
+model File {
+    id   String @id @unique @default(uuid()) @db.Uuid
+    cuid String @unique @default(cuid(2)) @db.VarChar(30)
+
+    name        String?
+    description String?
+    url         String
+    mediaType   String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String @db.Uuid
+
+    userIcon User? @relation("UserIcon")
+
+    @@index([userId])
+    @@map("File")
+}

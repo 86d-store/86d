@@ -1,0 +1,75 @@
+<div className="space-y-6">
+  <h2 className="font-semibold text-foreground text-lg">Store Credits</h2>
+
+  {props.summaryCards}
+
+  <div className="space-y-4">
+    <div className="flex items-center justify-between gap-4">
+      <h3 className="font-medium text-foreground">Credit Accounts</h3>
+      <div className="flex gap-1 rounded-lg border border-border bg-muted/30 p-1">
+        {props.statusFilters.map((f) => (
+          <button
+            key={f.value}
+            type="button"
+            onClick={() => props.onFilterChange(f.value)}
+            className={`rounded-md px-3 py-1 font-medium text-sm transition-colors ${
+              props.statusFilter === f.value
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <div className="overflow-x-auto rounded-lg border border-border">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-border border-b bg-muted/40">
+            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+              Customer
+            </th>
+            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+              Balance
+            </th>
+            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+              Credited
+            </th>
+            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+              Debited
+            </th>
+            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+              Status
+            </th>
+            <th className="px-4 py-3 text-right font-medium text-muted-foreground">
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {props.tableBody}
+        </tbody>
+      </table>
+    </div>
+
+    <div className="flex justify-end gap-2">
+      <button
+        type="button"
+        disabled={!props.hasPrev || props.loading}
+        onClick={props.onPrevPage}
+        className="rounded-lg border border-border px-3 py-1.5 font-medium text-foreground text-sm transition-colors hover:bg-muted disabled:opacity-50"
+      >
+        Previous
+      </button>
+      <button
+        type="button"
+        disabled={!props.hasNext || props.loading}
+        onClick={props.onNextPage}
+        className="rounded-lg border border-border px-3 py-1.5 font-medium text-foreground text-sm transition-colors hover:bg-muted disabled:opacity-50"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>

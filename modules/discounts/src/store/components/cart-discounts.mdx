@@ -1,0 +1,38 @@
+<div className="space-y-2">
+  {props.items.map((item) => (
+    <div key={item.key} className="flex items-center justify-between text-sm">
+      <div className="flex items-center gap-2">
+        {item.isCode ? (
+          <span className="rounded bg-emerald-100 px-1.5 py-0.5 font-mono text-emerald-700 text-xs dark:bg-emerald-900 dark:text-emerald-300">
+            Code
+          </span>
+        ) : (
+          <span className="rounded bg-blue-100 px-1.5 py-0.5 text-blue-700 text-xs dark:bg-blue-900 dark:text-blue-300">
+            Auto
+          </span>
+        )}
+        <span className="text-foreground">{item.label}</span>
+      </div>
+      <span className="font-medium text-emerald-600 dark:text-emerald-400">
+        −{item.amountFormatted}
+      </span>
+    </div>
+  ))}
+  {props.hasMultiple && (
+    <div className="flex items-center justify-between border-t border-border pt-2 text-sm">
+      <span className="font-medium text-foreground">Total Savings</span>
+      <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+        −{props.totalSavings}
+      </span>
+    </div>
+  )}
+  {props.hasCodeDiscount && props.onRemoveCode && (
+    <button
+      type="button"
+      onClick={props.onRemoveCode}
+      className="text-muted-foreground text-xs underline-offset-4 hover:text-foreground hover:underline"
+    >
+      Remove promo code
+    </button>
+  )}
+</div>

@@ -1,0 +1,72 @@
+{
+	"name": "@86d-app/orders",
+	"version": "0.0.41",
+	"description": "Order management module for 86d commerce platform",
+	"keywords": [
+		"commerce",
+		"orders",
+		"order-management",
+		"86d"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/orders"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/order-activity": {
+			"types": "./src/admin/components/order-activity.tsx",
+			"default": "./src/admin/components/order-activity.tsx"
+		},
+		"./admin/components/order-detail": {
+			"types": "./src/admin/components/order-detail.tsx",
+			"default": "./src/admin/components/order-detail.tsx"
+		},
+		"./admin/components/order-invoice": {
+			"types": "./src/admin/components/order-invoice.tsx",
+			"default": "./src/admin/components/order-invoice.tsx"
+		},
+		"./admin/components/order-list": {
+			"types": "./src/admin/components/order-list.tsx",
+			"default": "./src/admin/components/order-list.tsx"
+		},
+		"./admin/components/return-list": {
+			"types": "./src/admin/components/return-list.tsx",
+			"default": "./src/admin/components/return-list.tsx"
+		},
+		"./capabilities": "./src/capabilities.ts",
+		"./components": {
+			"types": "./src/store/components/mdx.tsx",
+			"default": "./src/store/components/mdx.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

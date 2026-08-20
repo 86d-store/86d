@@ -1,0 +1,72 @@
+<div>
+  <div className="mb-6 flex items-start justify-between">
+    <div>
+      <h1 className="font-bold text-2xl text-foreground">Inventory</h1>
+      <p className="mt-1 text-muted-foreground text-sm">
+        {props.subtitle}
+      </p>
+    </div>
+    <button
+      type="button"
+      onClick={props.onSetStockClick}
+      className="rounded-md bg-foreground px-3 py-2 font-medium text-background text-sm hover:opacity-90"
+    >
+      Set stock
+    </button>
+  </div>
+
+  <div className="mb-4 flex flex-wrap gap-3">
+    <input
+      type="text"
+      placeholder="Filter by product ID…"
+      value={props.productFilter}
+      onChange={(e) => props.onProductFilterChange(e.target.value)}
+      className="h-9 rounded-md border border-border bg-background px-3 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+    />
+    <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border bg-background px-3 text-foreground text-sm">
+      <input
+        type="checkbox"
+        checked={props.lowStockOnly}
+        onChange={(e) => props.onLowStockOnlyChange(e.target.checked)}
+        className="rounded"
+      />
+      Low stock only
+    </label>
+  </div>
+
+  <div className="overflow-hidden rounded-lg border border-border bg-card">
+    <table className="w-full">
+      <thead>
+        <tr className="border-border border-b bg-muted/50">
+          <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wide">
+            Product
+          </th>
+          <th className="hidden px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wide sm:table-cell">
+            Variant / Location
+          </th>
+          <th className="px-4 py-3 text-right font-semibold text-muted-foreground text-xs uppercase tracking-wide">
+            Qty
+          </th>
+          <th className="hidden px-4 py-3 text-right font-semibold text-muted-foreground text-xs uppercase tracking-wide md:table-cell">
+            Reserved
+          </th>
+          <th className="px-4 py-3 text-right font-semibold text-muted-foreground text-xs uppercase tracking-wide">
+            Available
+          </th>
+          <th className="hidden px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wide lg:table-cell">
+            Status
+          </th>
+          <th className="px-4 py-3 text-right font-semibold text-muted-foreground text-xs uppercase tracking-wide">
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-border">
+        {props.tableBody}
+      </tbody>
+    </table>
+  </div>
+
+  {props.setStockModal}
+  {props.adjustStockModal}
+</div>

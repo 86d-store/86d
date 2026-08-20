@@ -1,0 +1,47 @@
+{
+	"name": "86d",
+	"version": "0.0.41",
+	"description": "CLI for 86d — modular, open-source commerce platform",
+	"keywords": [
+		"86d",
+		"commerce",
+		"ecommerce",
+		"modular",
+		"cli"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "packages/cli"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"bin": {
+		"86d": "./dist/index.js"
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsx src/index.ts",
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*",
+		"@86d-app/registry": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/node": "catalog:node",
+		"tsx": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

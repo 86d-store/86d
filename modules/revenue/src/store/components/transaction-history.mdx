@@ -1,0 +1,108 @@
+{!props.isAuthenticated ? (
+  <div className="rounded-xl border border-border bg-muted/30 p-6 text-center">
+    <p className="text-muted-foreground text-sm">Sign in to view your payment history.</p>
+  </div>
+) : props.isError ? (
+  <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center" role="alert">
+    <p className="font-medium text-destructive text-sm">Failed to load transactions</p>
+    <p className="mt-1 text-muted-foreground text-xs">Please try refreshing the page.</p>
+  </div>
+) : (
+  <div className="space-y-4">
+    <div className="flex items-center justify-between gap-3">
+      <h3 className="font-medium text-foreground text-sm">Payment history</h3>
+      <select
+        value={props.statusFilter}
+        onChange={(e) => props.onStatusChange(e.target.value)}
+        className="h-8 rounded-md border border-border bg-background px-2 text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        <option value="">All</option>
+        <option value="succeeded">Succeeded</option>
+        <option value="pending">Pending</option>
+        <option value="refunded">Refunded</option>
+        <option value="failed">Failed</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+
+    {props.isLoading ? (
+      <div className="space-y-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={`skel-${i}`} className="h-14 animate-pulse rounded-xl border border-border bg-muted/30" />
+        ))}
+      </div>
+    ) : props.transactions.length === 0 ? (
+      <div className="rounded-xl border border-dashed border-border p-6 text-center">
+        <p className="font-medium text-foreground text-sm">No transactions found</p>
+        <p className="mt-1 text-muted-foreground text-sm">
+          {props.statusFilter ? "Try clearing the filter." : "Your payment history will appear here after your first purchase."}
+        </p>
+      </div>
+    ) : (
+      <div className="overflow-hidden rounded-xl border border-border">
+        <div className="divide-y divide-border">
+          {props.transactions.map((tx) => (
+            <div key={tx.id} className="flex items-center justify-between gap-4 bg-card px-4 py-3">
+              <div className="min-w-0 flex-1">
+                <p className="font-mono text-foreground text-xs">
+                  {tx.providerIntentId
+                    ? tx.providerIntentId.slice(0, 20) + "…"
+                    : tx.id.slice(0, 8) + "…"}
+                </p>
+                {tx.orderId && (
+                  <p className="mt-0.5 text-muted-foreground text-xs">
+                    Order {tx.orderId.slice(0, 8)}…
+                  </p>
+                )}
+              </div>
+              <div className="flex items-center gap-3">
+                <span className={[
+                  "inline-flex items-center rounded-full px-2 py-0.5 font-medium text-xs",
+                  tx.status === "succeeded" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" :
+                  tx.status === "pending" || tx.status === "processing" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400" :
+                  tx.status === "refunded" ? "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400" :
+                  "bg-gray-100 text-gray-600 dark:bg-gray-800/50 dark:text-gray-400"
+                ].join(" ")}>
+                  {tx.status}
+                </span>
+                <span className="font-medium text-foreground text-sm tabular-nums">
+                  {new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: tx.currency?.toUpperCase() ?? "USD",
+                  }).format(tx.amount / 100)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {props.totalPages > 1 && (
+      <div className="flex items-center justify-between">
+        <span className="text-muted-foreground text-xs">
+          {props.total} transaction{props.total !== 1 ? "s" : ""}
+        </span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => props.onPageChange(Math.max(1, props.page - 1))}
+            disabled={props.page === 1}
+            className="rounded-md border border-border px-3 py-1 text-foreground text-xs hover:bg-muted disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span className="text-muted-foreground text-xs">{props.page} / {props.totalPages}</span>
+          <button
+            type="button"
+            onClick={() => props.onPageChange(Math.min(props.totalPages, props.page + 1))}
+            disabled={props.page === props.totalPages}
+            className="rounded-md border border-border px-3 py-1 text-foreground text-xs hover:bg-muted disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+)}

@@ -1,0 +1,42 @@
+// Intentional duplicate of packages/db/prisma/webhooks.prisma
+model Webhook {
+    id   String @id @unique @default(uuid()) @db.Uuid
+    cuid String @unique @default(cuid(2)) @db.VarChar(30)
+
+    url      String
+    secret   String
+    isActive Boolean  @default(true)
+    events   String[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    storeId    String            @db.Uuid
+    deliveries WebhookDelivery[]
+
+    @@index([storeId, isActive])
+    @@map("Webhook")
+}
+
+model WebhookDelivery {
+    id   String @id @unique @default(uuid()) @db.Uuid
+    cuid String @unique @default(cuid(2)) @db.VarChar(30)
+
+    eventType     String
+    payload       Json
+    status        String    @db.VarChar(20)
+    statusCode    Int?
+    response      String?
+    attempts      Int       @default(1)
+    duration      Int       @default(0)
+    lastAttemptAt DateTime  @default(now())
+
+    createdAt DateTime @default(now())
+
+    webhookId String  @db.Uuid
+    webhook   Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+    @@index([webhookId])
+    @@index([eventType])
+    @@map("WebhookDelivery")
+}

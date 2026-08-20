@@ -1,0 +1,103 @@
+{props.isLoading ? (
+  <div className="space-y-6">
+    <div className="h-40 animate-pulse rounded-xl border border-border bg-muted/30" />
+    <div className="h-24 animate-pulse rounded-xl border border-border bg-muted/30" />
+  </div>
+) : props.notFound ? (
+  <div className="rounded-xl border border-border bg-muted/30 p-8 text-center">
+    <p className="font-medium text-foreground">Vendor not found</p>
+    <p className="mt-1 text-muted-foreground text-sm">
+      This vendor doesn't exist or is no longer available.
+    </p>
+    <a
+      href="/vendors"
+      className="mt-4 inline-block text-primary text-sm underline hover:opacity-80"
+    >
+      Browse all vendors
+    </a>
+  </div>
+) : (
+  <div className="space-y-8">
+    {/* Banner */}
+    {props.vendor.banner && (
+      <div className="h-48 overflow-hidden rounded-xl border border-border bg-muted">
+        <img
+          src={props.vendor.banner}
+          alt=""
+          className="h-full w-full object-cover"
+        />
+      </div>
+    )}
+
+    {/* Header */}
+    <div className="flex items-start gap-5">
+      {props.vendor.logo ? (
+        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-border bg-muted">
+          <img
+            src={props.vendor.logo}
+            alt={props.vendor.name}
+            className="h-full w-full object-contain p-1"
+          />
+        </div>
+      ) : (
+        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-muted">
+          <span className="font-bold text-3xl text-muted-foreground/50">
+            {props.vendor.name.charAt(0).toUpperCase()}
+          </span>
+        </div>
+      )}
+      <div className="min-w-0 flex-1">
+        <h1 className="font-bold text-foreground text-2xl">{props.vendor.name}</h1>
+        {props.location && (
+          <p className="mt-0.5 text-muted-foreground text-sm">{props.location}</p>
+        )}
+        {props.vendor.website && (
+          <a
+            href={props.vendor.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 inline-block text-primary text-sm hover:underline"
+          >
+            {props.vendor.website.replace(/^https?:\/\//, "")}
+          </a>
+        )}
+      </div>
+    </div>
+
+    {/* Description */}
+    {props.vendor.description && (
+      <div className="prose prose-sm max-w-none text-muted-foreground">
+        <p>{props.vendor.description}</p>
+      </div>
+    )}
+
+    {/* Products */}
+    {props.products.length > 0 && (
+      <div>
+        <h2 className="mb-4 font-semibold text-foreground text-lg">Products</h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {props.products.map((product) => (
+            <a
+              key={product.id}
+              href={`/products/${product.productId}`}
+              className="rounded-xl border border-border bg-card p-4 transition-all hover:border-foreground/20 hover:shadow-sm"
+            >
+              <p className="font-mono text-muted-foreground text-xs">
+                {product.productId.slice(0, 12)}…
+              </p>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <div className="border-t border-border pt-4">
+      <a
+        href="/vendors"
+        className="text-muted-foreground text-sm hover:text-foreground"
+      >
+        ← Back to all vendors
+      </a>
+    </div>
+  </div>
+)}

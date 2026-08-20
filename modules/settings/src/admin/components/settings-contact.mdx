@@ -1,0 +1,130 @@
+<div>
+  <div className="mb-6">
+    <h1 className="font-bold text-2xl text-foreground">Contact Information</h1>
+    <p className="mt-1 text-muted-foreground text-sm">
+      Set your store's contact details and business address
+    </p>
+  </div>
+
+  {props.loading ? (
+    <div className="space-y-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={`skeleton-${i}`} className="h-16 animate-pulse rounded-lg bg-muted" />
+      ))}
+    </div>
+  ) : (
+    <div className="space-y-6">
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h2 className="mb-4 font-semibold text-foreground text-lg">Support</h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block font-medium text-foreground text-sm">
+              Support Email
+            </label>
+            <input
+              type="email"
+              value={props.email}
+              onChange={(e) => props.onEmailChange(e.target.value)}
+              placeholder="support@yourstore.com"
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block font-medium text-foreground text-sm">
+              Support Phone
+            </label>
+            <input
+              type="tel"
+              value={props.phone}
+              onChange={(e) => props.onPhoneChange(e.target.value)}
+              placeholder="+1 (555) 000-0000"
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h2 className="mb-4 font-semibold text-foreground text-lg">Business Address</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="mb-1.5 block font-medium text-foreground text-sm">
+              Street Address
+            </label>
+            <input
+              type="text"
+              value={props.address}
+              onChange={(e) => props.onAddressChange(e.target.value)}
+              placeholder="123 Main St"
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block font-medium text-foreground text-sm">City</label>
+              <input
+                type="text"
+                value={props.city}
+                onChange={(e) => props.onCityChange(e.target.value)}
+                placeholder="New York"
+                className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block font-medium text-foreground text-sm">
+                State / Province
+              </label>
+              <input
+                type="text"
+                value={props.state}
+                onChange={(e) => props.onStateChange(e.target.value)}
+                placeholder="NY"
+                className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block font-medium text-foreground text-sm">
+                Postal Code
+              </label>
+              <input
+                type="text"
+                value={props.postalCode}
+                onChange={(e) => props.onPostalCodeChange(e.target.value)}
+                placeholder="10001"
+                className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block font-medium text-foreground text-sm">Country</label>
+              <input
+                type="text"
+                value={props.country}
+                onChange={(e) => props.onCountryChange(e.target.value)}
+                placeholder="US"
+                className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={props.onSave}
+          disabled={props.saving}
+          className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm hover:bg-primary/90 disabled:opacity-50"
+        >
+          {props.saving ? "Saving\u2026" : "Save Changes"}
+        </button>
+        {props.saved && (
+          <span className="text-green-600 text-sm dark:text-green-400">
+            Settings saved
+          </span>
+        )}
+      </div>
+    </div>
+  )}
+</div>

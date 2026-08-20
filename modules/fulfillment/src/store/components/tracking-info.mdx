@@ -1,0 +1,45 @@
+<div className="rounded-lg border border-border p-4">
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground" aria-hidden="true">
+        <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
+        <path d="M15 18H9" />
+        <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" />
+        <circle cx="17" cy="18" r="2" />
+        <circle cx="7" cy="18" r="2" />
+      </svg>
+      <h4 className="text-sm font-semibold text-foreground">Tracking</h4>
+    </div>
+    <span className={`text-xs font-medium ${props.statusColor}`}>{props.statusLabel}</span>
+  </div>
+
+  {props.hasTracking ? (
+    <div className="mt-3 space-y-1.5">
+      {props.carrier && (
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">Carrier</span>
+          <span className="text-sm font-medium text-foreground">{props.carrier}</span>
+        </div>
+      )}
+      {props.trackingNumber && (
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">Tracking #</span>
+          {props.trackingUrl ? (
+            <a
+              href={props.trackingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-foreground underline underline-offset-2 hover:opacity-75"
+            >
+              {props.trackingNumber}
+            </a>
+          ) : (
+            <span className="text-sm font-medium text-foreground">{props.trackingNumber}</span>
+          )}
+        </div>
+      )}
+    </div>
+  ) : (
+    <p className="mt-2 text-xs text-muted-foreground">Tracking information will appear here once your order ships.</p>
+  )}
+</div>

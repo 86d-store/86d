@@ -1,0 +1,32 @@
+<div className="space-y-3">
+  {props.answers.map((item) => (
+    <div
+      key={item.answer.id}
+      className={`rounded-lg border p-3 ${
+        item.answer.isOfficial
+          ? "border-primary/30 bg-primary/5"
+          : "border-border bg-background"
+      }`}
+    >
+      <div className="mb-1 flex items-center gap-2">
+        <span className="font-medium text-foreground text-xs">
+          {item.answer.authorName}
+        </span>
+        {item.answer.isOfficial && (
+          <span className="rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary text-[10px]">
+            Official
+          </span>
+        )}
+        <span className="text-muted-foreground/60 text-xs">
+          {item.formattedDate}
+        </span>
+      </div>
+      <p className="text-muted-foreground text-sm leading-relaxed">
+        {item.answer.body}
+      </p>
+      <div className="mt-2">
+        {item.upvoteButton}
+      </div>
+    </div>
+  ))}
+</div>

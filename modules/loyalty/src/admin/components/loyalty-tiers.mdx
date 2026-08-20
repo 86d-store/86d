@@ -1,0 +1,53 @@
+<div className="space-y-6">
+  <div className="flex items-center justify-between gap-4">
+    <div>
+      <h2 className="font-semibold text-foreground text-lg">Loyalty Tiers</h2>
+      <p className="mt-0.5 text-muted-foreground text-sm">
+        Define membership tiers and their point thresholds.
+      </p>
+    </div>
+    {!props.showForm && (
+      <button
+        type="button"
+        onClick={props.onShowForm}
+        className="rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-opacity hover:opacity-90"
+      >
+        New Tier
+      </button>
+    )}
+  </div>
+
+  {props.error && (
+    <p className="text-destructive text-sm" role="alert">
+      {props.error}
+    </p>
+  )}
+
+  {props.formSection}
+
+  <div className="overflow-x-auto rounded-lg border border-border">
+    <table className="w-full text-sm">
+      <thead>
+        <tr className="border-border border-b bg-muted/40">
+          <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            Name
+          </th>
+          <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            Slug
+          </th>
+          <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            Min Points
+          </th>
+          <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            Multiplier
+          </th>
+          <th className="px-4 py-3 text-right font-medium text-muted-foreground">
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {props.tierRows}
+      </tbody>
+    </table>
+  </div>
+</div>

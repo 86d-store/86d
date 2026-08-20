@@ -1,0 +1,38 @@
+import Link from "next/link";
+
+# Gift Registries
+
+Find the perfect gift from a friend or family member's registry.
+
+<div className="space-y-4">
+  {props.loading ? (
+    <div className="py-12 text-center text-muted-foreground">Loading registries…</div>
+  ) : props.registries.length === 0 ? (
+    <div className="py-12 text-center text-muted-foreground">No public registries found.</div>
+  ) : (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {props.registries.map((reg) => (
+        <Link
+          key={reg.id}
+          href={`/gift-registry/${reg.slug}`}
+          className="group rounded-lg border p-4 transition-colors hover:bg-muted/30"
+        >
+          <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {props.typeLabels[reg.type] || reg.type}
+          </div>
+          <h3 className="text-lg font-semibold group-hover:underline">{reg.title}</h3>
+          <p className="text-sm text-muted-foreground">by {reg.customerName}</p>
+          {reg.eventDate && (
+            <p className="mt-1 text-sm text-muted-foreground">
+              Event: {new Date(reg.eventDate).toLocaleDateString()}
+            </p>
+          )}
+          <div className="mt-3 text-sm">
+            <span className="font-medium">{reg.purchasedCount}</span>
+            <span className="text-muted-foreground"> of {reg.itemCount} items purchased</span>
+          </div>
+        </Link>
+      ))}
+    </div>
+  )}
+</div>

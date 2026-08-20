@@ -1,0 +1,67 @@
+<div className="space-y-6">
+  <h1 className="font-bold text-2xl text-foreground">Recently Viewed</h1>
+  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div className="rounded-lg border border-border bg-card p-5">
+      <p className="font-medium text-muted-foreground text-sm">
+        Total Product Views
+      </p>
+      <p className="mt-1 font-semibold text-2xl text-foreground">
+        {props.total}
+      </p>
+    </div>
+    <div className="rounded-lg border border-border bg-card p-5">
+      <p className="font-medium text-muted-foreground text-sm">
+        Unique Products Viewed
+      </p>
+      <p className="mt-1 font-semibold text-2xl text-foreground">
+        {props.popular.length}
+      </p>
+    </div>
+  </div>
+
+  {props.popular.length > 0 && (
+    <div className="rounded-lg border border-border bg-card">
+      <div className="border-border border-b px-5 py-3">
+        <h3 className="font-semibold text-foreground text-sm">
+          Most Viewed Products
+        </h3>
+      </div>
+      <div className="divide-y divide-border">
+        {props.popular.map((product) => (
+          <div
+            key={product.productId}
+            className="flex items-center justify-between px-5 py-3"
+          >
+            <div>
+              <span className="text-foreground text-sm">
+                {product.productName}
+              </span>
+              <span className="ml-2 text-muted-foreground text-xs">
+                /{product.productSlug}
+              </span>
+            </div>
+            <span className="rounded-full bg-muted px-2.5 py-0.5 font-medium text-muted-foreground text-xs">
+              {product.viewCount} {product.viewCount === 1 ? "view" : "views"}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {props.error && (
+    <div className="rounded-lg bg-destructive/10 p-3 text-destructive text-sm">
+      {props.error}
+    </div>
+  )}
+
+  <div className="rounded-lg border border-border bg-card">
+    <div className="border-border border-b px-5 py-3">
+      <h3 className="font-semibold text-foreground text-sm">
+        All Product Views
+      </h3>
+    </div>
+
+    {props.viewsContent}
+  </div>
+</div>

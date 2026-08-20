@@ -1,0 +1,49 @@
+{props.isLoading ? (
+  <section className="py-8">
+    <h2 className="mb-4 font-semibold text-foreground text-lg">{props.title}</h2>
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="animate-pulse space-y-2">
+          <div className="aspect-square rounded-lg bg-muted" />
+          <div className="h-4 w-3/4 rounded bg-muted" />
+          <div className="h-4 w-1/2 rounded bg-muted" />
+        </div>
+      ))}
+    </div>
+  </section>
+) : (
+  <section className="py-8">
+    <h2 className="mb-4 font-semibold text-foreground text-lg">{props.title}</h2>
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      {props.items?.map((item) => (
+        <a
+          key={item.id}
+          href={item.href}
+          onClick={item.onClick}
+          className="group space-y-2"
+        >
+          {item.image ? (
+            <div className="aspect-square overflow-hidden rounded-lg bg-muted">
+              <img
+                src={item.image}
+                alt={item.name}
+                className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                loading="lazy"
+              />
+            </div>
+          ) : (
+            <div className="flex aspect-square items-center justify-center rounded-lg bg-muted">
+              <span className="text-neutral-600 text-xs dark:text-neutral-400">No image</span>
+            </div>
+          )}
+          <p className="truncate font-medium text-foreground text-sm group-hover:underline">
+            {item.name}
+          </p>
+          {item.price && (
+            <p className="text-muted-foreground text-sm">{item.price}</p>
+          )}
+        </a>
+      ))}
+    </div>
+  </section>
+)}

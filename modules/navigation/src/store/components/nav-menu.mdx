@@ -1,0 +1,42 @@
+{props.isLoading ? (
+  <nav className="flex gap-6" aria-label="Navigation">
+    {Array.from({ length: 4 }).map((_, i) => (
+      <div
+        key={`nav-skeleton-${i}`}
+        className="h-4 w-16 animate-pulse rounded bg-muted"
+      />
+    ))}
+  </nav>
+) : props.items.length === 0 ? null : (
+  <nav className="flex flex-wrap items-center gap-6" aria-label={props.menuName || "Navigation"}>
+    {props.items.map((item) => (
+      <div key={item.id} className="group relative">
+        <a
+          href={item.href}
+          target={item.openInNewTab ? "_blank" : undefined}
+          rel={item.openInNewTab ? "noopener noreferrer" : undefined}
+          className={`text-foreground/80 text-sm font-medium transition-colors hover:text-foreground ${item.cssClass ?? ""}`}
+        >
+          {item.label}
+        </a>
+        {item.children && item.children.length > 0 && (
+          <div className="pointer-events-none absolute left-0 top-full z-50 pt-2 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100">
+            <div className="min-w-40 rounded-lg border border-border bg-popover p-1.5 shadow-lg">
+              {item.children.map((child) => (
+                <a
+                  key={child.id}
+                  href={child.href}
+                  target={child.openInNewTab ? "_blank" : undefined}
+                  rel={child.openInNewTab ? "noopener noreferrer" : undefined}
+                  className={`block rounded-md px-3 py-2 text-popover-foreground text-sm transition-colors hover:bg-accent ${child.cssClass ?? ""}`}
+                >
+                  {child.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    ))}
+  </nav>
+)}

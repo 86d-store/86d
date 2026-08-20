@@ -1,0 +1,36 @@
+<form onSubmit={props.onSubmit} className="space-y-5">
+  <div>
+    <h2 className="font-display text-lg font-semibold text-foreground">Contact</h2>
+    <p className="mt-1 text-muted-foreground text-sm">
+      We'll use this email for order confirmation and shipping updates.
+    </p>
+  </div>
+
+  <div>
+    <label htmlFor="checkout-email" className="block text-foreground text-sm font-medium mb-1.5">
+      Email address
+    </label>
+    <input
+      id="checkout-email"
+      type="email"
+      autoComplete="email"
+      required
+      value={props.email}
+      onChange={(e) => props.onEmailChange(e.target.value)}
+      disabled={props.loading}
+      placeholder="you@example.com"
+      className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50"
+    />
+    {props.error && (
+      <p className="mt-1.5 text-destructive text-sm">{props.error}</p>
+    )}
+  </div>
+
+  <button
+    type="submit"
+    disabled={props.loading}
+    className="w-full rounded-md bg-foreground py-2.5 text-center font-medium text-background text-sm transition-opacity hover:opacity-85 disabled:opacity-50"
+  >
+    {props.loading ? "Saving…" : "Continue to shipping"}
+  </button>
+</form>

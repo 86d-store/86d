@@ -1,0 +1,52 @@
+<section className="py-8">
+  <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h2 className="font-semibold text-foreground text-xl">{props.title}</h2>
+      {!props.noReviews && props.summary && (
+        <div className="mt-1 flex items-center gap-2">
+          {props.starDisplay}
+          <span className="font-medium text-foreground text-lg">
+            {props.summary.average.toFixed(1)}
+          </span>
+          <span className="text-muted-foreground text-sm">
+            ({props.summary.count} review{props.summary.count !== 1 ? "s" : ""})
+          </span>
+        </div>
+      )}
+    </div>
+    <button
+      type="button"
+      onClick={props.onToggleForm}
+      className="rounded-lg border border-border bg-background px-4 py-2 font-medium text-foreground text-sm transition-colors hover:bg-muted"
+    >
+      {props.showForm ? "Cancel" : "Write a Review"}
+    </button>
+  </div>
+
+  {props.showForm && (
+    <div className="mb-8">
+      {props.formContent}
+    </div>
+  )}
+
+  {props.noReviews && !props.showForm && (
+    <div className="rounded-xl border border-border bg-muted/30 py-12 text-center">
+      <p className="font-medium text-foreground text-sm">No reviews yet</p>
+      <p className="mt-1 text-muted-foreground text-sm">
+        Be the first to review this product.
+      </p>
+    </div>
+  )}
+
+  {!props.noReviews && props.summary && (
+    <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-start">
+      <div className="sm:w-48">
+        {props.distributionBars}
+      </div>
+      <div className="hidden h-auto w-px bg-border sm:block" />
+      <div className="flex-1">
+        {props.reviewListContent}
+      </div>
+    </div>
+  )}
+</section>

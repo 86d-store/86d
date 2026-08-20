@@ -1,0 +1,68 @@
+{
+	"name": "@86d-app/tickets",
+	"version": "0.0.41",
+	"description": "Customer support tickets module for 86d commerce platform",
+	"keywords": [
+		"commerce",
+		"tickets",
+		"support",
+		"helpdesk",
+		"86d"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/tickets"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/ticket-categories": {
+			"types": "./src/admin/components/ticket-categories.tsx",
+			"default": "./src/admin/components/ticket-categories.tsx"
+		},
+		"./admin/components/ticket-category-detail": {
+			"types": "./src/admin/components/ticket-category-detail.tsx",
+			"default": "./src/admin/components/ticket-category-detail.tsx"
+		},
+		"./admin/components/ticket-detail": {
+			"types": "./src/admin/components/ticket-detail.tsx",
+			"default": "./src/admin/components/ticket-detail.tsx"
+		},
+		"./admin/components/ticket-list": {
+			"types": "./src/admin/components/ticket-list.tsx",
+			"default": "./src/admin/components/ticket-list.tsx"
+		},
+		"./components": {
+			"types": "./src/store/components/mdx.tsx",
+			"default": "./src/store/components/mdx.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

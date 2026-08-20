@@ -1,0 +1,26 @@
+model Log {
+    id   String @id @unique @default(uuid()) @db.Uuid
+    cuid String @unique @default(cuid(2)) @db.VarChar(30)
+
+    action    String
+    data      Json?
+    timestamp DateTime @default(now())
+
+    actor        User?       @relation("ActorLogs", fields: [actorId], references: [id])
+    actorId      String?     @db.Uuid
+    target       User?       @relation("TargetLogs", fields: [targetId], references: [id])
+    targetId     String?     @db.Uuid
+    account      Account?    @relation(fields: [accountId], references: [id])
+    accountId    String?     @db.Uuid
+    session      Session?    @relation(fields: [sessionId], references: [id])
+    sessionId    String?     @db.Uuid
+    invitation   Invitation? @relation(fields: [invitationId], references: [id])
+    invitationId String?     @db.Uuid
+
+    @@index([actorId])
+    @@index([targetId])
+    @@index([accountId])
+    @@index([sessionId])
+    @@index([invitationId])
+    @@map("Log")
+}

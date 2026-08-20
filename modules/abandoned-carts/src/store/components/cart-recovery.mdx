@@ -1,0 +1,56 @@
+{props.expired ? (
+  <div className="mx-auto max-w-lg py-16 text-center">
+    <h2 className="font-semibold text-gray-900 text-xl dark:text-gray-100">
+      This link has expired
+    </h2>
+    <p className="mt-2 text-gray-600 dark:text-gray-400">
+      The cart recovery link is no longer valid. Please visit our store to continue shopping.
+    </p>
+    <a
+      href="/"
+      className="mt-6 inline-block rounded-md bg-gray-900 px-6 py-2.5 font-medium text-sm text-white hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
+    >
+      Continue Shopping
+    </a>
+  </div>
+) : (
+  <div className="mx-auto max-w-2xl py-8">
+    <h2 className="font-semibold text-gray-900 text-xl dark:text-gray-100">
+      Your saved cart
+    </h2>
+    <p className="mt-1 text-gray-600 dark:text-gray-400">
+      We saved the items you left behind. Ready to complete your purchase?
+    </p>
+
+    <div className="mt-6 divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-900">
+      {props.items.map((item, idx) => (
+        <div key={`${item.productId}-${idx}`} className="flex items-center gap-4 p-4">
+          {item.imageUrl && (
+            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800">
+              <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
+            </div>
+          )}
+          <div className="flex-1">
+            <p className="font-medium text-gray-900 text-sm dark:text-gray-100">{item.name}</p>
+            <p className="text-gray-500 text-xs dark:text-gray-500">Qty: {item.quantity}</p>
+          </div>
+          <p className="font-medium text-gray-900 text-sm dark:text-gray-100">
+            {props.formatCurrency(item.price * item.quantity, "USD")}
+          </p>
+        </div>
+      ))}
+    </div>
+
+    <div className="mt-4 flex items-center justify-between">
+      <p className="font-semibold text-gray-900 text-lg dark:text-gray-100">
+        Total: {props.cartTotal}
+      </p>
+      <a
+        href={props.cartId ? `/cart?recover=${props.cartId}` : "/cart"}
+        className="rounded-md bg-gray-900 px-6 py-2.5 font-medium text-sm text-white hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
+      >
+        Complete Purchase
+      </a>
+    </div>
+  </div>
+)}

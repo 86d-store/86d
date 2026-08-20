@@ -1,0 +1,161 @@
+{props.isLoading ? (
+  <div className="rounded-2xl border border-border bg-muted/30 p-8">
+    <div className="mx-auto mb-4 h-8 w-8 animate-pulse rounded-full bg-muted" />
+    <div className="mx-auto h-5 w-1/2 animate-pulse rounded bg-muted" />
+    <div className="mx-auto mt-2 h-4 w-2/3 animate-pulse rounded bg-muted" />
+    <div className="mx-auto mt-6 h-10 w-32 animate-pulse rounded-lg bg-muted" />
+  </div>
+) : !props.game || !props.game.isActive ? (
+  <div className="rounded-2xl border border-border bg-muted/30 p-8 text-center">
+    <p className="text-muted-foreground text-sm">This game is not currently active.</p>
+  </div>
+) : props.playResult ? (
+  /* ── Result card ── */
+  <div className={`rounded-2xl border p-8 text-center ${
+    props.playResult.result === "win"
+      ? "border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30"
+      : "border-border bg-muted/30"
+  }`}>
+    {props.playResult.result === "win" ? (
+      <>
+        <div className="mb-4 text-5xl" aria-hidden="true">🎉</div>
+        <p className="font-bold text-emerald-800 text-xl dark:text-emerald-200">
+          You won!
+        </p>
+        {props.playResult.prizeName && (
+          <p className="mt-2 font-medium text-emerald-700 text-lg dark:text-emerald-300">
+            {props.playResult.prizeName}
+          </p>
+        )}
+        {props.playResult.prizeValue && (
+          <p className="mt-1 text-emerald-700 text-sm dark:text-emerald-400">
+            {props.playResult.prizeValue}
+          </p>
+        )}
+        {!props.isRedeemed ? (
+          <div className="mt-5">
+            {props.redeemError && (
+              <p className="mb-2 text-destructive text-sm" role="alert">{props.redeemError}</p>
+            )}
+            <button
+              type="button"
+              disabled={props.isRedeeming}
+              onClick={props.onRedeem}
+              className="rounded-xl bg-emerald-600 px-6 py-2.5 font-semibold text-sm text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+            >
+              {props.isRedeeming ? "Redeeming…" : "Claim prize"}
+            </button>
+          </div>
+        ) : (
+          <div className="mt-5">
+            <p className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 font-medium text-emerald-800 text-sm dark:bg-emerald-900/30 dark:text-emerald-300">
+              ✓ Prize claimed
+            </p>
+          </div>
+        )}
+      </>
+    ) : (
+      <>
+        <div className="mb-4 text-4xl" aria-hidden="true">😔</div>
+        <p className="font-semibold text-foreground text-lg">Not this time!</p>
+        <p className="mt-1 text-muted-foreground text-sm">Better luck next time.</p>
+      </>
+    )}
+    <button
+      type="button"
+      onClick={props.onReset}
+      className="mt-5 text-muted-foreground text-sm underline hover:text-foreground"
+    >
+      Back to game
+    </button>
+  </div>
+) : props.needsEmail ? (
+  /* ── Email capture ── */
+  <div className="rounded-2xl border border-border bg-card p-8">
+    <h3 className="mb-1 font-semibold text-foreground text-lg">{props.game.name}</h3>
+    {props.game.description && (
+      <p className="mb-5 text-muted-foreground text-sm">{props.game.description}</p>
+    )}
+    <form onSubmit={props.onEmailSubmit} className="space-y-4">
+      <div>
+        <label
+          htmlFor="game-email"
+          className="mb-1 block font-medium text-foreground text-sm"
+        >
+          Your email <span className="text-destructive">*</span>
+        </label>
+        <input
+          id="game-email"
+          type="email"
+          required
+          maxLength={320}
+          value={props.email}
+          onChange={(e) => props.onEmailChange(e.target.value)}
+          placeholder="you@example.com"
+          className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-1"
+        />
+      </div>
+      {props.requireNewsletterOptIn && (
+        <label className="flex cursor-pointer items-start gap-2.5">
+          <input
+            type="checkbox"
+            checked={props.optIn}
+            onChange={(e) => props.onOptInChange(e.target.checked)}
+            className="mt-0.5 rounded"
+          />
+          <span className="text-muted-foreground text-sm">
+            Subscribe to our newsletter for exclusive offers.
+          </span>
+        </label>
+      )}
+      <button
+        type="submit"
+        disabled={props.requireNewsletterOptIn && !props.optIn}
+        className="w-full rounded-xl bg-primary py-3 font-semibold text-primary-foreground text-sm transition-opacity hover:opacity-90 disabled:opacity-60"
+      >
+        {props.labels.cta}
+      </button>
+    </form>
+  </div>
+) : (
+  /* ── Game board ── */
+  <div className="rounded-2xl border border-border bg-card p-8 text-center">
+    <h3 className="mb-1 font-semibold text-foreground text-xl">{props.game.name}</h3>
+    {props.game.description && (
+      <p className="mb-6 text-muted-foreground text-sm">{props.game.description}</p>
+    )}
+
+    {/* Visual game element */}
+    <div className={`mx-auto mb-6 flex h-32 w-32 items-center justify-center rounded-full border-4 border-primary/30 bg-primary/5 text-5xl transition-all duration-700 ${
+      props.isSpinning ? "animate-spin border-primary" : ""
+    }`} aria-hidden="true">
+      {props.game.type === "wheel" ? "🎡" : props.game.type === "scratch" ? "🎟️" : "🎰"}
+    </div>
+
+    {props.playError && (
+      <p className="mb-4 text-destructive text-sm" role="alert">{props.playError}</p>
+    )}
+
+    {props.canPlay ? (
+      <button
+        type="button"
+        disabled={props.isSpinning}
+        onClick={props.onPlay}
+        className="rounded-xl bg-primary px-8 py-3 font-semibold text-primary-foreground text-base transition-opacity hover:opacity-90 disabled:opacity-60"
+      >
+        {props.isSpinning ? "Playing…" : props.labels.cta}
+      </button>
+    ) : (
+      <div>
+        <p className="text-muted-foreground text-sm">
+          {props.canPlayReason ?? "You've already played this game."}
+        </p>
+        {props.nextPlayAt && (
+          <p className="mt-1 text-muted-foreground text-xs">
+            Come back {new Date(props.nextPlayAt).toLocaleString()}.
+          </p>
+        )}
+      </div>
+    )}
+  </div>
+)}

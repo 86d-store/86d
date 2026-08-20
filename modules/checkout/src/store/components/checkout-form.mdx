@@ -1,0 +1,63 @@
+{!props.hasSession ? (
+  <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+    <p className="text-muted-foreground text-sm">No checkout session found.</p>
+    <a
+      href="/cart"
+      className="rounded-md bg-foreground px-5 py-2 font-medium text-background text-sm transition-opacity hover:opacity-85"
+    >
+      Return to cart
+    </a>
+  </div>
+) : (
+  <div className="mx-auto max-w-5xl">
+    {/* Step indicator */}
+    <nav className="mb-8" aria-label="Checkout steps">
+      <ol className="flex items-center gap-2">
+        {props.steps.map((step, i) => (
+          <li key={step.id} className="flex items-center gap-2">
+            {i > 0 && (
+              <div className={`h-px w-6 ${step.completed || step.active ? "bg-foreground" : "bg-border"}`} />
+            )}
+            <span
+              className={`flex items-center gap-1.5 text-xs font-medium ${
+                step.active
+                  ? "text-foreground"
+                  : step.completed
+                    ? "text-foreground/60"
+                    : "text-muted-foreground/50"
+              }`}
+            >
+              <span
+                className={`flex h-5 w-5 items-center justify-center rounded-full text-xs ${
+                  step.active
+                    ? "bg-foreground text-background"
+                    : step.completed
+                      ? "bg-foreground/15 text-foreground"
+                      : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {step.completed ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                ) : (
+                  i + 1
+                )}
+              </span>
+              <span className="hidden sm:inline">{step.label}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+    </nav>
+
+    {/* Two-column layout: form + summary */}
+    <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+      <div>{props.stepContent}</div>
+      <aside className="hidden lg:block">{props.summaryContent}</aside>
+    </div>
+
+    {/* Mobile summary (below form) */}
+    <div className="mt-8 lg:hidden">{props.summaryContent}</div>
+  </div>
+)}

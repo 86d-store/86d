@@ -1,0 +1,52 @@
+import Link from "next/link";
+
+<article>
+  {props.post.coverImage && (
+    <img
+      src={props.post.coverImage}
+      alt={props.post.title}
+      className="mb-8 aspect-[2/1] w-full rounded-xl object-cover"
+    />
+  )}
+  <header className="mb-8">
+    <div className="flex items-center gap-3 text-muted-foreground text-sm">
+      {props.post.category && (
+        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 font-medium text-primary text-xs">
+          {props.post.category}
+        </span>
+      )}
+      <time dateTime={props.post.publishedAt ?? props.post.createdAt}>
+        {props.formatDate(props.post.publishedAt ?? props.post.createdAt)}
+      </time>
+      {props.post.author && <span>&middot; {props.post.author}</span>}
+    </div>
+    <h1 className="mt-3 font-bold text-3xl text-foreground tracking-tight sm:text-4xl">
+      {props.post.title}
+    </h1>
+  </header>
+
+  <div className="prose prose-neutral dark:prose-invert max-w-none">
+    {props.post.content.split("\n\n").map((paragraph, i) => (
+      <p key={`p-${props.post.id}-${i}`}>{paragraph}</p>
+    ))}
+  </div>
+
+  {props.post.tags.length > 0 && (
+    <div className="mt-10 flex flex-wrap gap-2 border-border border-t pt-6">
+      {props.post.tags.map((tag) => (
+        <span
+          key={tag}
+          className="rounded-full bg-muted px-3 py-1 text-foreground text-sm"
+        >
+          {tag}
+        </span>
+      ))}
+    </div>
+  )}
+
+  <div className="mt-8 border-border border-t pt-6">
+    <Link href="/blog" className="text-primary text-sm hover:underline">
+      &larr; Back to blog
+    </Link>
+  </div>
+</article>

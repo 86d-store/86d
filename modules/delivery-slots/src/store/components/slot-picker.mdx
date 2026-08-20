@@ -1,0 +1,111 @@
+# Choose a Delivery Slot
+
+Select your preferred delivery window.
+
+<div className="space-y-6">
+  {props.booked ? (
+    <div className="rounded-lg border border-green-200 bg-green-50 p-6 text-center dark:border-green-900/50 dark:bg-green-900/20">
+      <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/40">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600 dark:text-green-400" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <p className="font-semibold text-foreground">Delivery slot confirmed!</p>
+      <p className="mt-1 text-muted-foreground text-sm">We'll deliver on {props.selectedDate} during your chosen window.</p>
+    </div>
+  ) : (
+    <>
+      <div>
+        <label className="mb-1 block font-medium text-foreground text-sm" htmlFor="delivery-date">Delivery date</label>
+        <input
+          id="delivery-date"
+          type="date"
+          className="rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          value={props.selectedDate}
+          min={new Date().toISOString().slice(0, 10)}
+          onChange={(e) => props.onDateChange(e.target.value)}
+        />
+      </div>
+
+      {props.loading ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {[1,2,3].map((i) => (
+            <div key={i} className="h-24 animate-pulse rounded-lg border border-border bg-muted" />
+          ))}
+        </div>
+      ) : props.slots.length === 0 ? (
+        <div className="rounded-lg border border-border bg-card p-10 text-center">
+          <p className="font-medium text-foreground text-sm">No delivery slots available</p>
+          <p className="mt-1 text-muted-foreground text-xs">Try selecting a different date.</p>
+        </div>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {props.slots.map((slot) => (
+            <button
+              key={slot.schedule.id}
+              type="button"
+              disabled={!slot.available}
+              onClick={() => props.onSelectSlot(slot.available ? slot.schedule.id : null)}
+              className={`rounded-lg border p-4 text-left transition-all ${
+                !slot.available
+                  ? "cursor-not-allowed border-border opacity-50"
+                  : props.selectedSlotId === slot.schedule.id
+                    ? "border-foreground bg-foreground/5 ring-1 ring-foreground"
+                    : "border-border hover:border-foreground/50 hover:bg-muted/30"
+              }`}
+            >
+              <p className="font-semibold text-foreground text-sm">{slot.schedule.name}</p>
+              <p className="mt-0.5 text-muted-foreground text-xs">{slot.schedule.startTime} – {slot.schedule.endTime}</p>
+              <div className="mt-2 flex items-center justify-between">
+                <span className={`text-xs ${slot.available ? "text-muted-foreground" : "text-destructive"}`}>
+                  {slot.available ? `${slot.remaining} slot${slot.remaining === 1 ? "" : "s"} left` : "Fully booked"}
+                </span>
+                {slot.schedule.surchargeInCents > 0 && (
+                  <span className="font-medium text-foreground text-xs">
+                    +${(slot.schedule.surchargeInCents / 100).toFixed(2)}
+                  </span>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {props.selectedSlot && (
+        <div className="rounded-lg border border-border bg-card p-4 space-y-4">
+          <div>
+            <p className="font-medium text-foreground text-sm">Selected: {props.selectedSlot.schedule.name}</p>
+            <p className="text-muted-foreground text-xs">{props.selectedDate} · {props.selectedSlot.schedule.startTime} – {props.selectedSlot.schedule.endTime}</p>
+          </div>
+
+          <div>
+            <label htmlFor="ds-instructions" className="mb-1 block text-foreground text-xs font-medium">Delivery instructions (optional)</label>
+            <textarea
+              id="ds-instructions"
+              rows={2}
+              value={props.instructions}
+              onChange={(e) => props.onInstructionsChange(e.target.value)}
+              placeholder="Gate code, leave at door, ring bell…"
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+
+          {props.bookError && (
+            <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-destructive text-sm">{props.bookError}</div>
+          )}
+
+          {!props.hasOrderId && (
+            <p className="text-amber-600 text-xs dark:text-amber-400">No order linked. Please book a slot from your order confirmation page.</p>
+          )}
+
+          <button
+            type="button"
+            disabled={props.isBooking || !props.hasOrderId}
+            onClick={props.onBook}
+            className="w-full rounded-md bg-foreground px-4 py-2.5 font-medium text-background text-sm hover:opacity-90 disabled:opacity-50"
+          >
+            {props.isBooking ? "Confirming…" : "Confirm Delivery Slot"}
+          </button>
+        </div>
+      )}
+    </>
+  )}
+</div>

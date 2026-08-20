@@ -1,0 +1,24 @@
+<div className="space-y-4">
+  <div className="flex flex-wrap items-center justify-between gap-3">
+    <h2 className="font-semibold text-foreground text-lg">Carts</h2>
+    <div className="flex items-center gap-3">
+      <select
+        value={props.status}
+        onChange={(e) => props.onStatusChange(e.target.value)}
+        className="rounded-md border border-border bg-background px-3 py-1.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        <option value="">All</option>
+        <option value="active">Active</option>
+        <option value="abandoned">Abandoned</option>
+        <option value="converted">Converted</option>
+      </select>
+      {props.totalCount}
+    </div>
+  </div>
+
+  {props.mainContent}
+
+  {props.expandedDetail}
+
+  {props.pagination}
+</div>

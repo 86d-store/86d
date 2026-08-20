@@ -1,0 +1,15 @@
+<div className="space-y-6">
+  <div>
+    <h1 className="font-bold text-2xl text-gray-900 tracking-tight dark:text-gray-50">
+      My Rewards
+    </h1>
+    <p className="mt-1 text-gray-500 text-sm dark:text-gray-400">
+      Track your points, tier, and reward history.
+    </p>
+  </div>
+  <div className="grid gap-6 sm:grid-cols-2">
+    {props.balanceCard}
+    {props.tierCard}
+  </div>
+  {props.historySection}
+</div>

@@ -1,0 +1,177 @@
+# ============================================================================
+# 86d Store — Multi-stage Docker Build
+# ============================================================================
+# Usage:
+#   docker build -t 86d-store .
+#   docker compose up
+# ============================================================================
+
+# ── Stage 1: Install dependencies ──────────────────────────────────────────
+FROM oven/bun:1.3.11 AS deps
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Store image: manifests for the store app, generate-modules (@86d-app/registry),
+# @86d-app/runtime, lockfile-listed workspaces (internals/github, packages/cli stubs).
+COPY package.json bun.lock ./
+# Workspace members referenced by bun.lock (frozen install requires manifests on disk)
+COPY internals/github/package.json internals/github/
+COPY apps/registry/package.json apps/registry/
+COPY internals/generators/package.json internals/generators/
+COPY packages/cli/package.json packages/cli/
+COPY apps/store/package.json apps/store/
+COPY packages/core/package.json packages/core/
+COPY packages/db/package.json packages/db/
+COPY packages/auth/package.json packages/auth/
+COPY packages/env/package.json packages/env/
+COPY packages/utils/package.json packages/utils/
+COPY packages/lib/package.json packages/lib/
+COPY packages/emails/package.json packages/emails/
+COPY packages/registry/package.json packages/registry/
+COPY packages/runtime/package.json packages/runtime/
+COPY packages/sdk/package.json packages/sdk/
+COPY packages/storage/package.json packages/storage/
+
+# Copy only module package.json files (not source code) for better layer caching
+COPY modules/ /tmp/all-modules/
+RUN mkdir -p modules && \
+    for dir in /tmp/all-modules/*/; do \
+      name=$(basename "$dir"); \
+      mkdir -p "modules/$name" && \
+      cp "$dir/package.json" "modules/$name/package.json" 2>/dev/null || true; \
+    done && \
+    rm -rf /tmp/all-modules
+
+# Hoisted linker only in Docker: avoids isolated-install resolution issues (e.g. tsc in packages/utils)
+# on Linux/Railway; local dev keeps Bun's default workspace linker from bun.lock configVersion.
+RUN for attempt in 1 2 3; do \
+      bun install --ignore-scripts --frozen-lockfile && exit 0; \
+      echo "bun install failed (attempt ${attempt}/3), retrying..." >&2; \
+      sleep 2; \
+    done; \
+    echo "bun install failed after 3 attempts" >&2; \
+    exit 1
+
+# ── Stage 2: Build ─────────────────────────────────────────────────────────
+FROM oven/bun:1.3.11 AS builder
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN for attempt in 1 2 3; do \
+      bun install --ignore-scripts --frozen-lockfile && exit 0; \
+      echo "bun install failed (attempt ${attempt}/3), retrying..." >&2; \
+      sleep 2; \
+    done; \
+    echo "bun install failed after 3 attempts" >&2; \
+    exit 1
+
+# Generate Prisma client
+RUN cd packages/core && bunx prisma generate --schema prisma
+
+# Generate module imports (run directly with bun — tsx has CJS issues under bun on Linux)
+RUN bun internals/generators/src/generate-modules.ts
+
+# Build the store app
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV DOCKER_BUILD=true
+RUN bun run build:store
+
+# ── Stage 3: Install Prisma CLI for runtime migrations ─────────────────────
+# Separate stage so we can copy node_modules/prisma into the slim runner
+FROM oven/bun:1.3.11 AS prisma-installer
+WORKDIR /app
+RUN echo '{"dependencies":{"prisma":"7.3.0"}}' > package.json && \
+    bun install --ignore-scripts
+
+# ── Stage 3b: Full `pg` tree for seed.ts ───────────────────────────────────
+# Standalone image + a lone `pg` copy is missing hoisted deps (e.g. pg-types).
+FROM oven/bun:1.3.11 AS pg-export
+WORKDIR /app
+RUN echo '{"dependencies":{"pg":"8.20.0"}}' > package.json && bun install --ignore-scripts
+RUN mkdir -p /export && cd node_modules && \
+    for d in pg pg-connection-string pg-int8 pg-pool pg-protocol pg-types pgpass \
+      postgres-array postgres-bytea postgres-date postgres-interval xtend; do \
+      if [ -e "$d" ]; then cp -aL "$d" "/export/$d"; fi; \
+    done
+
+# ── Stage 4: Production runtime ────────────────────────────────────────────
+FROM oven/bun:1.3.11-slim AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV STORAGE_CLIENT=local
+ENV STORAGE_LOCAL_DIR=/app/uploads
+ENV STORAGE_LOCAL_BASE_URL=/uploads
+
+# Create non-root user (bun:slim is Debian-based, use groupadd/useradd)
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --gid nodejs nextjs
+
+# Copy built artifacts
+COPY --from=builder /app/apps/store/.next/standalone ./
+COPY --from=builder /app/apps/store/.next/static ./apps/store/.next/static
+COPY --from=builder /app/apps/store/public ./apps/store/public
+
+# Copy templates — MDX files are resolved at runtime and not traced by standalone
+COPY --from=builder /app/templates ./templates
+
+# Copy Prisma schema + config for runtime migrations
+# prisma.config.ts is required by Prisma 7 (defines datasource URL + schema path)
+COPY --from=builder /app/packages/db/prisma ./packages/db/prisma
+COPY --from=builder /app/packages/db/prisma.config.ts ./packages/db/prisma.config.ts
+COPY --from=builder /app/packages/core/prisma ./packages/core/prisma
+COPY --from=builder /app/packages/core/src/prisma ./packages/core/src/prisma
+
+# Merge only `prisma` CLI + `pg` from prisma-installer. Copying the entire installer node_modules
+# overwrites Next standalone hoists (e.g. @prisma/instrumentation) and breaks symlinks under
+# apps/store/.next/node_modules → import-in-the-middle ENOENT at runtime.
+COPY --from=prisma-installer /app/node_modules/prisma /tmp/prisma-only/prisma
+COPY --from=pg-export /export /tmp/pg-export
+RUN set -e; \
+    rm -rf ./node_modules/prisma ./node_modules/pg ./node_modules/pg-connection-string \
+      ./node_modules/pg-int8 ./node_modules/pg-pool ./node_modules/pg-protocol \
+      ./node_modules/pg-types ./node_modules/pgpass ./node_modules/postgres-array \
+      ./node_modules/postgres-bytea ./node_modules/postgres-date ./node_modules/postgres-interval \
+      ./node_modules/xtend 2>/dev/null || true; \
+    cp -a /tmp/prisma-only/prisma ./node_modules/prisma && \
+    cp -a /tmp/pg-export/. ./node_modules/ && \
+    rm -rf /tmp/prisma-only /tmp/pg-export
+
+# Copy seed script and its dependencies
+COPY --from=builder /app/packages/db/src/seed.ts ./packages/db/src/seed.ts
+COPY --from=builder /app/packages/db/seed ./packages/db/seed
+COPY --from=builder /app/packages/db/package.json ./packages/db/package.json
+COPY --from=builder /app/internals/lib ./internals/lib
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/packages/storage ./packages/storage
+COPY --from=builder /app/packages/storage/node_modules/zod ./packages/storage/node_modules/zod
+RUN \
+    mkdir -p ./node_modules/@86d-app && \
+    ln -sfn ../../packages/storage ./node_modules/@86d-app/storage
+
+# Copy entrypoint
+COPY internals/docker/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Create uploads directory for local storage
+# Prisma downloads engine binaries into node_modules at runtime — needs write access
+RUN mkdir -p /app/uploads && \
+    chown -R nextjs:nodejs /app/uploads && \
+    chown -R nextjs:nodejs /app/node_modules
+
+# Switch to non-root user
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD bun -e "fetch('http://localhost:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+
+ENTRYPOINT ["/app/entrypoint.sh"]

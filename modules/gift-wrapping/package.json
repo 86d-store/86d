@@ -1,0 +1,59 @@
+{
+	"name": "@86d-app/gift-wrapping",
+	"version": "0.0.41",
+	"description": "Gift wrapping — add-on wrapping options for order items with custom messages and recipient names",
+	"keywords": [
+		"commerce",
+		"gift-wrapping",
+		"gift",
+		"wrapping",
+		"packaging",
+		"gift-message"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/gift-wrapping"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/wrap-option-detail": {
+			"types": "./src/admin/components/wrap-option-detail.tsx",
+			"default": "./src/admin/components/wrap-option-detail.tsx"
+		},
+		"./admin/components/wrap-option-list": {
+			"types": "./src/admin/components/wrap-option-list.tsx",
+			"default": "./src/admin/components/wrap-option-list.tsx"
+		},
+		"./components": {
+			"types": "./src/store/components/mdx.tsx",
+			"default": "./src/store/components/mdx.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

@@ -1,0 +1,140 @@
+model User {
+    id     String @id @unique @default(uuid()) @db.Uuid
+    cuid   String @unique @default(cuid(2)) @db.VarChar(30)
+    slugId String @unique @default(dbgenerated("nanoid(12, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')")) @db.VarChar(12)
+
+    name                String?
+    email               String   @unique
+    emailVerified       Boolean  @default(false)
+    image               String?
+    phoneNumber         String?  @unique
+    phoneNumberVerified Boolean?
+
+    role       String?
+    banned     Boolean?  @default(false)
+    banReason  String?
+    banExpires DateTime?
+
+    dateOfBirth DateTime?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    icon        File?        @relation("UserIcon", fields: [iconId], references: [id])
+    iconId      String?      @unique @db.Uuid
+    passkeys    Passkey[]
+    sessions    Session[]
+    accounts    Account[]
+    invitations Invitation[]
+    actorLogs   Log[]        @relation("ActorLogs")
+    targetLogs  Log[]        @relation("TargetLogs")
+    files       File[]
+
+    @@map("User")
+}
+
+model Session {
+    id   String @id @unique @default(uuid()) @db.Uuid
+    cuid String @unique @default(cuid(2)) @db.VarChar(30)
+
+    expiresAt      DateTime
+    token          String   @unique
+    ipAddress      String?
+    userAgent      String?
+    impersonatedBy String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    logs   Log[]
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String @db.Uuid
+
+    @@index([userId])
+    @@map("Session")
+}
+
+model Account {
+    id   String @id @unique @default(uuid()) @db.Uuid
+    cuid String @unique @default(cuid(2)) @db.VarChar(30)
+
+    accountId             String
+    providerId            String
+    accessToken           String?
+    refreshToken          String?
+    idToken               String?
+    accessTokenExpiresAt  DateTime?
+    refreshTokenExpiresAt DateTime?
+    scope                 String?
+    password              String?
+    metadata              Json?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    logs   Log[]
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String @db.Uuid
+
+    @@index([userId])
+    @@map("Account")
+}
+
+model Verification {
+    id   String  @id @unique @default(uuid()) @db.Uuid
+    cuid String? @unique @default(cuid(2)) @db.VarChar(30)
+
+    identifier String
+    value      String
+    expiresAt  DateTime
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    @@index([identifier])
+    @@map("Verification")
+}
+
+model Passkey {
+    id   String @id @unique @default(uuid()) @db.Uuid
+    cuid String @unique @default(cuid(2)) @db.VarChar(30)
+
+    name         String?
+    publicKey    String
+    credentialID String
+    counter      Int
+    deviceType   String
+    backedUp     Boolean
+    transports   String?
+    aaguid       String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String @db.Uuid
+
+    @@index([userId])
+    @@index([credentialID])
+    @@map("Passkey")
+}
+
+model Invitation {
+    id   String @id @unique @default(uuid()) @db.Uuid
+    cuid String @unique @default(cuid(2)) @db.VarChar(30)
+
+    email     String
+    role      String?
+    status    String
+    expiresAt DateTime
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    logs       Log[]
+    inviterId  String   @db.Uuid
+    user       User     @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+    @@index([email])
+    @@map("Invitation")
+}

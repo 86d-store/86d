@@ -1,0 +1,64 @@
+{
+	"name": "@86d-app/customers",
+	"version": "0.0.41",
+	"description": "Customer management module for 86d commerce platform",
+	"keywords": [
+		"commerce",
+		"customers",
+		"crm",
+		"86d"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/customers"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/customer-detail": {
+			"types": "./src/admin/components/customer-detail.tsx",
+			"default": "./src/admin/components/customer-detail.tsx"
+		},
+		"./admin/components/customer-list": {
+			"types": "./src/admin/components/customer-list.tsx",
+			"default": "./src/admin/components/customer-list.tsx"
+		},
+		"./admin/components/customer-tags": {
+			"types": "./src/admin/components/customer-tags.tsx",
+			"default": "./src/admin/components/customer-tags.tsx"
+		},
+		"./capabilities": "./src/capabilities.ts",
+		"./components": {
+			"types": "./src/store/components/mdx.tsx",
+			"default": "./src/store/components/mdx.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

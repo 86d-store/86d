@@ -1,0 +1,86 @@
+<div className="space-y-6">
+  <div className="flex items-center justify-between">
+    <div>
+      <h2 className="font-semibold text-2xl">Referral Codes</h2>
+      <p className="text-muted-foreground text-sm">Customer referral codes and usage</p>
+    </div>
+  </div>
+
+  <div className="flex items-center gap-2">
+    <select
+      className="rounded-md border bg-background px-3 py-2 text-sm"
+      value={props.activeFilter}
+      onChange={(e) => props.onActiveFilterChange(e.target.value)}
+    >
+      <option value="">All codes</option>
+      <option value="true">Active</option>
+      <option value="false">Inactive</option>
+    </select>
+  </div>
+
+  {props.loading ? (
+    <p className="py-12 text-center text-muted-foreground">Loading codes...</p>
+  ) : props.codes.length === 0 ? (
+    <p className="py-12 text-center text-muted-foreground">No referral codes found</p>
+  ) : (
+    <div className="overflow-x-auto rounded-lg border">
+      <table className="w-full text-sm">
+        <thead className="border-b bg-muted/50">
+          <tr>
+            <th className="px-4 py-3 text-left font-medium">Code</th>
+            <th className="px-4 py-3 text-left font-medium">Customer</th>
+            <th className="px-4 py-3 text-left font-medium">Status</th>
+            <th className="px-4 py-3 text-left font-medium">Usage</th>
+            <th className="px-4 py-3 text-left font-medium">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {props.codes.map((c) => (
+            <tr key={c.id} className="hover:bg-muted/30">
+              <td className="px-4 py-3 font-mono font-semibold text-sm">{c.code}</td>
+              <td className="px-4 py-3 font-mono text-xs">{c.customerId.slice(0, 8)}...</td>
+              <td className="px-4 py-3">
+                <span className={`inline-flex rounded-full px-2 py-0.5 font-medium text-xs ${c.active ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"}`}>
+                  {c.active ? "Active" : "Inactive"}
+                </span>
+              </td>
+              <td className="px-4 py-3 text-sm">
+                {c.usageCount}{c.maxUses > 0 ? ` / ${c.maxUses}` : ""}
+              </td>
+              <td className="px-4 py-3">
+                {c.active && (
+                  <button
+                    type="button"
+                    onClick={() => props.onDeactivate(c.id)}
+                    className="rounded px-2 py-1 text-red-600 text-xs hover:bg-red-50 dark:hover:bg-red-900/20"
+                  >
+                    Deactivate
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+
+  <div className="flex items-center justify-between">
+    <button
+      type="button"
+      disabled={props.page <= 1}
+      onClick={() => props.onPageChange(props.page - 1)}
+      className="rounded-md border px-3 py-1.5 text-sm disabled:opacity-50"
+    >
+      Previous
+    </button>
+    <span className="text-muted-foreground text-sm">Page {props.page}</span>
+    <button
+      type="button"
+      onClick={() => props.onPageChange(props.page + 1)}
+      className="rounded-md border px-3 py-1.5 text-sm"
+    >
+      Next
+    </button>
+  </div>
+</div>

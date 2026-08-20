@@ -1,0 +1,107 @@
+<div>
+  <div className="mb-6">
+    <h1 className="font-bold text-2xl text-foreground">General Settings</h1>
+    <p className="mt-1 text-muted-foreground text-sm">
+      Configure your store's basic information
+    </p>
+  </div>
+
+  {props.loading ? (
+    <div className="space-y-4">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={`skeleton-${i}`} className="h-16 animate-pulse rounded-lg bg-muted" />
+      ))}
+    </div>
+  ) : (
+    <div className="space-y-6">
+      <div className="rounded-lg border border-border bg-card p-6">
+        <div className="space-y-4">
+          <div>
+            <label className="mb-1.5 block font-medium text-foreground text-sm">
+              Store Name
+            </label>
+            <input
+              type="text"
+              value={props.storeName}
+              onChange={(e) => props.onStoreNameChange(e.target.value)}
+              placeholder="My Store"
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block font-medium text-foreground text-sm">
+              Store Tagline
+            </label>
+            <input
+              type="text"
+              value={props.storeTagline}
+              onChange={(e) => props.onStoreTaglineChange(e.target.value)}
+              placeholder="Your one-stop shop"
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block font-medium text-foreground text-sm">
+              Store Description
+            </label>
+            <textarea
+              value={props.storeDescription}
+              onChange={(e) => props.onStoreDescriptionChange(e.target.value)}
+              placeholder="Tell customers about your store..."
+              rows={3}
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h2 className="mb-4 font-semibold text-foreground text-lg">Localization</h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block font-medium text-foreground text-sm">
+              Timezone
+            </label>
+            <input
+              type="text"
+              value={props.timezone}
+              onChange={(e) => props.onTimezoneChange(e.target.value)}
+              placeholder="America/New_York"
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block font-medium text-foreground text-sm">
+              Locale
+            </label>
+            <input
+              type="text"
+              value={props.locale}
+              onChange={(e) => props.onLocaleChange(e.target.value)}
+              placeholder="en-US"
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={props.onSave}
+          disabled={props.saving}
+          className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm hover:bg-primary/90 disabled:opacity-50"
+        >
+          {props.saving ? "Saving\u2026" : "Save Changes"}
+        </button>
+        {props.saved && (
+          <span className="text-green-600 text-sm dark:text-green-400">
+            Settings saved
+          </span>
+        )}
+      </div>
+    </div>
+  )}
+</div>

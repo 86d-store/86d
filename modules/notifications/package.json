@@ -1,0 +1,69 @@
+{
+	"name": "@86d-app/notifications",
+	"version": "0.0.41",
+	"description": "In-app notification management module for 86d commerce platform",
+	"keywords": [
+		"commerce",
+		"notifications",
+		"alerts",
+		"inbox",
+		"86d"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/notifications"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/notification-composer": {
+			"types": "./src/admin/components/notification-composer.tsx",
+			"default": "./src/admin/components/notification-composer.tsx"
+		},
+		"./admin/components/notification-list": {
+			"types": "./src/admin/components/notification-list.tsx",
+			"default": "./src/admin/components/notification-list.tsx"
+		},
+		"./admin/components/notification-settings": {
+			"types": "./src/admin/components/notification-settings.tsx",
+			"default": "./src/admin/components/notification-settings.tsx"
+		},
+		"./admin/components/notification-template-list": {
+			"types": "./src/admin/components/notification-template-list.tsx",
+			"default": "./src/admin/components/notification-template-list.tsx"
+		},
+		"./capabilities": "./src/capabilities.ts",
+		"./components": {
+			"types": "./src/store/components/mdx.tsx",
+			"default": "./src/store/components/mdx.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

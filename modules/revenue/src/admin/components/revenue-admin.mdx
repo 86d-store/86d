@@ -1,0 +1,46 @@
+<div>
+  <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <h1 className="font-bold text-2xl text-foreground">Revenue</h1>
+      <p className="mt-1 text-muted-foreground text-sm">
+        Financial overview and transaction history
+      </p>
+    </div>
+
+    <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-muted/50 p-1">
+      {Object.entries(props.presetLabels).map(([key, label]) => (
+        <button
+          key={key}
+          type="button"
+          onClick={() => props.onPresetChange(key)}
+          className={`rounded-md px-3 py-1.5 font-medium text-sm transition-colors ${
+            props.preset === key
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <div className="mb-6 flex gap-1 border-border border-b">
+    {["overview", "transactions"].map((t) => (
+      <button
+        key={t}
+        type="button"
+        onClick={() => props.onTabChange(t)}
+        className={`-mb-px border-b-2 px-4 py-2 font-medium text-sm capitalize transition-colors ${
+          props.tab === t
+            ? "border-foreground text-foreground"
+            : "border-transparent text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        {t}
+      </button>
+    ))}
+  </div>
+
+  {props.tabContent}
+</div>

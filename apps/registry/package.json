@@ -1,0 +1,21 @@
+{
+	"name": "@86d-app/internals-registry",
+	"version": "0.0.0",
+	"private": true,
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"check": "biome check .",
+		"check:fix": "biome check --write --unsafe .",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"generate": "tsx src/generate-manifest.ts"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*",
+		"@86d-app/registry": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"tsx": "catalog:"
+	}
+}

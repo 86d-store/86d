@@ -1,0 +1,79 @@
+<div>
+  <div className="mb-6">
+    <h1 className="font-bold text-2xl text-foreground">Returns</h1>
+    <p className="mt-1 text-muted-foreground text-sm">
+      {props.total} {props.total === 1 ? "return request" : "return requests"}
+    </p>
+  </div>
+
+  <div className="mb-4">
+    <select
+      value={props.statusFilter}
+      onChange={(e) => props.onStatusFilterChange(e.target.value)}
+      className="h-9 rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+    >
+      <option value="">All statuses</option>
+      <option value="requested">Requested</option>
+      <option value="approved">Approved</option>
+      <option value="rejected">Rejected</option>
+      <option value="shipped_back">Shipped Back</option>
+      <option value="received">Received</option>
+      <option value="refunded">Refunded</option>
+      <option value="completed">Completed</option>
+    </select>
+  </div>
+
+  <div className="overflow-hidden rounded-lg border border-border bg-card">
+    <table className="w-full">
+      <thead>
+        <tr className="border-border border-b bg-muted/50">
+          <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wide">
+            Return
+          </th>
+          <th className="hidden px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wide sm:table-cell">
+            Type
+          </th>
+          <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wide">
+            Status
+          </th>
+          <th className="hidden px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wide md:table-cell">
+            Reason
+          </th>
+          <th className="px-4 py-3 text-right font-semibold text-muted-foreground text-xs uppercase tracking-wide">
+            Items
+          </th>
+          <th className="hidden px-4 py-3 text-right font-semibold text-muted-foreground text-xs uppercase tracking-wide lg:table-cell">
+            Date
+          </th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-border">
+        {props.tableBody}
+      </tbody>
+    </table>
+  </div>
+
+  {props.totalPages > 1 && (
+    <div className="mt-4 flex items-center justify-center gap-2">
+      <button
+        type="button"
+        onClick={props.onPrevPage}
+        disabled={props.page === 1}
+        className="rounded-md border border-border px-3 py-1.5 text-foreground text-sm hover:bg-muted disabled:opacity-50"
+      >
+        Previous
+      </button>
+      <span className="text-muted-foreground text-sm">
+        Page {props.page} of {props.totalPages}
+      </span>
+      <button
+        type="button"
+        onClick={props.onNextPage}
+        disabled={props.page === props.totalPages}
+        className="rounded-md border border-border px-3 py-1.5 text-foreground text-sm hover:bg-muted disabled:opacity-50"
+      >
+        Next
+      </button>
+    </div>
+  )}
+</div>

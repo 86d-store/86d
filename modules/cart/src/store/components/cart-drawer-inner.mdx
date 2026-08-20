@@ -1,0 +1,30 @@
+<>
+  <div className="flex items-center justify-between border-border/50 border-b px-5 py-4">
+    <p className="font-display font-semibold text-foreground text-sm tracking-tight">
+      Cart
+      {props.itemCount > 0 && (
+        <span className="ml-1.5 font-normal text-muted-foreground">
+          ({props.itemCount})
+        </span>
+      )}
+    </p>
+    <div className="flex items-center gap-2.5">
+      {props.itemCount > 0 && (
+        <button
+          type="button"
+          onClick={props.onClear}
+          disabled={props.loading}
+          className="text-muted-foreground text-xs transition-colors hover:text-foreground disabled:opacity-50"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  </div>
+
+  <div className="flex-1 overflow-y-auto px-5 py-3">
+    {props.bodyContent}
+  </div>
+
+  {props.footerContent}
+</>

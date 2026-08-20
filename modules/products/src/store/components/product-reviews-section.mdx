@@ -1,0 +1,21 @@
+<section id="reviews" className="border-border/50 border-t py-10">
+  {/* Header */}
+  <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h2 className="font-display font-semibold text-foreground text-lg tracking-tight sm:text-xl">
+        Customer Reviews
+      </h2>
+      {props.summaryDisplay}
+    </div>
+    {props.toggleFormButton}
+  </div>
+
+  {/* Review form */}
+  {props.formContent}
+
+  {/* Empty state */}
+  {props.emptyState}
+
+  {/* Distribution + reviews list */}
+  {props.reviewsContent}
+</section>

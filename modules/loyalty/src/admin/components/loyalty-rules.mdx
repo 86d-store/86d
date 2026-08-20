@@ -1,0 +1,56 @@
+<div className="space-y-6">
+  <div className="flex items-center justify-between gap-4">
+    <div>
+      <h2 className="font-semibold text-foreground text-lg">Earn Rules</h2>
+      <p className="mt-0.5 text-muted-foreground text-sm">
+        Configure how customers earn loyalty points.
+      </p>
+    </div>
+    {!props.showForm && (
+      <button
+        type="button"
+        onClick={props.onShowForm}
+        className="rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-opacity hover:opacity-90"
+      >
+        New Rule
+      </button>
+    )}
+  </div>
+
+  {props.error && (
+    <p className="text-destructive text-sm" role="alert">
+      {props.error}
+    </p>
+  )}
+
+  {props.formSection}
+
+  <div className="overflow-x-auto rounded-lg border border-border">
+    <table className="w-full text-sm">
+      <thead>
+        <tr className="border-border border-b bg-muted/40">
+          <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            Name
+          </th>
+          <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            Type
+          </th>
+          <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            Points
+          </th>
+          <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            Min Order
+          </th>
+          <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+            Status
+          </th>
+          <th className="px-4 py-3 text-right font-medium text-muted-foreground">
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {props.ruleRows}
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,74 @@
+<div className="space-y-6">
+  <h1 className="font-bold text-2xl text-foreground">Social Proof</h1>
+  <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+    <div className="rounded-lg border border-border bg-card p-5">
+      <p className="font-medium text-muted-foreground text-sm">
+        Total Events (24h)
+      </p>
+      <p className="mt-1 font-semibold text-2xl text-foreground">
+        {props.totalEvents}
+      </p>
+    </div>
+    <div className="rounded-lg border border-border bg-card p-5">
+      <p className="font-medium text-muted-foreground text-sm">
+        Purchases
+      </p>
+      <p className="mt-1 font-semibold text-2xl text-foreground">
+        {props.totalPurchases}
+      </p>
+    </div>
+    <div className="rounded-lg border border-border bg-card p-5">
+      <p className="font-medium text-muted-foreground text-sm">
+        Views
+      </p>
+      <p className="mt-1 font-semibold text-2xl text-foreground">
+        {props.totalViews}
+      </p>
+    </div>
+    <div className="rounded-lg border border-border bg-card p-5">
+      <p className="font-medium text-muted-foreground text-sm">
+        Unique Products
+      </p>
+      <p className="mt-1 font-semibold text-2xl text-foreground">
+        {props.uniqueProducts}
+      </p>
+    </div>
+  </div>
+
+  {props.topProducts?.length > 0 && (
+    <div className="rounded-lg border border-border bg-card">
+      <div className="border-border border-b px-5 py-3">
+        <h3 className="font-semibold text-foreground text-sm">Top Products (24h)</h3>
+      </div>
+      <div className="grid grid-cols-2 gap-2 p-4 sm:grid-cols-5">
+        {props.topProducts.slice(0, 5).map((product) => (
+          <div key={product.productId} className="rounded-lg border border-border p-3 text-center">
+            <p className="truncate font-medium text-foreground text-sm">{product.productName}</p>
+            <p className="text-muted-foreground text-xs">{product.eventCount} events</p>
+            <p className="text-green-600 text-xs dark:text-green-400">{product.purchaseCount} purchases</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {props.error && (
+    <div className="rounded-lg bg-destructive/10 p-3 text-destructive text-sm">
+      {props.error}
+    </div>
+  )}
+
+  <div className="rounded-lg border border-border bg-card">
+    <div className="border-border border-b px-5 py-3">
+      <h3 className="font-semibold text-foreground text-sm">Trust Badges</h3>
+    </div>
+    {props.badgesContent}
+  </div>
+
+  <div className="rounded-lg border border-border bg-card">
+    <div className="border-border border-b px-5 py-3">
+      <h3 className="font-semibold text-foreground text-sm">Recent Activity</h3>
+    </div>
+    {props.eventsContent}
+  </div>
+</div>

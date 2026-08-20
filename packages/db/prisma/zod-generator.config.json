@@ -1,0 +1,47 @@
+{
+	"mode": "minimal",
+	"pureModels": true,
+	"variants": {
+		"pure": {
+			"enabled": true
+		},
+		"input": {
+			"enabled": true
+		},
+		"result": {
+			"enabled": false
+		}
+	},
+	"globalExclusions": {
+		"input": ["id", "createdAt", "updatedAt"],
+		"result": ["password", "hashedPassword", "secret*"],
+		"pure": [
+			"*id",
+			"*Id",
+			"id",
+			"cuid",
+			"userId",
+			"businessId",
+			"productId",
+			"variantId",
+			"slugId",
+			"shopifyId",
+			"stripeId",
+			"stripeSubscriptionId",
+			"stripeCustomerId",
+			"stripePriceId",
+			"stripeProductId",
+			"stripeSubscriptionItemId",
+			"stripeSubscriptionItemPriceId",
+			"stripeSubscriptionItemProductId",
+			"stripeSubscriptionItemPriceId",
+			"stripeSubscriptionItemProductId",
+			"createdAt",
+			"updatedAt",
+			"emailVerified",
+			"password",
+			"hashedPassword",
+			"secret*"
+		]
+	}
+}

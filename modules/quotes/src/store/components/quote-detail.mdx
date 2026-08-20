@@ -1,0 +1,73 @@
+<section className="py-8">
+  {/* Back link */}
+  <button
+    type="button"
+    onClick={props.onBack}
+    className="mb-4 text-primary text-sm underline-offset-4 hover:underline"
+  >
+    &larr; Back to quotes
+  </button>
+
+  {/* Header */}
+  <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <h2 className="font-semibold text-foreground text-xl">
+        Quote #{props.quoteNumber}
+      </h2>
+      <p className="mt-0.5 text-muted-foreground text-sm">
+        Created {props.date}
+        {props.expiresAt && (
+          <span> &middot; Expires {props.expiresAt}</span>
+        )}
+      </p>
+      <div className="mt-2">{props.statusBadge}</div>
+    </div>
+    {props.actionsContent}
+  </div>
+
+  {/* Customer info */}
+  <div className="mb-6 rounded-xl border border-border bg-muted/30 p-4">
+    <div className="text-sm">
+      <p className="font-medium text-foreground">{props.customerName}</p>
+      {props.companyName && (
+        <p className="text-muted-foreground">{props.companyName}</p>
+      )}
+    </div>
+  </div>
+
+  {props.actionError && (
+    <p className="mb-4 text-destructive text-sm" role="alert">
+      {props.actionError}
+    </p>
+  )}
+
+  {/* Notes */}
+  {props.notes && (
+    <div className="mb-6 rounded-xl border border-border bg-muted/30 p-4">
+      <h3 className="mb-1 font-medium text-foreground text-sm">Notes</h3>
+      <p className="text-muted-foreground text-sm">{props.notes}</p>
+    </div>
+  )}
+
+  {/* Converted order link */}
+  {props.convertedOrderId && (
+    <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30">
+      <p className="font-medium text-emerald-800 text-sm dark:text-emerald-200">
+        This quote has been converted to order{" "}
+        <span className="font-mono">{props.convertedOrderId}</span>.
+      </p>
+    </div>
+  )}
+
+  {/* Line items */}
+  {props.itemsContent}
+
+  {/* Totals */}
+  {props.totalsContent}
+
+  {/* Comments */}
+  {props.commentsContent}
+
+  {/* Reply form */}
+  {props.replyForm}
+</section>

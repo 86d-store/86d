@@ -1,0 +1,23 @@
+[install]
+# Supply-chain hardening: pin everything, never widen ranges automatically.
+exact = true
+# Don't reach for newer versions on every install.
+saveTextLockfile = true
+# Run only allowlisted postinstall/preinstall scripts (Bun's trustedDependencies).
+auto = "fallback"
+# Refuse to install package versions younger than 1 week. Compromised releases
+# are typically yanked within hours/days, so a 7-day quarantine blocks most
+# real-world supply-chain attacks (e.g. ua-parser-js, event-stream).
+minimumReleaseAge = 10080
+
+[install.scopes]
+# Explicit registry pin so a misconfigured proxy can't silently swap sources.
+"" = "https://registry.npmjs.org/"
+
+[install.security]
+# Socket Dev security scanner — blocks known-malicious packages at install time.
+# Optional: set SOCKET_API_KEY for org-aware scanning; falls back to public API.
+scanner = "@socketsecurity/bun-security-scanner"
+
+[install.cache]
+disable = false

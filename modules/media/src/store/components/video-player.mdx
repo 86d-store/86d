@@ -1,0 +1,31 @@
+{props.loading && (
+  <div className={`animate-pulse rounded-lg bg-muted ${props.className ?? "aspect-video w-full"}`} />
+)}
+
+{props.error && (
+  <div className={`flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/50 ${props.className ?? "aspect-video w-full"}`}>
+    <div className="text-center">
+      <svg className="mx-auto mb-1 size-6 text-muted-foreground/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
+      </svg>
+      <p className="text-xs text-muted-foreground">{props.error}</p>
+    </div>
+  </div>
+)}
+
+{!props.loading && !props.error && props.url && (
+  <div className={props.className}>
+    <video
+      controls
+      autoPlay={props.autoPlay}
+      muted={props.autoPlay}
+      loop={props.loop}
+      preload="metadata"
+      className="w-full rounded-lg"
+      aria-label={props.name}
+    >
+      <source src={props.url} type={props.mimeType} />
+      <p className="text-sm text-muted-foreground">Your browser does not support video playback.</p>
+    </video>
+  </div>
+)}

@@ -1,0 +1,49 @@
+{
+	"name": "db",
+	"version": "0.0.4",
+	"private": true,
+	"license": "MIT",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./schema/apply-disposable-ddl": {
+			"types": "./src/schema/apply-disposable-ddl.ts",
+			"default": "./src/schema/apply-disposable-ddl.ts"
+		},
+		"./schema/compiled-table-drizzle": {
+			"types": "./src/schema/compiled-table-drizzle.ts",
+			"default": "./src/schema/compiled-table-drizzle.ts"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src seed",
+		"check:fix": "biome check --write --unsafe src seed",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"seed": "tsx src/seed.ts",
+		"seed:fetch-luxury-assets": "tsx seed/fetch-luxury-stock-assets.ts",
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*",
+		"@86d-app/storage": "workspace:*",
+		"@prisma/adapter-pg": "7.8.0",
+		"drizzle-orm": "0.45.2",
+		"pg": "8.21.0",
+		"prisma": "catalog:prisma"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@electric-sql/pglite": "0.4.1",
+		"@types/node": "catalog:node",
+		"drizzle-kit": "0.31.10",
+		"sharp": "0.35.1",
+		"tsx": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

@@ -1,0 +1,97 @@
+# Invoices
+
+Manage invoices — create, send, record payments, and track outstanding balances.
+
+<div className="space-y-4">
+  <div className="flex items-center gap-2">
+    <input
+      type="text"
+      placeholder="Search invoices…"
+      className="rounded border px-3 py-1.5 text-sm"
+      value={props.search}
+      onChange={(e) => props.onSearchChange(e.target.value)}
+    />
+    <select
+      className="rounded border px-3 py-1.5 text-sm"
+      value={props.status}
+      onChange={(e) => props.onStatusChange(e.target.value)}
+    >
+      <option value="">All statuses</option>
+      <option value="draft">Draft</option>
+      <option value="sent">Sent</option>
+      <option value="viewed">Viewed</option>
+      <option value="paid">Paid</option>
+      <option value="partially_paid">Partially Paid</option>
+      <option value="overdue">Overdue</option>
+      <option value="void">Void</option>
+    </select>
+  </div>
+
+  {props.loading ? (
+    <div className="py-12 text-center text-muted-foreground">Loading invoices…</div>
+  ) : props.invoices.length === 0 ? (
+    <div className="py-12 text-center text-muted-foreground">No invoices found.</div>
+  ) : (
+    <div className="overflow-x-auto rounded-lg border">
+      <table className="w-full text-sm">
+        <thead className="border-b bg-muted/50">
+          <tr>
+            <th className="px-4 py-3 text-left font-medium">Invoice #</th>
+            <th className="px-4 py-3 text-left font-medium">Customer</th>
+            <th className="px-4 py-3 text-left font-medium">Status</th>
+            <th className="px-4 py-3 text-right font-medium">Total</th>
+            <th className="px-4 py-3 text-right font-medium">Due</th>
+            <th className="px-4 py-3 text-left font-medium">Due Date</th>
+            <th className="px-4 py-3 text-left font-medium">Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          {props.invoices.map((inv) => (
+            <tr key={inv.id} className="border-b last:border-0 hover:bg-muted/30">
+              <td className="px-4 py-3 font-medium">{inv.invoiceNumber}</td>
+              <td className="px-4 py-3">{inv.customerName || inv.guestEmail || "—"}</td>
+              <td className="px-4 py-3">
+                <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${
+                  inv.status === "paid" ? "text-green-700 bg-green-50 border-green-200" :
+                  inv.status === "overdue" ? "text-red-700 bg-red-50 border-red-200" :
+                  inv.status === "sent" || inv.status === "viewed" ? "text-blue-700 bg-blue-50 border-blue-200" :
+                  inv.status === "partially_paid" ? "text-yellow-700 bg-yellow-50 border-yellow-200" :
+                  inv.status === "void" ? "text-gray-700 bg-gray-50 border-gray-200" :
+                  "text-gray-700 bg-gray-50 border-gray-200"
+                }`}>
+                  {inv.status.replace("_", " ")}
+                </span>
+              </td>
+              <td className="px-4 py-3 text-right">${(inv.total / 100).toFixed(2)}</td>
+              <td className="px-4 py-3 text-right">${(inv.amountDue / 100).toFixed(2)}</td>
+              <td className="px-4 py-3">{inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : "—"}</td>
+              <td className="px-4 py-3">{new Date(inv.createdAt).toLocaleDateString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+
+  {props.pages > 1 && (
+    <div className="flex items-center justify-between">
+      <div className="text-sm text-muted-foreground">{props.total} invoice(s)</div>
+      <div className="flex gap-1">
+        <button
+          className="rounded border px-3 py-1 text-sm disabled:opacity-50"
+          disabled={props.page <= 1}
+          onClick={() => props.onPageChange(props.page - 1)}
+        >
+          Previous
+        </button>
+        <button
+          className="rounded border px-3 py-1 text-sm disabled:opacity-50"
+          disabled={props.page >= props.pages}
+          onClick={() => props.onPageChange(props.page + 1)}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  )}
+</div>

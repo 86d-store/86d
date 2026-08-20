@@ -1,0 +1,93 @@
+<div className="mx-auto max-w-lg">
+  <h2 className="mb-4 font-semibold text-foreground text-lg">Notification Preferences</h2>
+
+  {props.loading ? (
+    <div className="space-y-4 rounded-lg border border-border bg-card p-6">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={`skel-${i}`} className="flex items-center justify-between">
+          <div className="h-4 w-40 animate-pulse rounded bg-muted" />
+          <div className="h-6 w-10 animate-pulse rounded-full bg-muted" />
+        </div>
+      ))}
+    </div>
+  ) : props.prefs ? (
+    <div className="divide-y divide-border rounded-lg border border-border bg-card">
+      <div className="flex items-center justify-between px-6 py-4">
+        <div>
+          <p className="font-medium text-foreground text-sm">Order Updates</p>
+          <p className="text-muted-foreground text-xs">Order confirmations, status changes, and cancellations</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => props.onToggle("orderUpdates")}
+          disabled={props.saving}
+          className={`relative h-6 w-10 rounded-full transition-colors ${
+            props.prefs.orderUpdates ? "bg-primary" : "bg-muted"
+          }`}
+          aria-label="Toggle order updates"
+        >
+          <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+            props.prefs.orderUpdates ? "left-[18px]" : "left-0.5"
+          }`} />
+        </button>
+      </div>
+      <div className="flex items-center justify-between px-6 py-4">
+        <div>
+          <p className="font-medium text-foreground text-sm">Promotions</p>
+          <p className="text-muted-foreground text-xs">Sales, discounts, and special offers</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => props.onToggle("promotions")}
+          disabled={props.saving}
+          className={`relative h-6 w-10 rounded-full transition-colors ${
+            props.prefs.promotions ? "bg-primary" : "bg-muted"
+          }`}
+          aria-label="Toggle promotions"
+        >
+          <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+            props.prefs.promotions ? "left-[18px]" : "left-0.5"
+          }`} />
+        </button>
+      </div>
+      <div className="flex items-center justify-between px-6 py-4">
+        <div>
+          <p className="font-medium text-foreground text-sm">Shipping Alerts</p>
+          <p className="text-muted-foreground text-xs">Shipment tracking and delivery updates</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => props.onToggle("shippingAlerts")}
+          disabled={props.saving}
+          className={`relative h-6 w-10 rounded-full transition-colors ${
+            props.prefs.shippingAlerts ? "bg-primary" : "bg-muted"
+          }`}
+          aria-label="Toggle shipping alerts"
+        >
+          <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+            props.prefs.shippingAlerts ? "left-[18px]" : "left-0.5"
+          }`} />
+        </button>
+      </div>
+      <div className="flex items-center justify-between px-6 py-4">
+        <div>
+          <p className="font-medium text-foreground text-sm">Account Alerts</p>
+          <p className="text-muted-foreground text-xs">Security notifications and account changes</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => props.onToggle("accountAlerts")}
+          disabled={props.saving}
+          className={`relative h-6 w-10 rounded-full transition-colors ${
+            props.prefs.accountAlerts ? "bg-primary" : "bg-muted"
+          }`}
+          aria-label="Toggle account alerts"
+        >
+          <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+            props.prefs.accountAlerts ? "left-[18px]" : "left-0.5"
+          }`} />
+        </button>
+      </div>
+    </div>
+  ) : null}
+</div>

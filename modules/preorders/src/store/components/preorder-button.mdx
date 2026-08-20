@@ -1,0 +1,60 @@
+<div className="flex flex-col gap-2">
+  {props.success ? (
+    <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/50">
+      <p className="font-medium text-green-700 text-sm dark:text-green-400">
+        Pre-order placed successfully!
+      </p>
+      <p className="mt-1 text-green-600 text-xs dark:text-green-500">
+        You will be notified when your item ships.
+      </p>
+    </div>
+  ) : (
+    <>
+      {props.message && (
+        <p className="text-muted-foreground text-sm">{props.message}</p>
+      )}
+      {props.estimatedShipDate && (
+        <p className="text-muted-foreground text-xs">
+          Estimated ship date: <span className="font-medium text-foreground">{props.estimatedShipDate}</span>
+        </p>
+      )}
+      {props.depositLabel && (
+        <p className="text-muted-foreground text-xs">
+          Requires {props.depositLabel} at checkout
+        </p>
+      )}
+      {props.remainingQuantity !== null && props.remainingQuantity <= 10 && (
+        <p className="font-medium text-amber-600 text-xs dark:text-amber-400">
+          Only {props.remainingQuantity} left
+        </p>
+      )}
+      <div className="flex items-center gap-2">
+        <select
+          value={props.quantity}
+          onChange={(e) => props.onQuantityChange(Number(e.target.value))}
+          className="rounded-md border border-gray-200 px-2 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+        >
+          {Array.from({ length: Math.min(props.remainingQuantity ?? 10, 10) }, (_, i) => (
+            <option key={i + 1} value={i + 1}>{i + 1}</option>
+          ))}
+        </select>
+        <button
+          type="button"
+          onClick={props.onPlace}
+          disabled={props.isPending || !props.isLoggedIn}
+          className="flex-1 rounded-md bg-indigo-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-indigo-700 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+        >
+          {props.isPending ? "Placing..." : `Pre-order Now \u2014 ${props.price}`}
+        </button>
+      </div>
+      {!props.isLoggedIn && (
+        <p className="text-muted-foreground text-xs">
+          Sign in to place a pre-order.
+        </p>
+      )}
+      {props.error && (
+        <p className="text-red-600 text-xs dark:text-red-400">{props.error}</p>
+      )}
+    </>
+  )}
+</div>

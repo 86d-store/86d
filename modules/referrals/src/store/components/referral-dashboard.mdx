@@ -1,0 +1,26 @@
+{props.loading ? (
+  <p className="py-8 text-center text-muted-foreground">Loading...</p>
+) : (
+  <div className="space-y-4">
+    <h3 className="font-semibold text-lg">Your Referrals</h3>
+    <div className="grid grid-cols-3 gap-4">
+      <div className="rounded-lg border bg-card p-4 text-center">
+        <p className="font-bold text-2xl">{props.totalReferrals}</p>
+        <p className="text-muted-foreground text-sm">Total</p>
+      </div>
+      <div className="rounded-lg border bg-card p-4 text-center">
+        <p className="font-bold text-2xl text-green-600">{props.completedReferrals}</p>
+        <p className="text-muted-foreground text-sm">Completed</p>
+      </div>
+      <div className="rounded-lg border bg-card p-4 text-center">
+        <p className="font-bold text-2xl text-yellow-600">{props.pendingReferrals}</p>
+        <p className="text-muted-foreground text-sm">Pending</p>
+      </div>
+    </div>
+    {props.code && (
+      <p className="text-muted-foreground text-sm">
+        Your code: <span className="font-mono font-semibold">{props.code}</span>
+      </p>
+    )}
+  </div>
+)}

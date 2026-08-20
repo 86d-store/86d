@@ -1,0 +1,63 @@
+<div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+  <div className="mb-8">
+    <h1 className="font-display text-2xl font-bold text-foreground">Your cart</h1>
+    {props.itemCount > 0 && (
+      <p className="mt-1 text-muted-foreground text-sm">{props.itemCount} item{props.itemCount !== 1 ? "s" : ""}</p>
+    )}
+  </div>
+
+  {!props.hasItems ? (
+    <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed py-20 text-center">
+      <p className="text-muted-foreground text-sm">Your cart is empty.</p>
+      <a
+        href="/products"
+        className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-2.5 text-sm font-medium text-background transition-all hover:opacity-90"
+      >
+        Continue shopping
+      </a>
+    </div>
+  ) : (
+    <div className="gap-8 lg:grid lg:grid-cols-3">
+      <div className="lg:col-span-2">
+        <ul className="divide-y divide-border">
+          {props.itemsContent}
+        </ul>
+        <div className="mt-4">
+          <a
+            href="/products"
+            className="text-muted-foreground text-sm transition-colors hover:text-foreground"
+          >
+            ← Continue shopping
+          </a>
+        </div>
+      </div>
+
+      <div className="mt-8 lg:mt-0">
+        <div className="rounded-lg border bg-card p-5">
+          <h2 className="font-semibold text-base text-foreground">Order summary</h2>
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="font-medium text-foreground">{props.subtotal}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs text-muted-foreground/70">
+              <span>Shipping</span>
+              <span>Calculated at checkout</span>
+            </div>
+            <div className="flex items-center justify-between text-xs text-muted-foreground/70">
+              <span>Taxes</span>
+              <span>Calculated at checkout</span>
+            </div>
+          </div>
+          <div className="my-4 border-t border-border" />
+          <a
+            href="/checkout"
+            className="block w-full rounded-md bg-foreground py-3 text-center font-medium text-background text-sm transition-opacity hover:opacity-85"
+          >
+            Checkout
+          </a>
+        </div>
+      </div>
+    </div>
+  )}
+</div>

@@ -1,0 +1,53 @@
+{
+	"name": "emails",
+	"version": "0.0.4",
+	"private": true,
+	"license": "MIT",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./abandoned-cart": "./src/templates/abandoned-cart.tsx",
+		"./back-in-stock": "./src/templates/back-in-stock.tsx",
+		"./contact": "./src/templates/contact.tsx",
+		"./delivery-confirmation": "./src/templates/delivery-confirmation.tsx",
+		"./low-stock-alert": "./src/templates/low-stock-alert.tsx",
+		"./order-cancelled": "./src/templates/order-cancelled.tsx",
+		"./order-completed": "./src/templates/order-completed.tsx",
+		"./order-confirmation": "./src/templates/order-confirmation.tsx",
+		"./payment-failed": "./src/templates/payment-failed.tsx",
+		"./refund-processed": "./src/templates/refund-processed.tsx",
+		"./return-approved": "./src/templates/return-approved.tsx",
+		"./review-request": "./src/templates/review-request.tsx",
+		"./shipping-notification": "./src/templates/shipping-notification.tsx",
+		"./subscription-cancel": "./src/templates/subscription-cancel.tsx",
+		"./subscription-complete": "./src/templates/subscription-complete.tsx",
+		"./subscription-update": "./src/templates/subscription-update.tsx",
+		"./welcome": "./src/templates/welcome.tsx"
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"resend": "6.12.3"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/react": "catalog:react",
+		"@types/react-dom": "catalog:react",
+		"react": "catalog:react",
+		"react-dom": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	},
+	"peerDependencies": {
+		"react": "catalog:react"
+	}
+}

@@ -1,0 +1,20 @@
+<article className="border-border border-b py-5 last:border-0">
+  <div className="mb-2 flex items-start justify-between gap-3">
+    <div className="flex-1">
+      <p className="text-foreground text-sm leading-relaxed">
+        {props.question.body}
+      </p>
+    </div>
+    <span className="shrink-0 text-muted-foreground text-xs">
+      {props.formatDate(props.question.createdAt)}
+    </span>
+  </div>
+  <div className="mt-2 flex items-center gap-3">
+    <p className="text-muted-foreground/60 text-xs">
+      Asked by {props.question.authorName}
+    </p>
+    {props.upvoteButton}
+    {props.expandButton}
+  </div>
+  {props.answerListContent}
+</article>

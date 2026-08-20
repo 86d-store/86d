@@ -1,0 +1,69 @@
+# Pick Up In Store
+
+Choose a pickup location and time window for your order.
+
+<div className="space-y-4">
+  {props.loadingLocations ? (
+    <div className="py-12 text-center text-muted-foreground">Loading locations…</div>
+  ) : props.locations.length === 0 ? (
+    <div className="py-12 text-center text-muted-foreground">No pickup locations available.</div>
+  ) : (
+    <>
+      <div>
+        <label className="text-sm font-medium" htmlFor="pickup-location">Location</label>
+        <select
+          id="pickup-location"
+          className="mt-1 block w-full rounded border px-3 py-2 text-sm"
+          value={props.selectedLocation}
+          onChange={(e) => props.onLocationChange(e.target.value)}
+        >
+          <option value="">Select a location…</option>
+          {props.locations.map((loc) => (
+            <option key={loc.id} value={loc.id}>
+              {loc.name} — {loc.city}, {loc.state}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {props.selectedLocation && (
+        <>
+          <div>
+            <label className="text-sm font-medium" htmlFor="pickup-date">Pickup date</label>
+            <input
+              id="pickup-date"
+              type="date"
+              className="mt-1 block rounded border px-3 py-2 text-sm"
+              value={props.selectedDate}
+              onChange={(e) => props.onDateChange(e.target.value)}
+            />
+          </div>
+
+          {props.loadingWindows ? (
+            <div className="py-8 text-center text-muted-foreground">Loading available windows…</div>
+          ) : props.windows.length === 0 ? (
+            <div className="py-8 text-center text-muted-foreground">No pickup windows available for this date.</div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {props.windows.map((slot) => (
+                <div
+                  key={slot.window.id}
+                  className={`rounded-lg border p-4 transition-colors ${slot.available ? "hover:bg-muted/30 cursor-pointer" : "opacity-50 cursor-not-allowed"}`}
+                >
+                  <h3 className="font-semibold">
+                    {slot.window.startTime} – {slot.window.endTime}
+                  </h3>
+                  <div className="mt-2 text-sm">
+                    {slot.available
+                      ? `${slot.remaining} spot${slot.remaining === 1 ? "" : "s"} left`
+                      : "Fully booked"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </>
+  )}
+</div>

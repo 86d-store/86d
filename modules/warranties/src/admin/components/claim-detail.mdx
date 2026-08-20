@@ -1,0 +1,196 @@
+# Claim Detail
+
+{props.loading && (
+  <div className="py-8 text-center text-muted-foreground text-sm">Loading claim…</div>
+)}
+
+{props.claim && (
+  <div className="space-y-6">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div>
+        <div className="text-muted-foreground text-xs">Status</div>
+        <div>
+          <span className={`inline-block rounded-full px-2 py-0.5 font-medium text-xs ${
+            props.claim.status === "approved" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" :
+            props.claim.status === "denied" ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400" :
+            props.claim.status === "resolved" ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400" :
+            props.claim.status === "closed" ? "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400" :
+            "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+          }`}>{props.claim.status.replace(/_/g, " ")}</span>
+        </div>
+      </div>
+      <div>
+        <div className="text-muted-foreground text-xs">Issue Type</div>
+        <div className="font-medium text-foreground text-sm">{props.claim.issueType}</div>
+      </div>
+      <div>
+        <div className="text-muted-foreground text-xs">Submitted</div>
+        <div className="font-medium text-foreground text-sm">{new Date(props.claim.submittedAt).toLocaleDateString()}</div>
+      </div>
+      {props.claim.resolution && (
+        <div>
+          <div className="text-muted-foreground text-xs">Resolution</div>
+          <div className="font-medium text-foreground text-sm capitalize">{props.claim.resolution}</div>
+        </div>
+      )}
+      {props.claim.resolvedAt && (
+        <div>
+          <div className="text-muted-foreground text-xs">Resolved</div>
+          <div className="font-medium text-foreground text-sm">{new Date(props.claim.resolvedAt).toLocaleDateString()}</div>
+        </div>
+      )}
+    </div>
+
+    <div>
+      <div className="text-muted-foreground text-xs">Description</div>
+      <div className="mt-1 text-foreground text-sm leading-relaxed">{props.claim.issueDescription}</div>
+    </div>
+
+    {props.claim.resolutionNotes && (
+      <div>
+        <div className="text-muted-foreground text-xs">Resolution Notes</div>
+        <div className="mt-1 text-foreground text-sm leading-relaxed">{props.claim.resolutionNotes}</div>
+      </div>
+    )}
+
+    {props.claim.adminNotes && (
+      <div>
+        <div className="text-muted-foreground text-xs">Admin Notes</div>
+        <div className="mt-1 text-foreground text-sm leading-relaxed">{props.claim.adminNotes}</div>
+      </div>
+    )}
+
+    {props.actionError && (
+      <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-destructive text-sm">{props.actionError}</div>
+    )}
+
+    {(props.claim.status === "submitted" || props.claim.status === "under_review") && (
+      <div className="space-y-4 rounded-lg border border-border bg-card p-4">
+        <h3 className="font-semibold text-foreground text-sm">Actions</h3>
+
+        {props.claim.status === "submitted" && (
+          <button
+            type="button"
+            disabled={props.isPending}
+            onClick={props.onMarkUnderReview}
+            className="rounded-md border border-border px-4 py-2 text-foreground text-sm hover:bg-muted disabled:opacity-50"
+          >
+            Mark Under Review
+          </button>
+        )}
+
+        <form onSubmit={props.onApprove} className="space-y-3 border-t border-border pt-4">
+          <h4 className="font-medium text-foreground text-sm">Approve Claim</h4>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label htmlFor="wc-resolution" className="mb-1 block text-foreground text-xs font-medium">Resolution *</label>
+              <select
+                id="wc-resolution"
+                value={props.resolution}
+                onChange={(e) => props.onResolutionChange(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="repair">Repair</option>
+                <option value="replace">Replace</option>
+                <option value="refund">Refund</option>
+                <option value="credit">Store Credit</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="wc-notes" className="mb-1 block text-foreground text-xs font-medium">Admin Notes (optional)</label>
+              <input
+                id="wc-notes"
+                type="text"
+                value={props.adminNotes}
+                onChange={(e) => props.onAdminNotesChange(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="Internal notes…"
+              />
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={props.isPending}
+            className="rounded-md bg-green-600 px-4 py-2 font-medium text-white text-sm hover:bg-green-700 disabled:opacity-50"
+          >
+            {props.isPending ? "Processing…" : "Approve"}
+          </button>
+        </form>
+
+        <form onSubmit={props.onDeny} className="space-y-3 border-t border-border pt-4">
+          <h4 className="font-medium text-foreground text-sm">Deny Claim</h4>
+          <div>
+            <label htmlFor="wc-deny-reason" className="mb-1 block text-foreground text-xs font-medium">Reason (optional)</label>
+            <input
+              id="wc-deny-reason"
+              type="text"
+              value={props.denyReason}
+              onChange={(e) => props.onDenyReasonChange(e.target.value)}
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              placeholder="Reason for denial…"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={props.isPending}
+            className="rounded-md bg-destructive px-4 py-2 font-medium text-white text-sm hover:opacity-90 disabled:opacity-50"
+          >
+            {props.isPending ? "Processing…" : "Deny"}
+          </button>
+        </form>
+      </div>
+    )}
+
+    {props.claim.status === "approved" && (
+      <div className="space-y-3 rounded-lg border border-border bg-card p-4">
+        <h3 className="font-semibold text-foreground text-sm">Actions</h3>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={props.isPending}
+            onClick={props.onMarkInRepair}
+            className="rounded-md border border-border px-4 py-2 text-foreground text-sm hover:bg-muted disabled:opacity-50"
+          >
+            {props.isPending ? "Processing…" : "Mark In Repair"}
+          </button>
+          <button
+            type="button"
+            disabled={props.isPending}
+            onClick={props.onResolve}
+            className="rounded-md bg-foreground px-4 py-2 font-medium text-background text-sm hover:opacity-90 disabled:opacity-50"
+          >
+            {props.isPending ? "Processing…" : "Mark Resolved"}
+          </button>
+        </div>
+      </div>
+    )}
+
+    {props.claim.status === "in_repair" && (
+      <div className="space-y-3 rounded-lg border border-border bg-card p-4">
+        <h3 className="font-semibold text-foreground text-sm">Actions</h3>
+        <button
+          type="button"
+          disabled={props.isPending}
+          onClick={props.onResolve}
+          className="rounded-md bg-foreground px-4 py-2 font-medium text-background text-sm hover:opacity-90 disabled:opacity-50"
+        >
+          {props.isPending ? "Processing…" : "Mark Resolved"}
+        </button>
+      </div>
+    )}
+
+    {props.claim.status === "resolved" && (
+      <div className="space-y-3 rounded-lg border border-border bg-card p-4">
+        <h3 className="font-semibold text-foreground text-sm">Actions</h3>
+        <button
+          type="button"
+          disabled={props.isPending}
+          onClick={props.onClose}
+          className="rounded-md border border-border px-4 py-2 text-foreground text-sm hover:bg-muted disabled:opacity-50"
+        >
+          {props.isPending ? "Processing…" : "Close Claim"}
+        </button>
+      </div>
+    )}
+  </div>
+)}

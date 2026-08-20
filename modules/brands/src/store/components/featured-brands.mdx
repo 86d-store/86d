@@ -1,0 +1,29 @@
+import Link from "next/link";
+
+<div className="py-8">
+  <h2 className="mb-6 text-center text-2xl font-bold text-foreground">Featured Brands</h2>
+  <div className="flex flex-wrap items-center justify-center gap-8">
+    {props.brands?.map((brand) => (
+      <Link
+        key={brand.id}
+        href={`/brands/${brand.slug}`}
+        className="group flex items-center gap-3 rounded-lg px-4 py-3 transition-colors hover:bg-muted"
+      >
+        {brand.logo ? (
+          <img
+            src={brand.logo}
+            alt={brand.name}
+            className="h-12 w-12 rounded-full object-cover"
+          />
+        ) : (
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-lg font-bold text-muted-foreground">
+            {brand.name.charAt(0)}
+          </div>
+        )}
+        <span className="font-medium text-foreground group-hover:text-primary">
+          {brand.name}
+        </span>
+      </Link>
+    ))}
+  </div>
+</div>

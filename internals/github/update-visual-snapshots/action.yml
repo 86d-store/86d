@@ -1,0 +1,17 @@
+name: Update visual snapshots
+description: Regenerate Playwright visual snapshots and commit on main
+
+runs:
+  using: composite
+  steps:
+    - name: Regenerate visual snapshots
+      shell: bash
+      run: bunx playwright test visual.spec.ts --config tests/playwright.config.ts --update-snapshots
+
+    - name: Commit updated visual snapshots
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add tests/e2e/visual.spec.ts-snapshots/
+        git diff --staged --quiet || git commit -m "chore: update visual snapshots [skip ci]" && git push

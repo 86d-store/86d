@@ -1,0 +1,45 @@
+<div className="rounded-lg border bg-card p-6">
+  <h3 className="mb-2 font-semibold text-lg">Refer a Friend</h3>
+  <p className="mb-4 text-muted-foreground text-sm">Share your referral code and earn rewards when friends make their first purchase.</p>
+
+  {props.loading ? (
+    <p className="text-muted-foreground text-sm">Loading your code...</p>
+  ) : (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <div className="flex-1 rounded-md border bg-muted/50 px-4 py-3 text-center font-mono font-bold text-lg tracking-widest">
+          {props.code}
+        </div>
+        <button
+          type="button"
+          onClick={props.onCopyCode}
+          className="rounded-md border px-4 py-3 font-medium text-sm hover:bg-muted"
+        >
+          Copy
+        </button>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          value={props.shareUrl}
+          readOnly
+          className="flex-1 rounded-md border bg-background px-3 py-2 text-sm"
+        />
+        <button
+          type="button"
+          onClick={props.onCopyLink}
+          className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm hover:bg-primary/90"
+        >
+          Copy Link
+        </button>
+      </div>
+
+      {props.usageCount > 0 && (
+        <p className="text-muted-foreground text-sm">
+          {props.usageCount} {props.usageCount === 1 ? "person has" : "people have"} used your code
+        </p>
+      )}
+    </div>
+  )}
+</div>

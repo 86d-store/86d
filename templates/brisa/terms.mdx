@@ -1,0 +1,106 @@
+import Link from "next/link";
+
+<div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+  <header className="mb-12">
+    <h1 className="font-bold font-display text-4xl tracking-tight sm:text-5xl">
+      Terms of Service
+    </h1>
+    <p className="mt-4 text-muted-foreground text-sm">
+      Last updated: {props.lastUpdated}
+    </p>
+  </header>
+
+  <div className="space-y-10 text-muted-foreground leading-relaxed [&_h2]:font-display [&_h2]:font-semibold [&_h2]:text-foreground [&_h2]:text-xl [&_h2]:tracking-tight">
+    <section className="space-y-3">
+      <h2>1. Acceptance of Terms</h2>
+      <p>
+        By accessing and using this website, you accept and agree to be
+        bound by these Terms of Service. If you do not agree to these terms,
+        please do not use our website.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2>2. Products and Pricing</h2>
+      <p>
+        All products are subject to availability. We reserve the right to
+        modify or discontinue products without notice. Prices are subject to
+        change and are displayed in the local currency. All sales are final
+        unless otherwise stated in our return policy.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2>3. Orders and Payment</h2>
+      <p>
+        When you place an order, you are making an offer to purchase. We
+        reserve the right to refuse or cancel any order. Payment must be
+        received before shipment. We accept major credit cards and other
+        payment methods as displayed at checkout.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2>4. Shipping and Delivery</h2>
+      <p>
+        Shipping times and costs vary based on destination and selected
+        shipping method. Estimated delivery dates are not guaranteed. We are
+        not responsible for delays caused by carriers or customs processing.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2>5. Returns and Refunds</h2>
+      <p>
+        We want you to be satisfied with your purchase. If you are not
+        completely happy, please contact our support team within 30 days of
+        receiving your order. Items must be unused and in original
+        packaging. Refunds will be processed to the original payment method.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2>6. Intellectual Property</h2>
+      <p>
+        All content on this website, including text, graphics, logos,
+        images, and software, is the property of the store owner and is
+        protected by applicable intellectual property laws. Unauthorized use
+        is prohibited.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2>7. Limitation of Liability</h2>
+      <p>
+        To the fullest extent permitted by law, we shall not be liable for
+        any indirect, incidental, special, consequential, or punitive
+        damages arising from your use of this website or purchase of
+        products.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2>8. Changes to Terms</h2>
+      <p>
+        We reserve the right to update these Terms of Service at any time.
+        Changes will be posted on this page with an updated date. Your
+        continued use of the website constitutes acceptance of modified
+        terms.
+      </p>
+    </section>
+
+    <section className="space-y-3">
+      <h2>9. Contact</h2>
+      <p>
+        If you have questions about these Terms of Service, please{" "}
+        <Link
+          href="/contact"
+          className="text-foreground underline underline-offset-4 transition-colors hover:text-foreground/80"
+        >
+          contact us
+        </Link>
+        .
+      </p>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,61 @@
+{props.isLoading ? (
+  <div className="animate-pulse space-y-2 py-4">
+    <div className="h-5 w-32 rounded bg-muted" />
+    <div className="h-24 rounded bg-muted" />
+  </div>
+) : (
+  <div className="py-4">
+    <h3 className="mb-3 font-semibold text-foreground text-sm">{props.title}</h3>
+    <div className="overflow-hidden rounded-lg border border-border">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-border bg-muted/50">
+            <th className="px-3 py-2 text-left font-medium text-muted-foreground">
+              Quantity
+            </th>
+            <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+              Unit price
+            </th>
+            <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+              Savings
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="border-b border-border">
+            <td className="px-3 py-2 text-muted-foreground">1</td>
+            <td className="px-3 py-2 text-right text-foreground">
+              {props.basePrice}
+            </td>
+            <td className="px-3 py-2 text-right text-muted-foreground">—</td>
+          </tr>
+          {props.rows?.map((row) => (
+            <tr
+              key={row.key}
+              className={`border-b border-border last:border-b-0 ${
+                row.isActive
+                  ? "bg-primary/5 font-medium"
+                  : ""
+              }`}
+            >
+              <td className="px-3 py-2 text-foreground">
+                {row.range}
+                {row.isActive && (
+                  <span className="ml-1.5 rounded bg-primary/10 px-1.5 py-0.5 text-primary text-xs">
+                    Current
+                  </span>
+                )}
+              </td>
+              <td className="px-3 py-2 text-right text-foreground">
+                {row.unitPrice}
+              </td>
+              <td className="px-3 py-2 text-right font-medium text-emerald-600 dark:text-emerald-400">
+                {row.savings}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}

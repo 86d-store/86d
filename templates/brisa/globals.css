@@ -1,0 +1,24 @@
+/*
+ * Brisa template — custom styles
+ *
+ * These styles extend the store's globals.css. Import this file in your
+ * store layout if you want template-specific overrides.
+ *
+ * The store's globals.css already includes:
+ *  - Tailwind base, utilities, components
+ *  - Shadcn color tokens (OKLCH)
+ *  - animate-marquee, animate-fade-in keyframes
+ *  - .font-display fallback
+ */
+
+/* ─── Template-specific prose styling ──────────────────────────────────── */
+
+.prose-brisa h2 {
+	font-family: var(--font-display, var(--font-sans));
+	letter-spacing: -0.02em;
+}
+
+.prose-brisa a {
+	text-decoration-thickness: 1px;
+	text-underline-offset: 2px;
+}

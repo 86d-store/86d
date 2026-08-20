@@ -1,0 +1,40 @@
+<div className="rounded-xl border border-border bg-background p-4">
+  <div className="flex items-center justify-between gap-4">
+    <div className="min-w-0 flex-1">
+      <div className="flex items-center gap-2">
+        <span className="font-medium text-foreground text-sm">
+          {props.fileIdPreview}…
+        </span>
+        <span
+          className={`inline-block rounded-full px-2.5 py-0.5 font-medium text-xs ${props.statusStyle}`}
+        >
+          {props.statusLabel}
+        </span>
+      </div>
+      <div className="mt-1 flex flex-wrap gap-x-3 text-muted-foreground text-xs">
+        <span>Added {props.createdAtFormatted}</span>
+        {props.downloadsUsed != null && (
+          <span>
+            {props.downloadCount}/{props.downloadsUsed} downloads used
+          </span>
+        )}
+        {props.expiresAtFormatted && (
+          <span>Expires {props.expiresAtFormatted}</span>
+        )}
+      </div>
+      {props.error && (
+        <p className="mt-1 text-destructive text-xs" role="alert">
+          {props.error}
+        </p>
+      )}
+    </div>
+    <button
+      type="button"
+      disabled={!props.usable || props.downloading}
+      onClick={props.onDownload}
+      className="shrink-0 rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-opacity disabled:opacity-40"
+    >
+      {props.downloading ? "Downloading…" : "Download"}
+    </button>
+  </div>
+</div>

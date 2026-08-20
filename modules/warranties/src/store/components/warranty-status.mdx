@@ -1,0 +1,20 @@
+# My Warranties
+
+{props.loading && <div>Loading your warranties...</div>}
+
+{!props.loading && props.registrations.length === 0 && (
+  <div>You have no registered warranties.</div>
+)}
+
+{props.registrations.length > 0 && (
+  <div className="space-y-4">
+    {props.registrations.map((reg) => (
+      <div key={reg.id} className="rounded-lg border p-4">
+        <div className="font-medium">{reg.productName}</div>
+        <div className="text-sm text-muted-foreground">
+          Status: {reg.status} · Expires: {reg.expiresAt}
+        </div>
+      </div>
+    ))}
+  </div>
+)}

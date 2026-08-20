@@ -1,0 +1,69 @@
+<section className="mx-auto max-w-2xl py-12">
+  <div className="mb-8 text-center">
+    <h1 className="font-semibold text-foreground text-2xl">Track Your Order</h1>
+    <p className="mt-2 text-muted-foreground text-sm">
+      Enter your order number and email address to check the status of your order.
+    </p>
+  </div>
+
+  {/* Search Form */}
+  {!props.order && (
+    <form onSubmit={props.onSubmit} className="mx-auto max-w-md space-y-4">
+      <div>
+        <label htmlFor="orderNumber" className="mb-1.5 block font-medium text-foreground text-sm">
+          Order Number
+        </label>
+        <input
+          id="orderNumber"
+          type="text"
+          value={props.orderNumber}
+          onChange={props.onOrderNumberChange}
+          placeholder="ORD-XXXXXXXX-XXXX"
+          required
+          className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-foreground text-sm placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+      </div>
+      <div>
+        <label htmlFor="email" className="mb-1.5 block font-medium text-foreground text-sm">
+          Email Address
+        </label>
+        <input
+          id="email"
+          type="email"
+          value={props.email}
+          onChange={props.onEmailChange}
+          placeholder="your@email.com"
+          required
+          className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-foreground text-sm placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+      </div>
+
+      {props.error && (
+        <p className="text-destructive text-sm" role="alert">{props.error}</p>
+      )}
+
+      <button
+        type="submit"
+        disabled={props.loading}
+        className="w-full rounded-lg bg-primary px-4 py-2.5 font-medium text-primary-foreground text-sm transition-opacity hover:opacity-90 disabled:opacity-60"
+      >
+        {props.loading ? "Looking up order..." : "Track Order"}
+      </button>
+    </form>
+  )}
+
+  {/* Results */}
+  {props.order && (
+    <div className="space-y-6">
+      <button
+        type="button"
+        onClick={props.onReset}
+        className="text-primary text-sm underline-offset-4 hover:underline"
+      >
+        &larr; Track another order
+      </button>
+
+      {props.orderContent}
+    </div>
+  )}
+</section>

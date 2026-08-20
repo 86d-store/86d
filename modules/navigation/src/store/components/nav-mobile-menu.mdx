@@ -1,0 +1,110 @@
+<>
+  <button
+    type="button"
+    onClick={props.onToggle}
+    className="inline-flex items-center justify-center rounded-md p-2 text-foreground/80 transition-colors hover:text-foreground lg:hidden"
+    aria-label={props.isOpen ? "Close menu" : "Open menu"}
+    aria-expanded={props.isOpen}
+  >
+    {props.isOpen ? (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    ) : (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
+        <line x1="4" y1="6" x2="20" y2="6" />
+        <line x1="4" y1="12" x2="20" y2="12" />
+        <line x1="4" y1="18" x2="20" y2="18" />
+      </svg>
+    )}
+  </button>
+
+  {props.isOpen && (
+    <>
+      <div
+        className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden"
+        onClick={props.onClose}
+        onKeyDown={() => {}}
+        role="presentation"
+      />
+      <nav
+        className="fixed inset-y-0 left-0 z-50 w-72 overflow-y-auto border-r border-border bg-background p-6 shadow-lg lg:hidden"
+        aria-label="Mobile navigation"
+      >
+        <button
+          type="button"
+          onClick={props.onClose}
+          className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground hover:text-foreground"
+          aria-label="Close menu"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+
+        {props.isLoading ? (
+          <div className="mt-8 space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={`mobile-skeleton-${i}`} className="h-5 w-32 animate-pulse rounded bg-muted" />
+            ))}
+          </div>
+        ) : (
+          <ul className="mt-8 space-y-1">
+            {props.items.map((item) => (
+              <li key={item.id}>
+                {item.children.length > 0 ? (
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => props.onToggleExpand(item.id)}
+                      className={`flex w-full items-center justify-between rounded-md px-3 py-2.5 font-medium text-foreground text-sm transition-colors hover:bg-muted ${item.cssClass ?? ""}`}
+                    >
+                      {item.label}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className={`h-4 w-4 text-muted-foreground transition-transform ${props.expandedId === item.id ? "rotate-180" : ""}`}
+                      >
+                        <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    {props.expandedId === item.id && (
+                      <ul className="ml-3 space-y-0.5 border-l border-border pl-3">
+                        {item.children.map((child) => (
+                          <li key={child.id}>
+                            <a
+                              href={child.href}
+                              onClick={props.onClose}
+                              target={child.openInNewTab ? "_blank" : undefined}
+                              rel={child.openInNewTab ? "noopener noreferrer" : undefined}
+                              className={`block rounded-md px-3 py-2 text-muted-foreground text-sm transition-colors hover:bg-muted hover:text-foreground ${child.cssClass ?? ""}`}
+                            >
+                              {child.label}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ) : (
+                  <a
+                    href={item.href}
+                    onClick={props.onClose}
+                    target={item.openInNewTab ? "_blank" : undefined}
+                    rel={item.openInNewTab ? "noopener noreferrer" : undefined}
+                    className={`block rounded-md px-3 py-2.5 font-medium text-foreground text-sm transition-colors hover:bg-muted ${item.cssClass ?? ""}`}
+                  >
+                    {item.label}
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </nav>
+    </>
+  )}
+</>

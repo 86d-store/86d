@@ -1,0 +1,190 @@
+{
+	"name": "@86d-app/core",
+	"version": "0.0.41",
+	"description": "Core package for 86d dynamic commerce platform",
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "packages/core"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		"./adapters": {
+			"types": "./src/adapters.ts",
+			"default": "./src/adapters.ts"
+		},
+		"./api": {
+			"types": "./src/api.ts",
+			"default": "./src/api.ts"
+		},
+		"./capabilities": {
+			"types": "./src/capabilities.ts",
+			"default": "./src/capabilities.ts"
+		},
+		"./charts": {
+			"types": "./src/charts.ts",
+			"default": "./src/charts.ts"
+		},
+		"./client/create-client": {
+			"types": "./src/client/create-client.ts",
+			"default": "./src/client/create-client.ts"
+		},
+		"./client/hooks": {
+			"types": "./src/client/hooks.ts",
+			"default": "./src/client/hooks.ts"
+		},
+		"./client/provider": {
+			"types": "./src/client/provider.tsx",
+			"default": "./src/client/provider.tsx"
+		},
+		"./client/query-client": {
+			"types": "./src/client/query-client.ts",
+			"default": "./src/client/query-client.ts"
+		},
+		"./client/react-query": {
+			"types": "./src/client/react-query.ts",
+			"default": "./src/client/react-query.ts"
+		},
+		"./client/store-context": {
+			"types": "./src/client/store-context.tsx",
+			"default": "./src/client/store-context.tsx"
+		},
+		"./client/types": {
+			"types": "./src/client/types.ts",
+			"default": "./src/client/types.ts"
+		},
+		"./commands": {
+			"types": "./src/commands.ts",
+			"default": "./src/commands.ts"
+		},
+		"./commerce-capabilities": {
+			"types": "./src/commerce-capabilities.ts",
+			"default": "./src/commerce-capabilities.ts"
+		},
+		"./contracts": {
+			"types": "./src/contracts.ts",
+			"default": "./src/contracts.ts"
+		},
+		"./durable-events": {
+			"types": "./src/durable-events.ts",
+			"default": "./src/durable-events.ts"
+		},
+		"./endpoint-exposure": {
+			"types": "./src/endpoint-exposure.ts",
+			"default": "./src/endpoint-exposure.ts"
+		},
+		"./endpoint-references": {
+			"types": "./src/endpoint-references.ts",
+			"default": "./src/endpoint-references.ts"
+		},
+		"./events": {
+			"types": "./src/events.ts",
+			"default": "./src/events.ts"
+		},
+		"./inventory-reservation-capability": {
+			"types": "./src/inventory-reservation-capability.ts",
+			"default": "./src/inventory-reservation-capability.ts"
+		},
+		"./paths": {
+			"types": "./src/paths.ts",
+			"default": "./src/paths.ts"
+		},
+		"./payment-connection-provider": {
+			"types": "./src/payment-connection-provider.ts",
+			"default": "./src/payment-connection-provider.ts"
+		},
+		"./payment-checkout-ports": {
+			"types": "./src/payment-checkout-ports.ts",
+			"default": "./src/payment-checkout-ports.ts"
+		},
+		"./payment-provider": {
+			"types": "./src/payment-provider.ts",
+			"default": "./src/payment-provider.ts"
+		},
+		"./prisma": {
+			"types": "./src/prisma/client.ts",
+			"default": "./src/prisma/client.ts"
+		},
+		"./sanitize": {
+			"types": "./src/sanitize.ts",
+			"default": "./src/sanitize.ts"
+		},
+		"./state": {
+			"types": "./src/state.ts",
+			"default": "./src/state.ts"
+		},
+		"./test-utils": {
+			"types": "./src/test-utils.ts",
+			"default": "./src/test-utils.ts"
+		},
+		"./types/helper": {
+			"types": "./src/types/helper.ts",
+			"default": "./src/types/helper.ts"
+		},
+		"./types/module": {
+			"types": "./src/types/module.ts",
+			"default": "./src/types/module.ts"
+		},
+		"./types/schema": {
+			"types": "./src/types/schema.ts",
+			"default": "./src/types/schema.ts"
+		},
+		"./schema": {
+			"types": "./src/schema/index.ts",
+			"default": "./src/schema/index.ts"
+		},
+		"./curated-modules": {
+			"types": "./src/curated-modules.ts",
+			"default": "./src/curated-modules.ts"
+		},
+		"./zod": {
+			"types": "./src/zod.ts",
+			"default": "./src/zod.ts"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules src/prisma",
+		"dev": "tsc",
+		"postinstall": "prisma generate",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@tanstack/react-query": "catalog:trpc",
+		"better-call": "1.3.5",
+		"mobx": "6.15.3",
+		"mobx-react-lite": "4.1.1",
+		"recharts": "2.15.4",
+		"superjson": "2.2.6",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@prisma/client": "catalog:prisma",
+		"@standard-schema/spec": "1.1.0",
+		"@types/react": "catalog:react",
+		"prisma": "catalog:prisma",
+		"react": "catalog:react",
+		"type-fest": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	},
+	"peerDependencies": {
+		"react": "catalog:react"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
+	}
+}

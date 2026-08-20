@@ -1,0 +1,10 @@
+<div className="flex flex-col items-start gap-2">
+  {props.shareCount > 0 && (
+    <p className="text-gray-500 dark:text-gray-400 text-xs">
+      {props.shareCount} {props.shareCount === 1 ? "share" : "shares"}
+    </p>
+  )}
+  <div className="flex flex-wrap items-center gap-2">
+    {props.buttons}
+  </div>
+</div>

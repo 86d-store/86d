@@ -1,0 +1,69 @@
+{
+	"validRequest": {
+		"command": {
+			"name": "control_plane.tracer.write",
+			"version": 1
+		},
+		"idempotencyKey": "fixture-command-001",
+		"target": {
+			"type": "business",
+			"id": "business-fixture-001"
+		},
+		"input": {
+			"label": "alpha",
+			"secret": "fixture-canary-secret"
+		}
+	},
+	"invalidRequests": [
+		{
+			"command": {
+				"name": "control_plane.tracer.write",
+				"version": 1
+			},
+			"idempotencyKey": "fixture-command-actor-override",
+			"target": {
+				"type": "business",
+				"id": "business-fixture-001"
+			},
+			"input": {
+				"label": "alpha"
+			},
+			"actor": {
+				"type": "account",
+				"id": "attacker-selected-actor"
+			}
+		},
+		{
+			"command": {
+				"name": "control_plane.tracer.write"
+			},
+			"idempotencyKey": "fixture-command-missing-version",
+			"target": {
+				"type": "business",
+				"id": "business-fixture-001"
+			},
+			"input": {
+				"label": "alpha"
+			}
+		}
+	],
+	"commandTransitions": [
+		["pending", "running", true],
+		["running", "succeeded", true],
+		["running", "failed", true],
+		["pending", "succeeded", false],
+		["succeeded", "running", false],
+		["failed", "running", false]
+	],
+	"workflowTransitions": [
+		["pending", "running", true],
+		["running", "completed", true],
+		["running", "rolled_back", true],
+		["running", "failed", true],
+		["running", "needs_attention", true],
+		["needs_attention", "running", true],
+		["failed", "running", true],
+		["completed", "running", false],
+		["rolled_back", "running", false]
+	]
+}

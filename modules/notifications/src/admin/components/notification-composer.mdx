@@ -1,0 +1,130 @@
+<div>
+  <div className="mb-6">
+    <h1 className="font-bold text-2xl text-foreground">Compose Notification</h1>
+    <p className="mt-1 text-muted-foreground text-sm">
+      Send a notification to a specific customer
+    </p>
+  </div>
+
+  {props.success && (
+    <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-800 text-sm dark:border-green-900/50 dark:bg-green-900/20 dark:text-green-400">
+      Notification sent successfully.
+    </div>
+  )}
+
+  {props.error && (
+    <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-800 text-sm dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400">
+      {props.error}
+    </div>
+  )}
+
+  <form onSubmit={props.onSubmit} className="space-y-4 rounded-lg border border-border bg-card p-6">
+    <div>
+      <label htmlFor="nc-customer" className="mb-1.5 block font-medium text-foreground text-sm">
+        Customer ID
+      </label>
+      <input
+        id="nc-customer"
+        type="text"
+        value={props.customerId}
+        onChange={(e) => props.onCustomerIdChange(e.target.value)}
+        placeholder="Enter customer ID"
+        required
+        className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+      />
+    </div>
+
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label htmlFor="nc-type" className="mb-1.5 block font-medium text-foreground text-sm">
+          Type
+        </label>
+        <select
+          id="nc-type"
+          value={props.type}
+          onChange={(e) => props.onTypeChange(e.target.value)}
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        >
+          <option value="info">Info</option>
+          <option value="success">Success</option>
+          <option value="warning">Warning</option>
+          <option value="error">Error</option>
+          <option value="order">Order</option>
+          <option value="shipping">Shipping</option>
+          <option value="promotion">Promotion</option>
+        </select>
+      </div>
+      <div>
+        <label htmlFor="nc-channel" className="mb-1.5 block font-medium text-foreground text-sm">
+          Channel
+        </label>
+        <select
+          id="nc-channel"
+          value={props.channel}
+          onChange={(e) => props.onChannelChange(e.target.value)}
+          className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        >
+          <option value="in_app">In-App</option>
+          <option value="email">Email</option>
+          <option value="both">Both</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label htmlFor="nc-title" className="mb-1.5 block font-medium text-foreground text-sm">
+        Title
+      </label>
+      <input
+        id="nc-title"
+        type="text"
+        value={props.title}
+        onChange={(e) => props.onTitleChange(e.target.value)}
+        placeholder="Notification title"
+        required
+        maxLength={500}
+        className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+      />
+    </div>
+
+    <div>
+      <label htmlFor="nc-body" className="mb-1.5 block font-medium text-foreground text-sm">
+        Message
+      </label>
+      <textarea
+        id="nc-body"
+        value={props.body}
+        onChange={(e) => props.onBodyChange(e.target.value)}
+        placeholder="Notification message"
+        required
+        maxLength={5000}
+        rows={4}
+        className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+      />
+    </div>
+
+    <div>
+      <label htmlFor="nc-url" className="mb-1.5 block font-medium text-foreground text-sm">
+        Action URL <span className="text-muted-foreground">(optional)</span>
+      </label>
+      <input
+        id="nc-url"
+        type="url"
+        value={props.actionUrl}
+        onChange={(e) => props.onActionUrlChange(e.target.value)}
+        placeholder="https://..."
+        className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+      />
+    </div>
+
+    <div className="flex justify-end pt-2">
+      <button
+        type="submit"
+        disabled={props.isLoading || !props.customerId || !props.title || !props.body}
+        className="rounded-md bg-primary px-6 py-2.5 font-medium text-primary-foreground text-sm hover:bg-primary/90 disabled:opacity-50"
+      >
+        {props.isLoading ? "Sending\u2026" : "Send Notification"}
+      </button>
+    </div>
+  </form>
+</div>

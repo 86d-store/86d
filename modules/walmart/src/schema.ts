@@ -1,0 +1,97 @@
+import type { ModuleSchema } from "@86d-app/core/types/schema";
+
+export const walmartSchema = {
+	item: {
+		fields: {
+			id: { type: "string", required: true },
+			localProductId: { type: "string", required: true },
+			walmartItemId: { type: "string", required: false },
+			sku: { type: "string", required: true },
+			title: { type: "string", required: true },
+			status: { type: "string", required: true, defaultValue: "unpublished" },
+			lifecycleStatus: {
+				type: "string",
+				required: true,
+				defaultValue: "active",
+			},
+			price: { type: "number", required: true },
+			quantity: { type: "number", required: true, defaultValue: 0 },
+			upc: { type: "string", required: false },
+			gtin: { type: "string", required: false },
+			brand: { type: "string", required: false },
+			category: { type: "string", required: false },
+			fulfillmentType: {
+				type: "string",
+				required: true,
+				defaultValue: "seller",
+			},
+			publishStatus: { type: "string", required: false },
+			lastSyncedAt: { type: "date", required: false },
+			error: { type: "string", required: false },
+			metadata: { type: "json", required: true, defaultValue: {} },
+			createdAt: {
+				type: "date",
+				required: true,
+				defaultValue: () => new Date(),
+			},
+			updatedAt: {
+				type: "date",
+				required: true,
+				defaultValue: () => new Date(),
+				onUpdate: () => new Date(),
+			},
+		},
+	},
+	walmartOrder: {
+		fields: {
+			id: { type: "string", required: true },
+			purchaseOrderId: { type: "string", required: true },
+			status: { type: "string", required: true, defaultValue: "created" },
+			items: { type: "json", required: true, defaultValue: [] },
+			orderTotal: { type: "number", required: true },
+			shippingTotal: { type: "number", required: true },
+			walmartFee: { type: "number", required: true },
+			tax: { type: "number", required: true },
+			customerName: { type: "string", required: false },
+			shippingAddress: { type: "json", required: true, defaultValue: {} },
+			trackingNumber: { type: "string", required: false },
+			carrier: { type: "string", required: false },
+			shipDate: { type: "date", required: false },
+			estimatedDelivery: { type: "date", required: false },
+			createdAt: {
+				type: "date",
+				required: true,
+				defaultValue: () => new Date(),
+			},
+			updatedAt: {
+				type: "date",
+				required: true,
+				defaultValue: () => new Date(),
+				onUpdate: () => new Date(),
+			},
+		},
+	},
+	feedSubmission: {
+		fields: {
+			id: { type: "string", required: true },
+			feedId: { type: "string", required: false },
+			feedType: { type: "string", required: true },
+			status: { type: "string", required: true, defaultValue: "pending" },
+			totalItems: { type: "number", required: true, defaultValue: 0 },
+			successItems: { type: "number", required: true, defaultValue: 0 },
+			errorItems: { type: "number", required: true, defaultValue: 0 },
+			error: { type: "string", required: false },
+			submittedAt: {
+				type: "date",
+				required: true,
+				defaultValue: () => new Date(),
+			},
+			completedAt: { type: "date", required: false },
+			createdAt: {
+				type: "date",
+				required: true,
+				defaultValue: () => new Date(),
+			},
+		},
+	},
+} satisfies ModuleSchema;

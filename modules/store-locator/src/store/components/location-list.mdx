@@ -1,0 +1,65 @@
+import Link from "next/link";
+
+# Our Locations
+
+{props.countries?.length > 1 && (
+  <div className="mb-6">
+    <select
+      value={props.selectedCountry}
+      onChange={(e) => props.onCountryChange?.(e.target.value)}
+      className="rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+    >
+      <option value="">All Countries</option>
+      {props.countries?.map((country) => (
+        <option key={country} value={country}>{country}</option>
+      ))}
+    </select>
+  </div>
+)}
+
+{props.locations?.length === 0 ? (
+  <p className="text-center text-muted-foreground">No locations found.</p>
+) : (
+  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {props.locations?.map((location) => (
+      <Link
+        key={location.id}
+        href={`/locations/${location.slug}`}
+        className="group block rounded-lg border border-border bg-card p-6 transition-shadow hover:shadow-md"
+      >
+        {location.imageUrl && (
+          <div className="mb-4 aspect-video overflow-hidden rounded-md">
+            <img
+              src={location.imageUrl}
+              alt={location.name}
+              className="h-full w-full object-cover transition-transform group-hover:scale-105"
+            />
+          </div>
+        )}
+        <h3 className="font-semibold text-foreground group-hover:text-primary">
+          {location.name}
+        </h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {location.address}, {location.city}
+          {location.state ? `, ${location.state}` : ""}
+          {location.postalCode ? ` ${location.postalCode}` : ""}
+        </p>
+        {location.phone && (
+          <p className="mt-2 text-sm text-muted-foreground">{location.phone}</p>
+        )}
+        <div className="mt-3 flex gap-2">
+          {location.isFeatured && (
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+              Featured
+            </span>
+          )}
+          {location.pickupEnabled && (
+            <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-700">
+              Pickup Available
+            </span>
+          )}
+        </div>
+      </Link>
+    ))}
+  </div>
+)}

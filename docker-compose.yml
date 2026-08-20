@@ -1,0 +1,110 @@
+# ============================================================================
+# 86d Store — Docker Compose
+# ============================================================================
+# Quick start:
+#   docker compose up
+#
+# If host ports 5432 / 3000 / 9000 / 9001 are already in use:
+#   POSTGRES_PUBLISH_PORT=5433 STORE_PUBLISH_PORT=3001 MINIO_API_PUBLISH_PORT=9002 MINIO_CONSOLE_PUBLISH_PORT=9003 docker compose up
+#
+# This starts:
+#   - PostgreSQL 16 database
+#   - MinIO object storage + admin console
+#   - 86d store app (mapped host port → container 3000)
+#
+# The store auto-runs migrations and seeds demo data on first boot.
+# Default admin: admin@example.com / password123
+# Customize admin credentials: APP_ADMIN_EMAIL=you@example.com APP_ADMIN_PASSWORD=secret docker compose up
+# ============================================================================
+
+services:
+  # ── PostgreSQL Database ──────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "86d"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "${POSTGRES_PUBLISH_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # nanoid + pgcrypto are created by packages/db/prisma/migrations/0 — do not mount internals/docker/init.sql or Postgres gets duplicate nanoid() overloads and db push fails
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d 86d"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ── MinIO Object Storage ────────────────────────────────────────────────
+  minio:
+    image: quay.io/minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER:-minioadmin}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:-minioadmin}"
+    ports:
+      - "${MINIO_API_PUBLISH_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PUBLISH_PORT:-9001}:9001"
+    volumes:
+      - minio_data:/data
+
+  minio-init:
+    image: quay.io/minio/mc:latest
+    depends_on:
+      - minio
+    environment:
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER:-minioadmin}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:-minioadmin}"
+      S3_BUCKET: "${S3_BUCKET:-86d-uploads}"
+    entrypoint: >
+      /bin/sh -c '
+      set -e;
+      until mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"; do
+        echo "Waiting for MinIO...";
+        sleep 2;
+      done;
+      mc mb --ignore-existing "local/$$S3_BUCKET";
+      mc anonymous set download "local/$$S3_BUCKET";
+      '
+
+  # ── 86d Store Application ────────────────────────────────────────────────
+  store:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${STORE_PUBLISH_PORT:-3000}:3000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/86d"
+      DATABASE_URL_UNPOOLED: "postgresql://postgres:postgres@postgres:5432/86d"
+      BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:-docker-dev-secret-change-in-production}"
+      STORE_ID: "${STORE_ID:-de005b9d-c517-4c65-896e-8edef5cf5a94}"
+      NODE_ENV: "${NODE_ENV:-production}"
+      AUTO_SEED: "true"
+      APP_ADMIN_EMAIL: "${APP_ADMIN_EMAIL:-admin@example.com}"
+      APP_ADMIN_PASSWORD: "${APP_ADMIN_PASSWORD:-password123}"
+      # Storage — MinIO bucket by default in Docker
+      STORAGE_CLIENT: "s3"
+      STORAGE_PUBLIC_URL_MODE: "proxy"
+      S3_ENDPOINT: "http://minio:9000"
+      S3_BUCKET: "${S3_BUCKET:-86d-uploads}"
+      S3_REGION: "${S3_REGION:-us-east-1}"
+      S3_ACCESS_KEY: "${MINIO_ROOT_USER:-minioadmin}"
+      S3_SECRET_KEY: "${MINIO_ROOT_PASSWORD:-minioadmin}"
+      # Optional: 86d API integration (quoted to allow digit-prefixed names)
+      "86D_API_URL": ""
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+
+volumes:
+  postgres_data:
+    driver: local
+  minio_data:
+    driver: local

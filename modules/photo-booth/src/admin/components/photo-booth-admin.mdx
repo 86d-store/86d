@@ -1,0 +1,80 @@
+<div className="space-y-6">
+  <h1 className="font-bold text-2xl text-foreground">Photo Booth</h1>
+  {props.summaryCards}
+
+  {props.error && (
+    <div className="rounded-lg bg-destructive/10 p-3 text-destructive text-sm">
+      {props.error}
+    </div>
+  )}
+
+  <div className="rounded-lg border border-border bg-card">
+    <div className="flex items-center justify-between border-border border-b px-5 py-3">
+      <div className="flex gap-4">
+        <button
+          type="button"
+          onClick={() => props.onTabChange("sessions")}
+          className={`font-medium text-sm ${props.activeTab === "sessions" ? "text-foreground underline underline-offset-4" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          Sessions
+        </button>
+        <button
+          type="button"
+          onClick={() => props.onTabChange("photos")}
+          className={`font-medium text-sm ${props.activeTab === "photos" ? "text-foreground underline underline-offset-4" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          Photos
+        </button>
+      </div>
+      {props.activeTab === "sessions" && (
+        <button
+          type="button"
+          onClick={props.onToggleCreate}
+          className="rounded bg-foreground px-3 py-1 font-medium text-background text-xs hover:opacity-90"
+        >
+          {props.showCreate ? "Cancel" : "New Session"}
+        </button>
+      )}
+    </div>
+
+    {props.showCreate && props.activeTab === "sessions" && (
+      <div className="border-border border-b px-5 py-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <label className="mb-1 block font-medium text-muted-foreground text-xs">
+              Session Name
+            </label>
+            <input
+              type="text"
+              value={props.newName}
+              onChange={(e) => props.onNewNameChange(e.target.value)}
+              className="w-full rounded border border-border bg-background px-3 py-1.5 text-foreground text-sm"
+              placeholder="e.g. Grand Opening Photo Booth"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="mb-1 block font-medium text-muted-foreground text-xs">
+              Description (optional)
+            </label>
+            <input
+              type="text"
+              value={props.newDescription}
+              onChange={(e) => props.onNewDescriptionChange(e.target.value)}
+              className="w-full rounded border border-border bg-background px-3 py-1.5 text-foreground text-sm"
+              placeholder="Brief description"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={props.onCreate}
+            className="rounded bg-foreground px-4 py-1.5 font-medium text-background text-sm hover:opacity-90"
+          >
+            Create
+          </button>
+        </div>
+      </div>
+    )}
+
+    {props.activeTab === "sessions" ? props.sessionsContent : props.photosContent}
+  </div>
+</div>

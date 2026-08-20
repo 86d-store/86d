@@ -1,0 +1,15 @@
+<div className="inline-flex flex-col items-start gap-1">
+  <button
+    type="button"
+    disabled={props.downloading}
+    onClick={props.onDownload}
+    className="rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-opacity disabled:opacity-60"
+  >
+    {props.downloading ? "Downloading…" : props.done ? "Downloaded" : props.label}
+  </button>
+  {props.error && (
+    <p className="text-destructive text-xs" role="alert">
+      {props.error}
+    </p>
+  )}
+</div>

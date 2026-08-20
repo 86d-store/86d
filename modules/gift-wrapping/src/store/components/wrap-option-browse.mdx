@@ -1,0 +1,35 @@
+# Gift Wrapping Options
+
+Add a special touch to your order with our gift wrapping options.
+
+<div className="space-y-4">
+  {props.loading ? (
+    <div className="py-12 text-center text-muted-foreground">Loading gift wrapping options…</div>
+  ) : props.options.length === 0 ? (
+    <div className="py-12 text-center text-muted-foreground">No gift wrapping options available.</div>
+  ) : (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {props.options.map((opt) => (
+        <div
+          key={opt.id}
+          className="rounded-lg border p-4 transition-colors hover:bg-muted/30"
+        >
+          {opt.imageUrl && (
+            <div className="mb-3 overflow-hidden rounded-md">
+              <img src={opt.imageUrl} alt={opt.name} className="h-40 w-full object-cover" />
+            </div>
+          )}
+          <h3 className="text-lg font-semibold">{opt.name}</h3>
+          {opt.description && (
+            <p className="mt-1 text-sm text-muted-foreground">{opt.description}</p>
+          )}
+          <div className="mt-3 text-lg font-medium">
+            {opt.priceInCents === 0
+              ? "Free"
+              : `$${(opt.priceInCents / 100).toFixed(2)}`}
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>

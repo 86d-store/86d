@@ -1,0 +1,71 @@
+## Track Invoice
+
+Look up an invoice by number and email address.
+
+<div className="mx-auto max-w-md space-y-4">
+  <div className="space-y-2">
+    <input
+      type="text"
+      placeholder="Invoice number (e.g. INV-20260309-0001)"
+      className="w-full rounded border px-3 py-2 text-sm"
+      value={props.invoiceNumber}
+      onChange={(e) => props.onInvoiceNumberChange(e.target.value)}
+    />
+    <input
+      type="email"
+      placeholder="Email address"
+      className="w-full rounded border px-3 py-2 text-sm"
+      value={props.email}
+      onChange={(e) => props.onEmailChange(e.target.value)}
+    />
+    <button
+      className="w-full rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+      onClick={props.onTrack}
+      disabled={props.loading}
+    >
+      {props.loading ? "Looking up…" : "Track Invoice"}
+    </button>
+  </div>
+
+  {props.error && (
+    <div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+      {props.error}
+    </div>
+  )}
+
+  {props.invoice && (
+    <div className="space-y-4 rounded-lg border p-4">
+      <div className="flex items-center justify-between">
+        <div className="font-medium">{props.invoice.invoiceNumber}</div>
+        <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${
+          props.invoice.status === "paid" ? "text-green-700 bg-green-50 border-green-200" :
+          props.invoice.status === "overdue" ? "text-red-700 bg-red-50 border-red-200" :
+          "text-blue-700 bg-blue-50 border-blue-200"
+        }`}>
+          {props.invoice.status.replace("_", " ")}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 text-center">
+        <div>
+          <div className="text-xs text-muted-foreground">Total</div>
+          <div className="font-medium">${(props.invoice.total / 100).toFixed(2)}</div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground">Paid</div>
+          <div className="font-medium">${(props.invoice.amountPaid / 100).toFixed(2)}</div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground">Due</div>
+          <div className="font-medium">${(props.invoice.amountDue / 100).toFixed(2)}</div>
+        </div>
+      </div>
+
+      {props.invoice.dueDate && (
+        <div className="text-center text-sm text-muted-foreground">
+          Due: {new Date(props.invoice.dueDate).toLocaleDateString()}
+        </div>
+      )}
+    </div>
+  )}
+</div>

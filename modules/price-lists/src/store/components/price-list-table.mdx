@@ -1,0 +1,62 @@
+{props.isLoading ? (
+  <div className="space-y-3">
+    {Array.from({ length: 5 }).map((_, i) => (
+      <div
+        key={`skel-${i}`}
+        className="h-12 animate-pulse rounded-lg border border-border bg-muted/30"
+      />
+    ))}
+  </div>
+) : props.notFound ? (
+  <div className="rounded-xl border border-border bg-muted/30 p-6 text-center">
+    <p className="text-muted-foreground text-sm">Price list not found or unavailable.</p>
+  </div>
+) : (
+  <div className="space-y-4">
+    <div>
+      <h2 className="font-semibold text-foreground text-xl">{props.priceList.name}</h2>
+      {props.priceList.description && (
+        <p className="mt-1 text-muted-foreground text-sm">{props.priceList.description}</p>
+      )}
+    </div>
+
+    {props.entries.length === 0 ? (
+      <div className="rounded-xl border border-dashed border-border p-6 text-center">
+        <p className="text-muted-foreground text-sm">No prices in this list yet.</p>
+      </div>
+    ) : (
+      <div className="overflow-x-auto rounded-xl border border-border">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-border border-b bg-muted/50">
+              <th className="px-4 py-3 font-medium text-muted-foreground">Product</th>
+              <th className="px-4 py-3 font-medium text-muted-foreground text-right">Your price</th>
+              <th className="px-4 py-3 font-medium text-muted-foreground text-right">Compare at</th>
+              <th className="px-4 py-3 font-medium text-muted-foreground text-right">Min qty</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {props.entries.map((entry) => (
+              <tr key={entry.id} className="bg-card transition-colors hover:bg-muted/30">
+                <td className="px-4 py-3 font-mono text-foreground text-xs">
+                  {entry.productId.slice(0, 12)}…
+                </td>
+                <td className="px-4 py-3 text-right font-medium text-foreground">
+                  {props.formatCurrency(entry.price)}
+                </td>
+                <td className="px-4 py-3 text-right text-muted-foreground">
+                  {entry.compareAtPrice != null
+                    ? <span className="line-through">{props.formatCurrency(entry.compareAtPrice)}</span>
+                    : "—"}
+                </td>
+                <td className="px-4 py-3 text-right text-muted-foreground">
+                  {entry.minQuantity ?? 1}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+)}

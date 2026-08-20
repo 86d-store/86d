@@ -1,0 +1,44 @@
+import Link from "next/link";
+
+<Link
+  href={`/collections/${props.collection.slug}`}
+  className="group relative flex flex-col"
+>
+  <div className="relative aspect-[16/10] overflow-hidden rounded-lg bg-muted">
+    {props.collection.image ? (
+      <img
+        src={props.collection.image}
+        alt={props.collection.name}
+        className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+      />
+    ) : (
+      <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground/25">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <rect width="7" height="7" x="3" y="3" rx="1" />
+          <rect width="7" height="7" x="14" y="3" rx="1" />
+          <rect width="7" height="7" x="3" y="14" rx="1" />
+          <rect width="7" height="7" x="14" y="14" rx="1" />
+        </svg>
+      </div>
+    )}
+  </div>
+  <div className="mt-3">
+    <p className="text-foreground text-sm">{props.collection.name}</p>
+    {props.collection.description && (
+      <p className="mt-0.5 line-clamp-1 text-muted-foreground text-xs">
+        {props.collection.description}
+      </p>
+    )}
+  </div>
+</Link>

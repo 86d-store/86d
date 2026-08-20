@@ -1,0 +1,50 @@
+<div className="space-y-3">
+  <h3 className="font-display text-sm font-semibold text-foreground">Shipping method</h3>
+
+  {props.loading && (
+    <div className="space-y-2">
+      <div className="h-14 animate-pulse rounded-md bg-muted" />
+      <div className="h-14 animate-pulse rounded-md bg-muted" />
+    </div>
+  )}
+
+  {props.error && (
+    <p className="text-sm text-destructive">{props.error}</p>
+  )}
+
+  {!props.loading && !props.error && props.rates.length === 0 && (
+    <p className="text-sm text-muted-foreground">No shipping methods available for your address.</p>
+  )}
+
+  {!props.loading && props.rates.length > 0 && (
+    <fieldset className="divide-y divide-border rounded-md border border-border">
+      <legend className="sr-only">Select a shipping method</legend>
+      {props.rates.map((rate) => (
+        <label
+          key={rate.rateId}
+          htmlFor={`shipping-opt-${rate.rateId}`}
+          className={`flex cursor-pointer items-center gap-3 px-3 py-3 transition-colors hover:bg-muted/50 ${
+            props.selectedId === rate.rateId ? "bg-muted/30" : ""
+          }`}
+        >
+          <input
+            id={`shipping-opt-${rate.rateId}`}
+            type="radio"
+            name="shipping-option"
+            value={rate.rateId}
+            checked={props.selectedId === rate.rateId}
+            onChange={() => props.onSelect(rate.rateId)}
+            className="size-4 accent-foreground"
+          />
+          <div className="flex flex-1 items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-foreground">{rate.rateName}</p>
+              <p className="text-xs text-muted-foreground">{rate.zoneName}</p>
+            </div>
+            <span className="text-sm font-semibold text-foreground">{rate.formattedPrice}</span>
+          </div>
+        </label>
+      ))}
+    </fieldset>
+  )}
+</div>

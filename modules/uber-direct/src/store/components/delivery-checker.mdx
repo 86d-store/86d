@@ -1,0 +1,56 @@
+<div className="space-y-4">
+  <div>
+    <p className="font-medium text-foreground text-sm">Check Uber Direct delivery</p>
+    <p className="mt-0.5 text-muted-foreground text-sm">See if we deliver to your location.</p>
+  </div>
+
+  <button
+    type="button"
+    onClick={props.onLocate}
+    disabled={props.isChecking}
+    className="rounded-lg bg-foreground px-4 py-2 font-medium text-background text-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    {props.isChecking ? "Checking…" : "Use my location"}
+  </button>
+
+  {props.error && (
+    <p className="text-destructive text-sm">{props.error}</p>
+  )}
+
+  {props.hasResult && !props.isChecking && props.result && (
+    <div className={`rounded-xl border p-4 ${props.result.available ? "border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20" : "border-border bg-muted/30"}`}>
+      {props.result.available ? (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-emerald-600">✓</span>
+            <p className="font-medium text-emerald-800 text-sm dark:text-emerald-400">Uber Direct delivers to your area!</p>
+          </div>
+          <div className="flex flex-wrap gap-4 text-sm">
+            {props.result.deliveryFee !== undefined && (
+              <div>
+                <span className="text-muted-foreground">Delivery fee: </span>
+                <span className="font-medium text-foreground">{props.formatCurrency(props.result.deliveryFee, props.currency)}</span>
+              </div>
+            )}
+            {props.result.estimatedMinutes !== undefined && (
+              <div>
+                <span className="text-muted-foreground">Est. delivery: </span>
+                <span className="font-medium text-foreground">{props.result.estimatedMinutes} min</span>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2">
+          <p className="text-muted-foreground text-sm">Uber Direct doesn&apos;t deliver to your location yet.</p>
+        </div>
+      )}
+    </div>
+  )}
+
+  {props.hasResult && !props.isChecking && !props.result && !props.error && (
+    <div className="rounded-xl border border-border bg-muted/30 p-4">
+      <p className="text-muted-foreground text-sm">Delivery is not available in your area.</p>
+    </div>
+  )}
+</div>

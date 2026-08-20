@@ -1,0 +1,65 @@
+<div className="space-y-4">
+  <div>
+    <p className="font-medium text-foreground text-sm">Check delivery availability</p>
+    <p className="mt-0.5 text-muted-foreground text-sm">Enter your ZIP code to see if Favor delivers to you.</p>
+  </div>
+
+  <form onSubmit={props.onCheck} className="flex gap-2">
+    <input
+      type="text"
+      value={props.zipCode}
+      onChange={(e) => props.onZipCodeChange(e.target.value)}
+      placeholder="ZIP code"
+      maxLength={10}
+      className="w-32 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/40 focus:ring-1 focus:ring-foreground/20"
+    />
+    <button
+      type="submit"
+      disabled={props.isChecking || !props.zipCode.trim()}
+      className="rounded-lg bg-foreground px-4 py-2 font-medium text-background text-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {props.isChecking ? "Checking…" : "Check"}
+    </button>
+  </form>
+
+  {props.error && (
+    <p className="text-destructive text-sm">{props.error}</p>
+  )}
+
+  {props.result && (
+    <div className={`rounded-xl border p-4 ${props.result.available ? "border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20" : "border-border bg-muted/30"}`}>
+      {props.result.available ? (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-emerald-600">✓</span>
+            <p className="font-medium text-emerald-800 text-sm dark:text-emerald-400">Favor delivers to your area!</p>
+          </div>
+          <div className="flex flex-wrap gap-4 text-sm">
+            {props.result.deliveryFee !== undefined && (
+              <div>
+                <span className="text-muted-foreground">Delivery fee: </span>
+                <span className="font-medium text-foreground">{props.formatCurrency(props.result.deliveryFee, props.currency)}</span>
+              </div>
+            )}
+            {props.result.estimatedMinutes !== undefined && (
+              <div>
+                <span className="text-muted-foreground">Est. delivery: </span>
+                <span className="font-medium text-foreground">{props.result.estimatedMinutes} min</span>
+              </div>
+            )}
+            {props.result.minOrderAmount !== undefined && (
+              <div>
+                <span className="text-muted-foreground">Min. order: </span>
+                <span className="font-medium text-foreground">{props.formatCurrency(props.result.minOrderAmount, props.currency)}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2">
+          <p className="text-muted-foreground text-sm">Favor doesn&apos;t deliver to this ZIP code yet.</p>
+        </div>
+      )}
+    </div>
+  )}
+</div>

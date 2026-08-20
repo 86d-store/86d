@@ -1,0 +1,11 @@
+{
+	"name": "github",
+	"version": "0.0.0",
+	"private": true,
+	"license": "MIT",
+	"scripts": {
+		"check": "biome check .",
+		"check:fix": "biome check --write --unsafe .",
+		"clean": "git clean -xdf .cache .turbo dist node_modules"
+	}
+}

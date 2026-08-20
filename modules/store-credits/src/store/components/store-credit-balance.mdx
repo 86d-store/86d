@@ -1,0 +1,27 @@
+{props.isLoading ? (
+  <div className="rounded-lg border border-gray-200 bg-white p-4 text-center dark:border-gray-800 dark:bg-gray-900">
+    <p className="text-gray-400 text-sm dark:text-gray-500">Loading balance...</p>
+  </div>
+) : props.error ? (
+  <div className="rounded-lg bg-red-50 p-3 text-red-700 text-sm dark:bg-red-950 dark:text-red-300">
+    {props.error}
+  </div>
+) : (
+  <div className="rounded-lg border border-gray-200 bg-white p-4 text-center dark:border-gray-800 dark:bg-gray-900">
+    <p className="text-gray-500 text-sm dark:text-gray-400">Store Credit Balance</p>
+    {props.status === "active" ? (
+      <p className="mt-1 font-bold text-3xl text-gray-900 dark:text-gray-100">
+        {props.formatCurrency(props.balance, props.currency)}
+      </p>
+    ) : (
+      <>
+        <p className="mt-1 font-bold text-3xl text-gray-400 line-through dark:text-gray-600">
+          {props.formatCurrency(props.balance, props.currency)}
+        </p>
+        <p className="mt-1 font-medium text-amber-600 text-sm dark:text-amber-400">
+          Account {props.status}
+        </p>
+      </>
+    )}
+  </div>
+)}

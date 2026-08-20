@@ -1,0 +1,62 @@
+<div className="space-y-3">
+  {props.loading && (
+    <div className="animate-pulse space-y-2">
+      <div className="h-16 rounded-lg bg-muted" />
+      <div className="h-16 rounded-lg bg-muted" />
+    </div>
+  )}
+
+  {props.error && (
+    <p className="text-sm text-destructive">Unable to load fulfillment details.</p>
+  )}
+
+  {props.empty && (
+    <p className="text-sm text-muted-foreground">No shipments yet for this order.</p>
+  )}
+
+  {props.fulfillments.length > 0 && (
+    <ul className="divide-y divide-border rounded-lg border border-border" role="list">
+      {props.fulfillments.map((f) => (
+        <li key={f.id} className="px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground" aria-hidden="true">
+                <path d="m7.5 4.27 9 5.15" />
+                <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+                <path d="m3.3 7 8.7 5 8.7-5" />
+                <path d="M12 22V12" />
+              </svg>
+              <span className={`text-sm font-medium ${f.statusColor}`}>{f.statusLabel}</span>
+            </div>
+            <span className="text-xs text-muted-foreground">{f.createdAt}</span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {f.itemCount} {f.itemCount === 1 ? "item" : "items"}
+          </p>
+          {f.carrier && (
+            <div className="mt-1.5 flex items-center gap-1.5 text-xs">
+              <span className="text-muted-foreground">{f.carrier}</span>
+              {f.trackingNumber && (
+                <>
+                  <span className="text-muted-foreground/50">&middot;</span>
+                  {f.trackingUrl ? (
+                    <a
+                      href={f.trackingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-foreground underline underline-offset-2 hover:opacity-75"
+                    >
+                      {f.trackingNumber}
+                    </a>
+                  ) : (
+                    <span className="font-medium text-foreground">{f.trackingNumber}</span>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>

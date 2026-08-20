@@ -1,0 +1,44 @@
+<div className="space-y-6">
+  <h1 className="font-bold text-2xl text-foreground">Product Labels</h1>
+  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div className="rounded-lg border border-border bg-card p-5">
+      <p className="font-medium text-muted-foreground text-sm">
+        Total Labels
+      </p>
+      <p className="mt-1 font-semibold text-2xl text-foreground">
+        {props.totalLabels}
+      </p>
+    </div>
+    <div className="rounded-lg border border-border bg-card p-5">
+      <p className="font-medium text-muted-foreground text-sm">
+        Active Labels
+      </p>
+      <p className="mt-1 font-semibold text-2xl text-foreground">
+        {props.activeLabels}
+      </p>
+    </div>
+    <div className="rounded-lg border border-border bg-card p-5">
+      <p className="font-medium text-muted-foreground text-sm">
+        Total Assignments
+      </p>
+      <p className="mt-1 font-semibold text-2xl text-foreground">
+        {props.totalAssignments}
+      </p>
+    </div>
+  </div>
+
+  {props.error && (
+    <div className="rounded-lg bg-destructive/10 p-3 text-destructive text-sm">
+      {props.error}
+    </div>
+  )}
+
+  <div className="rounded-lg border border-border bg-card">
+    <div className="flex items-center justify-between border-border border-b px-5 py-3">
+      <h3 className="font-semibold text-foreground text-sm">Labels</h3>
+      {props.createButton}
+    </div>
+
+    {props.labelsContent}
+  </div>
+</div>

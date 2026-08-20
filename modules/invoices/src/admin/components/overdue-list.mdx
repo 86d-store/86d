@@ -1,0 +1,41 @@
+# Overdue Invoices
+
+Invoices past their due date that still have outstanding balances.
+
+<div className="space-y-4">
+  {props.loading ? (
+    <div className="py-12 text-center text-muted-foreground">Checking for overdue invoices…</div>
+  ) : props.invoices.length === 0 ? (
+    <div className="py-12 text-center text-muted-foreground">No overdue invoices.</div>
+  ) : (
+    <>
+      <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+        <div className="text-sm text-red-700">{props.total} overdue invoice(s) need attention</div>
+      </div>
+      <div className="overflow-x-auto rounded-lg border">
+        <table className="w-full text-sm">
+          <thead className="border-b bg-muted/50">
+            <tr>
+              <th className="px-4 py-3 text-left font-medium">Invoice #</th>
+              <th className="px-4 py-3 text-left font-medium">Customer</th>
+              <th className="px-4 py-3 text-right font-medium">Total</th>
+              <th className="px-4 py-3 text-right font-medium">Amount Due</th>
+              <th className="px-4 py-3 text-left font-medium">Due Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {props.invoices.map((inv) => (
+              <tr key={inv.id} className="border-b last:border-0 hover:bg-muted/30">
+                <td className="px-4 py-3 font-medium">{inv.invoiceNumber}</td>
+                <td className="px-4 py-3">{inv.customerName || inv.guestEmail || "—"}</td>
+                <td className="px-4 py-3 text-right">${(inv.total / 100).toFixed(2)}</td>
+                <td className="px-4 py-3 text-right font-medium text-red-700">${(inv.amountDue / 100).toFixed(2)}</td>
+                <td className="px-4 py-3">{inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  )}
+</div>

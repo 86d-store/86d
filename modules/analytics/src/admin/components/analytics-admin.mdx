@@ -1,0 +1,47 @@
+<div className="space-y-6">
+  <div className="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 className="font-semibold text-2xl text-foreground">
+        Analytics
+      </h1>
+      <p className="text-muted-foreground text-sm">
+        Store performance, revenue, and conversion insights
+      </p>
+    </div>
+    <div className="flex gap-1 rounded-lg border border-border bg-muted/30 p-1">
+      {props.rangeOptions.map((opt) => (
+        <button
+          key={opt.key}
+          type="button"
+          onClick={() => props.onRangeChange(opt.key)}
+          className={`rounded px-3 py-1 font-medium text-sm transition-colors ${
+            props.range === opt.key
+              ? "bg-foreground text-background"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          }`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <div className="flex gap-1 overflow-x-auto border-border border-b">
+    {props.tabs.map((t) => (
+      <button
+        key={t.key}
+        type="button"
+        onClick={() => props.onTabChange(t.key)}
+        className={`whitespace-nowrap px-4 py-2 font-medium text-sm transition-colors ${
+          props.tab === t.key
+            ? "border-foreground border-b-2 text-foreground"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        {t.label}
+      </button>
+    ))}
+  </div>
+
+  {props.tabContent}
+</div>

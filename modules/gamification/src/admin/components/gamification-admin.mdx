@@ -1,0 +1,77 @@
+<div className="space-y-6">
+  <h1 className="font-bold text-2xl text-foreground">Gamification</h1>
+  {props.summaryCards}
+
+  {props.error && (
+    <div className="rounded-lg bg-destructive/10 p-3 text-destructive text-sm">
+      {props.error}
+    </div>
+  )}
+
+  <div className="rounded-lg border border-border bg-card">
+    <div className="flex items-center justify-between border-border border-b px-5 py-3">
+      <h3 className="font-semibold text-foreground text-sm">Games</h3>
+      <div className="flex items-center gap-3">
+        <select
+          value={props.typeFilter}
+          onChange={(e) => props.onTypeChange(e.target.value)}
+          className="rounded border border-border bg-background px-2 py-1 text-foreground text-xs"
+        >
+          <option value="">All types</option>
+          <option value="wheel">Spin the Wheel</option>
+          <option value="scratch">Scratch Card</option>
+          <option value="slot">Slot Machine</option>
+        </select>
+        <button
+          type="button"
+          onClick={props.onToggleCreate}
+          className="rounded bg-foreground px-3 py-1 font-medium text-background text-xs hover:opacity-90"
+        >
+          {props.showCreate ? "Cancel" : "Create Game"}
+        </button>
+      </div>
+    </div>
+
+    {props.showCreate && (
+      <div className="border-border border-b px-5 py-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <label className="mb-1 block font-medium text-muted-foreground text-xs">
+              Game Name
+            </label>
+            <input
+              type="text"
+              value={props.newName}
+              onChange={(e) => props.onNewNameChange(e.target.value)}
+              className="w-full rounded border border-border bg-background px-3 py-1.5 text-foreground text-sm"
+              placeholder="e.g. Holiday Spin to Win"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block font-medium text-muted-foreground text-xs">
+              Type
+            </label>
+            <select
+              value={props.newType}
+              onChange={(e) => props.onNewTypeChange(e.target.value)}
+              className="rounded border border-border bg-background px-3 py-1.5 text-foreground text-sm"
+            >
+              <option value="wheel">Spin the Wheel</option>
+              <option value="scratch">Scratch Card</option>
+              <option value="slot">Slot Machine</option>
+            </select>
+          </div>
+          <button
+            type="button"
+            onClick={props.onCreate}
+            className="rounded bg-foreground px-4 py-1.5 font-medium text-background text-sm hover:opacity-90"
+          >
+            Create
+          </button>
+        </div>
+      </div>
+    )}
+
+    {props.tableContent}
+  </div>
+</div>

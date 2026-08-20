@@ -1,0 +1,64 @@
+{
+	"name": "@86d-app/announcements",
+	"version": "0.0.41",
+	"description": "Site-wide announcement bars, promotional banners, and notification banners for 86d commerce platform",
+	"keywords": [
+		"commerce",
+		"announcements",
+		"banners",
+		"promotions",
+		"86d"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/announcements"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/announcement-detail": {
+			"types": "./src/admin/components/announcement-detail.tsx",
+			"default": "./src/admin/components/announcement-detail.tsx"
+		},
+		"./admin/components/announcement-form": {
+			"types": "./src/admin/components/announcement-form.tsx",
+			"default": "./src/admin/components/announcement-form.tsx"
+		},
+		"./admin/components/announcement-list": {
+			"types": "./src/admin/components/announcement-list.tsx",
+			"default": "./src/admin/components/announcement-list.tsx"
+		},
+		"./components": {
+			"types": "./src/store/components/mdx.tsx",
+			"default": "./src/store/components/mdx.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

@@ -1,0 +1,20 @@
+name: E2E store server
+description: Install Playwright, build the store, and start the production server
+
+runs:
+  using: composite
+  steps:
+    - name: Install Playwright
+      shell: bash
+      run: bunx playwright install --with-deps chromium
+
+    - name: Build store
+      shell: bash
+      run: bun run build:store
+
+    - name: Start store server
+      shell: bash
+      run: |
+        cd apps/store && bun run start &
+        echo $! > /tmp/store.pid
+        bunx wait-on tcp:127.0.0.1:3000 --timeout 120000

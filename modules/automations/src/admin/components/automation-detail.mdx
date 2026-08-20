@@ -1,0 +1,77 @@
+# Automation Detail
+
+<div className="space-y-6">
+	<div className="flex items-center justify-between">
+		<div className="flex items-center gap-3">
+			<a
+				href="/admin/automations"
+				className="text-muted-foreground hover:text-foreground"
+			>
+				&larr; Back
+			</a>
+			{props.statusBadge}
+		</div>
+		<div className="flex items-center gap-2">
+			{props.actionButtons}
+		</div>
+	</div>
+
+	{props.loading ? (
+		<div className="py-8 text-center text-muted-foreground">Loading...</div>
+	) : props.notFound ? (
+		<div className="py-8 text-center text-muted-foreground">Automation not found.</div>
+	) : (
+		<div className="space-y-6">
+			<div className="rounded-lg border border-border bg-card p-6">
+				<h2 className="mb-4 font-semibold text-foreground text-lg">Configuration</h2>
+				<dl className="grid grid-cols-2 gap-4 text-sm">
+					<div>
+						<dt className="text-muted-foreground">Name</dt>
+						<dd className="mt-1 font-medium text-foreground">{props.name}</dd>
+					</div>
+					<div>
+						<dt className="text-muted-foreground">Trigger Event</dt>
+						<dd className="mt-1">
+							<code className="rounded bg-muted px-1.5 py-0.5 text-xs">{props.triggerEvent}</code>
+						</dd>
+					</div>
+					<div>
+						<dt className="text-muted-foreground">Priority</dt>
+						<dd className="mt-1 font-medium text-foreground">{props.priority}</dd>
+					</div>
+					<div>
+						<dt className="text-muted-foreground">Total Runs</dt>
+						<dd className="mt-1 font-medium text-foreground">{props.runCount}</dd>
+					</div>
+				</dl>
+				{props.description && (
+					<div className="mt-4">
+						<dt className="text-muted-foreground text-sm">Description</dt>
+						<dd className="mt-1 text-foreground text-sm">{props.description}</dd>
+					</div>
+				)}
+			</div>
+
+			<div className="rounded-lg border border-border bg-card p-6">
+				<h2 className="mb-4 font-semibold text-foreground text-lg">
+					Actions ({props.actionCount})
+				</h2>
+				{props.actionsDisplay}
+			</div>
+
+			{props.conditionsDisplay && (
+				<div className="rounded-lg border border-border bg-card p-6">
+					<h2 className="mb-4 font-semibold text-foreground text-lg">
+						Conditions ({props.conditionCount})
+					</h2>
+					{props.conditionsDisplay}
+				</div>
+			)}
+
+			<div className="rounded-lg border border-border bg-card p-6">
+				<h2 className="mb-4 font-semibold text-foreground text-lg">Recent Executions</h2>
+				{props.executionsTable}
+			</div>
+		</div>
+	)}
+</div>

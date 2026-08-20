@@ -1,0 +1,26 @@
+# Auctions
+
+Manage product auctions and track bids.
+
+<div className="space-y-4">
+  {props.summary && (
+    <div className="grid grid-cols-4 gap-4">
+      <div className="rounded-lg border p-4">
+        <div className="text-sm text-muted-foreground">Total Auctions</div>
+        <div className="text-2xl font-bold">{props.summary.totalAuctions}</div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-sm text-muted-foreground">Active</div>
+        <div className="text-2xl font-bold">{props.summary.active}</div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-sm text-muted-foreground">Total Bids</div>
+        <div className="text-2xl font-bold">{props.summary.totalBids}</div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-sm text-muted-foreground">Revenue</div>
+        <div className="text-2xl font-bold">${(props.summary.totalRevenue / 100).toFixed(2)}</div>
+      </div>
+    </div>
+  )}
+</div>

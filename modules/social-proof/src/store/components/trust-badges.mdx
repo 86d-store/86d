@@ -1,0 +1,31 @@
+<div className="flex flex-wrap items-center gap-4 py-3">
+  {props.badges.map((badge) => {
+    const content = (
+      <div key={badge.id} className="flex items-center gap-2 text-muted-foreground text-sm">
+        <span className="text-base">{badge.icon}</span>
+        <div className="flex flex-col">
+          <span className="font-medium text-foreground">{badge.name}</span>
+          {badge.description && (
+            <span className="text-xs">{badge.description}</span>
+          )}
+        </div>
+      </div>
+    );
+
+    if (badge.url) {
+      return (
+        <a
+          key={badge.id}
+          href={badge.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-opacity hover:opacity-80"
+        >
+          {content}
+        </a>
+      );
+    }
+
+    return content;
+  })}
+</div>

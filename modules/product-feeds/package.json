@@ -1,0 +1,57 @@
+{
+	"name": "@86d-app/product-feeds",
+	"version": "0.0.41",
+	"description": "Product feed generation for Google Shopping, Facebook/Meta catalog, and custom channels in 86d commerce platform",
+	"keywords": [
+		"commerce",
+		"product-feeds",
+		"google-shopping",
+		"facebook-catalog",
+		"syndication",
+		"86d"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/product-feeds"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/product-feed-detail": {
+			"types": "./src/admin/components/product-feed-detail.tsx",
+			"default": "./src/admin/components/product-feed-detail.tsx"
+		},
+		"./admin/components/product-feeds-overview": {
+			"types": "./src/admin/components/product-feeds-overview.tsx",
+			"default": "./src/admin/components/product-feeds-overview.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

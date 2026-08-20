@@ -1,0 +1,29 @@
+<div className="flex flex-col rounded-xl border border-border bg-background p-5">
+  <h3 className="font-semibold text-foreground text-lg">{props.plan.name}</h3>
+  {props.plan.description && (
+    <p className="mt-1 text-muted-foreground text-sm">{props.plan.description}</p>
+  )}
+  <div className="mt-4">
+    <span className="font-bold text-2xl text-foreground">
+      {props.formatPrice(props.plan.price, props.plan.currency)}
+    </span>
+    <span className="text-muted-foreground text-sm">
+      /{props.intervalLabel(props.plan.interval, props.plan.intervalCount)}
+    </span>
+  </div>
+  {props.plan.trialDays != null && props.plan.trialDays > 0 && (
+    <p className="mt-1 text-muted-foreground text-sm">
+      {props.plan.trialDays}-day free trial
+    </p>
+  )}
+  <div className="mt-auto pt-5">
+    <button
+      type="button"
+      onClick={() => props.onSubscribe(props.plan.id)}
+      disabled={props.subscribing}
+      className="w-full rounded-lg bg-primary px-4 py-2.5 font-medium text-primary-foreground text-sm transition-opacity disabled:opacity-60"
+    >
+      {props.subscribing ? "Subscribing…" : "Subscribe"}
+    </button>
+  </div>
+</div>

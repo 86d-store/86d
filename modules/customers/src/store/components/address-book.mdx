@@ -1,0 +1,239 @@
+<div className="space-y-6">
+  <div className="flex items-center justify-between">
+    <h2 className="text-lg font-semibold">Addresses</h2>
+    {!props.showForm && !props.isError && !props.isLoading && (
+      <button
+        type="button"
+        onClick={props.onAdd}
+        className="text-sm font-medium text-primary hover:underline"
+      >
+        Add address
+      </button>
+    )}
+  </div>
+
+  {props.isError ? (
+    <div
+      className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-6 text-center"
+      role="alert"
+    >
+      <p className="font-medium text-destructive text-sm">
+        Failed to load addresses
+      </p>
+      <button
+        type="button"
+        onClick={props.onRetry}
+        className="mt-2 font-medium text-destructive text-sm underline underline-offset-4"
+      >
+        Try again
+      </button>
+    </div>
+  ) : props.isLoading ? (
+    <div className="space-y-3">
+      {[1, 2].map((n) => (
+        <div key={n} className="animate-pulse rounded-lg border border-border p-4">
+          <div className="h-4 w-32 rounded bg-muted" />
+          <div className="mt-2 h-3 w-48 rounded bg-muted" />
+          <div className="mt-1 h-3 w-40 rounded bg-muted" />
+        </div>
+      ))}
+    </div>
+  ) : null}
+
+  {!props.isError && !props.isLoading && props.showForm && (
+    <div className="rounded-lg border border-border p-4">
+      <h3 className="mb-4 text-sm font-semibold">
+        {props.editingId ? "Edit address" : "New address"}
+      </h3>
+      <div className="space-y-3">
+        <div>
+          <label htmlFor="addr-type" className="mb-1 block text-xs font-medium text-muted-foreground">
+            Type
+          </label>
+          <select
+            id="addr-type"
+            value={props.form.type}
+            onChange={(e) => props.onFieldChange("type", e.target.value)}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+          >
+            <option value="shipping">Shipping</option>
+            <option value="billing">Billing</option>
+          </select>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label htmlFor="addr-fn" className="mb-1 block text-xs font-medium text-muted-foreground">
+              First name
+            </label>
+            <input
+              id="addr-fn"
+              type="text"
+              value={props.form.firstName}
+              onChange={(e) => props.onFieldChange("firstName", e.target.value)}
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label htmlFor="addr-ln" className="mb-1 block text-xs font-medium text-muted-foreground">
+              Last name
+            </label>
+            <input
+              id="addr-ln"
+              type="text"
+              value={props.form.lastName}
+              onChange={(e) => props.onFieldChange("lastName", e.target.value)}
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
+        <div>
+          <label htmlFor="addr-l1" className="mb-1 block text-xs font-medium text-muted-foreground">
+            Address line 1
+          </label>
+          <input
+            id="addr-l1"
+            type="text"
+            value={props.form.line1}
+            onChange={(e) => props.onFieldChange("line1", e.target.value)}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label htmlFor="addr-l2" className="mb-1 block text-xs font-medium text-muted-foreground">
+            Address line 2
+          </label>
+          <input
+            id="addr-l2"
+            type="text"
+            value={props.form.line2 ?? ""}
+            onChange={(e) => props.onFieldChange("line2", e.target.value)}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            placeholder="Optional"
+          />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div>
+            <label htmlFor="addr-city" className="mb-1 block text-xs font-medium text-muted-foreground">
+              City
+            </label>
+            <input
+              id="addr-city"
+              type="text"
+              value={props.form.city}
+              onChange={(e) => props.onFieldChange("city", e.target.value)}
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label htmlFor="addr-state" className="mb-1 block text-xs font-medium text-muted-foreground">
+              State
+            </label>
+            <input
+              id="addr-state"
+              type="text"
+              value={props.form.state}
+              onChange={(e) => props.onFieldChange("state", e.target.value)}
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label htmlFor="addr-zip" className="mb-1 block text-xs font-medium text-muted-foreground">
+              Postal code
+            </label>
+            <input
+              id="addr-zip"
+              type="text"
+              value={props.form.postalCode}
+              onChange={(e) => props.onFieldChange("postalCode", e.target.value)}
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
+        <div>
+          <label htmlFor="addr-country" className="mb-1 block text-xs font-medium text-muted-foreground">
+            Country
+          </label>
+          <input
+            id="addr-country"
+            type="text"
+            value={props.form.country}
+            onChange={(e) => props.onFieldChange("country", e.target.value)}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+          />
+        </div>
+        <div className="flex gap-2 pt-2">
+          <button
+            type="button"
+            onClick={props.onSave}
+            disabled={props.saving}
+            className="rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {props.saving ? "Saving..." : "Save"}
+          </button>
+          <button
+            type="button"
+            onClick={props.onCancel}
+            className="rounded-md border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {!props.isError && !props.isLoading && props.addresses.length === 0 && !props.showForm ? (
+    <p className="py-6 text-center text-sm text-muted-foreground">
+      No saved addresses yet.
+    </p>
+  ) : !props.isError && !props.isLoading ? (
+    <div className="space-y-3">
+      {props.addresses.map((addr) => (
+        <div
+          key={addr.id}
+          className="flex items-start justify-between rounded-lg border border-border p-4"
+        >
+          <div className="text-sm">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">
+                {addr.firstName} {addr.lastName}
+              </span>
+              <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                {addr.type}
+              </span>
+              {addr.isDefault && (
+                <span className="rounded bg-foreground/10 px-1.5 py-0.5 text-xs font-medium">
+                  Default
+                </span>
+              )}
+            </div>
+            <p className="mt-1 text-muted-foreground">
+              {addr.line1}
+              {addr.line2 ? `, ${addr.line2}` : ""}
+            </p>
+            <p className="text-muted-foreground">
+              {addr.city}, {addr.state} {addr.postalCode}, {addr.country}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => props.onEdit(addr)}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => props.onDelete(addr.id)}
+              disabled={props.deletingId === addr.id}
+              className="text-xs text-muted-foreground hover:text-red-600 disabled:opacity-50"
+            >
+              {props.deletingId === addr.id ? "..." : "Delete"}
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  ) : null}
+</div>

@@ -1,0 +1,130 @@
+{props.loading ? (
+  <div className="py-12 text-center text-muted-foreground">Loading invoice…</div>
+) : !props.invoice ? (
+  <div className="py-12 text-center text-muted-foreground">Invoice not found.</div>
+) : (
+  <div className="space-y-6">
+    <div className="flex items-center justify-between">
+      <div>
+        <h1 className="text-2xl font-bold">{props.invoice.invoiceNumber}</h1>
+        <p className="text-muted-foreground">
+          {props.invoice.customerName || props.invoice.guestEmail || "No customer"}
+        </p>
+      </div>
+      <span className={`inline-flex rounded-full border px-3 py-1 text-sm font-medium ${
+        props.invoice.status === "paid" ? "text-green-700 bg-green-50 border-green-200" :
+        props.invoice.status === "overdue" ? "text-red-700 bg-red-50 border-red-200" :
+        props.invoice.status === "sent" || props.invoice.status === "viewed" ? "text-blue-700 bg-blue-50 border-blue-200" :
+        props.invoice.status === "partially_paid" ? "text-yellow-700 bg-yellow-50 border-yellow-200" :
+        "text-gray-700 bg-gray-50 border-gray-200"
+      }`}>
+        {props.invoice.status.replace("_", " ")}
+      </span>
+    </div>
+
+    <div className="grid grid-cols-3 gap-4">
+      <div className="rounded-lg border p-4">
+        <div className="text-sm text-muted-foreground">Total</div>
+        <div className="text-2xl font-bold">${(props.invoice.total / 100).toFixed(2)}</div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-sm text-muted-foreground">Paid</div>
+        <div className="text-2xl font-bold">${(props.invoice.amountPaid / 100).toFixed(2)}</div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-sm text-muted-foreground">Due</div>
+        <div className="text-2xl font-bold">${(props.invoice.amountDue / 100).toFixed(2)}</div>
+      </div>
+    </div>
+
+    <div className="rounded-lg border">
+      <div className="border-b px-4 py-3 font-medium">Line Items</div>
+      <table className="w-full text-sm">
+        <thead className="border-b bg-muted/50">
+          <tr>
+            <th className="px-4 py-2 text-left font-medium">Description</th>
+            <th className="px-4 py-2 text-left font-medium">SKU</th>
+            <th className="px-4 py-2 text-right font-medium">Qty</th>
+            <th className="px-4 py-2 text-right font-medium">Unit Price</th>
+            <th className="px-4 py-2 text-right font-medium">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {props.invoice.lineItems.map((li) => (
+            <tr key={li.id} className="border-b last:border-0">
+              <td className="px-4 py-2">{li.description}</td>
+              <td className="px-4 py-2 text-muted-foreground">{li.sku || "—"}</td>
+              <td className="px-4 py-2 text-right">{li.quantity}</td>
+              <td className="px-4 py-2 text-right">${(li.unitPrice / 100).toFixed(2)}</td>
+              <td className="px-4 py-2 text-right">${(li.amount / 100).toFixed(2)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    {props.invoice.payments.length > 0 && (
+      <div className="rounded-lg border">
+        <div className="border-b px-4 py-3 font-medium">Payments</div>
+        <table className="w-full text-sm">
+          <thead className="border-b bg-muted/50">
+            <tr>
+              <th className="px-4 py-2 text-left font-medium">Date</th>
+              <th className="px-4 py-2 text-left font-medium">Method</th>
+              <th className="px-4 py-2 text-left font-medium">Reference</th>
+              <th className="px-4 py-2 text-right font-medium">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {props.invoice.payments.map((p) => (
+              <tr key={p.id} className="border-b last:border-0">
+                <td className="px-4 py-2">{new Date(p.paidAt).toLocaleDateString()}</td>
+                <td className="px-4 py-2">{p.method.replace("_", " ")}</td>
+                <td className="px-4 py-2 text-muted-foreground">{p.reference || "—"}</td>
+                <td className="px-4 py-2 text-right">${(p.amount / 100).toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+
+    {props.invoice.creditNotes.length > 0 && (
+      <div className="rounded-lg border">
+        <div className="border-b px-4 py-3 font-medium">Credit Notes</div>
+        <table className="w-full text-sm">
+          <thead className="border-b bg-muted/50">
+            <tr>
+              <th className="px-4 py-2 text-left font-medium">Number</th>
+              <th className="px-4 py-2 text-left font-medium">Status</th>
+              <th className="px-4 py-2 text-right font-medium">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {props.invoice.creditNotes.map((cn) => (
+              <tr key={cn.id} className="border-b last:border-0">
+                <td className="px-4 py-2 font-medium">{cn.creditNoteNumber}</td>
+                <td className="px-4 py-2">{cn.status}</td>
+                <td className="px-4 py-2 text-right">${(cn.amount / 100).toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+
+    <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
+      <div>Payment terms: {props.invoice.paymentTerms.replace(/_/g, " ")}</div>
+      {props.invoice.dueDate && <div>Due: {new Date(props.invoice.dueDate).toLocaleDateString()}</div>}
+      {props.invoice.issuedAt && <div>Issued: {new Date(props.invoice.issuedAt).toLocaleDateString()}</div>}
+      <div>Created: {new Date(props.invoice.createdAt).toLocaleDateString()}</div>
+    </div>
+
+    {props.invoice.notes && (
+      <div className="rounded-lg border p-4">
+        <div className="text-sm font-medium">Notes</div>
+        <p className="mt-1 text-sm text-muted-foreground">{props.invoice.notes}</p>
+      </div>
+    )}
+  </div>
+)}

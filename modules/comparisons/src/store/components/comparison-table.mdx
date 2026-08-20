@@ -1,0 +1,106 @@
+import Link from "next/link";
+
+<section className="py-6">
+  <h2 className="mb-4 font-semibold text-lg text-gray-900 dark:text-gray-100">
+    {props.title}
+  </h2>
+
+  {props.error && (
+    <p className="mb-3 text-red-600 text-sm">{props.error}</p>
+  )}
+
+  {props.isLoading ? (
+    <div className="animate-pulse">
+      <div className="grid grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={`skeleton-${i}`}>
+            <div className="aspect-square rounded-lg bg-gray-200 dark:bg-gray-700" />
+            <div className="mt-2 h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="mt-1 h-3 w-1/2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-sm">
+        <thead>
+          <tr>
+            <th className="sticky left-0 min-w-[120px] bg-white px-4 py-3 font-medium text-gray-500 dark:bg-gray-900 dark:text-gray-400" />
+            {props.items.map((item) => (
+              <th key={item.productId} className="min-w-[200px] px-4 py-3 align-top">
+                <div className="space-y-2">
+                  <Link href={`/products/${item.productSlug}`} className="block">
+                    {item.productImage ? (
+                      <img
+                        src={item.productImage}
+                        alt={item.productName}
+                        className="h-40 w-full rounded-lg object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="flex h-40 w-full items-center justify-center rounded-lg bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600">
+                        <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" />
+                        </svg>
+                      </div>
+                    )}
+                  </Link>
+                  <Link
+                    href={`/products/${item.productSlug}`}
+                    className="block font-medium text-gray-900 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-400"
+                  >
+                    {item.productName}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => props.onRemove(item.productId)}
+                    className="text-gray-400 text-xs hover:text-red-500 dark:hover:text-red-400"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+          <tr className="bg-gray-50 dark:bg-gray-800/50">
+            <td className="sticky left-0 bg-gray-50 px-4 py-3 font-medium text-gray-500 dark:bg-gray-800/50 dark:text-gray-400">
+              Price
+            </td>
+            {props.items.map((item) => (
+              <td key={item.productId} className="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">
+                {item.productPrice != null ? props.formatPrice(item.productPrice) : "—"}
+              </td>
+            ))}
+          </tr>
+          {props.items.some((item) => item.productCategory) && (
+            <tr>
+              <td className="sticky left-0 bg-white px-4 py-3 font-medium text-gray-500 dark:bg-gray-900 dark:text-gray-400">
+                Category
+              </td>
+              {props.items.map((item) => (
+                <td key={item.productId} className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                  {item.productCategory ?? "—"}
+                </td>
+              ))}
+            </tr>
+          )}
+          {props.attributeKeys.map((key) => (
+            <tr key={key} className="even:bg-gray-50 dark:even:bg-gray-800/50">
+              <td className="sticky left-0 bg-inherit px-4 py-3 font-medium text-gray-500 dark:text-gray-400">
+                {key}
+              </td>
+              {props.items.map((item) => (
+                <td key={item.productId} className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                  {item.attributes?.[key] ?? "—"}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</section>

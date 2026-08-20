@@ -1,0 +1,68 @@
+{
+	"name": "@86d-app/settings",
+	"version": "0.0.41",
+	"description": "Store settings and configuration module for 86d commerce platform",
+	"keywords": [
+		"commerce",
+		"settings",
+		"configuration",
+		"store",
+		"86d"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/settings"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/settings-commerce": {
+			"types": "./src/admin/components/settings-commerce.tsx",
+			"default": "./src/admin/components/settings-commerce.tsx"
+		},
+		"./admin/components/settings-contact": {
+			"types": "./src/admin/components/settings-contact.tsx",
+			"default": "./src/admin/components/settings-contact.tsx"
+		},
+		"./admin/components/settings-general": {
+			"types": "./src/admin/components/settings-general.tsx",
+			"default": "./src/admin/components/settings-general.tsx"
+		},
+		"./admin/components/settings-legal": {
+			"types": "./src/admin/components/settings-legal.tsx",
+			"default": "./src/admin/components/settings-legal.tsx"
+		},
+		"./admin/components/settings-social": {
+			"types": "./src/admin/components/settings-social.tsx",
+			"default": "./src/admin/components/settings-social.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

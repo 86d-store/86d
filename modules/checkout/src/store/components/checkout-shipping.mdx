@@ -1,0 +1,278 @@
+{props.phase === "address" ? (
+<form onSubmit={props.onSubmit} className="space-y-5">
+  <div>
+    <h2 className="font-display text-lg font-semibold text-foreground">Shipping address</h2>
+  </div>
+
+  <div className="grid grid-cols-2 gap-3">
+    <div>
+      <label htmlFor="checkout-first-name" className="block text-foreground text-sm font-medium mb-1.5">
+        First name
+      </label>
+      <input
+        id="checkout-first-name"
+        type="text"
+        autoComplete="given-name"
+        required
+        value={props.address.firstName}
+        onChange={(e) => props.onFieldChange("firstName", e.target.value)}
+        disabled={props.loading}
+        className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50"
+      />
+    </div>
+    <div>
+      <label htmlFor="checkout-last-name" className="block text-foreground text-sm font-medium mb-1.5">
+        Last name
+      </label>
+      <input
+        id="checkout-last-name"
+        type="text"
+        autoComplete="family-name"
+        required
+        value={props.address.lastName}
+        onChange={(e) => props.onFieldChange("lastName", e.target.value)}
+        disabled={props.loading}
+        className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50"
+      />
+    </div>
+  </div>
+
+  <div>
+    <label htmlFor="checkout-company" className="block text-foreground text-sm font-medium mb-1.5">
+      Company <span className="text-muted-foreground font-normal">(optional)</span>
+    </label>
+    <input
+      id="checkout-company"
+      type="text"
+      autoComplete="organization"
+      value={props.address.company ?? ""}
+      onChange={(e) => props.onFieldChange("company", e.target.value)}
+      disabled={props.loading}
+      className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50"
+    />
+  </div>
+
+  <div>
+    <label htmlFor="checkout-line1" className="block text-foreground text-sm font-medium mb-1.5">
+      Address
+    </label>
+    <input
+      id="checkout-line1"
+      type="text"
+      autoComplete="address-line1"
+      required
+      value={props.address.line1}
+      onChange={(e) => props.onFieldChange("line1", e.target.value)}
+      disabled={props.loading}
+      placeholder="Street address"
+      className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50"
+    />
+  </div>
+
+  <div>
+    <label htmlFor="checkout-line2" className="block text-foreground text-sm font-medium mb-1.5">
+      Apt, suite, etc. <span className="text-muted-foreground font-normal">(optional)</span>
+    </label>
+    <input
+      id="checkout-line2"
+      type="text"
+      autoComplete="address-line2"
+      value={props.address.line2 ?? ""}
+      onChange={(e) => props.onFieldChange("line2", e.target.value)}
+      disabled={props.loading}
+      className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50"
+    />
+  </div>
+
+  <div className="grid grid-cols-3 gap-3">
+    <div>
+      <label htmlFor="checkout-city" className="block text-foreground text-sm font-medium mb-1.5">
+        City
+      </label>
+      <input
+        id="checkout-city"
+        type="text"
+        autoComplete="address-level2"
+        required
+        value={props.address.city}
+        onChange={(e) => props.onFieldChange("city", e.target.value)}
+        disabled={props.loading}
+        className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50"
+      />
+    </div>
+    <div>
+      <label htmlFor="checkout-state" className="block text-foreground text-sm font-medium mb-1.5">
+        State
+      </label>
+      <input
+        id="checkout-state"
+        type="text"
+        autoComplete="address-level1"
+        required
+        value={props.address.state}
+        onChange={(e) => props.onFieldChange("state", e.target.value)}
+        disabled={props.loading}
+        className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50"
+      />
+    </div>
+    <div>
+      <label htmlFor="checkout-postal-code" className="block text-foreground text-sm font-medium mb-1.5">
+        ZIP code
+      </label>
+      <input
+        id="checkout-postal-code"
+        type="text"
+        autoComplete="postal-code"
+        required
+        value={props.address.postalCode}
+        onChange={(e) => props.onFieldChange("postalCode", e.target.value)}
+        disabled={props.loading}
+        className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50"
+      />
+    </div>
+  </div>
+
+  <div>
+    <label htmlFor="checkout-country" className="block text-foreground text-sm font-medium mb-1.5">
+      Country
+    </label>
+    <select
+      id="checkout-country"
+      autoComplete="country"
+      value={props.address.country}
+      onChange={(e) => props.onFieldChange("country", e.target.value)}
+      disabled={props.loading}
+      className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-foreground text-sm focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50"
+    >
+      <option value="US">United States</option>
+      <option value="CA">Canada</option>
+      <option value="GB">United Kingdom</option>
+      <option value="AU">Australia</option>
+      <option value="DE">Germany</option>
+      <option value="FR">France</option>
+      <option value="JP">Japan</option>
+    </select>
+  </div>
+
+  <div>
+    <label htmlFor="checkout-phone" className="block text-foreground text-sm font-medium mb-1.5">
+      Phone <span className="text-muted-foreground font-normal">(optional)</span>
+    </label>
+    <input
+      id="checkout-phone"
+      type="tel"
+      autoComplete="tel"
+      value={props.address.phone ?? ""}
+      onChange={(e) => props.onFieldChange("phone", e.target.value)}
+      disabled={props.loading}
+      className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-foreground text-sm placeholder:text-muted-foreground/50 focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground disabled:opacity-50"
+    />
+  </div>
+
+  {props.error && (
+    <p className="text-destructive text-sm">{props.error}</p>
+  )}
+
+  <div className="flex items-center gap-3">
+    <button
+      type="button"
+      onClick={props.onBack}
+      disabled={props.loading}
+      className="rounded-md border border-border px-4 py-2.5 text-foreground text-sm transition-colors hover:bg-muted disabled:opacity-50"
+    >
+      Back
+    </button>
+    <button
+      type="submit"
+      disabled={props.loading}
+      className="flex-1 rounded-md bg-foreground py-2.5 text-center font-medium text-background text-sm transition-opacity hover:opacity-85 disabled:opacity-50"
+    >
+      {props.loading ? "Saving…" : "Continue to shipping method"}
+    </button>
+  </div>
+</form>
+) : (
+<form onSubmit={props.onSubmit} className="space-y-5">
+  <div className="flex items-center justify-between">
+    <h2 className="font-display text-lg font-semibold text-foreground">Shipping method</h2>
+    <button
+      type="button"
+      onClick={props.onEditAddress}
+      className="text-sm text-muted-foreground underline-offset-2 hover:underline"
+    >
+      Edit address
+    </button>
+  </div>
+
+  <div className="rounded-md border border-border bg-muted/30 px-3 py-2.5 text-sm text-foreground">
+    <p>{props.address.firstName} {props.address.lastName}</p>
+    <p className="text-muted-foreground">{props.address.line1}{props.address.line2 ? `, ${props.address.line2}` : ""}</p>
+    <p className="text-muted-foreground">{props.address.city}, {props.address.state} {props.address.postalCode}</p>
+  </div>
+
+  {props.loadingRates ? (
+    <div className="space-y-3">
+      <div className="h-16 animate-pulse rounded-md bg-muted" />
+      <div className="h-16 animate-pulse rounded-md bg-muted" />
+    </div>
+  ) : props.rates.length > 0 ? (
+    <fieldset className="space-y-2" aria-label="Shipping methods">
+      {props.rates.map((rate) => (
+        <label
+          key={rate.id}
+          data-testid={`shipping-rate-${rate.id}`}
+          className={`flex cursor-pointer items-center gap-3 rounded-md border px-4 py-3 transition-colors ${
+            props.selectedRateId === rate.id
+              ? "border-foreground bg-muted/50"
+              : "border-border hover:border-muted-foreground/50"
+          }`}
+        >
+          <input
+            type="radio"
+            name="shipping-rate"
+            value={rate.id}
+            checked={props.selectedRateId === rate.id}
+            onChange={() => props.onRateSelect(rate.id)}
+            disabled={props.selectingRate}
+            className="accent-foreground"
+          />
+          <span className="flex-1">
+            <span className="block text-sm font-medium text-foreground">{rate.name}</span>
+            <span className="block text-xs text-muted-foreground">{rate.zoneName}</span>
+          </span>
+          <span className="text-sm font-medium text-foreground">
+            {rate.price === 0 ? "Free" : props.formatPrice(rate.price)}
+          </span>
+        </label>
+      ))}
+    </fieldset>
+  ) : (
+    <div className="rounded-md border border-border px-4 py-3">
+      <p className="text-sm font-medium text-foreground">Free Shipping</p>
+      <p className="text-xs text-muted-foreground">No shipping rates configured</p>
+    </div>
+  )}
+
+  {props.ratesError && (
+    <p className="text-destructive text-sm">{props.ratesError}</p>
+  )}
+
+  <div className="flex items-center gap-3">
+    <button
+      type="button"
+      onClick={props.onBack}
+      disabled={props.selectingRate}
+      className="rounded-md border border-border px-4 py-2.5 text-foreground text-sm transition-colors hover:bg-muted disabled:opacity-50"
+    >
+      Back
+    </button>
+    <button
+      type="submit"
+      disabled={props.selectingRate || props.loadingRates}
+      className="flex-1 rounded-md bg-foreground py-2.5 text-center font-medium text-background text-sm transition-opacity hover:opacity-85 disabled:opacity-50"
+    >
+      {props.selectingRate ? "Saving…" : "Continue to payment"}
+    </button>
+  </div>
+</form>
+)}

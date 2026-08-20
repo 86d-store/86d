@@ -1,0 +1,17 @@
+{props.isLoading ? (
+  <span className="text-neutral-400 text-xs">Loading tax rates...</span>
+) : props.rates.length === 0 ? (
+  <span className="text-neutral-400 text-xs">No tax applicable</span>
+) : (
+  <div className="text-neutral-600 text-xs">
+    {props.rates.map((r, i) => (
+      <div key={`${r.name}-${i}`}>
+        {r.name}:{" "}
+        {r.type === "percentage"
+          ? `${(r.rate * 100).toFixed(2)}%`
+          : props.formatCurrency(r.rate)}
+        {r.inclusive ? " (included)" : ""}
+      </div>
+    ))}
+  </div>
+)}

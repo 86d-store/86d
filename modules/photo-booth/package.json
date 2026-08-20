@@ -1,0 +1,60 @@
+{
+	"name": "@86d-app/photo-booth",
+	"version": "0.0.41",
+	"description": "Photo booth module for 86d commerce platform — capture, stream, and share photos at events",
+	"keywords": [
+		"commerce",
+		"photo-booth",
+		"events",
+		"photos",
+		"86d"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/photo-booth"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/photo-booth-admin": {
+			"types": "./src/admin/components/photo-booth-admin.tsx",
+			"default": "./src/admin/components/photo-booth-admin.tsx"
+		},
+		"./admin/components/photo-stream-list": {
+			"types": "./src/admin/components/photo-stream-list.tsx",
+			"default": "./src/admin/components/photo-stream-list.tsx"
+		},
+		"./components": {
+			"types": "./src/store/components/mdx.tsx",
+			"default": "./src/store/components/mdx.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

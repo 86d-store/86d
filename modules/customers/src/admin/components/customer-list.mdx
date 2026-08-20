@@ -1,0 +1,131 @@
+<div>
+  <div className="mb-6 flex items-start justify-between">
+    <div>
+      <h1 className="font-bold text-2xl text-foreground">Customers</h1>
+      <p className="mt-1 text-muted-foreground text-sm">
+        {props.subtitle}
+      </p>
+    </div>
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={props.onImport}
+        className="flex items-center gap-2 rounded-md border border-border px-3 py-2 font-medium text-foreground text-sm transition-colors hover:bg-muted"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" x2="12" y1="3" y2="15" />
+        </svg>
+        Import CSV
+      </button>
+      <button
+        type="button"
+        disabled={props.exportDisabled}
+        onClick={props.onExport}
+        className="flex items-center gap-2 rounded-md border border-border px-3 py-2 font-medium text-foreground text-sm transition-colors hover:bg-muted disabled:opacity-50"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" x2="12" y1="15" y2="3" />
+        </svg>
+        {props.exportLabel}
+      </button>
+    </div>
+  </div>
+
+  <div className="mb-4 flex items-center gap-3">
+    <input
+      type="search"
+      placeholder="Search by name or email…"
+      value={props.search}
+      onChange={(e) => props.onSearchChange(e.target.value)}
+      className="h-9 w-full max-w-sm rounded-md border border-border bg-background px-3 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+    />
+    {props.allTags && props.allTags.length > 0 && (
+      <select
+        value={props.tagFilter}
+        onChange={(e) => props.onTagFilterChange(e.target.value)}
+        className="h-9 rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        <option value="">All tags</option>
+        {props.allTags.map((t) => (
+          <option key={t.tag} value={t.tag}>
+            {t.tag} ({t.count})
+          </option>
+        ))}
+      </select>
+    )}
+  </div>
+
+  <div className="overflow-hidden rounded-lg border border-border bg-card">
+    <table className="w-full">
+      <thead>
+        <tr className="border-border border-b bg-muted/50">
+          <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wide">
+            Name
+          </th>
+          <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wide">
+            Email
+          </th>
+          <th className="hidden px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wide sm:table-cell">
+            Tags
+          </th>
+          <th className="hidden px-4 py-3 text-right font-semibold text-muted-foreground text-xs uppercase tracking-wide lg:table-cell">
+            Joined
+          </th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-border">
+        {props.tableBody}
+      </tbody>
+    </table>
+  </div>
+
+  {props.showPagination && (
+    <div className="mt-4 flex items-center justify-center gap-2">
+      <button
+        type="button"
+        onClick={props.onPrevPage}
+        disabled={props.page === 1}
+        className="rounded-md border border-border px-3 py-1.5 text-foreground text-sm hover:bg-muted disabled:opacity-50"
+      >
+        Previous
+      </button>
+      <span className="text-muted-foreground text-sm">
+        Page {props.page} of {props.totalPages}
+      </span>
+      <button
+        type="button"
+        onClick={props.onNextPage}
+        disabled={props.page === props.totalPages}
+        className="rounded-md border border-border px-3 py-1.5 text-foreground text-sm hover:bg-muted disabled:opacity-50"
+      >
+        Next
+      </button>
+    </div>
+  )}
+</div>

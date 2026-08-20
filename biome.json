@@ -1,0 +1,185 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.5.6/schema.json",
+	"linter": {
+		"domains": {
+			"next": "all",
+			"react": "recommended",
+			"tailwind": "all",
+			"turborepo": "all",
+			"types": "all"
+		},
+		"rules": {
+			"complexity": {
+				"useMaxParams": "warn"
+			},
+			"correctness": {
+				"noPrivateImports": "error",
+				"noUnusedImports": {
+					"level": "error",
+					"fix": "safe"
+				},
+				"noUnusedVariables": {
+					"level": "warn",
+					"fix": "safe"
+				},
+				"useExhaustiveDependencies": "warn",
+				"useHookAtTopLevel": "warn"
+			},
+			"nursery": {
+				"recommended": true,
+				"useSortedClasses": {
+					"level": "error",
+					"fix": "safe"
+				}
+			},
+			"performance": {
+				"noAccumulatingSpread": "error",
+				"noBarrelFile": "error",
+				"noDelete": "error",
+				"noImgElement": "warn",
+				"noNamespaceImport": "warn",
+				"noReExportAll": "error"
+			},
+			"security": {
+				"noDangerouslySetInnerHtml": "warn",
+				"noGlobalEval": "error"
+			},
+			"style": {
+				"noEnum": "error",
+				"noExportedImports": "warn",
+				"noInferrableTypes": "error",
+				"noNamespace": "error",
+				"noNonNullAssertion": "error",
+				"noParameterAssign": "error",
+				"noProcessEnv": "warn",
+				"noYodaExpression": "error",
+				"useCollapsedIf": "error",
+				"useFilenamingConvention": {
+					"level": "error",
+					"options": {
+						"filenameCases": ["kebab-case"]
+					}
+				},
+				"useThrowOnlyError": "error"
+			},
+			"suspicious": {
+				"noConsole": {
+					"level": "warn",
+					"options": {
+						"allow": ["error", "warn"]
+					}
+				},
+				"noArrayIndexKey": "warn",
+				"noEvolvingTypes": "error",
+				"noFocusedTests": "off",
+				"noImplicitAnyLet": "error",
+				"noImportCycles": "error",
+				"noTsIgnore": "error",
+				"noUndeclaredEnvVars": "warn",
+				"useErrorMessage": "error"
+			}
+		}
+	},
+	"assist": {
+		"actions": {
+			"source": {
+				"noDuplicateClasses": "on",
+				"organizeImports": "on",
+				"useSortedPackageJson": "on"
+			}
+		}
+	},
+	"overrides": [
+		{
+			"includes": ["apps/store/components/ui/**"],
+			"linter": {
+				"rules": {
+					"a11y": {
+						"useSemanticElements": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": [
+				"**/__tests__/**",
+				"**/*.test.ts",
+				"**/*.test.tsx",
+				"**/e2e/**"
+			],
+			"linter": {
+				"domains": {
+					"test": "all",
+					"playwright": "all"
+				},
+				"rules": {
+					"nursery": {
+						"noConditionalExpect": "warn",
+						"noPlaywrightNetworkidle": "warn",
+						"noPlaywrightWaitForSelector": "warn",
+						"noPlaywrightWaitForTimeout": "warn",
+						"useConsistentTestIt": "off",
+						"useExpect": "warn"
+					},
+					"style": {
+						"noProcessEnv": "off"
+					},
+					"suspicious": {
+						"noConsole": "off",
+						"noFocusedTests": "error",
+						"noSkippedTests": "warn"
+					}
+				}
+			}
+		},
+		{
+			"includes": [
+				"internals/generators/**",
+				"apps/registry/**",
+				"internals/lib/**",
+				"**/*.config.ts",
+				"packages/env/**",
+				"packages/utils/src/logger.ts"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"noProcessEnv": "off"
+					},
+					"suspicious": {
+						"noConsole": "off"
+					}
+				}
+			}
+		}
+	],
+	"files": {
+		"includes": [
+			"apps/**/*",
+			"modules/**/*",
+			"packages/**/*",
+			"tests/**/*",
+			"templates/**/*",
+			"internals/**/*",
+			"!**/dist",
+			"!**/.dist",
+			"!**/.turbo",
+			"!**/.vercel",
+			"!**/.next",
+			"!**/.cache",
+			"!**/node_modules",
+			"!**/src/prisma",
+			"!**/src/prisma-edge",
+			"!**/e2e/.results",
+			"!**/e2e/.auth",
+			"!apps/registry/registry.json",
+			"!apps/registry/registry.lock.json",
+			"!packages/db/drizzle"
+		]
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	}
+}

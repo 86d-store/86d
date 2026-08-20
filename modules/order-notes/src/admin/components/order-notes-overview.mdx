@@ -1,0 +1,27 @@
+<div className="space-y-6">
+  <div>
+    <h2 className="font-semibold text-foreground text-lg">
+      Order Notes{" "}
+      <span className="font-normal text-muted-foreground text-sm">
+        ({props.total})
+      </span>
+    </h2>
+    <p className="text-muted-foreground text-sm">
+      Manage customer comments, admin notes, and system notifications across all orders
+    </p>
+  </div>
+
+  {props.summaryCards}
+
+  {props.filters}
+
+  {props.error && (
+    <p className="text-destructive text-sm" role="alert">
+      {props.error}
+    </p>
+  )}
+
+  {props.notesList}
+
+  {props.pagination}
+</div>

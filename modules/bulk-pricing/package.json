@@ -1,0 +1,58 @@
+{
+	"name": "@86d-app/bulk-pricing",
+	"version": "0.0.41",
+	"description": "Quantity-based tiered pricing — set volume discounts for products so customers pay less when buying in bulk",
+	"keywords": [
+		"commerce",
+		"bulk-pricing",
+		"volume-discounts",
+		"tiered-pricing",
+		"wholesale",
+		"quantity-breaks"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/bulk-pricing"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/bulk-pricing-detail": {
+			"types": "./src/admin/components/bulk-pricing-detail.tsx",
+			"default": "./src/admin/components/bulk-pricing-detail.tsx"
+		},
+		"./admin/components/bulk-pricing-list": {
+			"types": "./src/admin/components/bulk-pricing-list.tsx",
+			"default": "./src/admin/components/bulk-pricing-list.tsx"
+		},
+		"./components": {
+			"types": "./src/store/components/mdx.tsx",
+			"default": "./src/store/components/mdx.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

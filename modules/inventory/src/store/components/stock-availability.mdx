@@ -1,0 +1,24 @@
+{props.status === "out-of-stock" ? (
+  <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 dark:border-red-800 dark:bg-red-950/30">
+    <p className="font-medium text-red-700 text-sm dark:text-red-400">Out of stock</p>
+  </div>
+) : props.status === "backorder" ? (
+  <div className="rounded-md border border-blue-200 bg-blue-50 px-3 py-2 dark:border-blue-800 dark:bg-blue-950/30">
+    <p className="font-medium text-blue-700 text-sm dark:text-blue-400">Available on backorder</p>
+    <p className="mt-0.5 text-blue-600 text-xs dark:text-blue-400/80">Ships when available</p>
+  </div>
+) : (
+  <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 dark:border-emerald-800 dark:bg-emerald-950/30">
+    <div className="flex items-center justify-between">
+      <p className="font-medium text-emerald-700 text-sm dark:text-emerald-400">
+        {props.isLow ? "Low stock" : "In stock"}
+      </p>
+      {props.quantityText && (
+        <p className="text-emerald-600 text-xs dark:text-emerald-400/80">{props.quantityText}</p>
+      )}
+    </div>
+    {props.isLow && (
+      <p className="mt-0.5 text-emerald-600 text-xs dark:text-emerald-400/80">Order soon — limited availability</p>
+    )}
+  </div>
+)}

@@ -1,0 +1,17 @@
+node_modules
+.next
+.turbo
+.git
+.github
+.changeset
+.env
+.env.local
+.env.*.local
+*.log
+logs/
+coverage/
+playwright-report/
+test-results/
+dist/
+build/
+*.tsbuildinfo

@@ -1,0 +1,8 @@
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+node_modules/
+generated/
+.DS_Store

@@ -1,0 +1,52 @@
+<div className="rounded-xl border border-border bg-background p-4">
+  <div className="flex items-start justify-between gap-4">
+    <div>
+      <div className="flex items-center gap-2">
+        <span className="font-medium text-foreground text-sm">
+          {props.planName}
+        </span>
+        <span
+          className={`inline-block rounded-full px-2.5 py-0.5 font-medium text-xs capitalize ${props.statusStyle}`}
+        >
+          {props.statusLabel}
+        </span>
+      </div>
+      <div className="mt-1 space-y-0.5 text-muted-foreground text-xs">
+        <p>
+          Current period: {props.periodStartFormatted} – {props.periodEndFormatted}
+        </p>
+        {props.trialEndFormatted && (
+          <p>Trial ends: {props.trialEndFormatted}</p>
+        )}
+        {props.cancelAtPeriodEnd && (
+          <p className="font-medium text-yellow-700 dark:text-yellow-300">
+            Cancels at end of period
+          </p>
+        )}
+        {props.cancelledAtFormatted && (
+          <p>Cancelled: {props.cancelledAtFormatted}</p>
+        )}
+      </div>
+    </div>
+    {props.showCancelButtons && (
+      <div className="flex shrink-0 gap-2">
+        <button
+          type="button"
+          disabled={props.cancelling}
+          onClick={() => props.onCancel(true)}
+          className="rounded-lg border border-border bg-background px-3 py-1.5 text-foreground text-xs transition-colors hover:bg-muted disabled:opacity-60"
+        >
+          {props.cancelling ? "…" : "Cancel at period end"}
+        </button>
+        <button
+          type="button"
+          disabled={props.cancelling}
+          onClick={() => props.onCancel(false)}
+          className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-red-700 text-xs transition-opacity hover:bg-red-100 disabled:opacity-60 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300"
+        >
+          Cancel now
+        </button>
+      </div>
+    )}
+  </div>
+</div>

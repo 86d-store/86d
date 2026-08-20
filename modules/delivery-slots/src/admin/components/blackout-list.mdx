@@ -1,0 +1,83 @@
+# Blackout Dates
+
+Block specific dates from delivery. Bookings cannot be made for blackout dates.
+
+<div className="space-y-4">
+  <form onSubmit={props.onSubmitCreate} className="flex flex-wrap items-end gap-3">
+    <div>
+      <label htmlFor="bo-date" className="mb-1 block font-medium text-foreground text-sm">Date</label>
+      <input
+        id="bo-date"
+        type="date"
+        required
+        value={props.date}
+        onChange={(e) => props.onDateChange(e.target.value)}
+        className="rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      />
+    </div>
+    <div className="flex-1 min-w-40">
+      <label htmlFor="bo-reason" className="mb-1 block font-medium text-foreground text-sm">Reason (optional)</label>
+      <input
+        id="bo-reason"
+        type="text"
+        value={props.reason}
+        onChange={(e) => props.onReasonChange(e.target.value)}
+        className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        placeholder="Holiday, maintenance…"
+      />
+    </div>
+    <button
+      type="submit"
+      disabled={props.isCreating || !props.date}
+      className="rounded-md bg-foreground px-4 py-2 font-medium text-background text-sm hover:opacity-90 disabled:opacity-50"
+    >
+      {props.isCreating ? "Adding…" : "Add Blackout Date"}
+    </button>
+  </form>
+  {props.formError && (
+    <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-destructive text-sm">{props.formError}</div>
+  )}
+
+  {props.loading ? (
+    <div className="py-8 text-center text-muted-foreground text-sm">Loading blackout dates…</div>
+  ) : props.blackouts.length === 0 ? (
+    <div className="rounded-lg border border-border bg-card p-10 text-center">
+      <p className="font-medium text-foreground text-sm">No blackout dates set</p>
+      <p className="mt-1 text-muted-foreground text-xs">Add dates when deliveries should not be available.</p>
+    </div>
+  ) : (
+    <div className="overflow-x-auto rounded-lg border border-border">
+      <table className="w-full text-left text-sm">
+        <thead className="border-border border-b bg-muted/50">
+          <tr>
+            <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs">Date</th>
+            <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs">Reason</th>
+            <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs">Added</th>
+            <th className="px-4 py-2.5 font-medium text-muted-foreground text-xs" />
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {props.blackouts.map((b) => (
+            <tr key={b.id} className="hover:bg-muted/30">
+              <td className="px-4 py-3 font-medium text-foreground">{b.date}</td>
+              <td className="px-4 py-3 text-muted-foreground">{b.reason ?? "—"}</td>
+              <td className="px-4 py-3 text-muted-foreground text-xs">
+                {new Date(b.createdAt).toLocaleDateString()}
+              </td>
+              <td className="px-4 py-3">
+                <button
+                  type="button"
+                  disabled={props.isDeletingId === b.id}
+                  onClick={() => props.onDelete(b.id)}
+                  className="text-muted-foreground text-xs hover:text-destructive disabled:opacity-50"
+                >
+                  Remove
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</div>

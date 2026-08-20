@@ -1,0 +1,193 @@
+{props.isCompleted ? (
+  /* Completed state */
+  <div className="flex min-h-96 flex-col items-center justify-center gap-6 p-10 text-center">
+    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+    <div>
+      <p className="font-bold text-2xl text-foreground">Order Complete!</p>
+      <p className="mt-1 text-muted-foreground">Thank you for your order.</p>
+    </div>
+    <p className="text-muted-foreground text-sm">Returning to home screen…</p>
+  </div>
+) : !props.session ? (
+  /* Idle state */
+  <div className="flex min-h-96 flex-col items-center justify-center gap-6 p-10 text-center" onClick={props.onInteraction}>
+    <div>
+      <p className="font-bold text-3xl text-foreground">Welcome</p>
+      <p className="mt-2 text-muted-foreground">Tap to start your order</p>
+    </div>
+    {props.sessionError && (
+      <p className="text-destructive text-sm">{props.sessionError}</p>
+    )}
+    <button
+      type="button"
+      onClick={props.onStart}
+      disabled={props.isMutating}
+      className="rounded-xl bg-foreground px-8 py-4 font-semibold text-background text-lg transition-opacity hover:opacity-90 disabled:opacity-50"
+    >
+      {props.isMutating ? "Starting…" : "Start Order"}
+    </button>
+  </div>
+) : (
+  /* Active session */
+  <div className="flex min-h-96 flex-col gap-5 p-5" onClick={props.onInteraction}>
+    {/* Header */}
+    <div className="flex items-center justify-between">
+      <p className="font-bold text-foreground text-xl">Your Order</p>
+      <button
+        type="button"
+        onClick={props.onReset}
+        className="text-muted-foreground text-sm hover:text-foreground hover:underline"
+      >
+        Cancel
+      </button>
+    </div>
+
+    {/* Add item form */}
+    <form onSubmit={props.onAddItem} className="rounded-xl border border-border bg-muted/30 p-4">
+      <p className="mb-3 font-medium text-foreground text-sm">Add Item</p>
+      {props.addError && (
+        <p className="mb-2 text-destructive text-xs">{props.addError}</p>
+      )}
+      <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto_auto]">
+        <input
+          type="text"
+          value={props.itemName}
+          onChange={(e) => props.onItemNameChange(e.target.value)}
+          placeholder="Item name"
+          className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/40"
+        />
+        <div className="relative">
+          <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground text-sm">$</span>
+          <input
+            type="number"
+            value={props.itemPrice}
+            onChange={(e) => props.onItemPriceChange(e.target.value)}
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+            className="w-full rounded-lg border border-border bg-background py-2 pl-7 pr-3 text-sm outline-none focus:border-foreground/40 sm:w-28"
+          />
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => props.onItemQtyChange(Math.max(1, props.itemQty - 1))}
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-sm hover:bg-muted"
+          >
+            −
+          </button>
+          <span className="w-8 text-center text-sm font-medium">{props.itemQty}</span>
+          <button
+            type="button"
+            onClick={() => props.onItemQtyChange(props.itemQty + 1)}
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-sm hover:bg-muted"
+          >
+            +
+          </button>
+        </div>
+        <button
+          type="submit"
+          disabled={props.isMutating}
+          className="rounded-lg bg-foreground px-4 py-2 font-medium text-background text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          Add
+        </button>
+      </div>
+    </form>
+
+    {/* Items list */}
+    {props.session.items.length === 0 ? (
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border p-8 text-center">
+        <p className="text-muted-foreground text-sm">No items yet.</p>
+        <p className="text-muted-foreground text-xs">Use the form above to add items.</p>
+      </div>
+    ) : (
+      <div className="space-y-2">
+        {props.session.items.map((item) => (
+          <div key={item.id} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3">
+            <div className="flex-1 min-w-0">
+              <p className="truncate font-medium text-foreground text-sm">{item.name}</p>
+              <p className="text-muted-foreground text-xs">
+                {item.quantity} × {props.formatCurrency(item.price, props.currency)}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="font-medium text-foreground text-sm">
+                {props.formatCurrency(item.price * item.quantity, props.currency)}
+              </span>
+              <button
+                type="button"
+                onClick={() => props.onRemove(item.id)}
+                disabled={props.isMutating}
+                className="text-muted-foreground text-xs hover:text-destructive disabled:opacity-50"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* Totals */}
+    {props.session.items.length > 0 && (
+      <div className="space-y-2 rounded-xl border border-border bg-card p-4">
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Subtotal</span>
+          <span className="text-foreground">{props.formatCurrency(props.session.subtotal, props.currency)}</span>
+        </div>
+        {props.session.tax > 0 && (
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Tax</span>
+            <span className="text-foreground">{props.formatCurrency(props.session.tax, props.currency)}</span>
+          </div>
+        )}
+        {props.session.tip > 0 && (
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Tip</span>
+            <span className="text-foreground">{props.formatCurrency(props.session.tip, props.currency)}</span>
+          </div>
+        )}
+        <div className="h-px bg-border" />
+        <div className="flex justify-between font-semibold">
+          <span className="text-foreground">Total</span>
+          <span className="text-foreground">{props.formatCurrency(props.session.total, props.currency)}</span>
+        </div>
+      </div>
+    )}
+
+    {/* Payment + checkout */}
+    {props.session.items.length > 0 && (
+      <div className="space-y-3">
+        <div className="flex gap-2">
+          {["card", "cash", "contactless"].map((method) => (
+            <button
+              key={method}
+              type="button"
+              onClick={() => props.onPaymentMethodChange(method)}
+              className={`flex-1 rounded-lg border py-2 text-sm font-medium capitalize transition-all ${
+                props.paymentMethod === method
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+              }`}
+            >
+              {method}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={props.onComplete}
+          disabled={props.isMutating}
+          className="w-full rounded-xl bg-foreground py-3.5 font-semibold text-background text-base transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          {props.isMutating ? "Processing…" : `Pay ${props.formatCurrency(props.session.total, props.currency)}`}
+        </button>
+      </div>
+    )}
+  </div>
+)}

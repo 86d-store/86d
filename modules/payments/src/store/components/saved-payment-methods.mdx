@@ -1,0 +1,62 @@
+{!props.isAuthenticated ? (
+  <div className="rounded-xl border border-border bg-muted/30 p-6 text-center">
+    <p className="text-muted-foreground text-sm">Sign in to manage your saved payment methods.</p>
+  </div>
+) : props.isLoading ? (
+  <div className="space-y-3">
+    {Array.from({ length: 2 }).map((_, i) => (
+      <div
+        key={`skel-${i}`}
+        className="h-16 animate-pulse rounded-xl border border-border bg-muted/30"
+      />
+    ))}
+  </div>
+) : props.methods.length === 0 ? (
+  <div className="rounded-xl border border-dashed border-border p-6 text-center">
+    <p className="font-medium text-foreground text-sm">No saved payment methods</p>
+    <p className="mt-1 text-muted-foreground text-sm">
+      Your payment methods will appear here after your first purchase.
+    </p>
+  </div>
+) : (
+  <div className="space-y-3">
+    <h3 className="font-medium text-foreground text-sm">Saved payment methods</h3>
+    {props.deleteError && (
+      <p className="text-destructive text-sm" role="alert">{props.deleteError}</p>
+    )}
+    <div className="divide-y divide-border rounded-xl border border-border overflow-hidden">
+      {props.methods.map((method) => (
+        <div key={method.id} className="flex items-center gap-4 bg-card px-4 py-3">
+          <div className="flex h-9 w-14 items-center justify-center rounded border border-border bg-muted text-muted-foreground text-xs font-medium uppercase">
+            {method.brand ?? method.type}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-foreground text-sm">
+              {method.last4 ? `•••• •••• •••• ${method.last4}` : method.type}
+            </p>
+            {method.expiryMonth && method.expiryYear && (
+              <p className="text-muted-foreground text-xs">
+                Expires {String(method.expiryMonth).padStart(2, "0")}/{String(method.expiryYear).slice(-2)}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {method.isDefault && (
+              <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground text-xs">
+                Default
+              </span>
+            )}
+            <button
+              type="button"
+              disabled={props.deletingId === method.id}
+              onClick={() => props.onDelete(method.id)}
+              className="text-destructive text-xs hover:underline disabled:opacity-50"
+            >
+              {props.deletingId === method.id ? "Removing…" : "Remove"}
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}

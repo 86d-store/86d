@@ -1,0 +1,64 @@
+{
+	"name": "@86d-app/reviews",
+	"version": "0.0.41",
+	"description": "Product reviews and ratings module for 86d commerce platform",
+	"keywords": [
+		"commerce",
+		"reviews",
+		"ratings",
+		"moderation",
+		"86d"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/reviews"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/review-analytics": {
+			"types": "./src/admin/components/review-analytics.tsx",
+			"default": "./src/admin/components/review-analytics.tsx"
+		},
+		"./admin/components/review-list": {
+			"types": "./src/admin/components/review-list.tsx",
+			"default": "./src/admin/components/review-list.tsx"
+		},
+		"./admin/components/review-moderation": {
+			"types": "./src/admin/components/review-moderation.tsx",
+			"default": "./src/admin/components/review-moderation.tsx"
+		},
+		"./components": {
+			"types": "./src/store/components/mdx.tsx",
+			"default": "./src/store/components/mdx.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/mdx": "catalog:mdx",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

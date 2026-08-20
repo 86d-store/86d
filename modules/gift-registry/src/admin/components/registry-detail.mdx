@@ -1,0 +1,99 @@
+{props.loading ? (
+  <div className="py-12 text-center text-muted-foreground">Loading registry…</div>
+) : !props.registry ? (
+  <div className="py-12 text-center text-muted-foreground">Registry not found.</div>
+) : (
+  <div className="space-y-6">
+    <div>
+      <h1 className="text-2xl font-bold">{props.registry.title}</h1>
+      <p className="text-muted-foreground">
+        by {props.registry.customerName} · {props.registry.type} · {props.registry.visibility}
+      </p>
+      {props.registry.description && (
+        <p className="mt-2 text-sm">{props.registry.description}</p>
+      )}
+    </div>
+
+    <div className="grid grid-cols-3 gap-4">
+      <div className="rounded-lg border p-4">
+        <div className="text-sm text-muted-foreground">Status</div>
+        <div className="text-lg font-semibold capitalize">{props.registry.status}</div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-sm text-muted-foreground">Progress</div>
+        <div className="text-lg font-semibold">
+          {props.registry.purchasedCount}/{props.registry.itemCount} items
+        </div>
+      </div>
+      <div className="rounded-lg border p-4">
+        <div className="text-sm text-muted-foreground">Share Link</div>
+        <div className="text-sm font-mono truncate">/gift-registry/{props.registry.slug}</div>
+      </div>
+    </div>
+
+    <div>
+      <h2 className="mb-3 text-lg font-semibold">Items</h2>
+      {props.items.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No items added yet.</p>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border">
+          <table className="w-full text-sm">
+            <thead className="border-b bg-muted/50">
+              <tr>
+                <th className="px-4 py-3 text-left font-medium">Product</th>
+                <th className="px-4 py-3 text-left font-medium">Price</th>
+                <th className="px-4 py-3 text-left font-medium">Qty</th>
+                <th className="px-4 py-3 text-left font-medium">Received</th>
+                <th className="px-4 py-3 text-left font-medium">Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              {props.items.map((item) => (
+                <tr key={item.id} className="border-b last:border-0">
+                  <td className="px-4 py-3">
+                    <span className="font-medium">{item.productName}</span>
+                    {item.variantName && (
+                      <span className="ml-1 text-muted-foreground">({item.variantName})</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">${(item.priceInCents / 100).toFixed(2)}</td>
+                  <td className="px-4 py-3">{item.quantityDesired}</td>
+                  <td className="px-4 py-3">{item.quantityReceived}</td>
+                  <td className="px-4 py-3">{props.priorityLabels[item.priority] || item.priority}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+
+    <div>
+      <h2 className="mb-3 text-lg font-semibold">Recent Purchases</h2>
+      {props.purchases.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No purchases yet.</p>
+      ) : (
+        <div className="space-y-2">
+          {props.purchases.map((p) => (
+            <div key={p.id} className="flex items-center justify-between rounded-lg border p-3">
+              <div>
+                <span className="font-medium">
+                  {p.isAnonymous ? "Anonymous" : p.purchaserName}
+                </span>
+                <span className="ml-2 text-muted-foreground">
+                  × {p.quantity} · ${(p.amountInCents / 100).toFixed(2)}
+                </span>
+                {p.giftMessage && (
+                  <p className="mt-1 text-sm text-muted-foreground italic">"{p.giftMessage}"</p>
+                )}
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {new Date(p.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+)}

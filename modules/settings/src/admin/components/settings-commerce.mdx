@@ -1,0 +1,127 @@
+<div>
+  <div className="mb-6">
+    <h1 className="font-bold text-2xl text-foreground">Commerce Settings</h1>
+    <p className="mt-1 text-muted-foreground text-sm">
+      Configure currency, units, and order defaults
+    </p>
+  </div>
+
+  {props.loading ? (
+    <div className="space-y-4">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={`skeleton-${i}`} className="h-16 animate-pulse rounded-lg bg-muted" />
+      ))}
+    </div>
+  ) : (
+    <div className="space-y-6">
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h2 className="mb-4 font-semibold text-foreground text-lg">Currency & Units</h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div>
+            <label className="mb-1.5 block font-medium text-foreground text-sm">
+              Currency
+            </label>
+            <select
+              value={props.currency}
+              onChange={(e) => props.onCurrencyChange(e.target.value)}
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="">Select currency</option>
+              <option value="USD">USD - US Dollar</option>
+              <option value="EUR">EUR - Euro</option>
+              <option value="GBP">GBP - British Pound</option>
+              <option value="CAD">CAD - Canadian Dollar</option>
+              <option value="AUD">AUD - Australian Dollar</option>
+              <option value="JPY">JPY - Japanese Yen</option>
+              <option value="INR">INR - Indian Rupee</option>
+              <option value="BRL">BRL - Brazilian Real</option>
+              <option value="MXN">MXN - Mexican Peso</option>
+            </select>
+          </div>
+          <div>
+            <label className="mb-1.5 block font-medium text-foreground text-sm">
+              Weight Unit
+            </label>
+            <select
+              value={props.weightUnit}
+              onChange={(e) => props.onWeightUnitChange(e.target.value)}
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="">Select unit</option>
+              <option value="lb">Pounds (lb)</option>
+              <option value="kg">Kilograms (kg)</option>
+              <option value="oz">Ounces (oz)</option>
+              <option value="g">Grams (g)</option>
+            </select>
+          </div>
+          <div>
+            <label className="mb-1.5 block font-medium text-foreground text-sm">
+              Dimension Unit
+            </label>
+            <select
+              value={props.dimensionUnit}
+              onChange={(e) => props.onDimensionUnitChange(e.target.value)}
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="">Select unit</option>
+              <option value="in">Inches (in)</option>
+              <option value="cm">Centimeters (cm)</option>
+              <option value="mm">Millimeters (mm)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h2 className="mb-4 font-semibold text-foreground text-lg">Orders</h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block font-medium text-foreground text-sm">
+              Order Number Prefix
+            </label>
+            <input
+              type="text"
+              value={props.orderPrefix}
+              onChange={(e) => props.onOrderPrefixChange(e.target.value)}
+              placeholder="ORD-"
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            <p className="mt-1 text-muted-foreground text-xs">
+              Prefix added to order numbers (e.g., ORD-1001)
+            </p>
+          </div>
+          <div>
+            <label className="mb-1.5 block font-medium text-foreground text-sm">
+              Prices Include Tax
+            </label>
+            <select
+              value={props.taxIncluded}
+              onChange={(e) => props.onTaxIncludedChange(e.target.value)}
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="">Select</option>
+              <option value="true">Yes - Prices include tax</option>
+              <option value="false">No - Tax added at checkout</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={props.onSave}
+          disabled={props.saving}
+          className="rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm hover:bg-primary/90 disabled:opacity-50"
+        >
+          {props.saving ? "Saving\u2026" : "Save Changes"}
+        </button>
+        {props.saved && (
+          <span className="text-green-600 text-sm dark:text-green-400">
+            Settings saved
+          </span>
+        )}
+      </div>
+    </div>
+  )}
+</div>

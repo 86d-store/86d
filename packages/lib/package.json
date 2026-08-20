@@ -1,0 +1,37 @@
+{
+	"name": "lib",
+	"version": "0.0.4",
+	"private": true,
+	"license": "MIT",
+	"type": "module",
+	"exports": {
+		"./carrier-tracking": {
+			"types": "./src/carrier-tracking.ts",
+			"default": "./src/carrier-tracking.ts"
+		},
+		"./llms-content": {
+			"types": "./src/llms-content.ts",
+			"default": "./src/llms-content.ts"
+		},
+		"./webhook-delivery": {
+			"types": "./src/webhook-delivery.ts",
+			"default": "./src/webhook-delivery.ts"
+		},
+		"./notification-settings": {
+			"types": "./src/notification-settings.ts",
+			"default": "./src/notification-settings.ts"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"typescript": "catalog:"
+	}
+}

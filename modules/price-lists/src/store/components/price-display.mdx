@@ -1,0 +1,15 @@
+<div className="inline-flex flex-col gap-0.5">
+  <div className="flex items-baseline gap-2">
+    <span className="font-semibold text-foreground text-lg">
+      {props.price}
+    </span>
+    {props.compareAtPrice && (
+      <span className="text-muted-foreground text-sm line-through">
+        {props.compareAtPrice}
+      </span>
+    )}
+  </div>
+  <span className="text-muted-foreground text-xs">
+    {props.label} · {props.priceListName}
+  </span>
+</div>

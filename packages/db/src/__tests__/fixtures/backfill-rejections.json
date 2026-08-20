@@ -1,0 +1,8 @@
+[
+	{
+		"module": "cart",
+		"entityType": "cart",
+		"entityId": "invalid-cart",
+		"reason": "zod:expiresAt: Invalid input"
+	}
+]

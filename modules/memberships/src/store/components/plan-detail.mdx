@@ -1,0 +1,15 @@
+import Link from "next/link";
+
+<div className="mx-auto max-w-2xl space-y-8">
+  <div>
+    <nav className="mb-4 flex items-center gap-2 text-muted-foreground text-sm">
+      <Link href="/memberships" className="transition-colors hover:text-foreground">Memberships</Link>
+      <span>/</span>
+      <span className="text-foreground">{props.planName}</span>
+    </nav>
+    {props.header}
+  </div>
+  {props.benefitsSection}
+  {props.featuresSection}
+  {props.actionSection}
+</div>

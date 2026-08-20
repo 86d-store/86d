@@ -1,0 +1,55 @@
+{
+	"name": "@86d-app/analytics",
+	"version": "0.0.41",
+	"description": "Event tracking and analytics module for 86d commerce platform",
+	"keywords": [
+		"commerce",
+		"analytics",
+		"tracking",
+		"events",
+		"86d"
+	],
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "modules/analytics"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*",
+		"./admin/components/analytics-admin": {
+			"types": "./src/admin/components/analytics-admin.tsx",
+			"default": "./src/admin/components/analytics-admin.tsx"
+		},
+		"./admin/components/analytics-settings": {
+			"types": "./src/admin/components/analytics-settings.tsx",
+			"default": "./src/admin/components/analytics-settings.tsx"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src",
+		"check:fix": "biome check --write --unsafe src",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@86d-app/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/react": "catalog:react",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}

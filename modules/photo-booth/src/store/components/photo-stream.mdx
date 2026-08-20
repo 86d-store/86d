@@ -1,0 +1,36 @@
+{props.isLoading ? (
+  <div className="columns-2 gap-3 sm:columns-3 lg:columns-4">
+    {Array.from({ length: 12 }).map((_, i) => (
+      <div
+        key={`skel-${i}`}
+        className={`mb-3 animate-pulse rounded-xl border border-border bg-muted/30 ${i % 3 === 0 ? "h-48" : i % 3 === 1 ? "h-32" : "h-40"}`}
+      />
+    ))}
+  </div>
+) : props.hasError ? (
+  <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center">
+    <p className="text-destructive text-sm">Could not load photo stream.</p>
+  </div>
+) : props.photos.length === 0 ? (
+  <div className="rounded-xl border border-dashed border-border p-10 text-center">
+    <p className="font-medium text-foreground">Live Photo Wall</p>
+    <p className="mt-1 text-muted-foreground text-sm">Photos will appear here as they are taken.</p>
+  </div>
+) : (
+  <div className="columns-2 gap-3 sm:columns-3 lg:columns-4">
+    {props.photos.map((photo) => (
+      <div key={photo.id} className="mb-3 overflow-hidden rounded-xl border border-border bg-muted">
+        <img
+          src={photo.thumbnailUrl ?? photo.imageUrl}
+          alt={photo.caption ?? "Event photo"}
+          className="w-full object-cover"
+        />
+        {photo.caption && (
+          <div className="px-3 py-2">
+            <p className="text-muted-foreground text-xs">{photo.caption}</p>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+)}

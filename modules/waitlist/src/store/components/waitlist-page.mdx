@@ -1,0 +1,11 @@
+<div>
+  <h2 className="mb-4 font-semibold text-foreground text-lg">My Waitlist</h2>
+  {props.error && (
+    <div className="mb-4 rounded-lg bg-red-50 p-3 text-red-600 text-sm dark:bg-red-950/50 dark:text-red-400">
+      {props.error}
+    </div>
+  )}
+  <div className="rounded-lg border border-border bg-card">
+    {props.content}
+  </div>
+</div>

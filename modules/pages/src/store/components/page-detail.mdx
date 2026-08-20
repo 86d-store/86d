@@ -1,0 +1,36 @@
+{props.isLoading ? (
+  <div className="animate-pulse space-y-4 py-8">
+    <div className="h-8 w-64 rounded bg-muted" />
+    <div className="h-4 w-full rounded bg-muted" />
+    <div className="h-4 w-full rounded bg-muted" />
+    <div className="h-4 w-2/3 rounded bg-muted" />
+  </div>
+) : !props.page ? (
+  <div className="rounded-xl border border-border/60 bg-muted/20 px-6 py-16 text-center">
+    <p className="font-medium text-foreground">Page not found</p>
+    <p className="mt-1 text-muted-foreground text-sm">
+      The page you're looking for doesn't exist.
+    </p>
+  </div>
+) : (
+  <article className="py-8">
+    {props.page.featuredImage && (
+      <img
+        src={props.page.featuredImage}
+        alt={props.page.title}
+        className="mb-6 aspect-[3/1] w-full rounded-xl object-cover"
+      />
+    )}
+    <h1 className="font-bold text-3xl text-foreground leading-tight">
+      {props.page.title}
+    </h1>
+    {props.page.excerpt && (
+      <p className="mt-3 text-lg text-muted-foreground leading-relaxed">
+        {props.page.excerpt}
+      </p>
+    )}
+    <div className="prose prose-neutral mt-6 max-w-none dark:prose-invert">
+      <div dangerouslySetInnerHTML={{ __html: props.page.content }} />
+    </div>
+  </article>
+)}

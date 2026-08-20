@@ -1,0 +1,296 @@
+{/* Step: confirmed */}
+{props.step === "confirmed" && props.confirmedAppointment ? (
+  <div className="mx-auto max-w-lg">
+    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center dark:border-emerald-800 dark:bg-emerald-900/20">
+      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h2 className="font-bold text-foreground text-xl">Booking Confirmed!</h2>
+      <p className="mt-1 text-muted-foreground text-sm">
+        Your appointment has been booked successfully.
+      </p>
+      <div className="mt-5 space-y-2 text-left">
+        <div className="flex justify-between rounded-lg bg-background/60 px-4 py-2.5 text-sm">
+          <span className="text-muted-foreground">Date &amp; Time</span>
+          <span className="font-medium text-foreground">{props.formatTime(props.confirmedAppointment.startsAt)}</span>
+        </div>
+        <div className="flex justify-between rounded-lg bg-background/60 px-4 py-2.5 text-sm">
+          <span className="text-muted-foreground">Status</span>
+          <span className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium text-xs ${props.statusColors[props.confirmedAppointment.status] ?? "bg-muted text-muted-foreground"}`}>
+            {props.statusLabels[props.confirmedAppointment.status] ?? props.confirmedAppointment.status}
+          </span>
+        </div>
+        <div className="flex justify-between rounded-lg bg-background/60 px-4 py-2.5 text-sm">
+          <span className="text-muted-foreground">Price</span>
+          <span className="font-medium text-foreground">{props.formatCurrency(props.confirmedAppointment.price, props.confirmedAppointment.currency)}</span>
+        </div>
+        <div className="flex justify-between rounded-lg bg-background/60 px-4 py-2.5 text-sm">
+          <span className="text-muted-foreground">Booking ID</span>
+          <span className="font-mono text-foreground text-xs">{props.confirmedAppointment.id.slice(0, 12)}…</span>
+        </div>
+      </div>
+      <p className="mt-4 text-muted-foreground text-xs">
+        A confirmation will be sent to {props.confirmedAppointment.customerEmail}.
+      </p>
+    </div>
+  </div>
+) : props.step === "form" && props.selectedSlot ? (
+  /* Step: booking form */
+  <div className="mx-auto max-w-lg space-y-5">
+    <div className="flex items-center gap-3">
+      <button type="button" onClick={props.onBack} className="text-muted-foreground text-sm hover:text-foreground hover:underline">
+        ← Back
+      </button>
+      <h2 className="font-bold text-foreground text-xl">Your Details</h2>
+    </div>
+
+    <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm">
+      <div className="flex items-center justify-between">
+        <span className="text-muted-foreground">Appointment time</span>
+        <span className="font-medium text-foreground">{props.formatTime(props.selectedSlot.startsAt)}</span>
+      </div>
+      {props.service && (
+        <div className="mt-1 flex items-center justify-between">
+          <span className="text-muted-foreground">Service</span>
+          <span className="font-medium text-foreground">{props.service.name}</span>
+        </div>
+      )}
+    </div>
+
+    {props.formError ? (
+      <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-800 text-sm dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+        {props.formError}
+      </div>
+    ) : null}
+
+    <form onSubmit={props.onBook} className="space-y-4">
+      <label className="block">
+        <span className="mb-1 block font-medium text-sm">Full name <span className="text-red-500">*</span></span>
+        <input
+          type="text"
+          value={props.customerName}
+          onChange={(e) => props.onCustomerNameChange(e.target.value)}
+          placeholder="Jane Smith"
+          required
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/40 focus:ring-1 focus:ring-foreground/20"
+        />
+      </label>
+
+      <label className="block">
+        <span className="mb-1 block font-medium text-sm">Email <span className="text-red-500">*</span></span>
+        <input
+          type="email"
+          value={props.customerEmail}
+          onChange={(e) => props.onCustomerEmailChange(e.target.value)}
+          placeholder="jane@example.com"
+          required
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/40 focus:ring-1 focus:ring-foreground/20"
+        />
+      </label>
+
+      <label className="block">
+        <span className="mb-1 block font-medium text-sm">Phone <span className="text-muted-foreground font-normal">(optional)</span></span>
+        <input
+          type="tel"
+          value={props.customerPhone}
+          onChange={(e) => props.onCustomerPhoneChange(e.target.value)}
+          placeholder="+1 555 000 0000"
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/40 focus:ring-1 focus:ring-foreground/20"
+        />
+      </label>
+
+      <label className="block">
+        <span className="mb-1 block font-medium text-sm">Notes <span className="text-muted-foreground font-normal">(optional)</span></span>
+        <textarea
+          value={props.notes}
+          onChange={(e) => props.onNotesChange(e.target.value)}
+          placeholder="Any special requests or information…"
+          rows={3}
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/40 focus:ring-1 focus:ring-foreground/20"
+        />
+      </label>
+
+      <button
+        type="submit"
+        disabled={props.isBooking}
+        className="w-full rounded-lg bg-foreground px-4 py-2.5 font-medium text-background text-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {props.isBooking ? "Booking…" : "Confirm Booking"}
+      </button>
+    </form>
+  </div>
+) : props.step === "slots" && props.service ? (
+  /* Step: pick a date & slot */
+  <div className="mx-auto max-w-lg space-y-5">
+    <div className="flex items-center gap-3">
+      <button type="button" onClick={props.onBack} className="text-muted-foreground text-sm hover:text-foreground hover:underline">
+        ← Back
+      </button>
+      <h2 className="font-bold text-foreground text-xl">Pick a Time</h2>
+    </div>
+
+    <label className="block">
+      <span className="mb-1.5 block font-medium text-sm">Date</span>
+      <input
+        type="date"
+        value={props.selectedDate}
+        min={props.todayStr}
+        onChange={(e) => props.onDateChange(e.target.value)}
+        className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/40 focus:ring-1 focus:ring-foreground/20"
+      />
+    </label>
+
+    {props.isLoadingSlots ? (
+      <div className="grid gap-2 sm:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={`skel-${i}`} className="h-10 animate-pulse rounded-lg border border-border bg-muted/30" />
+        ))}
+      </div>
+    ) : props.slots.length === 0 ? (
+      <div className="rounded-xl border border-dashed border-border p-8 text-center">
+        <p className="font-medium text-foreground">No availability</p>
+        <p className="mt-1 text-muted-foreground text-sm">Try a different date or staff member.</p>
+      </div>
+    ) : (
+      <div className="space-y-2">
+        <p className="text-muted-foreground text-sm">{props.slots.length} slot{props.slots.length !== 1 ? "s" : ""} available</p>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {props.slots.map((slot, i) => (
+            <button
+              key={`slot-${i}`}
+              type="button"
+              onClick={() => props.onSelectSlot(slot)}
+              className="rounded-lg border border-border bg-card px-3 py-2.5 text-center text-sm font-medium transition-all hover:border-foreground/30 hover:bg-muted"
+            >
+              {props.formatTime(slot.startsAt)}
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+) : props.step === "detail" ? (
+  /* Step: service detail + staff selection */
+  <div className="mx-auto max-w-lg space-y-5">
+    <div className="flex items-center gap-3">
+      <button type="button" onClick={props.onBack} className="text-muted-foreground text-sm hover:text-foreground hover:underline">
+        ← Back
+      </button>
+      <h2 className="font-bold text-foreground text-xl">
+        {props.isLoadingDetail ? "Loading…" : (props.service?.name ?? "Service")}
+      </h2>
+    </div>
+
+    {props.isLoadingDetail ? (
+      <div className="space-y-3">
+        <div className="h-20 animate-pulse rounded-lg border border-border bg-muted/30" />
+        <div className="h-32 animate-pulse rounded-lg border border-border bg-muted/30" />
+      </div>
+    ) : props.service ? (
+      <>
+        <div className="rounded-lg border border-border bg-card p-4">
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            <span className="font-semibold text-foreground text-lg">{props.formatCurrency(props.service.price, props.service.currency)}</span>
+            <span className="text-muted-foreground">·</span>
+            <span className="text-muted-foreground">{props.formatDuration(props.service.duration)}</span>
+          </div>
+          {props.service.description && (
+            <p className="mt-2 text-muted-foreground text-sm">{props.service.description}</p>
+          )}
+        </div>
+
+        {props.staff.length > 1 && (
+          <div className="space-y-2">
+            <p className="font-medium text-sm">Choose a staff member <span className="font-normal text-muted-foreground">(optional)</span></p>
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => props.onSelectStaff("")}
+                className={`w-full rounded-lg border px-4 py-2.5 text-left text-sm transition-all ${
+                  !props.selectedStaffId
+                    ? "border-foreground bg-foreground/5 font-medium text-foreground"
+                    : "border-border bg-card text-muted-foreground hover:border-foreground/20 hover:text-foreground"
+                }`}
+              >
+                Any available
+              </button>
+              {props.staff.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => props.onSelectStaff(s.id)}
+                  className={`w-full rounded-lg border px-4 py-2.5 text-left transition-all ${
+                    props.selectedStaffId === s.id
+                      ? "border-foreground bg-foreground/5 font-medium text-foreground"
+                      : "border-border bg-card text-foreground hover:border-foreground/20"
+                  }`}
+                >
+                  <p className="text-sm font-medium">{s.name}</p>
+                  {s.bio && <p className="mt-0.5 text-muted-foreground text-xs">{s.bio}</p>}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={props.onProceedToSlots}
+          className="w-full rounded-lg bg-foreground px-4 py-2.5 font-medium text-background text-sm transition-opacity hover:opacity-90"
+        >
+          Check Availability
+        </button>
+      </>
+    ) : null}
+  </div>
+) : (
+  /* Step: services list */
+  <div className="space-y-5">
+    <div>
+      <h2 className="font-bold text-foreground text-2xl">Book an Appointment</h2>
+      <p className="mt-1 text-muted-foreground text-sm">Choose a service to get started.</p>
+    </div>
+
+    {props.isLoadingServices ? (
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={`skel-${i}`} className="h-28 animate-pulse rounded-xl border border-border bg-muted/30" />
+        ))}
+      </div>
+    ) : props.servicesError ? (
+      <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center">
+        <p className="text-destructive text-sm">{props.servicesError}</p>
+      </div>
+    ) : props.services.length === 0 ? (
+      <div className="rounded-xl border border-dashed border-border p-10 text-center">
+        <p className="font-medium text-foreground">No services available</p>
+        <p className="mt-1 text-muted-foreground text-sm">Check back soon.</p>
+      </div>
+    ) : (
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {props.services.map((service) => (
+          <button
+            key={service.id}
+            type="button"
+            onClick={() => props.onSelectService(service.slug)}
+            className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-5 text-left transition-all hover:border-foreground/20 hover:shadow-sm"
+          >
+            <div className="flex-1">
+              <p className="font-semibold text-foreground group-hover:text-primary">{service.name}</p>
+              {service.description && (
+                <p className="mt-1 line-clamp-2 text-muted-foreground text-sm">{service.description}</p>
+              )}
+            </div>
+            <div className="flex items-center gap-3 text-sm">
+              <span className="font-medium text-foreground">{props.formatCurrency(service.price, service.currency)}</span>
+              <span className="text-muted-foreground">·</span>
+              <span className="text-muted-foreground">{props.formatDuration(service.duration)}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+)}

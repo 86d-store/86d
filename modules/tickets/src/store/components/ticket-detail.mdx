@@ -1,0 +1,63 @@
+<section className="py-8">
+  {/* Back link */}
+  <button
+    type="button"
+    onClick={props.onBack}
+    className="mb-4 text-primary text-sm underline-offset-4 hover:underline"
+  >
+    &larr; Back to tickets
+  </button>
+
+  {/* Header */}
+  <div className="mb-6">
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-muted-foreground text-sm">
+            #{props.ticketNumber}
+          </span>
+          {props.statusBadge}
+          {props.priorityBadge}
+        </div>
+        <h2 className="mt-1 font-semibold text-foreground text-xl">
+          {props.subject}
+        </h2>
+        <p className="mt-0.5 text-muted-foreground text-sm">
+          Opened on {props.date}
+        </p>
+      </div>
+    </div>
+
+    {props.assigneeName && (
+      <p className="mt-2 text-muted-foreground text-sm">
+        Assigned to <span className="font-medium text-foreground">{props.assigneeName}</span>
+      </p>
+    )}
+
+    {props.orderId && (
+      <p className="mt-1 text-muted-foreground text-sm">
+        Related order: <span className="font-mono text-foreground">{props.orderId}</span>
+      </p>
+    )}
+  </div>
+
+  {/* Original description */}
+  <div className="mb-6 rounded-xl border border-border bg-muted/30 p-4">
+    <h3 className="mb-1 font-medium text-foreground text-sm">Description</h3>
+    <p className="whitespace-pre-wrap text-muted-foreground text-sm">{props.description}</p>
+  </div>
+
+  {/* Message thread */}
+  {props.hasMessages && (
+    <div className="mb-6">
+      <h3 className="mb-3 font-medium text-foreground text-sm">Conversation</h3>
+      {props.messagesContent}
+    </div>
+  )}
+
+  {/* Reply form */}
+  <div className="mt-6">
+    <h3 className="mb-3 font-medium text-foreground text-sm">Reply</h3>
+    {props.replyFormContent}
+  </div>
+</section>

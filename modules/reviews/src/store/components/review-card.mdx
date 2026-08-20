@@ -1,0 +1,32 @@
+<article className="border-border border-b py-5 last:border-0">
+  <div className="mb-2 flex items-start justify-between gap-3">
+    <div>
+      <div className="flex items-center gap-2">
+        {props.starDisplay}
+        {props.review.isVerifiedPurchase && (
+          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-700 text-xs dark:bg-emerald-950 dark:text-emerald-300">
+            Verified
+          </span>
+        )}
+      </div>
+      {props.review.title && (
+        <p className="mt-1 font-medium text-foreground text-sm">
+          {props.review.title}
+        </p>
+      )}
+    </div>
+    <span className="shrink-0 text-muted-foreground text-xs">
+      {props.formatDate(props.review.createdAt)}
+    </span>
+  </div>
+  <p className="text-muted-foreground text-sm leading-relaxed">
+    {props.review.body}
+  </p>
+  <div className="mt-2 flex items-center justify-between">
+    <p className="text-muted-foreground/60 text-xs">
+      — {props.review.authorName}
+    </p>
+    {props.helpfulButton}
+  </div>
+  {props.merchantResponseBlock}
+</article>
