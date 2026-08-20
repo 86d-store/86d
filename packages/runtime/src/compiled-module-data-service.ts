@@ -6,6 +6,7 @@ import type {
 	ModuleDataTransaction,
 } from "@86d-app/core/durable-events";
 import type { CompiledTable, CompileModuleResult } from "@86d-app/core/schema";
+import { parseStorageRead, parseStorageWrite } from "@86d-app/core/schema";
 import type {
 	ModuleDataService,
 	ModuleEntityMap,
@@ -23,6 +24,7 @@ import {
 	text,
 	timestamp,
 	uuid,
+	varchar,
 } from "drizzle-orm/pg-core";
 import type { PgliteDatabase } from "drizzle-orm/pglite";
 
@@ -53,6 +55,15 @@ function buildColumn(column: CompiledTable["columns"][number]) {
 				? timestamp(name, { withTimezone: true, mode: "string" })
 				: timestamp(name, { withTimezone: true, mode: "string" }).notNull();
 		default:
+			if (column.sqlType.startsWith("varchar(")) {
+				const length = Number.parseInt(
+					column.sqlType.slice("varchar(".length, -1),
+					10,
+				);
+				return nullable
+					? varchar(name, { length })
+					: varchar(name, { length }).notNull();
+			}
 			if (column.sqlType.startsWith("char(")) {
 				const length = Number.parseInt(
 					column.sqlType.slice("char(".length, -1),
@@ -211,21 +222,25 @@ export class CompiledModuleDataService<
 		entityType: K,
 		entityId: string,
 	): Promise<E[K] | null> {
-		const { table } = this.#requireTable(entityType);
+		const { table, compiled } = this.#requireTable(entityType);
 		const rows = await this.#db
 			.select()
 			.from(table)
 			.where(sql`"id" = ${entityId}`)
 			.limit(1);
 		const row = rows[0];
-		return row ? (rowToEntity(row as Record<string, unknown>) as E[K]) : null;
+		if (!row) {
+			return null;
+		}
+		const entity = rowToEntity(row as Record<string, unknown>);
+		return parseStorageRead(compiled, entity) as E[K];
 	}
 
 	async getForUpdate(
 		entityType: string,
 		entityId: string,
 	): Promise<Record<string, unknown> | null> {
-		const { table } = this.#requireTable(entityType);
+		const { table, compiled } = this.#requireTable(entityType);
 		const rows = await this.#db
 			.select()
 			.from(table)
@@ -233,7 +248,11 @@ export class CompiledModuleDataService<
 			.limit(1)
 			.for("update");
 		const row = rows[0];
-		return row ? rowToEntity(row as Record<string, unknown>) : null;
+		if (!row) {
+			return null;
+		}
+		const entity = rowToEntity(row as Record<string, unknown>);
+		return parseStorageRead(compiled, entity);
 	}
 
 	async upsert<K extends keyof E & string>(
@@ -242,10 +261,11 @@ export class CompiledModuleDataService<
 		data: E[K],
 	): Promise<void> {
 		const { table, compiled } = this.#requireTable(entityType);
-		const record = serializeRowForInsert({
+		const parsed = parseStorageWrite(compiled, {
 			...(data as Record<string, unknown>),
 			id: entityId,
 		});
+		const record = serializeRowForInsert(parsed);
 		const pkColumns =
 			compiled.primaryKey.length > 0 ? compiled.primaryKey : ["id"];
 		const tableColumns = table as unknown as Record<string, PgColumn>;
@@ -270,7 +290,7 @@ export class CompiledModuleDataService<
 			skip?: number;
 		},
 	): Promise<E[K][]> {
-		const { table } = this.#requireTable(entityType);
+		const { table, compiled } = this.#requireTable(entityType);
 		const tableColumns = table as unknown as Record<string, PgColumn>;
 		const filters: SQL[] = [];
 		if (options?.where) {
@@ -310,9 +330,10 @@ export class CompiledModuleDataService<
 		}
 
 		const rows = await query;
-		return rows.map(
-			(row) => rowToEntity(row as Record<string, unknown>) as E[K],
-		);
+		return rows.map((row) => {
+			const entity = rowToEntity(row as Record<string, unknown>);
+			return parseStorageRead(compiled, entity) as E[K];
+		});
 	}
 
 	async count(

@@ -5,8 +5,10 @@ import { col } from "../col";
 import { compileTableShape } from "../compile/analyze-zod";
 import {
 	compileModuleDeclarations,
+	emitSql,
 	formatCompileReport,
 } from "../compile/index";
+import { SchemaCompileError } from "../compile/types";
 
 describe("compileTableShape", () => {
 	it("emits CHECK from z.int().min().max()", () => {
@@ -43,6 +45,81 @@ describe("compileTableShape", () => {
 		});
 
 		expect(table.primaryKey).toEqual(["id"]);
+	});
+
+	it("keeps required non-PK columns NOT NULL", () => {
+		const shape = z.object({
+			id: z.string().register(col, { pk: true }),
+			status: z.string(),
+			notes: z.string().optional(),
+		});
+
+		const table = compileTableShape({
+			moduleId: "cart",
+			tableName: "cart",
+			shape,
+		});
+
+		expect(table.columns.find((c) => c.name === "status")?.nullable).toBe(
+			false,
+		);
+		expect(table.columns.find((c) => c.name === "notes")?.nullable).toBe(true);
+	});
+
+	it("emits enum domain CHECK and string width", () => {
+		const shape = z.object({
+			id: z.string().register(col, { pk: true }),
+			status: z.enum(["active", "abandoned"]),
+			notes: z.string().max(2000),
+		});
+
+		const table = compileTableShape({
+			moduleId: "cart",
+			tableName: "cart",
+			shape,
+		});
+
+		expect(
+			table.columns
+				.find((c) => c.name === "status")
+				?.checkConstraints.some((c) => c.includes("'abandoned'")),
+		).toBe(true);
+		expect(table.columns.find((c) => c.name === "notes")?.sqlType).toBe(
+			"varchar(2000)",
+		);
+	});
+
+	it("emits SQL DEFAULT from Zod default", () => {
+		const shape = z.object({
+			id: z.string().register(col, { pk: true }),
+			status: z.string().default("active"),
+		});
+
+		const table = compileTableShape({
+			moduleId: "cart",
+			tableName: "cart",
+			shape,
+		});
+		const sql = emitSql([{ moduleId: "cart", tables: [table] }]);
+		expect(table.columns.find((c) => c.name === "status")?.sqlDefault).toBe(
+			"'active'",
+		);
+		expect(sql).toContain("DEFAULT 'active'");
+	});
+
+	it("rejects unknown Zod constructs with provenance", () => {
+		const shape = z.object({
+			id: z.string().register(col, { pk: true }),
+			weird: z.bigint(),
+		});
+
+		expect(() =>
+			compileTableShape({
+				moduleId: "cart",
+				tableName: "cart",
+				shape,
+			}),
+		).toThrow(SchemaCompileError);
 	});
 });
 
@@ -124,5 +201,25 @@ describe("compileModuleDeclarations", () => {
 		expect(report.sql).toContain("DO $$ BEGIN");
 		expect(report.sql).toContain("WHEN duplicate_object THEN NULL");
 		expect(report.sql).toContain("ADD CONSTRAINT");
+	});
+
+	it("emits identical DDL across two clean compiles", () => {
+		const cart: Module = {
+			id: "cart",
+			version: "1.0.0",
+			tables: {
+				cart: {
+					shape: z.object({
+						id: z.string().register(col, { pk: true }),
+						status: z.enum(["active", "abandoned"]).default("active"),
+						notes: z.string().max(100).optional(),
+					}),
+				},
+			},
+		};
+
+		const first = compileModuleDeclarations([cart]).sql;
+		const second = compileModuleDeclarations([cart]).sql;
+		expect(first).toBe(second);
 	});
 });

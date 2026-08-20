@@ -3,6 +3,7 @@ import type {
 	CompiledTable,
 	CompileModuleResult,
 } from "@86d-app/core/schema";
+import { parseStorageRead, parseStorageWrite } from "@86d-app/core/schema";
 import { sql } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import type { PgColumn } from "drizzle-orm/pg-core";
@@ -17,6 +18,7 @@ import {
 	text,
 	timestamp,
 	uuid,
+	varchar,
 } from "drizzle-orm/pg-core";
 import type { PgliteDatabase } from "drizzle-orm/pglite";
 
@@ -42,6 +44,15 @@ function buildColumn(column: CompiledColumn) {
 				? timestamp(name, { withTimezone: true, mode: "string" })
 				: timestamp(name, { withTimezone: true, mode: "string" }).notNull();
 		default:
+			if (column.sqlType.startsWith("varchar(")) {
+				const length = Number.parseInt(
+					column.sqlType.slice("varchar(".length, -1),
+					10,
+				);
+				return nullable
+					? varchar(name, { length })
+					: varchar(name, { length }).notNull();
+			}
 			if (column.sqlType.startsWith("char(")) {
 				const length = Number.parseInt(
 					column.sqlType.slice("char(".length, -1),
@@ -171,10 +182,11 @@ export class ShadowTableStore {
 		if (!table || !compiled) {
 			throw new Error(`No shadow table for ${moduleId}.${String(entityType)}`);
 		}
-		const record = serializeRowForInsert({
+		const parsed = parseStorageWrite(compiled, {
 			...row,
 			id: entityId,
 		});
+		const record = serializeRowForInsert(parsed);
 		const pkColumns =
 			compiled.primaryKey.length > 0 ? compiled.primaryKey : ["id"];
 		const tableColumns = table as unknown as Record<string, PgColumn>;
@@ -190,8 +202,10 @@ export class ShadowTableStore {
 		entityType: string,
 		entityId: string,
 	): Promise<Record<string, unknown> | null> {
-		const table = this.#tables.get(tableKey(moduleId, entityType));
-		if (!table) {
+		const key = tableKey(moduleId, entityType);
+		const table = this.#tables.get(key);
+		const compiled = this.#compiled.get(key);
+		if (!table || !compiled) {
 			return null;
 		}
 		const rows = await this.#db
@@ -199,7 +213,11 @@ export class ShadowTableStore {
 			.from(table)
 			.where(sql`"id" = ${entityId}`)
 			.limit(1);
-		return rows[0] ?? null;
+		const row = rows[0];
+		if (!row) {
+			return null;
+		}
+		return parseStorageRead(compiled, row as Record<string, unknown>);
 	}
 
 	async delete(

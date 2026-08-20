@@ -144,15 +144,33 @@ RUN set -e; \
 # Copy seed script and its dependencies
 COPY --from=builder /app/packages/db/src/seed.ts ./packages/db/src/seed.ts
 COPY --from=builder /app/packages/db/src/index.ts ./packages/db/src/index.ts
+COPY --from=builder /app/packages/db/src/load-curated-modules.ts ./packages/db/src/load-curated-modules.ts
+COPY --from=builder /app/packages/db/src/schema ./packages/db/src/schema
 COPY --from=builder /app/packages/db/seed ./packages/db/seed
 COPY --from=builder /app/packages/db/package.json ./packages/db/package.json
+COPY --from=builder /app/packages/core ./packages/core
+COPY --from=builder /app/modules ./modules
 COPY --from=builder /app/internals/lib ./internals/lib
+COPY --from=builder /app/internals/docker/init.sql ./internals/docker/init.sql
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/packages/storage ./packages/storage
 COPY --from=builder /app/packages/storage/node_modules/zod ./packages/storage/node_modules/zod
+COPY --from=builder /app/node_modules/zod ./node_modules/zod
 RUN \
     mkdir -p ./node_modules/@86d-app && \
-    ln -sfn ../../packages/storage ./node_modules/@86d-app/storage
+    ln -sfn ../../packages/storage ./node_modules/@86d-app/storage && \
+    ln -sfn ../../packages/core ./node_modules/@86d-app/core && \
+    ln -sfn ../../packages/db ./node_modules/@86d-app/db && \
+    ln -sfn ../../packages/db ./node_modules/db && \
+    mkdir -p ./packages/core/node_modules && \
+    ln -sfn ../../../node_modules/zod ./packages/core/node_modules/zod
+
+# Ensure curated Module packages can resolve @86d-app/core at seed time
+RUN set -e; \
+    for dir in ./modules/*/ ; do \
+      mkdir -p "$dir/node_modules/@86d-app"; \
+      ln -sfn ../../../../packages/core "$dir/node_modules/@86d-app/core"; \
+    done
 
 # Copy entrypoint
 COPY internals/docker/entrypoint.sh /app/entrypoint.sh

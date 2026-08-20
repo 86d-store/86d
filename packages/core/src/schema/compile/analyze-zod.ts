@@ -1,109 +1,58 @@
-import type { z } from "zod";
+import type { z } from "../../zod";
 import {
 	type CompiledColumn,
 	type CompiledTable,
 	readColumnMeta,
+	SchemaCompileError,
 } from "./types";
+import {
+	classifyZodBase,
+	readEnumValues,
+	readFiniteChecks,
+	unwrapFieldWrappers,
+} from "./zod-inspect";
 
-type ZodDef = {
-	type?: string;
-	typeName?: string;
-	innerType?: unknown;
-	checks?: readonly { kind?: string; value?: unknown }[];
-};
-
-function getZodDef(schema: z.ZodType): ZodDef | undefined {
-	const withZod = schema as { _zod?: { def?: ZodDef }; def?: ZodDef };
-	return withZod._zod?.def ?? withZod.def;
+function sqlLiteral(value: unknown): string | undefined {
+	if (value === null) {
+		return "NULL";
+	}
+	if (typeof value === "boolean") {
+		return value ? "TRUE" : "FALSE";
+	}
+	if (typeof value === "number" && Number.isFinite(value)) {
+		return String(value);
+	}
+	if (typeof value === "string") {
+		return `'${value.replaceAll("'", "''")}'`;
+	}
+	if (value instanceof Date) {
+		return "now()";
+	}
+	if (Array.isArray(value) || (value !== null && typeof value === "object")) {
+		return `'${JSON.stringify(value).replaceAll("'", "''")}'::jsonb`;
+	}
+	return undefined;
 }
 
-function unwrapOptional(schema: z.ZodType): {
-	inner: z.ZodType;
-	nullable: boolean;
-} {
-	let current: z.ZodType = schema;
-	let nullable = false;
+function zodToSqlType(
+	schema: z.ZodType,
+	provenance: {
+		moduleId: string;
+		tableName: string;
+		fieldName: string;
+	},
+): string {
+	const base = classifyZodBase(schema);
+	const checks = readFiniteChecks(schema);
 
-	for (;;) {
-		const def = getZodDef(current);
-		const typeName = def?.type ?? def?.typeName;
-		if (typeName === "optional" || typeName === "nullable") {
-			nullable = true;
-			const inner = def?.innerType;
-			if (!inner || typeof inner !== "object") {
-				break;
-			}
-			current = inner as z.ZodType;
-			continue;
-		}
-		break;
-	}
-
-	return { inner: current, nullable };
-}
-
-function zodChecksToSql(fieldName: string, schema: z.ZodType): string[] {
-	const checks: string[] = [];
-	const withBounds = schema as {
-		minValue?: number;
-		maxValue?: number;
-		minLength?: number;
-		maxLength?: number;
-		isInt?: boolean;
-	};
-
-	if (
-		typeof withBounds.minValue === "number" &&
-		Number.isFinite(withBounds.minValue)
-	) {
-		checks.push(`"${fieldName}" >= ${withBounds.minValue}`);
-	}
-	if (
-		typeof withBounds.maxValue === "number" &&
-		Number.isFinite(withBounds.maxValue)
-	) {
-		checks.push(`"${fieldName}" <= ${withBounds.maxValue}`);
-	}
-	if (typeof withBounds.minLength === "number") {
-		checks.push(`char_length("${fieldName}") >= ${withBounds.minLength}`);
-	}
-	if (typeof withBounds.maxLength === "number") {
-		checks.push(`char_length("${fieldName}") <= ${withBounds.maxLength}`);
-	}
-
-	const def = getZodDef(schema);
-	const zodChecks = def?.checks ?? [];
-
-	for (const check of zodChecks) {
-		if (check.kind === "min" && typeof check.value === "number") {
-			checks.push(`"${fieldName}" >= ${check.value}`);
-		}
-		if (check.kind === "max" && typeof check.value === "number") {
-			checks.push(`"${fieldName}" <= ${check.value}`);
-		}
-		if (check.kind === "min_length" && typeof check.value === "number") {
-			checks.push(`char_length("${fieldName}") >= ${check.value}`);
-		}
-		if (check.kind === "max_length" && typeof check.value === "number") {
-			checks.push(`char_length("${fieldName}") <= ${check.value}`);
-		}
-	}
-
-	return checks;
-}
-
-function zodToSqlType(schema: z.ZodType): string {
-	const withFormat = schema as { isInt?: boolean; format?: string };
-	if (withFormat.isInt || withFormat.format === "safeint") {
-		return "integer";
-	}
-
-	const def = getZodDef(schema);
-	const typeName = def?.type ?? def?.typeName;
-
-	switch (typeName) {
+	switch (base) {
 		case "string":
+			if (typeof checks.maxLength === "number") {
+				return `varchar(${checks.maxLength})`;
+			}
 			return "text";
+		case "uuid":
+			return "uuid";
 		case "number":
 			return "double precision";
 		case "int":
@@ -112,19 +61,53 @@ function zodToSqlType(schema: z.ZodType): string {
 		case "boolean":
 			return "boolean";
 		case "date":
+		case "date.coerce":
 			return "timestamptz";
 		case "enum":
 			return "text";
 		case "array":
-			return "jsonb";
 		case "record":
 		case "object":
 			return "jsonb";
-		case "uuid":
-			return "uuid";
 		default:
-			return "jsonb";
+			throw new SchemaCompileError(
+				`Unsupported Zod construct "${base}"`,
+				provenance,
+			);
 	}
+}
+
+function zodChecksToSql(fieldName: string, schema: z.ZodType): string[] {
+	const checks: string[] = [];
+	const bounds = readFiniteChecks(schema);
+	const base = classifyZodBase(schema);
+
+	if (bounds.minValue !== undefined) {
+		checks.push(`"${fieldName}" >= ${bounds.minValue}`);
+	}
+	if (bounds.maxValue !== undefined) {
+		checks.push(`"${fieldName}" <= ${bounds.maxValue}`);
+	}
+	if (bounds.minLength !== undefined) {
+		checks.push(`char_length("${fieldName}") >= ${bounds.minLength}`);
+	}
+	// maxLength becomes varchar(N) column width; skip redundant CHECK when width set.
+	if (
+		bounds.maxLength !== undefined &&
+		!(base === "string" && typeof bounds.maxLength === "number")
+	) {
+		checks.push(`char_length("${fieldName}") <= ${bounds.maxLength}`);
+	}
+
+	const enumValues = readEnumValues(schema);
+	if (enumValues && enumValues.length > 0) {
+		const list = enumValues
+			.map((value) => `'${value.replaceAll("'", "''")}'`)
+			.join(", ");
+		checks.push(`"${fieldName}" IN (${list})`);
+	}
+
+	return checks;
 }
 
 function parseReference(
@@ -157,6 +140,45 @@ function parseReference(
 	};
 }
 
+function compileColumn(input: {
+	moduleId: string;
+	tableName: string;
+	fieldName: string;
+	fieldSchema: z.ZodType;
+}): CompiledColumn {
+	const provenance = {
+		moduleId: input.moduleId,
+		tableName: input.tableName,
+		fieldName: input.fieldName,
+	};
+	const wrappers = unwrapFieldWrappers(input.fieldSchema);
+	const meta = readColumnMeta(input.fieldSchema);
+	const isPk = meta.pk === true;
+	const sqlType = zodToSqlType(wrappers.inner, provenance);
+	const checkConstraints = zodChecksToSql(input.fieldName, wrappers.inner);
+	const enumValues = readEnumValues(wrappers.inner);
+
+	// Stored nullability: optional/nullable wrappers; PK columns stay NOT NULL.
+	const nullable = isPk ? false : wrappers.optional || wrappers.nullable;
+
+	let sqlDefault: string | undefined;
+	if (wrappers.hasDefault) {
+		sqlDefault = sqlLiteral(wrappers.defaultValue);
+	}
+
+	return {
+		name: input.fieldName,
+		sqlType,
+		nullable,
+		optional: wrappers.optional || wrappers.hasDefault,
+		acceptsNull: wrappers.nullable,
+		meta,
+		checkConstraints,
+		...(sqlDefault !== undefined ? { sqlDefault } : {}),
+		...(enumValues ? { enumValues } : {}),
+	};
+}
+
 /** Compile one Zod object shape into a table definition. */
 export function compileTableShape(input: {
 	moduleId: string;
@@ -177,35 +199,31 @@ export function compileTableShape(input: {
 
 	const shape = input.shape.shape;
 	for (const [fieldName, fieldSchema] of Object.entries(shape)) {
-		const { inner, nullable } = unwrapOptional(fieldSchema as z.ZodType);
-		const meta = readColumnMeta(fieldSchema);
-		const checkConstraints = zodChecksToSql(fieldName, inner);
-
-		columns.push({
-			name: fieldName,
-			sqlType: zodToSqlType(inner),
-			nullable: nullable || meta.pk !== true,
-			meta,
-			checkConstraints,
+		const column = compileColumn({
+			moduleId: input.moduleId,
+			tableName: input.tableName,
+			fieldName,
+			fieldSchema: fieldSchema as z.ZodType,
 		});
+		columns.push(column);
 
-		if (meta.pk) {
+		if (column.meta.pk) {
 			primaryKey.push(fieldName);
 		}
-		if (meta.unique) {
+		if (column.meta.unique) {
 			uniqueConstraints.push([fieldName]);
 		}
-		if (meta.index && !meta.unique) {
+		if (column.meta.index && !column.meta.unique) {
 			indexes.push([fieldName]);
 		}
-		if (meta.references) {
-			const parsed = parseReference(input.moduleId, meta.references);
+		if (column.meta.references) {
+			const parsed = parseReference(input.moduleId, column.meta.references);
 			foreignKeys.push({
 				column: fieldName,
 				referencedSchema: parsed.referencedSchema,
 				referencedTable: parsed.referencedTable,
 				referencedColumn: parsed.referencedColumn,
-				onDelete: meta.references.onDelete ?? "no action",
+				onDelete: column.meta.references.onDelete ?? "no action",
 			});
 		}
 	}
@@ -218,6 +236,7 @@ export function compileTableShape(input: {
 		moduleId: input.moduleId,
 		schemaName,
 		tableName: input.tableName,
+		shape: input.shape,
 		columns,
 		primaryKey,
 		uniqueConstraints,

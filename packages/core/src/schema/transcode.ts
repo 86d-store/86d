@@ -3,6 +3,13 @@ import { z } from "../zod";
 import { col } from "./col";
 import type { TableDeclaration } from "./declaration";
 
+function normalizeDefault(value: unknown): unknown {
+	if (typeof value === "function") {
+		return value;
+	}
+	return value;
+}
+
 function fieldToZod(fieldName: string, field: FieldAttribute): z.ZodType {
 	const required = field.required !== false;
 
@@ -90,7 +97,10 @@ function fieldToZod(fieldName: string, field: FieldAttribute): z.ZodType {
 		schema = schema.register(col, meta);
 	}
 
-	if (!required) {
+	if (field.defaultValue !== undefined) {
+		const defaultValue = normalizeDefault(field.defaultValue);
+		schema = schema.default(defaultValue as never) as z.ZodType;
+	} else if (!required) {
 		schema = schema.optional();
 	}
 

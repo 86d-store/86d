@@ -16,6 +16,8 @@ END $$;`;
 export function emitSql(tables: readonly CompileModuleResult[]): string {
 	const lines: string[] = [];
 	const seenSchemas = new Set<string>();
+	const indexLines: string[] = [];
+	const constraintLines: string[] = [];
 
 	for (const moduleResult of tables) {
 		for (const table of moduleResult.tables) {
@@ -26,7 +28,11 @@ export function emitSql(tables: readonly CompileModuleResult[]): string {
 
 			const columnDefs = table.columns.map((column) => {
 				const nullSql = column.nullable ? "" : " NOT NULL";
-				return `"${column.name}" ${column.sqlType}${nullSql}`;
+				const defaultSql =
+					column.sqlDefault !== undefined
+						? ` DEFAULT ${column.sqlDefault}`
+						: "";
+				return `"${column.name}" ${column.sqlType}${nullSql}${defaultSql}`;
 			});
 
 			if (table.primaryKey.length > 0) {
@@ -48,20 +54,20 @@ export function emitSql(tables: readonly CompileModuleResult[]): string {
 
 			for (const unique of table.uniqueConstraints) {
 				const cols = unique.map((c) => `"${c}"`).join(", ");
-				lines.push(
+				indexLines.push(
 					`CREATE UNIQUE INDEX IF NOT EXISTS "${table.tableName}_${unique.join("_")}_unique" ON "${table.schemaName}"."${table.tableName}" (${cols});`,
 				);
 			}
 
 			for (const index of table.indexes) {
 				const cols = index.map((c) => `"${c}"`).join(", ");
-				lines.push(
+				indexLines.push(
 					`CREATE INDEX IF NOT EXISTS "${table.tableName}_${index.join("_")}_idx" ON "${table.schemaName}"."${table.tableName}" (${cols});`,
 				);
 			}
 
 			for (const fk of table.foreignKeys) {
-				lines.push(
+				constraintLines.push(
 					wrapIdempotentConstraint(
 						`ALTER TABLE "${table.schemaName}"."${table.tableName}" ADD CONSTRAINT "${table.tableName}_${fk.column}_fk" FOREIGN KEY ("${fk.column}") REFERENCES "${fk.referencedSchema}"."${fk.referencedTable}" ("${fk.referencedColumn}") ON DELETE ${fk.onDelete.toUpperCase()}`,
 					),
@@ -70,7 +76,7 @@ export function emitSql(tables: readonly CompileModuleResult[]): string {
 
 			for (const exclude of table.excludeConstraints) {
 				const where = exclude.where ? ` WHERE (${exclude.where})` : "";
-				lines.push(
+				constraintLines.push(
 					wrapIdempotentConstraint(
 						`ALTER TABLE "${table.schemaName}"."${table.tableName}" ADD CONSTRAINT "${table.tableName}_exclude" EXCLUDE USING ${exclude.using} (${exclude.with})${where}`,
 					),
@@ -81,7 +87,7 @@ export function emitSql(tables: readonly CompileModuleResult[]): string {
 		}
 	}
 
-	return lines.join("\n");
+	return [...lines, ...indexLines, ...constraintLines, ""].join("\n");
 }
 
 function compileModuleTables(

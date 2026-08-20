@@ -8,11 +8,18 @@ import { join } from "node:path";
 export function resolveTemplatePath(): string {
 	const cwd = process.cwd();
 	const candidates = [
-		join(cwd, "templates", "brisa", "config.json"),
-		join(cwd, "..", "..", "templates", "brisa", "config.json"),
+		join(/*turbopackIgnore: true*/ cwd, "templates", "brisa", "config.json"),
+		join(
+			/*turbopackIgnore: true*/ cwd,
+			"..",
+			"..",
+			"templates",
+			"brisa",
+			"config.json",
+		),
 	];
 	for (const p of candidates) {
-		if (existsSync(p)) return p;
+		if (existsSync(/*turbopackIgnore: true*/ p)) return p;
 	}
 	return candidates[0];
 }
