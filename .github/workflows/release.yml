@@ -15,6 +15,9 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    # Pin publish to this environment; set the same name on each npm trusted publisher.
+    # Create Settings → Environments → npm-publish with required reviewers before relying on OIDC.
+    environment: npm-publish
     permissions:
       contents: write
       pull-requests: write
@@ -40,6 +43,5 @@ jobs:
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Granular automation token with Bypass 2FA — interactive OTP tokens fail in CI.
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Publish auth is npm trusted publishing (OIDC) against environment npm-publish.
           NPM_CONFIG_PROVENANCE: "true"
