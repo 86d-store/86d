@@ -77,13 +77,16 @@ jobs:
         uses: ./internals/github/e2e-database
 
       - name: Start store for E2E
+        id: e2e-store
         uses: ./internals/github/e2e-store
 
       - name: E2E tests
         run: bun test:e2e
 
+      # Only when Playwright browsers were installed (e2e-store). `always()` alone
+      # re-runs after Setup failure and hits missing chromium.
       - name: Update visual snapshots
-        if: always()
+        if: always() && steps.e2e-store.outcome == 'success'
         uses: ./internals/github/update-visual-snapshots
 
       - uses: actions/upload-artifact@v4

@@ -4,6 +4,10 @@ description: Regenerate Playwright visual snapshots and commit on main
 runs:
   using: composite
   steps:
+    - name: Install Playwright Chromium
+      shell: bash
+      run: bunx playwright install --with-deps chromium
+
     - name: Regenerate visual snapshots
       shell: bash
       run: bunx playwright test visual.spec.ts --config tests/playwright.config.ts --update-snapshots
