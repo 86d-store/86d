@@ -21,6 +21,9 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          # changesets needs full history for changelogs and publish decisions
+          fetch-depth: 0
 
       - name: Setup
         uses: ./internals/github/setup
@@ -29,9 +32,14 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
+          # Shared version line is owned by `bun run bump-version` (see AGENTS.md).
+          # Pending .changeset files still drive the Version PR / changelog path;
+          # with none pending, this step publishes any versions ahead of npm.
           version: bun run version-packages
           publish: bun run release
+          createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Granular automation token with Bypass 2FA — interactive OTP tokens fail in CI.
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"

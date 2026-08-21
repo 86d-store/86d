@@ -1,6 +1,6 @@
 {
   "lockfileVersion": 1,
-  "generatedAt": "2026-08-21T02:48:47.919Z",
+  "generatedAt": "2026-08-21T18:18:09.384Z",
   "modules": {
     "abandoned-carts": {
       "source": "local",
@@ -55,7 +55,7 @@
       "source": "local",
       "packageName": "@86d-app/audit-log",
       "version": "0.0.41",
-      "integrity": "sha256-63d3f78531d9ff48a358746123302b6d35cf65b038aa19c5b43b6e8953ee90ff",
+      "integrity": "sha256-843e4e2fbb169d7c9b4bbfec9104715265a37b83a3b256a22706a2afa761fd8e",
       "localPath": "modules/audit-log"
     },
     "automations": {
@@ -146,7 +146,7 @@
       "source": "local",
       "packageName": "@86d-app/customers",
       "version": "0.0.41",
-      "integrity": "sha256-b92a618c62cc13996a6595ba83d44d61029e81b3e03bb0e2f7a3d866d3c40238",
+      "integrity": "sha256-4713e1cdf362a51d40bed8fcd46a7146895ca78b072fbf746b8926230f9434e7",
       "localPath": "modules/customers"
     },
     "delivery-slots": {
@@ -223,7 +223,7 @@
       "source": "local",
       "packageName": "@86d-app/forms",
       "version": "0.0.41",
-      "integrity": "sha256-38a70b41ad5abd6c565bed2bd0b4c8aec44c1255f1f30c6cf9f5f4fcdab114df",
+      "integrity": "sha256-507f4a53cd0332211595c8a5543a04cc9d6d24601e5a4ac50e7c9287f545a7f1",
       "localPath": "modules/forms"
     },
     "fulfillment": {
@@ -258,7 +258,7 @@
       "source": "local",
       "packageName": "@86d-app/giftcards",
       "version": "0.0.41",
-      "integrity": "sha256-d0ec2823cc127966c3b56c0bc8f16faf05b5e6b252b6405806aedb0162e13b2d",
+      "integrity": "sha256-eeb9f299e1f9fc41540eea3449f33b465b234bb1a273adbae30982f3464fd7f8",
       "localPath": "modules/giftcards"
     },
     "google-shopping": {
@@ -356,7 +356,7 @@
       "source": "local",
       "packageName": "@86d-app/order-notes",
       "version": "0.0.41",
-      "integrity": "sha256-3f7ffe5aee7563490ec1c77b9274e51ec930700796c33676f4be9451eac28ee5",
+      "integrity": "sha256-2c7523a6ad495f9136f3f9417deab4332b92259a993634ad564818a32043e106",
       "localPath": "modules/order-notes"
     },
     "orders": {
