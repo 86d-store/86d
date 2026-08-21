@@ -35,7 +35,7 @@ bun run generate:modules     # regenerate generated/components.ts + module impor
 bun run generate:registry    # regenerate registry.json from module metadata
 bun run generate:docs        # regenerate internals/docs/component-api.md
 bun run 86d <command>        # the CLI (see below)
-bun run bump-version         # shared version bump (see Version policy)
+bun run bump-version         # shared minor bump by default (see Version policy)
 ```
 
 ## Repository structure
@@ -201,7 +201,11 @@ Every commit follows [Conventional Commits](https://www.conventionalcommits.org/
 
 ## Version policy
 
-All modules and published packages share one version. After committing, run `bun run bump-version`; it self-skips if it bumped within 24 hours. When it bumps, commit as `chore(repo): bump version to X.Y.Z`. Never hand-edit version fields.
+One shared version line covers the root `package.json`, the `86d` CLI, every publishable package and module, and every other workspace `package.json` that carries a version on that line (including private packages such as `db` and `auth`). `@86d-app/contracts` stays on that same line: its `package.json`, `CONTRACTS_PACKAGE_VERSION`, `generate:conformance` artifact version, and the private `vendor/` pin move together.
+
+**Default bump is minor.** After the work that warrants a release is committed, run `bun run bump-version` (minor). Use patch or major only when the operator names that kind. The script updates the shared line, regenerates `apps/registry/registry.json`, and self-skips if it already bumped within 24 hours (`--force` to override). Commit the result as `chore(repo): bump version to X.Y.Z`, then regenerate contracts and refresh the private vendor pin when contracts changed.
+
+A new package joins the current shared version on creation. Run `bun run bump-version` for every version change; do not hand-edit `version` fields or invent a second line for one package.
 
 ## Detailed docs
 

@@ -2,13 +2,14 @@
 /**
  * bump-version.ts
  *
- * Bumps the patch version of all published packages and modules uniformly.
- * All non-private packages must always share the same version.
+ * Bumps every package on the shared version line uniformly (see AGENTS.md
+ * Version policy). Default bump is minor unless the operator names otherwise.
  *
  * Usage:
- *   bun run bump-version          # auto patch bump (0.0.4 → 0.0.5)
- *   bun run bump-version --minor  # minor bump (0.0.4 → 0.1.0)
- *   bun run bump-version --major  # major bump (0.0.4 → 1.0.0)
+ *   bun run bump-version          # minor bump (0.0.41 → 0.1.0)
+ *   bun run bump-version --patch  # patch bump (0.0.41 → 0.0.42)
+ *   bun run bump-version --minor  # minor bump (explicit)
+ *   bun run bump-version --major  # major bump (0.0.41 → 1.0.0)
  *   bun run bump-version 1.2.3    # set explicit version
  */
 
@@ -61,13 +62,14 @@ function bumpSemver(
 	return `${major}.${minor}.${patch + 1}`;
 }
 
-// Collect all publishable package.json paths
+// Collect package.json paths on the shared version line
 const packageJsonPaths = [
 	...findPackageJsons(join(ROOT, "packages")),
 	...findPackageJsons(join(ROOT, "modules")),
-];
+	join(ROOT, "apps", "store", "package.json"),
+].filter((pkgPath) => existsSync(pkgPath));
 
-// Read current versions to determine the canonical version
+// Read current versions to determine the canonical version (publishable first)
 const publishableVersions: string[] = [];
 for (const pkgPath of packageJsonPaths) {
 	const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
@@ -96,30 +98,30 @@ if (!canonical) {
 	process.exit(1);
 }
 
-// Determine target version
+// Determine target version (default: minor per AGENTS.md Version policy)
 let targetVersion: string;
 
 if (args[0] && /^\d+\.\d+\.\d+$/.test(args[0])) {
 	targetVersion = args[0];
 } else if (args.includes("--major")) {
 	targetVersion = bumpSemver(canonical, "major");
-} else if (args.includes("--minor")) {
-	targetVersion = bumpSemver(canonical, "minor");
-} else {
+} else if (args.includes("--patch")) {
 	targetVersion = bumpSemver(canonical, "patch");
+} else {
+	// `--minor` or bare invocation
+	targetVersion = bumpSemver(canonical, "minor");
 }
 
-console.log(`Bumping all published packages: ${canonical} → ${targetVersion}`);
+console.log(`Bumping shared version line: ${canonical} → ${targetVersion}`);
 
 let updated = 0;
 for (const pkgPath of packageJsonPaths) {
 	const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
-	if (!pkg.private && pkg.version) {
-		pkg.version = targetVersion;
-		writeFileSync(pkgPath, `${JSON.stringify(pkg, null, "\t")}\n`);
-		console.log(`  ✓ ${pkg.name}@${targetVersion}`);
-		updated++;
-	}
+	if (!pkg.version) continue;
+	pkg.version = targetVersion;
+	writeFileSync(pkgPath, `${JSON.stringify(pkg, null, "\t")}\n`);
+	console.log(`  ✓ ${pkg.name}@${targetVersion}`);
+	updated++;
 }
 
 // Keep the workspace root version aligned with the shared publish line.
