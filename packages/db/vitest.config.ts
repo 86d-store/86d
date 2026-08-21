@@ -6,5 +6,7 @@ export default defineConfig({
 		// every test twice, the stale copy included.
 		exclude: ["**/node_modules/**", "**/dist/**"],
 		environment: "node",
+		// PGlite cold-start + multi-statement migrations exceed the default 5s in CI.
+		testTimeout: 30_000,
 	},
 });

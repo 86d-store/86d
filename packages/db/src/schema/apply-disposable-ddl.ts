@@ -99,12 +99,14 @@ export async function applyFrameworkMigrations(
 		"0004_command_grant_integrity.sql",
 		"0005_module_outbox_integrity.sql",
 		"0006_module_outbox_skip.sql",
+		"0007_auth_cuid_defaults.sql",
 	];
 	for (const name of migrations) {
 		if (
 			name === "0004_command_grant_integrity.sql" ||
 			name === "0005_module_outbox_integrity.sql" ||
-			name === "0006_module_outbox_skip.sql"
+			name === "0006_module_outbox_skip.sql" ||
+			name === "0007_auth_cuid_defaults.sql"
 		) {
 			await executor.exec(readFileSync(join(drizzleDir(), name), "utf8"));
 			continue;

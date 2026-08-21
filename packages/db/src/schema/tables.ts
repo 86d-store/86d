@@ -21,11 +21,15 @@ import {
 	varchar,
 } from "drizzle-orm/pg-core";
 
+/** Shared alphabet for auth-table cuid defaults (nanoid from migration 0). */
+const AUTH_CUID_DEFAULT = sql`nanoid(24, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'::text)`;
+
 export const session = pgTable(
 	"Session",
 	{
 		id: uuid().primaryKey().notNull(),
-		cuid: varchar({ length: 30 }).notNull(),
+		// Better Auth omits cuid; the DB default must supply it (see 0007).
+		cuid: varchar({ length: 30 }).default(AUTH_CUID_DEFAULT).notNull(),
 		expiresAt: timestamp({ precision: 3, mode: "string" }).notNull(),
 		token: text().notNull(),
 		ipAddress: text(),
@@ -64,7 +68,7 @@ export const account = pgTable(
 	"Account",
 	{
 		id: uuid().primaryKey().notNull(),
-		cuid: varchar({ length: 30 }).notNull(),
+		cuid: varchar({ length: 30 }).default(AUTH_CUID_DEFAULT).notNull(),
 		accountId: text().notNull(),
 		providerId: text().notNull(),
 		accessToken: text(),
@@ -104,7 +108,7 @@ export const passkey = pgTable(
 	"Passkey",
 	{
 		id: uuid().primaryKey().notNull(),
-		cuid: varchar({ length: 30 }).notNull(),
+		cuid: varchar({ length: 30 }).default(AUTH_CUID_DEFAULT).notNull(),
 		name: text(),
 		publicKey: text().notNull(),
 		credentialID: text("credentialID").notNull(),
@@ -146,7 +150,7 @@ export const invitation = pgTable(
 	"Invitation",
 	{
 		id: uuid().primaryKey().notNull(),
-		cuid: varchar({ length: 30 }).notNull(),
+		cuid: varchar({ length: 30 }).default(AUTH_CUID_DEFAULT).notNull(),
 		email: text().notNull(),
 		role: text(),
 		status: text().notNull(),
