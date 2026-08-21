@@ -22,6 +22,7 @@ COPY internals/generators/package.json internals/generators/
 COPY packages/cli/package.json packages/cli/
 COPY apps/store/package.json apps/store/
 COPY packages/core/package.json packages/core/
+COPY packages/contracts/package.json packages/contracts/
 COPY packages/db/package.json packages/db/
 COPY packages/auth/package.json packages/auth/
 COPY packages/env/package.json packages/env/

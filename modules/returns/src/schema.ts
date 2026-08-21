@@ -37,9 +37,8 @@ export const returnsReturnAuthorityReceiptShape = z.object({
 
 export const returnsReturnRequestShape = z.object({
 	id: z.string().register(col, { pk: true }),
-	orderId: z.string().register(col, {
-		references: { table: "self.order", column: "id", onDelete: "cascade" },
-	}),
+	// Order identity is a cross-Module link (orders.order), not a self FK.
+	orderId: z.string(),
 	customerId: z.string(),
 	customerEmail: z.string().optional(),
 	status: z
