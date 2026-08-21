@@ -17,6 +17,8 @@ env:
   FORCE_COLOR: 3
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  # Production builds (and e2e) reject short/placeholder secrets from .env.example.
+  BETTER_AUTH_SECRET: ci-test-secret-not-for-production
 
 jobs:
   ci-cd:
@@ -58,9 +60,12 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/86d
       DATABASE_URL_UNPOOLED: postgresql://postgres:postgres@localhost:5432/86d
-      BETTER_AUTH_SECRET: ci-test-secret-not-for-production
       # Force IPv4 in CI (some runners resolve `localhost` to ::1 first).
       E2E_STORE_URL: http://127.0.0.1:3000
+      E2E_ADMIN_PASSWORD: abc12321
+      APP_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_STORE_URL: http://127.0.0.1:3000
+      BETTER_AUTH_URL: http://127.0.0.1:3000
     steps:
       - uses: actions/checkout@v4
 
