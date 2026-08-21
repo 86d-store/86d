@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/returns",
-	"version": "0.0.41",
+	"version": "0.1.0",
 	"description": "Return request management for 86d commerce platform",
 	"keywords": [
 		"commerce",

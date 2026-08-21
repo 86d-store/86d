@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/redirects",
-	"version": "0.0.41",
+	"version": "0.1.0",
 	"description": "URL redirect management — 301/302/307/308 redirects for SEO and URL migration",
 	"keywords": [
 		"commerce",

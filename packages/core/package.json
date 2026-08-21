@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/core",
-	"version": "0.0.41",
+	"version": "0.1.0",
 	"description": "Core package for 86d, The Modern Foundation for Commerce",
 	"homepage": "https://86d.app",
 	"repository": {

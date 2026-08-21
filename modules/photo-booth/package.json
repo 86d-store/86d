@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/photo-booth",
-	"version": "0.0.41",
+	"version": "0.1.0",
 	"description": "Photo booth module for 86d commerce platform — capture, stream, and share photos at events",
 	"keywords": [
 		"commerce",

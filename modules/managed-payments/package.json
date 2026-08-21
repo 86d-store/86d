@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/managed-payments",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "Cross-plane managed Payment bridge for 86d Store Runtime",
 	"keywords": [
 		"commerce",

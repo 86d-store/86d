@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/announcements",
-	"version": "0.0.41",
+	"version": "0.1.0",
 	"description": "Site-wide announcement bars, promotional banners, and notification banners for 86d commerce platform",
 	"keywords": [
 		"commerce",

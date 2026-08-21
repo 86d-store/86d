@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/waitlist",
-	"version": "0.0.41",
+	"version": "0.1.0",
 	"description": "Back-in-stock waitlist and notification module for 86d commerce platform",
 	"keywords": [
 		"commerce",

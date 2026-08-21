@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/price-lists",
-	"version": "0.0.41",
+	"version": "0.1.0",
 	"description": "Price list management — B2B/wholesale pricing, volume tiers, customer-group-specific pricing, and scheduled price overrides",
 	"keywords": [
 		"commerce",

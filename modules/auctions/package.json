@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/auctions",
-	"version": "0.0.41",
+	"version": "0.1.0",
 	"description": "Time-limited product auctions with bidding, reserve prices, and buy-it-now for 86d commerce platform",
 	"keywords": [
 		"commerce",

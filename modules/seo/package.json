@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/seo",
-	"version": "0.0.41",
+	"version": "0.1.0",
 	"description": "SEO management module for 86d commerce platform — meta tags, redirects, and sitemaps",
 	"keywords": [
 		"commerce",
