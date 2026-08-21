@@ -196,7 +196,7 @@ describe("init", () => {
 				typeof c[0] === "string" && c[0].includes("--filter db seed"),
 		);
 		const seedEnv = (seedCall?.[1] as { env?: Record<string, string> })?.env;
-		expect(seedEnv?.APP_ADMIN_EMAIL).toBe("admin@example.com");
+		expect(seedEnv?.APP_ADMIN_EMAIL).toBe("admin@86d.app");
 		expect(seedEnv?.APP_ADMIN_PASSWORD).toBe("password123");
 	});
 });

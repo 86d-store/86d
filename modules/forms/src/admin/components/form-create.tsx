@@ -165,7 +165,7 @@ export function FormCreate() {
 								type="email"
 								value={notifyEmail}
 								onChange={(e) => setNotifyEmail(e.target.value)}
-								placeholder="admin@example.com"
+								placeholder="admin@86d.app"
 								className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
 							/>
 						</label>

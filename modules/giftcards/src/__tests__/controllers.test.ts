@@ -191,12 +191,12 @@ describe("gift-cards controller – edge cases", () => {
 			const updated = await controller.update(card.id, {
 				status: "disabled",
 				note: "disabled by admin",
-				recipientEmail: "admin@example.com",
+				recipientEmail: "admin@86d.app",
 				expiresAt: "2027-01-01",
 			});
 			expect(updated?.status).toBe("disabled");
 			expect(updated?.note).toBe("disabled by admin");
-			expect(updated?.recipientEmail).toBe("admin@example.com");
+			expect(updated?.recipientEmail).toBe("admin@86d.app");
 			expect(updated?.expiresAt).toBe("2027-01-01");
 		});
 

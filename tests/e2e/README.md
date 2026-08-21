@@ -43,13 +43,13 @@ Tests use page-object fixtures from `fixtures/test-fixtures.ts`:
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `E2E_STORE_URL` | `http://localhost:3000` | Store base URL |
-| `E2E_ADMIN_EMAIL` | `admin@example.com` | Admin sign-in email |
+| `E2E_ADMIN_EMAIL` | `admin@86d.app` | Admin sign-in email |
 | `E2E_ADMIN_PASSWORD` | `password123` | Admin sign-in password |
 
 ## Seed data
 
 Run `bun run db:seed` to create:
-- Admin user (`admin@example.com` / `password123`)
+- Admin user (`admin@86d.app` / `password123`)
 - 16 luxury demo products across 6 categories
 - 6 collections (House Icons, Leather Atelier, Timepiece Gallery, Travel Salon, Evening Edit, Gift Selection)
 - 3 demo customers, brand/content/merchandising data, store settings, inventory, navigation, and 1 demo order

@@ -21,7 +21,7 @@ bun run db:seed                    # seed demo data (requires DATABASE_URL)
 bun run dev                        # store dev server on :3000 (do NOT run in a headless cycle)
 ```
 
-Default admin: `admin@example.com` / `password123` (override with `APP_ADMIN_EMAIL` / `APP_ADMIN_PASSWORD`).
+Default admin: `admin@86d.app` / `password123` (override with `APP_ADMIN_EMAIL` / `APP_ADMIN_PASSWORD`).
 
 ## Build, test, CLI
 

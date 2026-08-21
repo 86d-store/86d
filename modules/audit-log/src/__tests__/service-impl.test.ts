@@ -34,7 +34,7 @@ describe("createAuditLogController", () => {
 				resource: "order",
 				resourceId: "ord_123",
 				actorId: "admin_1",
-				actorEmail: "admin@example.com",
+				actorEmail: "admin@86d.app",
 				actorType: "admin",
 				description: "Updated order status",
 				changes: { status: { from: "pending", to: "processing" } },
@@ -44,7 +44,7 @@ describe("createAuditLogController", () => {
 			});
 			expect(entry.resourceId).toBe("ord_123");
 			expect(entry.actorId).toBe("admin_1");
-			expect(entry.actorEmail).toBe("admin@example.com");
+			expect(entry.actorEmail).toBe("admin@86d.app");
 			expect(entry.actorType).toBe("admin");
 			expect(entry.changes).toEqual({
 				status: { from: "pending", to: "processing" },

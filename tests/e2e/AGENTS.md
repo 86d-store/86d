@@ -22,7 +22,7 @@ tests/e2e/
 - All tests use `waitForLoadState("networkidle")` — never `waitForTimeout()`
 - Admin elements use `data-testid` (e.g., `stat-card`, `stat-value`) for stable selectors
 - Out-of-stock catalog cases skip the rest of that test. Authenticated setup fails if the admin session cannot be created.
-- Credentials default to seed data: `admin@example.com` / `password123`
+- Credentials default to seed data: `admin@86d.app` / `password123`
 
 ## Config
 

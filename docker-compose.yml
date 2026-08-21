@@ -13,7 +13,7 @@
 #   - 86d store app (mapped host port → container 3000)
 #
 # The store auto-runs migrations and seeds demo data on first boot.
-# Default admin: admin@example.com / password123
+# Default admin: admin@86d.app / password123
 # Customize admin credentials: APP_ADMIN_EMAIL=you@example.com APP_ADMIN_PASSWORD=secret docker compose up
 # ============================================================================
 
@@ -86,7 +86,7 @@ services:
       STORE_ID: "${STORE_ID:-de005b9d-c517-4c65-896e-8edef5cf5a94}"
       NODE_ENV: "${NODE_ENV:-production}"
       AUTO_SEED: "true"
-      APP_ADMIN_EMAIL: "${APP_ADMIN_EMAIL:-admin@example.com}"
+      APP_ADMIN_EMAIL: "${APP_ADMIN_EMAIL:-admin@86d.app}"
       APP_ADMIN_PASSWORD: "${APP_ADMIN_PASSWORD:-password123}"
       # Storage — MinIO bucket by default in Docker
       STORAGE_CLIENT: "s3"

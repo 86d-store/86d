@@ -70,7 +70,7 @@ describe("createFormsControllers", () => {
 				fields: sampleFields,
 				submitLabel: "Send Feedback",
 				successMessage: "Thanks for your feedback!",
-				notifyEmail: "admin@example.com",
+				notifyEmail: "admin@86d.app",
 				honeypotEnabled: false,
 				maxSubmissions: 100,
 			});
@@ -79,7 +79,7 @@ describe("createFormsControllers", () => {
 			expect(form.fields).toHaveLength(3);
 			expect(form.submitLabel).toBe("Send Feedback");
 			expect(form.successMessage).toBe("Thanks for your feedback!");
-			expect(form.notifyEmail).toBe("admin@example.com");
+			expect(form.notifyEmail).toBe("admin@86d.app");
 			expect(form.honeypotEnabled).toBe(false);
 			expect(form.maxSubmissions).toBe(100);
 		});

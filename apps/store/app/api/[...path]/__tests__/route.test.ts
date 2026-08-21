@@ -85,7 +85,7 @@ function makeCtx(pathSegments: string[]) {
 }
 
 const mockSession = {
-	user: { id: "user_admin", email: "admin@example.com", role: "admin" },
+	user: { id: "user_admin", email: "admin@86d.app", role: "admin" },
 };
 
 function makeHandlerResponse(status: number, body: unknown) {

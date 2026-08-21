@@ -34,7 +34,7 @@ import { db, getPool } from "db";
 import { user } from "db/schema";
 import { eq } from "drizzle-orm";
 
-const rows = await db.select().from(user).where(eq(user.email, "admin@example.com"));
+const rows = await db.select().from(user).where(eq(user.email, "admin@86d.app"));
 ```
 
 ## Configuration

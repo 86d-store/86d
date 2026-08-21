@@ -6,7 +6,7 @@ import { test as base, type Cookie, expect, type Page } from "@playwright/test";
 /* Constants                                                           */
 /* ------------------------------------------------------------------ */
 
-export const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL || "admin@example.com";
+export const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL || "admin@86d.app";
 export const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || "password123";
 export const ADMIN_STORAGE_STATE_PATH = resolve(
 	process.cwd(),

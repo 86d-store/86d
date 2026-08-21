@@ -82,7 +82,7 @@ async function simulateAdminSetDefault(
 
 // ── Test setup helpers ────────────────────────────────────────────────────────
 
-async function seedCustomer(data: DataService, email = "admin@example.com") {
+async function seedCustomer(data: DataService, email = "admin@86d.app") {
 	const controller = createCustomerController(data);
 	return controller.create({ email, firstName: "Admin", lastName: "Test" });
 }

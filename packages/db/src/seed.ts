@@ -10,7 +10,7 @@
  *   DATABASE_URL=... bun run db:seed
  *
  * What it creates:
- *   - Admin user (APP_ADMIN_EMAIL / APP_ADMIN_PASSWORD env vars, or admin@example.com / password123)
+ *   - Admin user (APP_ADMIN_EMAIL / APP_ADMIN_PASSWORD env vars, or admin@86d.app / password123)
  *   - 16 luxury products with variants across 6 categories
  *   - 6 mirrored collections in both products + collections modules
  *   - Curated Module rows only (compiled tables; stripe is tier-none)
@@ -66,7 +66,7 @@ if (!DATABASE_URL) {
 }
 
 const STORE_ID = process.env.STORE_ID || "de005b9d-c517-4c65-896e-8edef5cf5a94";
-const ADMIN_EMAIL = process.env.APP_ADMIN_EMAIL || "admin@example.com";
+const ADMIN_EMAIL = process.env.APP_ADMIN_EMAIL || "admin@86d.app";
 const ADMIN_PASSWORD = process.env.APP_ADMIN_PASSWORD || "password123";
 const DB_ROOT = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = workspaceRootFromImportMeta(import.meta.url);

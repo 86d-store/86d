@@ -23,7 +23,7 @@ describe("forms admin endpoint validation", () => {
 			],
 			submitLabel: " <strong>Send</strong> ",
 			successMessage: " <div>Thanks!</div> ",
-			notifyEmail: "admin@example.com",
+			notifyEmail: "admin@86d.app",
 			maxSubmissions: 25,
 		});
 

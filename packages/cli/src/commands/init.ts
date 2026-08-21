@@ -111,15 +111,13 @@ export async function init(args: string[]) {
 			if (runSeed) {
 				const seedScript = join(root, "packages/db/src/seed.ts");
 				if (existsSync(seedScript)) {
-					let adminEmail = "admin@example.com";
+					let adminEmail = "admin@86d.app";
 					let adminPassword = "password123";
 
 					if (!yes && process.stdin.isTTY) {
 						console.log();
 						info("Set admin credentials (press Enter to use defaults)");
-						const inputEmail = await prompt(
-							`Admin email [admin@example.com]: `,
-						);
+						const inputEmail = await prompt(`Admin email [admin@86d.app]: `);
 						if (inputEmail.trim()) adminEmail = inputEmail.trim();
 						const inputPassword = await prompt(
 							`Admin password [password123]: `,
@@ -140,7 +138,7 @@ export async function init(args: string[]) {
 						});
 						success("Demo data seeded");
 						if (
-							adminEmail !== "admin@example.com" ||
+							adminEmail !== "admin@86d.app" ||
 							adminPassword !== "password123"
 						) {
 							console.log();

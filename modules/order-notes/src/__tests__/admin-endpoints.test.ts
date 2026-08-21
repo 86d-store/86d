@@ -76,7 +76,7 @@ function call(
 		context: {
 			controllers: { orderNotes: opts.controller ?? makeController() },
 			session: opts.session ?? {
-				user: { id: "admin-1", name: "Admin", email: "admin@example.com" },
+				user: { id: "admin-1", name: "Admin", email: "admin@86d.app" },
 			},
 		},
 	});
