@@ -147,6 +147,7 @@ Templates live in `templates/<name>/`. The store app resolves them via tsconfig 
 - No `any`, `@ts-expect-error`, `@ts-ignore`, or `biome-ignore`. Fix the type or the code.
 - Module `src/index.ts` must not use `export { … } from` (Biome `noBarrelFile`). Keep the factory and its own declarations in the entry; named package-root exports use import-then-export. Type-only `export type { … } from` is allowed. Consumers still import from `@86d-app/<module>` or the existing `"./*"` subpath map.
 - `@86d-app/core` exposes subpath exports only — there is no package-root import. Module types come from `@86d-app/core/types/module`; target storage declarations use `col` and declaration types from `@86d-app/core/schema` plus `z` from `@86d-app/core/zod`. Other common paths are `@86d-app/core/sanitize`, `@86d-app/core/state` (MobX), `@86d-app/core/client/*` (React Query hooks, provider, client), and `@86d-app/core/test-utils`.
+- Shared Command and Change Set wire contracts live in `@86d-app/contracts` (`./command`, `./change-set`, `./conformance`). `@86d-app/core/commands` re-exports only; do not add schemas there. Pin the exact package version and verify `CONFORMANCE_DIGEST` via `assertConformancePin` before serving Commands.
 - Store app path alias: `~/` for local imports (not bare `lib/`, which conflicts with `packages/lib`).
 - Use the `@86d-app/storage` abstraction. Never import `@vercel/blob` directly.
 - Tests use `@86d-app/core/test-utils` mock data services. Never hit a real database.

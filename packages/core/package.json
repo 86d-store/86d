@@ -159,6 +159,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
+		"@86d-app/contracts": "workspace:*",
 		"@tanstack/react-query": "catalog:trpc",
 		"better-call": "1.3.5",
 		"mobx": "6.15.3",

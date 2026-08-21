@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { actorReferenceSchema } from "./commands";
 import type { ModuleDataService } from "./types/module";
 
 export type DurableEventDefinition<
@@ -159,12 +160,7 @@ export const inventoryStockAdjustedV2 = defineDurableEvent({
 					operationId: z.string().min(8).max(200),
 					correlationId: z.string().min(1).max(255),
 					causationId: z.string().min(1).max(255).optional(),
-					actor: z
-						.object({
-							type: z.enum(["account", "workload", "system"]),
-							id: z.string().min(1).max(255),
-						})
-						.strict(),
+					actor: actorReferenceSchema,
 					authorityId: z.string().min(1).max(255),
 				})
 				.strict(),
@@ -189,12 +185,7 @@ export const catalogPublishedV1 = defineDurableEvent({
 			variantCount: z.number().int().nonnegative(),
 			categoryCount: z.number().int().nonnegative(),
 			operationId: z.string().min(8).max(180),
-			actor: z
-				.object({
-					type: z.enum(["account", "workload", "system"]),
-					id: z.string().min(1).max(255),
-				})
-				.strict(),
+			actor: actorReferenceSchema,
 			authorityId: z.string().min(1).max(255),
 		})
 		.strict(),

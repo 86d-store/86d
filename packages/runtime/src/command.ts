@@ -1,5 +1,9 @@
 import { createHmac, randomUUID } from "node:crypto";
 import {
+	assertConformancePin,
+	EXPECTED_PIN,
+} from "@86d-app/contracts/conformance";
+import {
 	type ActionLevel,
 	type ActorReference,
 	type AuditEvent,
@@ -11,9 +15,11 @@ import {
 	type CommandFailure,
 	type CommandReference,
 	type CommandRequest,
+	canonicalJson,
 	commandFailureSchema,
 	commandReferenceSchema,
 	commandRequestSchema,
+	computeCommandInputDigest,
 	type GrantUse,
 	type JsonValue,
 	jsonValueSchema,
@@ -28,6 +34,8 @@ import {
 	computeCommandBindingHash,
 	validateCommandGrantFacts,
 } from "./grants";
+
+export { computeCommandInputDigest };
 
 type ParseResult<T> =
 	| { success: true; data: T }
@@ -713,55 +721,6 @@ function redactInput(
 	return redacted;
 }
 
-function canonicalize(value: JsonValue): JsonValue {
-	if (Array.isArray(value)) {
-		return value.map(canonicalize);
-	}
-	if (value === null || typeof value !== "object") {
-		return value;
-	}
-	const canonical: Record<string, JsonValue> = {};
-	const entries = Object.entries(value).sort(([left], [right]) =>
-		left < right ? -1 : left > right ? 1 : 0,
-	);
-	for (const [key, item] of entries) {
-		canonical[key] = canonicalize(item);
-	}
-	return canonical;
-}
-
-function canonicalString(value: JsonValue): string {
-	return JSON.stringify(canonicalize(value));
-}
-
-function keyedDigest(
-	key: string,
-	domain: string,
-	version: number,
-	value: JsonValue,
-): string {
-	return createHmac("sha256", key)
-		.update(`${domain}\0v${version}\0`)
-		.update(canonicalString(value))
-		.digest("hex");
-}
-
-/** Stable, secret-keyed digest of validated input; grant references are excluded. */
-export function computeCommandInputDigest(
-	digestKey: string,
-	content: {
-		plane: AuthoritativePlane;
-		command: CommandReference;
-		target: TargetReference;
-		input: JsonValue;
-	},
-): string {
-	if (new TextEncoder().encode(digestKey).byteLength < 32) {
-		throw new Error("Command digest key must be at least 32 bytes.");
-	}
-	return keyedDigest(digestKey, "86d.command.input", 2, content);
-}
-
 function commandFailure(
 	code: CommandFailure["code"],
 	message: string,
@@ -920,6 +879,7 @@ export function createCommandExecutor<TTransaction>(options: {
 	clock?: (() => Date) | undefined;
 	createId?: ((kind: "execution" | "audit") => string) | undefined;
 }): CommandExecutor {
+	assertConformancePin(EXPECTED_PIN);
 	if (
 		typeof options.digestKey !== "string" ||
 		new TextEncoder().encode(options.digestKey).byteLength < 32
@@ -1043,14 +1003,14 @@ export function createCommandExecutor<TTransaction>(options: {
 			input: parsedInput.data,
 		});
 		const legacyInputDigest = createHmac("sha256", options.digestKey)
-			.update(canonicalString(legacyDigestMaterial))
+			.update(canonicalJson(legacyDigestMaterial))
 			.digest("hex");
 
 		const redactedInput = redactInput(
 			parsedInput.data,
 			new Set(definition.sensitiveInputPaths ?? []),
 		);
-		const scope = canonicalString({
+		const scope = canonicalJson({
 			plane: options.plane,
 			actor: actor.data,
 			target: target.data,

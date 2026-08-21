@@ -1,0 +1,53 @@
+{
+	"name": "@86d-app/contracts",
+	"version": "0.1.0",
+	"description": "Immutable versioned Command and Change Set conformance contracts for 86d Control Plane and Store Runtime",
+	"homepage": "https://86d.app",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/86d-app/86d.git",
+		"directory": "packages/contracts"
+	},
+	"license": "MIT",
+	"author": "86d <chat@86d.app>",
+	"type": "module",
+	"exports": {
+		"./command": {
+			"types": "./src/command.ts",
+			"default": "./src/command.ts"
+		},
+		"./change-set": {
+			"types": "./src/change-set.ts",
+			"default": "./src/change-set.ts"
+		},
+		"./conformance": {
+			"types": "./src/conformance.ts",
+			"default": "./src/conformance.ts"
+		}
+	},
+	"files": [
+		"dist",
+		"src",
+		"README.md"
+	],
+	"scripts": {
+		"build": "tsc",
+		"check": "biome check src scripts",
+		"check:fix": "biome check --write --unsafe src scripts",
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"dev": "tsc",
+		"generate:conformance": "bun ./scripts/generate-conformance.ts",
+		"pack:artifact": "bun pm pack --quiet",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:vite"
+	}
+}
