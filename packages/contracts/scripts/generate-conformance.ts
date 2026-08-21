@@ -11,8 +11,8 @@ import {
 	WORKFLOW_TRANSITIONS,
 } from "../src/command";
 
-const packageVersion = "0.1.0";
-const artifactVersion = "0.1.0";
+const packageVersion = "0.0.41";
+const artifactVersion = "0.0.41";
 
 const compatibilityMatrix = {
 	semverPolicy: {
@@ -23,19 +23,19 @@ const compatibilityMatrix = {
 			"May repair implementation or documentation without changing an existing wire schema.",
 	},
 	acceptedPairs: [
-		{ consumer: "0.1.0", artifact: "0.1.0" },
-		{ consumer: "0.1.0", artifact: "0.0.0" },
+		{ consumer: "0.0.41", artifact: "0.0.41" },
+		{ consumer: "0.0.41", artifact: "0.0.0" },
 	],
 	rejectedPairs: [
-		{ consumer: "0.1.0", artifact: "1.0.0", reason: "major_break" },
-		{ consumer: "0.2.0", artifact: "0.1.0", reason: "unlisted_pair" },
+		{ consumer: "0.0.41", artifact: "1.0.0", reason: "major_break" },
+		{ consumer: "0.1.0", artifact: "0.0.41", reason: "unlisted_pair" },
 	],
 };
 
 const currentFixtureSuite = fixture;
 const previousMinorFixtureSuite = {
 	artifactVersion: "0.0.0",
-	note: "Bootstrap previous-minor suite; identical to 0.1.0 envelope and transitions.",
+	note: "Bootstrap previous-minor suite; identical to 0.0.41 envelope and transitions.",
 	validRequest: fixture.validRequest,
 	commandTransitions: fixture.commandTransitions,
 	workflowTransitions: fixture.workflowTransitions,

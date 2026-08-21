@@ -10,7 +10,7 @@ import {
 } from "./command";
 import { conformanceArtifact as artifact } from "./generated/conformance-artifact";
 
-export const CONTRACTS_PACKAGE_VERSION = "0.1.0" as const;
+export const CONTRACTS_PACKAGE_VERSION = "0.0.41" as const;
 export const CONTRACTS_ARTIFACT_VERSION = artifact.version;
 export const CONFORMANCE_DIGEST = artifact.digest;
 export const COMPATIBILITY_MATRIX = artifact.compatibilityMatrix;

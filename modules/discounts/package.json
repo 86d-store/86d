@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/discounts",
-	"version": "0.1.0",
+	"version": "0.0.41",
 	"description": "Discount codes and promotions module for 86d commerce platform",
 	"keywords": [
 		"commerce",

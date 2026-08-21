@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/products",
-	"version": "0.1.0",
+	"version": "0.0.41",
 	"description": "Product catalog module for 86d commerce platform",
 	"keywords": [
 		"commerce",

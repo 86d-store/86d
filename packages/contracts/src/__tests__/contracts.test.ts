@@ -137,12 +137,12 @@ describe("@86d-app/contracts conformance", () => {
 		expect(() => assertConformancePin(EXPECTED_PIN)).not.toThrow();
 		expect(() =>
 			assertConformancePin({
-				packageVersion: "0.1.0",
+				packageVersion: "0.0.41",
 				digest: "0".repeat(64),
 			}),
 		).toThrow(/does not match/);
-		expect(isCompatiblePackagePair("0.1.0")).toBe(true);
-		expect(isCompatiblePackagePair("0.2.0")).toBe(false);
+		expect(isCompatiblePackagePair("0.0.41")).toBe(true);
+		expect(isCompatiblePackagePair("0.1.0")).toBe(false);
 	});
 
 	it("produces identical digests across two generations of the payload", () => {

@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/runtime",
-	"version": "0.0.4",
+	"version": "0.0.41",
 	"private": true,
 	"license": "MIT",
 	"type": "module",

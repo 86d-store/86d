@@ -122,6 +122,19 @@ for (const pkgPath of packageJsonPaths) {
 	}
 }
 
+// Keep the workspace root version aligned with the shared publish line.
+const rootPkgPath = join(ROOT, "package.json");
+const rootPkg = JSON.parse(readFileSync(rootPkgPath, "utf8")) as {
+	name?: string;
+	version?: string;
+};
+if (rootPkg.version) {
+	rootPkg.version = targetVersion;
+	writeFileSync(rootPkgPath, `${JSON.stringify(rootPkg, null, "\t")}\n`);
+	console.log(`  ✓ ${rootPkg.name ?? "root"}@${targetVersion}`);
+	updated++;
+}
+
 console.log(`\nUpdated ${updated} packages to ${targetVersion}`);
 
 // Regenerate apps/registry/registry.json so versions and integrity hashes stay in sync.
