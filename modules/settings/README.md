@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://86d.app">
-    <img src="https://86d.app/logo" height="96" alt="86d" />
+    <img src="https://86d.app/icon" height="96" alt="86d" />
   </a>
 </p>
 
@@ -15,15 +15,15 @@
 <br/>
 
 > [!WARNING]
-> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk.
+> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
+
+📚 **Documentation:** [86d.app/docs/modules/settings](https://86d.app/docs/modules/settings)
 
 # Settings Module
 
 Settings is the Store Runtime authority for shopper-visible presentation. It
 provides the typed `settings.presentation.resolve@1.0.0` decision so consumers
 such as invoice projection do not accept browser- or admin-supplied branding.
-
-📚 **Documentation:** [86d.app/docs/modules/settings](https://86d.app/docs/modules/settings)
 
 Global key-value store for store configuration. Settings are organized into groups (general, contact, social, legal, commerce, appearance) and managed through dedicated admin sub-pages.
 

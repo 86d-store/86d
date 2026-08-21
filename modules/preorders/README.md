@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://86d.app">
-    <img src="https://86d.app/logo" height="96" alt="86d" />
+    <img src="https://86d.app/icon" height="96" alt="86d" />
   </a>
 </p>
 
@@ -15,11 +15,11 @@
 <br/>
 
 > [!WARNING]
-> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk.
-
-# Preorders Module
+> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
 📚 **Documentation:** [86d.app/docs/modules/preorders](https://86d.app/docs/modules/preorders)
+
+# Preorders Module
 
 Preorder campaign management for upcoming, limited-edition, or out-of-stock products. Create time-bound campaigns with full payment or deposit options, track customer preorders through the fulfillment lifecycle, and notify customers when products are ready to ship.
 

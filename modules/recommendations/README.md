@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://86d.app">
-    <img src="https://86d.app/logo" height="96" alt="86d" />
+    <img src="https://86d.app/icon" height="96" alt="86d" />
   </a>
 </p>
 
@@ -15,11 +15,11 @@
 <br/>
 
 > [!WARNING]
-> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk.
-
-# Recommendations Module
+> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
 📚 **Documentation:** [86d.app/docs/modules/recommendations](https://86d.app/docs/modules/recommendations)
+
+# Recommendations Module
 
 Product recommendation engine for cross-sells, upsells, and personalized discovery. Supports four strategies: manual (admin-curated associations), bought_together (co-occurrence analysis from purchase history), trending (weighted interaction velocity), and personalized (category affinity with co-occurrence fallback). Works for both guest and authenticated customers.
 

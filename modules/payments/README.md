@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://86d.app">
-    <img src="https://86d.app/logo" height="96" alt="86d" />
+    <img src="https://86d.app/icon" height="96" alt="86d" />
   </a>
 </p>
 
@@ -15,11 +15,11 @@
 <br/>
 
 > [!WARNING]
-> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk.
-
-# Payments Module
+> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
 📚 **Documentation:** [86d.app/docs/modules/payments](https://86d.app/docs/modules/payments)
+
+# Payments Module
 
 Provider-neutral payment ownership for the 86d commerce platform. The additive v2 boundary records named Store Payment Connections and durable provider operations; legacy intent, method, and refund APIs remain migration state.
 

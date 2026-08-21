@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://86d.app">
-    <img src="https://86d.app/logo" height="96" alt="86d" />
+    <img src="https://86d.app/icon" height="96" alt="86d" />
   </a>
 </p>
 
@@ -15,7 +15,9 @@
 <br/>
 
 > [!WARNING]
-> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk.
+> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
+
+📚 **Documentation:** [86d.app/docs/modules/products](https://86d.app/docs/modules/products)
 
 # Products Module
 
@@ -27,8 +29,6 @@
 > unfinished. The owner-local immutable revision and presentation projection
 > exist, but import, admin CRUD, and live product-feed generation have not moved
 > to that path yet.
-
-📚 **Documentation:** [86d.app/docs/modules/products](https://86d.app/docs/modules/products)
 
 Product catalog module with variants and hierarchical categories. Full CRUD for the admin panel and read-only browsing with search and filtering for the storefront.
 

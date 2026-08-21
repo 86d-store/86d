@@ -1,8 +1,25 @@
+<p align="center">
+  <a href="https://86d.app">
+    <img src="https://86d.app/icon" height="96" alt="86d" />
+  </a>
+</p>
 
+<p align="center">
+  The Modern Foundation for Commerce
+</p>
 
-# @86d-app/gift-registry
+<p align="center">
+  <a href="https://x.com/86d_app"><strong>X</strong></a> ·
+  <a href="https://www.linkedin.com/company/86d"><strong>LinkedIn</strong></a>
+</p>
+<br/>
+
+> [!WARNING]
+> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
 📚 **Documentation:** [86d.app/docs/modules/gift-registry](https://86d.app/docs/modules/gift-registry)
+
+# @86d-app/gift-registry
 
 Gift registry module for 86d commerce platform. Allows customers to create and share gift registries for weddings, baby showers, birthdays, housewarmings, holidays, and more. Visitors can browse registries, view items, and purchase gifts.
 

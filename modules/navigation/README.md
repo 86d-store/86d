@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://86d.app">
-    <img src="https://86d.app/logo" height="96" alt="86d" />
+    <img src="https://86d.app/icon" height="96" alt="86d" />
   </a>
 </p>
 
@@ -15,11 +15,11 @@
 <br/>
 
 > [!WARNING]
-> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk.
-
-# Navigation Module
+> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
 📚 **Documentation:** [86d.app/docs/modules/navigation](https://86d.app/docs/modules/navigation)
+
+# Navigation Module
 
 Manages store navigation menus with nested, drag-and-drop-reorderable menu items. Supports multiple locations (header, footer, sidebar, mobile, custom) and item types including direct links, categories, collections, pages, and products.
 

@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://86d.app">
-    <img src="https://86d.app/logo" height="96" alt="86d" />
+    <img src="https://86d.app/icon" height="96" alt="86d" />
   </a>
 </p>
 
@@ -15,11 +15,11 @@
 <br/>
 
 > [!WARNING]
-> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk.
-
-# Discounts Module
+> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
 📚 **Documentation:** [86d.app/docs/modules/discounts](https://86d.app/docs/modules/discounts)
+
+# Discounts Module
 
 Discount and promo code management. Supports percentage, fixed-amount, and free-shipping discount types with optional product/category scoping, usage limits, and date windows. Standalone — no dependencies on other modules.
 

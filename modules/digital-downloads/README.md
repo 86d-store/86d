@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://86d.app">
-    <img src="https://86d.app/logo" height="96" alt="86d" />
+    <img src="https://86d.app/icon" height="96" alt="86d" />
   </a>
 </p>
 
@@ -15,11 +15,11 @@
 <br/>
 
 > [!WARNING]
-> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk.
-
-# Digital Downloads Module
+> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
 📚 **Documentation:** [86d.app/docs/modules/digital-downloads](https://86d.app/docs/modules/digital-downloads)
+
+# Digital Downloads Module
 
 Secure file delivery for the 86d commerce platform. Associates downloadable files with products and generates expiring, limited-use tokens for order fulfillment. Supports batch token creation for orders with multiple digital products.
 

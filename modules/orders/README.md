@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://86d.app">
-    <img src="https://86d.app/logo" height="96" alt="86d" />
+    <img src="https://86d.app/icon" height="96" alt="86d" />
   </a>
 </p>
 
@@ -15,11 +15,11 @@
 <br/>
 
 > [!WARNING]
-> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk.
-
-# Orders Module
+> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
 📚 **Documentation:** [86d.app/docs/modules/orders](https://86d.app/docs/modules/orders)
+
+# Orders Module
 
 Order ownership for the accepted commercial agreement, plus migration-era read projections. Fulfillment, Returns, Payment outcomes, destructive bulk operations, and guest proof authorization are delegated to their owning boundaries or contained.
 

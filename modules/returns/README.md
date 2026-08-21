@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://86d.app">
-    <img src="https://86d.app/logo" height="96" alt="86d" />
+    <img src="https://86d.app/icon" height="96" alt="86d" />
   </a>
 </p>
 
@@ -15,11 +15,11 @@
 <br/>
 
 > [!WARNING]
-> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk.
-
-# Returns Module
+> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
 📚 **Documentation:** [86d.app/docs/modules/returns](https://86d.app/docs/modules/returns)
+
+# Returns Module
 
 Contains the legacy return workflow and exposes an additive authoritative request foundation. The foundation snapshots line quantities and reasons, validates cumulative quantities against Orders, replays operations deterministically, and commits `return.requested@1` atomically.
 

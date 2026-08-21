@@ -1,8 +1,25 @@
+<p align="center">
+  <a href="https://86d.app">
+    <img src="https://86d.app/icon" height="96" alt="86d" />
+  </a>
+</p>
 
+<p align="center">
+  The Modern Foundation for Commerce
+</p>
 
-# @86d-app/delivery-slots
+<p align="center">
+  <a href="https://x.com/86d_app"><strong>X</strong></a> ·
+  <a href="https://www.linkedin.com/company/86d"><strong>LinkedIn</strong></a>
+</p>
+<br/>
+
+> [!WARNING]
+> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
 📚 **Documentation:** [86d.app/docs/modules/delivery-slots](https://86d.app/docs/modules/delivery-slots)
+
+# @86d-app/delivery-slots
 
 Delivery slots module for 86d commerce platform. Allows store owners to define delivery time windows by day of week with capacity limits and optional surcharges, and customers to book a delivery slot during checkout. Supports blackout dates to block deliveries on holidays or special occasions.
 

@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://86d.app">
-    <img src="https://86d.app/logo" height="96" alt="86d" />
+    <img src="https://86d.app/icon" height="96" alt="86d" />
   </a>
 </p>
 
@@ -15,11 +15,11 @@
 <br/>
 
 > [!WARNING]
-> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk.
-
-# Product Labels Module
+> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
 📚 **Documentation:** [86d.app/docs/modules/product-labels](https://86d.app/docs/modules/product-labels)
+
+# Product Labels Module
 
 Visual merchandising module for adding labels and badges to products. Create labels like "New", "Sale", "Best Seller", "Limited Edition", or custom badges with configurable colors, types, and display positions. Supports scheduled labels with start/end dates and conditional assignment rules.
 
