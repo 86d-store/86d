@@ -1,12 +1,5 @@
 #!/usr/bin/env node
 
-import { dev } from "./commands/dev.js";
-import { doctor } from "./commands/doctor.js";
-import { generate } from "./commands/generate.js";
-import { init } from "./commands/init.js";
-import { moduleCommand } from "./commands/module.js";
-import { status } from "./commands/status.js";
-import { templateCommand } from "./commands/template.js";
 import { c, getVersion } from "./utils.js";
 
 const args = process.argv.slice(2);
@@ -15,26 +8,46 @@ const subcommand = args[1];
 
 async function main() {
 	switch (command) {
-		case "dev":
+		case "dev": {
+			const { dev } = await import("./commands/dev.js");
 			return dev(args.slice(1));
+		}
 
-		case "init":
+		case "init": {
+			const { init } = await import("./commands/init.js");
 			return init(args.slice(1));
+		}
 
-		case "module":
+		case "module": {
+			// Keep `module build` free of registry/workspace imports so package
+			// builds can run from the published bin without loading TS sources.
+			if (subcommand === "build") {
+				const { buildModule } = await import("./commands/module-build.js");
+				return buildModule(args.slice(2));
+			}
+			const { moduleCommand } = await import("./commands/module.js");
 			return moduleCommand(subcommand, args.slice(2));
+		}
 
-		case "template":
+		case "template": {
+			const { templateCommand } = await import("./commands/template.js");
 			return templateCommand(subcommand, args.slice(2));
+		}
 
-		case "generate":
+		case "generate": {
+			const { generate } = await import("./commands/generate.js");
 			return generate(args.slice(1));
+		}
 
-		case "status":
+		case "status": {
+			const { status } = await import("./commands/status.js");
 			return status();
+		}
 
-		case "doctor":
+		case "doctor": {
+			const { doctor } = await import("./commands/doctor.js");
 			return doctor();
+		}
 
 		case "help":
 		case "--help":
@@ -66,6 +79,7 @@ ${c.bold("Commands:")}
   ${c.cyan("init")} ${c.dim("[--yes]")}             Configure a local store (env, deps, migrate, seed)
   ${c.cyan("status")}                  Show project health and configuration
   ${c.cyan("doctor")}                  Diagnose project issues with fix suggestions
+  ${c.cyan("module build")} ${c.dim("[dir]")}       Compile a module to dist/ (+ copy assets)
   ${c.cyan("module create")} <name>    Scaffold a new module
   ${c.cyan("module add")} <specifier>  Add a module from registry, GitHub, or npm
   ${c.cyan("module list")}             List all local modules
@@ -88,6 +102,7 @@ ${c.dim("Examples:")}
   ${c.gray("$")} 86d init
   ${c.gray("$")} 86d status
   ${c.gray("$")} 86d dev --port 4000
+  ${c.gray("$")} 86d module build
   ${c.gray("$")} 86d module create loyalty-points
   ${c.gray("$")} 86d module enable loyalty-points
   ${c.gray("$")} 86d template activate minimal

@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/forms",
 	"version": "0.0.41",
-	"description": "Custom forms module for 86d commerce platform — contact forms, surveys, inquiries",
+	"description": "Custom forms module for 86d commerce platform \u2014 contact forms, surveys, inquiries",
 	"keywords": [
 		"commerce",
 		"forms",
@@ -45,8 +45,17 @@
 			"default": "./src/store/components/mdx.tsx"
 		}
 	},
+	"files": [
+		"dist",
+		"!dist/**/__tests__",
+		"!dist/**/__tests__/**",
+		"!dist/**/*.test.js",
+		"!dist/**/*.test.d.ts",
+		"!dist/**/*.test.d.ts.map",
+		"README.md"
+	],
 	"scripts": {
-		"build": "tsc",
+		"build": "86d module build",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -59,10 +68,49 @@
 		"@86d-app/core": "workspace:*"
 	},
 	"devDependencies": {
+		"86d": "workspace:*",
 		"@biomejs/biome": "catalog:",
 		"@types/mdx": "catalog:mdx",
 		"@types/react": "catalog:react",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
+	},
+	"peerDependencies": {
+		"react": "catalog:react"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			".": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"./*": "./dist/*",
+			"./admin/components/form-create": {
+				"types": "./dist/admin/components/form-create.d.ts",
+				"default": "./dist/admin/components/form-create.js"
+			},
+			"./admin/components/form-detail": {
+				"types": "./dist/admin/components/form-detail.d.ts",
+				"default": "./dist/admin/components/form-detail.js"
+			},
+			"./admin/components/form-submissions": {
+				"types": "./dist/admin/components/form-submissions.d.ts",
+				"default": "./dist/admin/components/form-submissions.js"
+			},
+			"./admin/components/forms-list": {
+				"types": "./dist/admin/components/forms-list.d.ts",
+				"default": "./dist/admin/components/forms-list.js"
+			},
+			"./components": {
+				"types": "./dist/store/components/mdx.d.ts",
+				"default": "./dist/store/components/mdx.js"
+			}
+		}
 	}
 }

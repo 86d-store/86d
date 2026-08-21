@@ -27,8 +27,17 @@
 			"default": "./src/store/components/mdx.tsx"
 		}
 	},
+	"files": [
+		"dist",
+		"!dist/**/__tests__",
+		"!dist/**/__tests__/**",
+		"!dist/**/*.test.js",
+		"!dist/**/*.test.d.ts",
+		"!dist/**/*.test.d.ts.map",
+		"README.md"
+	],
 	"scripts": {
-		"build": "tsc",
+		"build": "86d module build",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"dev": "tsc",
@@ -40,10 +49,41 @@
 		"@86d-app/core": "workspace:*"
 	},
 	"devDependencies": {
+		"86d": "workspace:*",
 		"@biomejs/biome": "catalog:",
 		"@types/mdx": "catalog:mdx",
 		"@types/react": "catalog:react",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
+	},
+	"peerDependencies": {
+		"react": "catalog:react"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			".": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"./*": "./dist/*",
+			"./admin/components/quote-detail": {
+				"types": "./dist/admin/components/quote-detail.d.ts",
+				"default": "./dist/admin/components/quote-detail.js"
+			},
+			"./admin/components/quote-list": {
+				"types": "./dist/admin/components/quote-list.d.ts",
+				"default": "./dist/admin/components/quote-list.js"
+			},
+			"./components": {
+				"types": "./dist/store/components/mdx.d.ts",
+				"default": "./dist/store/components/mdx.js"
+			}
+		}
 	}
 }

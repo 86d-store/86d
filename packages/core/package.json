@@ -146,10 +146,16 @@
 		}
 	},
 	"files": [
-		"dist"
+		"dist",
+		"!dist/**/__tests__",
+		"!dist/**/__tests__/**",
+		"!dist/**/*.test.js",
+		"!dist/**/*.test.d.ts",
+		"!dist/**/*.test.d.ts.map",
+		"README.md"
 	],
 	"scripts": {
-		"build": "tsc",
+		"build": "tsc && bun ../../internals/generators/src/copy-package-assets.ts",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -183,6 +189,143 @@
 	"peerDependenciesMeta": {
 		"react": {
 			"optional": true
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			"./adapters": {
+				"types": "./dist/adapters.d.ts",
+				"default": "./dist/adapters.js"
+			},
+			"./api": {
+				"types": "./dist/api.d.ts",
+				"default": "./dist/api.js"
+			},
+			"./capabilities": {
+				"types": "./dist/capabilities.d.ts",
+				"default": "./dist/capabilities.js"
+			},
+			"./charts": {
+				"types": "./dist/charts.d.ts",
+				"default": "./dist/charts.js"
+			},
+			"./client/create-client": {
+				"types": "./dist/client/create-client.d.ts",
+				"default": "./dist/client/create-client.js"
+			},
+			"./client/hooks": {
+				"types": "./dist/client/hooks.d.ts",
+				"default": "./dist/client/hooks.js"
+			},
+			"./client/provider": {
+				"types": "./dist/client/provider.d.ts",
+				"default": "./dist/client/provider.js"
+			},
+			"./client/query-client": {
+				"types": "./dist/client/query-client.d.ts",
+				"default": "./dist/client/query-client.js"
+			},
+			"./client/react-query": {
+				"types": "./dist/client/react-query.d.ts",
+				"default": "./dist/client/react-query.js"
+			},
+			"./client/store-context": {
+				"types": "./dist/client/store-context.d.ts",
+				"default": "./dist/client/store-context.js"
+			},
+			"./client/types": {
+				"types": "./dist/client/types.d.ts",
+				"default": "./dist/client/types.js"
+			},
+			"./commands": {
+				"types": "./dist/commands.d.ts",
+				"default": "./dist/commands.js"
+			},
+			"./commerce-capabilities": {
+				"types": "./dist/commerce-capabilities.d.ts",
+				"default": "./dist/commerce-capabilities.js"
+			},
+			"./contracts": {
+				"types": "./dist/contracts.d.ts",
+				"default": "./dist/contracts.js"
+			},
+			"./durable-events": {
+				"types": "./dist/durable-events.d.ts",
+				"default": "./dist/durable-events.js"
+			},
+			"./endpoint-exposure": {
+				"types": "./dist/endpoint-exposure.d.ts",
+				"default": "./dist/endpoint-exposure.js"
+			},
+			"./endpoint-references": {
+				"types": "./dist/endpoint-references.d.ts",
+				"default": "./dist/endpoint-references.js"
+			},
+			"./events": {
+				"types": "./dist/events.d.ts",
+				"default": "./dist/events.js"
+			},
+			"./graph": {
+				"types": "./dist/graph/index.d.ts",
+				"default": "./dist/graph/index.js"
+			},
+			"./inventory-reservation-capability": {
+				"types": "./dist/inventory-reservation-capability.d.ts",
+				"default": "./dist/inventory-reservation-capability.js"
+			},
+			"./paths": {
+				"types": "./dist/paths.d.ts",
+				"default": "./dist/paths.js"
+			},
+			"./payment-connection-provider": {
+				"types": "./dist/payment-connection-provider.d.ts",
+				"default": "./dist/payment-connection-provider.js"
+			},
+			"./payment-checkout-ports": {
+				"types": "./dist/payment-checkout-ports.d.ts",
+				"default": "./dist/payment-checkout-ports.js"
+			},
+			"./payment-provider": {
+				"types": "./dist/payment-provider.d.ts",
+				"default": "./dist/payment-provider.js"
+			},
+			"./sanitize": {
+				"types": "./dist/sanitize.d.ts",
+				"default": "./dist/sanitize.js"
+			},
+			"./state": {
+				"types": "./dist/state.d.ts",
+				"default": "./dist/state.js"
+			},
+			"./test-utils": {
+				"types": "./dist/test-utils.d.ts",
+				"default": "./dist/test-utils.js"
+			},
+			"./types/helper": {
+				"types": "./dist/types/helper.d.ts",
+				"default": "./dist/types/helper.js"
+			},
+			"./types/module": {
+				"types": "./dist/types/module.d.ts",
+				"default": "./dist/types/module.js"
+			},
+			"./types/schema": {
+				"types": "./dist/types/schema.d.ts",
+				"default": "./dist/types/schema.js"
+			},
+			"./schema": {
+				"types": "./dist/schema/index.d.ts",
+				"default": "./dist/schema/index.js"
+			},
+			"./curated-modules": {
+				"types": "./dist/curated-modules.d.ts",
+				"default": "./dist/curated-modules.js"
+			},
+			"./zod": {
+				"types": "./dist/zod.d.ts",
+				"default": "./dist/zod.js"
+			}
 		}
 	}
 }

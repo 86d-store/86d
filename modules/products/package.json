@@ -58,8 +58,17 @@
 			"default": "./src/state.ts"
 		}
 	},
+	"files": [
+		"dist",
+		"!dist/**/__tests__",
+		"!dist/**/__tests__/**",
+		"!dist/**/*.test.js",
+		"!dist/**/*.test.d.ts",
+		"!dist/**/*.test.d.ts.map",
+		"README.md"
+	],
 	"scripts": {
-		"build": "tsc",
+		"build": "86d module build",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -72,6 +81,7 @@
 		"@86d-app/core": "workspace:*"
 	},
 	"devDependencies": {
+		"86d": "workspace:*",
 		"@biomejs/biome": "catalog:",
 		"@types/mdx": "catalog:mdx",
 		"@types/react": "catalog:react",
@@ -82,5 +92,56 @@
 	"peerDependencies": {
 		"next": "catalog:next",
 		"react": "catalog:react"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			".": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"./*": "./dist/*",
+			"./admin/components/categories-admin": {
+				"types": "./dist/admin/components/categories-admin.d.ts",
+				"default": "./dist/admin/components/categories-admin.js"
+			},
+			"./admin/components/product-detail": {
+				"types": "./dist/admin/components/product-detail.d.ts",
+				"default": "./dist/admin/components/product-detail.js"
+			},
+			"./admin/components/product-edit": {
+				"types": "./dist/admin/components/product-edit.d.ts",
+				"default": "./dist/admin/components/product-edit.js"
+			},
+			"./admin/components/product-list": {
+				"types": "./dist/admin/components/product-list.d.ts",
+				"default": "./dist/admin/components/product-list.js"
+			},
+			"./admin/components/product-new": {
+				"types": "./dist/admin/components/product-new.d.ts",
+				"default": "./dist/admin/components/product-new.js"
+			},
+			"./capabilities": {
+				"types": "./dist/capabilities.d.ts",
+				"default": "./dist/capabilities.js"
+			},
+			"./catalog-presentation": {
+				"types": "./dist/catalog-presentation.d.ts",
+				"default": "./dist/catalog-presentation.js"
+			},
+			"./components": {
+				"types": "./dist/store/components/mdx.d.ts",
+				"default": "./dist/store/components/mdx.js"
+			},
+			"./state": {
+				"types": "./dist/state.d.ts",
+				"default": "./dist/state.js"
+			}
+		}
 	}
 }

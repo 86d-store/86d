@@ -1,7 +1,7 @@
 {
 	"name": "86d",
 	"version": "0.0.41",
-	"description": "CLI for 86d — modular, open-source commerce platform",
+	"description": "CLI for 86d \u2014 modular, open-source commerce platform",
 	"keywords": [
 		"86d",
 		"commerce",
@@ -22,10 +22,16 @@
 		"86d": "./dist/index.js"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"!dist/**/__tests__",
+		"!dist/**/__tests__/**",
+		"!dist/**/*.test.js",
+		"!dist/**/*.test.d.ts",
+		"!dist/**/*.test.d.ts.map",
+		"README.md"
 	],
 	"scripts": {
-		"build": "tsc",
+		"build": "tsc && chmod +x dist/index.js",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -43,5 +49,8 @@
 		"tsx": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
+	},
+	"publishConfig": {
+		"access": "public"
 	}
 }

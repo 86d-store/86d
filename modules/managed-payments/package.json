@@ -24,8 +24,17 @@
 		},
 		"./*": "./src/*"
 	},
+	"files": [
+		"dist",
+		"!dist/**/__tests__",
+		"!dist/**/__tests__/**",
+		"!dist/**/*.test.js",
+		"!dist/**/*.test.d.ts",
+		"!dist/**/*.test.d.ts.map",
+		"README.md"
+	],
 	"scripts": {
-		"build": "tsc",
+		"build": "86d module build",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -39,8 +48,19 @@
 		"@86d-app/sdk": "workspace:*"
 	},
 	"devDependencies": {
+		"86d": "workspace:*",
 		"@biomejs/biome": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			".": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"./*": "./dist/*"
+		}
 	}
 }

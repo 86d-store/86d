@@ -33,8 +33,17 @@
 			"default": "./src/admin/components/analytics-settings.tsx"
 		}
 	},
+	"files": [
+		"dist",
+		"!dist/**/__tests__",
+		"!dist/**/__tests__/**",
+		"!dist/**/*.test.js",
+		"!dist/**/*.test.d.ts",
+		"!dist/**/*.test.d.ts.map",
+		"README.md"
+	],
 	"scripts": {
-		"build": "tsc",
+		"build": "86d module build",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -47,9 +56,36 @@
 		"@86d-app/core": "workspace:*"
 	},
 	"devDependencies": {
+		"86d": "workspace:*",
 		"@biomejs/biome": "catalog:",
 		"@types/react": "catalog:react",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
+	},
+	"peerDependencies": {
+		"react": "catalog:react"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			".": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"./*": "./dist/*",
+			"./admin/components/analytics-admin": {
+				"types": "./dist/admin/components/analytics-admin.d.ts",
+				"default": "./dist/admin/components/analytics-admin.js"
+			},
+			"./admin/components/analytics-settings": {
+				"types": "./dist/admin/components/analytics-settings.d.ts",
+				"default": "./dist/admin/components/analytics-settings.js"
+			}
+		}
 	}
 }

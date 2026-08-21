@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/invoices",
 	"version": "0.0.41",
-	"description": "Invoices — invoice lifecycle management with payment terms, partial payments, credit notes, and configurable numbering",
+	"description": "Invoices \u2014 invoice lifecycle management with payment terms, partial payments, credit notes, and configurable numbering",
 	"keywords": [
 		"commerce",
 		"invoices",
@@ -42,8 +42,17 @@
 			"default": "./src/store/components/mdx.tsx"
 		}
 	},
+	"files": [
+		"dist",
+		"!dist/**/__tests__",
+		"!dist/**/__tests__/**",
+		"!dist/**/*.test.js",
+		"!dist/**/*.test.d.ts",
+		"!dist/**/*.test.d.ts.map",
+		"README.md"
+	],
 	"scripts": {
-		"build": "tsc",
+		"build": "86d module build",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"test": "vitest run",
@@ -54,10 +63,45 @@
 		"@86d-app/core": "workspace:*"
 	},
 	"devDependencies": {
+		"86d": "workspace:*",
 		"@biomejs/biome": "catalog:",
 		"@types/mdx": "catalog:mdx",
 		"@types/react": "catalog:react",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
+	},
+	"peerDependencies": {
+		"react": "catalog:react"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			".": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"./*": "./dist/*",
+			"./admin/components/invoice-detail": {
+				"types": "./dist/admin/components/invoice-detail.d.ts",
+				"default": "./dist/admin/components/invoice-detail.js"
+			},
+			"./admin/components/invoice-list": {
+				"types": "./dist/admin/components/invoice-list.d.ts",
+				"default": "./dist/admin/components/invoice-list.js"
+			},
+			"./admin/components/overdue-list": {
+				"types": "./dist/admin/components/overdue-list.d.ts",
+				"default": "./dist/admin/components/overdue-list.js"
+			},
+			"./components": {
+				"types": "./dist/store/components/mdx.d.ts",
+				"default": "./dist/store/components/mdx.js"
+			}
+		}
 	}
 }

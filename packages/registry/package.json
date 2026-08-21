@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/registry",
 	"version": "0.0.41",
-	"description": "Module registry for 86d — resolve, fetch, and cache modules from local, GitHub, or npm sources",
+	"description": "Module registry for 86d \u2014 resolve, fetch, and cache modules from local, GitHub, or npm sources",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/86d-app/86d.git",
@@ -59,8 +59,17 @@
 			"default": "./src/types.ts"
 		}
 	},
+	"files": [
+		"dist",
+		"!dist/**/__tests__",
+		"!dist/**/__tests__/**",
+		"!dist/**/*.test.js",
+		"!dist/**/*.test.d.ts",
+		"!dist/**/*.test.d.ts.map",
+		"README.md"
+	],
 	"scripts": {
-		"build": "tsc",
+		"build": "tsc && bun ../../internals/generators/src/copy-package-assets.ts",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"test": "vitest run",
@@ -75,5 +84,58 @@
 		"@types/node": "catalog:node",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			"./admission": {
+				"types": "./dist/admission.d.ts",
+				"default": "./dist/admission.js"
+			},
+			"./config": {
+				"types": "./dist/config.d.ts",
+				"default": "./dist/config.js"
+			},
+			"./fetcher": {
+				"types": "./dist/fetcher.d.ts",
+				"default": "./dist/fetcher.js"
+			},
+			"./integrity": {
+				"types": "./dist/integrity.d.ts",
+				"default": "./dist/integrity.js"
+			},
+			"./lockfile": {
+				"types": "./dist/lockfile.d.ts",
+				"default": "./dist/lockfile.js"
+			},
+			"./manifest": {
+				"types": "./dist/manifest.d.ts",
+				"default": "./dist/manifest.js"
+			},
+			"./maturity": {
+				"types": "./dist/maturity.d.ts",
+				"default": "./dist/maturity.js"
+			},
+			"./paths": {
+				"types": "./dist/paths.d.ts",
+				"default": "./dist/paths.js"
+			},
+			"./resolver": {
+				"types": "./dist/resolver.d.ts",
+				"default": "./dist/resolver.js"
+			},
+			"./specifier": {
+				"types": "./dist/specifier.d.ts",
+				"default": "./dist/specifier.js"
+			},
+			"./template": {
+				"types": "./dist/template.d.ts",
+				"default": "./dist/template.js"
+			},
+			"./types": {
+				"types": "./dist/types.d.ts",
+				"default": "./dist/types.js"
+			}
+		}
 	}
 }

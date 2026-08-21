@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/memberships",
 	"version": "0.0.41",
-	"description": "Paid membership plans — recurring subscriptions with exclusive benefits, gated products, and member pricing",
+	"description": "Paid membership plans \u2014 recurring subscriptions with exclusive benefits, gated products, and member pricing",
 	"keywords": [
 		"commerce",
 		"memberships",
@@ -37,8 +37,17 @@
 			"default": "./src/store/components/mdx.tsx"
 		}
 	},
+	"files": [
+		"dist",
+		"!dist/**/__tests__",
+		"!dist/**/__tests__/**",
+		"!dist/**/*.test.js",
+		"!dist/**/*.test.d.ts",
+		"!dist/**/*.test.d.ts.map",
+		"README.md"
+	],
 	"scripts": {
-		"build": "tsc",
+		"build": "86d module build",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -51,6 +60,7 @@
 		"@86d-app/core": "workspace:*"
 	},
 	"devDependencies": {
+		"86d": "workspace:*",
 		"@biomejs/biome": "catalog:",
 		"@types/mdx": "catalog:mdx",
 		"@types/react": "catalog:react",
@@ -61,5 +71,32 @@
 	"peerDependencies": {
 		"next": "catalog:next",
 		"react": "catalog:react"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			".": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"./*": "./dist/*",
+			"./admin/components/membership-admin": {
+				"types": "./dist/admin/components/membership-admin.d.ts",
+				"default": "./dist/admin/components/membership-admin.js"
+			},
+			"./admin/components/membership-plans": {
+				"types": "./dist/admin/components/membership-plans.d.ts",
+				"default": "./dist/admin/components/membership-plans.js"
+			},
+			"./components": {
+				"types": "./dist/store/components/mdx.d.ts",
+				"default": "./dist/store/components/mdx.js"
+			}
+		}
 	}
 }

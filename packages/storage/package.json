@@ -30,8 +30,17 @@
 			"default": "./src/vercel.ts"
 		}
 	},
+	"files": [
+		"dist",
+		"!dist/**/__tests__",
+		"!dist/**/__tests__/**",
+		"!dist/**/*.test.js",
+		"!dist/**/*.test.d.ts",
+		"!dist/**/*.test.d.ts.map",
+		"README.md"
+	],
 	"scripts": {
-		"build": "tsc",
+		"build": "tsc && bun ../../internals/generators/src/copy-package-assets.ts",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"test": "vitest run"
@@ -52,6 +61,31 @@
 	"peerDependenciesMeta": {
 		"@vercel/blob": {
 			"optional": true
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			"./types": {
+				"types": "./dist/types.d.ts",
+				"default": "./dist/types.js"
+			},
+			"./factory": {
+				"types": "./dist/factory.d.ts",
+				"default": "./dist/factory.js"
+			},
+			"./local": {
+				"types": "./dist/local.d.ts",
+				"default": "./dist/local.js"
+			},
+			"./s3": {
+				"types": "./dist/s3.d.ts",
+				"default": "./dist/s3.js"
+			},
+			"./vercel": {
+				"types": "./dist/vercel.d.ts",
+				"default": "./dist/vercel.js"
+			}
 		}
 	}
 }

@@ -1,0 +1,14 @@
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.test.js
+# Source stays in the repo for development; published tarball is dist-only.
+src/
+.turbo/
+.cache/
+coverage/
+vitest.config.ts
+tsconfig.json
+tsconfig.*.json
+AGENTS.md
+*.tsbuildinfo

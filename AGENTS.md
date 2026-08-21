@@ -108,9 +108,11 @@ Templates live in `templates/<name>/`. The store app resolves them via tsconfig 
 `bun run 86d <command>` (source: `packages/cli/src/commands/`):
 
 - `dev`, `init`, `status`, `doctor`
-- `module create | add | list | search | info | enable | disable`
+- `module build | create | add | list | search | info | enable | disable`
 - `template create | activate | list`
 - `generate modules | components`
+
+Module packages use `"build": "86d module build"` (TypeScript → `dist/` plus non-TS asset copy). Add `"86d": "workspace:*"` (or a published CLI version) as a devDependency so the bin resolves and Turbo builds the CLI first via `^build`.
 
 ## Registry
 
@@ -207,7 +209,9 @@ One shared version line covers the root `package.json`, the `86d` CLI, every pub
 
 A new package joins the current shared version on creation. Run `bun run bump-version` for every version change; do not hand-edit `version` fields or invent a second line for one package.
 
-**Release CI** (`.github/workflows/release.yml`) publishes on push to `main` when no pending `.changeset/` files remain and package versions are ahead of npm. Auth is npm trusted publishing (OIDC): the job uses the `npm-publish` GitHub Environment, `id-token: write`, and matching trusted-publisher entries (org, repo, workflow `release.yml`, environment `npm-publish`). Do not restore long-lived publish tokens. Packages should require 2FA and disallow token publish.
+**Release CI** (`.github/workflows/release.yml`) publishes on push to `main` when no pending `.changeset/` files remain and package versions are ahead of npm. The release script builds packages/modules, runs `bun run prepare-publish` (rewrites `workspace:*` / `catalog:` to semver and swaps `exports` to `publishConfig.exports` under `dist/`), gates with `prepare-publish --check` + `verify-publish-packs`, then `changeset publish`, then restores package.json backups. Auth is npm trusted publishing (OIDC): the job uses the `npm-publish` GitHub Environment, `id-token: write`, and matching trusted-publisher entries (org, repo, workflow `release.yml`, environment `npm-publish`). Do not restore long-lived publish tokens. Packages should require 2FA and disallow token publish.
+
+**Published tarball contract:** every publishable package ships compiled `dist/` (`.js` + `.d.ts`, plus copied non-TS assets such as `.mdx`). Workspace `exports` may still point at `./src` for local DX; npm consumers must resolve `./dist` only. Do not publish `src`, `__tests__`, `.turbo`, `vitest.config.ts`, `AGENTS.md`, or `tsconfig.json`. `@86d-app/contracts`, `@86d-app/registry`, and `@86d-app/storage` stay on the shared version line and publish whenever that version is ahead of npm (including first publish of a new package name).
 
 ## Detailed docs
 

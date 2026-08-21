@@ -45,8 +45,17 @@
 			"default": "./src/admin/components/settings-social.tsx"
 		}
 	},
+	"files": [
+		"dist",
+		"!dist/**/__tests__",
+		"!dist/**/__tests__/**",
+		"!dist/**/*.test.js",
+		"!dist/**/*.test.d.ts",
+		"!dist/**/*.test.d.ts.map",
+		"README.md"
+	],
 	"scripts": {
-		"build": "tsc",
+		"build": "86d module build",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -59,10 +68,49 @@
 		"@86d-app/core": "workspace:*"
 	},
 	"devDependencies": {
+		"86d": "workspace:*",
 		"@biomejs/biome": "catalog:",
 		"@types/mdx": "catalog:mdx",
 		"@types/react": "catalog:react",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
+	},
+	"peerDependencies": {
+		"react": "catalog:react"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			".": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"./*": "./dist/*",
+			"./admin/components/settings-commerce": {
+				"types": "./dist/admin/components/settings-commerce.d.ts",
+				"default": "./dist/admin/components/settings-commerce.js"
+			},
+			"./admin/components/settings-contact": {
+				"types": "./dist/admin/components/settings-contact.d.ts",
+				"default": "./dist/admin/components/settings-contact.js"
+			},
+			"./admin/components/settings-general": {
+				"types": "./dist/admin/components/settings-general.d.ts",
+				"default": "./dist/admin/components/settings-general.js"
+			},
+			"./admin/components/settings-legal": {
+				"types": "./dist/admin/components/settings-legal.d.ts",
+				"default": "./dist/admin/components/settings-legal.js"
+			},
+			"./admin/components/settings-social": {
+				"types": "./dist/admin/components/settings-social.d.ts",
+				"default": "./dist/admin/components/settings-social.js"
+			}
+		}
 	}
 }

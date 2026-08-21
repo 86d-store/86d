@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/store-pickup",
 	"version": "0.0.41",
-	"description": "Store pickup (BOPIS) — let customers buy online and pick up in store with location management and time windows",
+	"description": "Store pickup (BOPIS) \u2014 let customers buy online and pick up in store with location management and time windows",
 	"keywords": [
 		"commerce",
 		"store-pickup",
@@ -42,8 +42,17 @@
 			"default": "./src/store/components/mdx.tsx"
 		}
 	},
+	"files": [
+		"dist",
+		"!dist/**/__tests__",
+		"!dist/**/__tests__/**",
+		"!dist/**/*.test.js",
+		"!dist/**/*.test.d.ts",
+		"!dist/**/*.test.d.ts.map",
+		"README.md"
+	],
 	"scripts": {
-		"build": "tsc",
+		"build": "86d module build",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"test": "vitest run",
@@ -54,10 +63,45 @@
 		"@86d-app/core": "workspace:*"
 	},
 	"devDependencies": {
+		"86d": "workspace:*",
 		"@biomejs/biome": "catalog:",
 		"@types/mdx": "catalog:mdx",
 		"@types/react": "catalog:react",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
+	},
+	"peerDependencies": {
+		"react": "catalog:react"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			".": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"./*": "./dist/*",
+			"./admin/components/location-detail": {
+				"types": "./dist/admin/components/location-detail.d.ts",
+				"default": "./dist/admin/components/location-detail.js"
+			},
+			"./admin/components/location-list": {
+				"types": "./dist/admin/components/location-list.d.ts",
+				"default": "./dist/admin/components/location-list.js"
+			},
+			"./admin/components/pickup-queue": {
+				"types": "./dist/admin/components/pickup-queue.d.ts",
+				"default": "./dist/admin/components/pickup-queue.js"
+			},
+			"./components": {
+				"types": "./dist/store/components/mdx.d.ts",
+				"default": "./dist/store/components/mdx.js"
+			}
+		}
 	}
 }

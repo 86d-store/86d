@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/gift-wrapping",
 	"version": "0.0.41",
-	"description": "Gift wrapping — add-on wrapping options for order items with custom messages and recipient names",
+	"description": "Gift wrapping \u2014 add-on wrapping options for order items with custom messages and recipient names",
 	"keywords": [
 		"commerce",
 		"gift-wrapping",
@@ -38,8 +38,17 @@
 			"default": "./src/store/components/mdx.tsx"
 		}
 	},
+	"files": [
+		"dist",
+		"!dist/**/__tests__",
+		"!dist/**/__tests__/**",
+		"!dist/**/*.test.js",
+		"!dist/**/*.test.d.ts",
+		"!dist/**/*.test.d.ts.map",
+		"README.md"
+	],
 	"scripts": {
-		"build": "tsc",
+		"build": "86d module build",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"test": "vitest run",
@@ -50,10 +59,41 @@
 		"@86d-app/core": "workspace:*"
 	},
 	"devDependencies": {
+		"86d": "workspace:*",
 		"@biomejs/biome": "catalog:",
 		"@types/mdx": "catalog:mdx",
 		"@types/react": "catalog:react",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
+	},
+	"peerDependencies": {
+		"react": "catalog:react"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			".": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"./*": "./dist/*",
+			"./admin/components/wrap-option-detail": {
+				"types": "./dist/admin/components/wrap-option-detail.d.ts",
+				"default": "./dist/admin/components/wrap-option-detail.js"
+			},
+			"./admin/components/wrap-option-list": {
+				"types": "./dist/admin/components/wrap-option-list.d.ts",
+				"default": "./dist/admin/components/wrap-option-list.js"
+			},
+			"./components": {
+				"types": "./dist/store/components/mdx.d.ts",
+				"default": "./dist/store/components/mdx.js"
+			}
+		}
 	}
 }

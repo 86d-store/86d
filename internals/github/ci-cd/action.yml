@@ -43,3 +43,11 @@ runs:
     - name: Build
       shell: bash
       run: bun run build
+
+    - name: Verify npm pack hygiene
+      shell: bash
+      run: |
+        bun run prepare-publish
+        bun run prepare-publish --check
+        bun run verify-publish-packs
+        bun run prepare-publish --restore

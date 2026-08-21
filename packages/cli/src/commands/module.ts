@@ -22,9 +22,12 @@ import {
 	type TemplateConfig,
 	warn,
 } from "../utils.js";
+import { buildModule } from "./module-build.js";
 
 export function moduleCommand(subcommand: string | undefined, args: string[]) {
 	switch (subcommand) {
+		case "build":
+			return buildModule(args);
 		case "create":
 			return createModule(args[0]);
 		case "add":
@@ -61,6 +64,7 @@ function printHelp() {
 ${c.bold("86d module")} — Manage modules
 
 ${c.dim("Usage:")}
+  86d module build [dir]             Compile module to dist/ (+ copy assets)
   86d module create <name>           Scaffold a new module
   86d module add <specifier>         Add a module from registry, GitHub, or npm
   86d module update [name]           Check for and apply module updates
@@ -643,7 +647,7 @@ function createModule(name: string | undefined) {
 		mkdirSync(dir, { recursive: true });
 	}
 
-	// package.json
+	// package.json — workspace exports stay on src; publishConfig + files ship dist.
 	writeFileSync(
 		join(moduleDir, "package.json"),
 		JSON.stringify(
@@ -653,11 +657,41 @@ function createModule(name: string | undefined) {
 				private: true,
 				type: "module",
 				exports: {
-					".": "./src/index.ts",
-					"./components": "./src/store/components/mdx.tsx",
+					".": {
+						types: "./src/index.ts",
+						default: "./src/index.ts",
+					},
+					"./*": "./src/*",
+					"./components": {
+						types: "./src/store/components/mdx.tsx",
+						default: "./src/store/components/mdx.tsx",
+					},
 				},
+				publishConfig: {
+					access: "public",
+					exports: {
+						".": {
+							types: "./dist/index.d.ts",
+							default: "./dist/index.js",
+						},
+						"./*": "./dist/*",
+						"./components": {
+							types: "./dist/store/components/mdx.d.ts",
+							default: "./dist/store/components/mdx.js",
+						},
+					},
+				},
+				files: [
+					"dist",
+					"!dist/**/__tests__",
+					"!dist/**/__tests__/**",
+					"!dist/**/*.test.js",
+					"!dist/**/*.test.d.ts",
+					"!dist/**/*.test.d.ts.map",
+					"README.md",
+				],
 				scripts: {
-					build: "tsc",
+					build: "86d module build",
 					check: "biome check src",
 					"check:fix": "biome check --write src",
 					test: "vitest run",
@@ -668,9 +702,17 @@ function createModule(name: string | undefined) {
 					"@86d-app/core": "workspace:*",
 				},
 				devDependencies: {
+					"86d": "workspace:*",
 					"@biomejs/biome": "catalog:",
+					"@types/react": "catalog:react",
 					typescript: "catalog:",
 					vitest: "catalog:vite",
+				},
+				peerDependencies: {
+					react: "catalog:react",
+				},
+				peerDependenciesMeta: {
+					react: { optional: true },
 				},
 			},
 			null,
@@ -678,15 +720,45 @@ function createModule(name: string | undefined) {
 		),
 	);
 
-	// tsconfig.json
+	writeFileSync(
+		join(moduleDir, ".npmignore"),
+		`**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.test.js
+src/
+.turbo/
+.cache/
+coverage/
+vitest.config.ts
+tsconfig.json
+tsconfig.*.json
+AGENTS.md
+*.tsbuildinfo
+`,
+	);
+
+	// tsconfig.json — flat dist emit with declarations for npm consumers
 	writeFileSync(
 		join(moduleDir, "tsconfig.json"),
 		JSON.stringify(
 			{
 				extends: "../../tsconfig.base.json",
-				compilerOptions: {},
+				compilerOptions: {
+					lib: ["ES2022", "dom", "dom.iterable"],
+					jsx: "react-jsx",
+					rootDir: "src",
+					outDir: "dist",
+					declaration: true,
+					declarationMap: true,
+				},
 				include: ["src"],
-				exclude: ["node_modules"],
+				exclude: [
+					"node_modules",
+					"src/**/__tests__",
+					"src/**/*.test.ts",
+					"src/**/*.test.tsx",
+				],
 			},
 			null,
 			"\t",

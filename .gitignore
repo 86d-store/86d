@@ -4,6 +4,9 @@ node_modules/
 # Turborepo
 .turbo/
 
+# Temporary package.json backups from `bun run prepare-publish`
+.prepare-publish-backup/
+
 # Next.js
 .next/
 out/

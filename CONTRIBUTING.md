@@ -102,10 +102,12 @@ Before requesting review:
 
 You do not need to upstream a Module to publish it:
 
-1. Build with `bun run build`.
+1. Build with `bun run build` so `dist/` contains JavaScript and `.d.ts` (and any `.mdx` assets your components import). Module packages use `"build": "86d module build"` for that step.
 2. Set `"private": false` and a release version in `package.json`.
-3. Add accurate package metadata and provenance.
-4. Publish: `npm publish --access public`.
+3. Ship only `dist` (+ README) via `"files"`; put consumer entry points in `publishConfig.exports` under `./dist`. Do not publish `src`, tests, `.turbo`, or vitest config.
+4. Replace `workspace:*` / `catalog:` dependency specs with real semver versions.
+5. Add accurate package metadata and provenance.
+6. Publish: `npm publish --access public`.
 
 ## Documentation
 
