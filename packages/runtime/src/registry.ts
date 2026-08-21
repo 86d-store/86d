@@ -29,6 +29,13 @@ import {
 	type EventBus,
 	type EventBusOptions,
 } from "@86d-app/core/events";
+import {
+	type CompiledExecutionGraph,
+	compareSemVer,
+	compileExecutionGraph,
+	GraphCompileError,
+	matchesContractRanges,
+} from "@86d-app/core/graph";
 import { formatPathConflicts, validateUniquePaths } from "@86d-app/core/paths";
 import type { Primitive } from "@86d-app/core/types/helper";
 import type {
@@ -251,6 +258,7 @@ export class ModuleRegistry {
 	private controllers: ModuleControllers = {};
 	private capabilityBindings = new Map<string, RegisteredCapabilityProvider>();
 	private capabilityDependencies = new Map<string, Set<string>>();
+	private executionGraph: CompiledExecutionGraph | undefined;
 	private resolvedStoreId: string | undefined;
 	private endpointExposures: EndpointExposureEntry[] = [];
 	private eventBus: EventBus | undefined;
@@ -299,6 +307,7 @@ export class ModuleRegistry {
 	private preflightCapabilities(): void {
 		this.capabilityBindings.clear();
 		this.capabilityDependencies.clear();
+		this.executionGraph = undefined;
 
 		const providersByName = new Map<string, RegisteredCapabilityProvider[]>();
 		const errors: string[] = [];
@@ -334,16 +343,15 @@ export class ModuleRegistry {
 		}
 
 		for (const consumer of this.modules) {
-			// Accepting one capability name at two versions is how a consumer
-			// migrates, and bindings are keyed by version, so only an overlapping
-			// version is ambiguous. Rejecting the name outright refused a legitimate
-			// migration and stopped the whole runtime from booting.
 			const acceptedVersions = new Map<string, Set<string>>();
 			for (const acceptance of consumer.capabilities?.accepts ?? []) {
 				if (
 					acceptance.name !== acceptance.definition.name ||
 					acceptance.owner !== acceptance.definition.owner ||
-					!acceptance.versions.includes(acceptance.definition.version)
+					!matchesContractRanges(
+						acceptance.definition.version,
+						acceptance.versions,
+					)
 				) {
 					errors.push(
 						`Module "${consumer.id}" declares inconsistent metadata for capability "${acceptance.name}".`,
@@ -395,11 +403,22 @@ export class ModuleRegistry {
 				const compatible = namedProviders.filter(
 					({ provider }) =>
 						provider.definition.owner === acceptance.owner &&
-						versions.has(provider.definition.version),
+						matchesContractRanges(
+							provider.definition.version,
+							acceptance.versions,
+						),
 				);
 
 				if (compatible.length === 0) {
-					if (acceptance.optional && namedProviders.length === 0) continue;
+					if (acceptance.optional && !moduleIds.has(acceptance.owner)) {
+						continue;
+					}
+					if (acceptance.optional && moduleIds.has(acceptance.owner)) {
+						errors.push(
+							`Optional capability "${acceptance.name}" for Module "${consumer.id}" has owner "${acceptance.owner}" installed but no compatible contract.`,
+						);
+						continue;
+					}
 					const reason =
 						namedProviders.length === 0
 							? "is missing"
@@ -410,14 +429,23 @@ export class ModuleRegistry {
 					continue;
 				}
 
-				if (compatible.length > 1) {
+				const providerModules = new Set(
+					compatible.map((entry) => entry.moduleId),
+				);
+				if (providerModules.size > 1) {
 					errors.push(
-						`Required capability "${acceptance.name}" for Module "${consumer.id}" has ${compatible.length} compatible providers; exactly one is required.`,
+						`Required capability "${acceptance.name}" for Module "${consumer.id}" has ${providerModules.size} compatible provider Modules; exactly one owner is required.`,
 					);
 					continue;
 				}
 
-				const provider = compatible[0];
+				compatible.sort((left, right) =>
+					compareSemVer(
+						left.provider.definition.version,
+						right.provider.definition.version,
+					),
+				);
+				const provider = compatible[compatible.length - 1];
 				if (!provider) continue;
 				this.capabilityBindings.set(
 					capabilityBindingKey(
@@ -441,6 +469,20 @@ export class ModuleRegistry {
 				`Capability contract violations:\n${errors.map((error) => `  - ${error}`).join("\n")}`,
 			);
 		}
+
+		try {
+			this.executionGraph = compileExecutionGraph({ modules: this.modules });
+		} catch (error) {
+			if (error instanceof GraphCompileError) {
+				throw new CapabilityContractError(error.message);
+			}
+			throw error;
+		}
+	}
+
+	/** Compiled execution graph digests and edge manifest after a successful boot. */
+	getExecutionGraph(): CompiledExecutionGraph | undefined {
+		return this.executionGraph;
 	}
 
 	private createCapabilityInvoker(moduleId: string): CapabilityInvoker {
@@ -469,19 +511,38 @@ export class ModuleRegistry {
 			!acceptance ||
 			acceptance.name !== definition.name ||
 			acceptance.owner !== definition.owner ||
-			!acceptance.versions.includes(definition.version)
+			!matchesContractRanges(definition.version, acceptance.versions)
 		) {
 			return capabilityFailure(definition, "CAPABILITY_NOT_ACCEPTED");
 		}
 
-		const registered = this.capabilityBindings.get(
+		const compiled = this.executionGraph?.capabilityDispatch.get(
+			`${consumerId}\u0000${definition.name}`,
+		);
+		if (compiled && compiled.available === false) {
+			return capabilityFailure(definition, "CAPABILITY_UNAVAILABLE");
+		}
+
+		let registered = this.capabilityBindings.get(
 			capabilityBindingKey(consumerId, definition.name, definition.version),
 		);
+		if (
+			!registered &&
+			compiled?.available === true &&
+			matchesContractRanges(compiled.version, acceptance.versions)
+		) {
+			registered = this.capabilityBindings.get(
+				capabilityBindingKey(consumerId, definition.name, compiled.version),
+			);
+		}
 		if (
 			!registered ||
 			registered.provider.definition.name !== acceptance.name ||
 			registered.provider.definition.owner !== acceptance.owner ||
-			!acceptance.versions.includes(registered.provider.definition.version)
+			!matchesContractRanges(
+				registered.provider.definition.version,
+				acceptance.versions,
+			)
 		) {
 			return capabilityFailure(definition, "CAPABILITY_UNAVAILABLE");
 		}

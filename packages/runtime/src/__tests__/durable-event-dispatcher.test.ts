@@ -138,7 +138,7 @@ describe("DurableEventDispatcher", () => {
 		expect(statements).toHaveLength(3);
 		const sql = claimStatement(statements);
 		expect(sql).toMatch(/FOR UPDATE(?: OF delivery)? SKIP LOCKED/);
-		expect(sql).toContain("prior.\"state\" <> 'succeeded'");
+		expect(sql).toContain("prior.\"state\" NOT IN ('succeeded', 'skipped')");
 		expect(sql).toContain(
 			'prior_event."aggregateSequence" < event."aggregateSequence"',
 		);

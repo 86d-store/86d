@@ -1,3 +1,4 @@
+import type { ContractRange } from "./graph/contract-range";
 import type {
 	ContractViolation,
 	Module,
@@ -5,14 +6,39 @@ import type {
 	ModuleRequires,
 } from "./types/module";
 
+type VersionedRequires = readonly {
+	module: string;
+	versions: readonly ContractRange[];
+	optional?: true;
+}[];
+
+function isVersionedRequires(
+	requires: Module["requires"],
+): requires is VersionedRequires {
+	return (
+		Array.isArray(requires) &&
+		requires.length > 0 &&
+		typeof requires[0] === "object" &&
+		requires[0] !== null &&
+		"module" in (requires[0] as object)
+	);
+}
+
 /**
  * Normalizes the `requires` field to the contract form (Record<string, { read?, readWrite? }>).
- * Handles both the simple string[] form and the full contract form.
+ * Handles simple string[], versioned `{ module, versions }[]`, and legacy field-contract form.
  */
 export function normalizeRequires(
-	requires: string[] | ModuleRequires | undefined,
+	requires: Module["requires"],
 ): ModuleRequires {
 	if (!requires) return {};
+	if (isVersionedRequires(requires)) {
+		const result: ModuleRequires = {};
+		for (const entry of requires) {
+			result[entry.module] = entry.optional === true ? { optional: true } : {};
+		}
+		return result;
+	}
 	if (Array.isArray(requires)) {
 		const result: ModuleRequires = {};
 		for (const id of requires) {
@@ -29,11 +55,16 @@ export function normalizeRequires(
  * Pass `includeOptional: true` to get all dependency IDs.
  */
 export function getRequiredModuleIds(
-	requires: string[] | ModuleRequires | undefined,
+	requires: Module["requires"],
 	options?: { includeOptional?: boolean },
 ): string[] {
 	if (!requires) return [];
-	if (Array.isArray(requires)) return requires;
+	if (isVersionedRequires(requires)) {
+		return requires
+			.filter((entry) => options?.includeOptional || entry.optional !== true)
+			.map((entry) => entry.module);
+	}
+	if (Array.isArray(requires)) return [...requires];
 	if (options?.includeOptional) return Object.keys(requires);
 	return Object.entries(requires)
 		.filter(([, req]) => !req.optional)

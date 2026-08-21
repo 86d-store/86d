@@ -54,10 +54,6 @@ vi.mock("~/lib/catalog-command-route", () => ({
 	},
 }));
 
-vi.mock("~/lib/durable-events", () => ({
-	drainDurableEvents: vi.fn(),
-}));
-
 // ── Import after mocks ────────────────────────────────────────────────────────
 
 import type { NextRequest } from "next/server";

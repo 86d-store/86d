@@ -37,6 +37,7 @@ import { SchemaCompileError } from "./compile/types";
 import type {
 	AnchorDeclaration,
 	ConfigValues,
+	ContractRange,
 	CoreExtensionDeclaration,
 	ModuleStorageDeclaration,
 	ModuleStorageTier,
@@ -77,6 +78,7 @@ export type {
 	CompileReport,
 	ConfigValues,
 	ConstructProvenance,
+	ContractRange,
 	CoreExtensionDeclaration,
 	FeatureManifest,
 	FeatureManifestEntry,

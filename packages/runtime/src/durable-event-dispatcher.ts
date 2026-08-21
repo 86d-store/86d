@@ -92,7 +92,7 @@ function boundedAttempts(attempts: number): number {
 }
 
 function retryDelay(attempts: number): number {
-	return Math.min(60_000, 1_000 * 2 ** Math.min(6, Math.max(0, attempts - 1)));
+	return durableEventRetryDelayMs(attempts);
 }
 
 function failureCode(error: unknown): string {
@@ -101,9 +101,27 @@ function failureCode(error: unknown): string {
 		: "DURABLE_EVENT_HANDLER_FAILED";
 }
 
+const PERMANENT_FAILURE_CODES = new Set([
+	"EVENT_CONSUMER_MISSING",
+	"EVENT_CONTRACT_MISMATCH",
+	"EVENT_PAYLOAD_INVALID",
+]);
+
+function isPermanentFailure(error: unknown): boolean {
+	return (
+		error instanceof DeliveryFailure && PERMANENT_FAILURE_CODES.has(error.code)
+	);
+}
+
+/** Fixed retry delay sequence: 1/2/4/8/16/32/60 seconds, capped at 60. */
+export function durableEventRetryDelayMs(attempts: number): number {
+	return Math.min(60_000, 1_000 * 2 ** Math.min(6, Math.max(0, attempts - 1)));
+}
+
 /**
  * Explicit, bounded durable-event delivery. No timer or background process is
- * created; callers choose when to drain.
+ * created here; a dedicated worker (`bun run worker:durable-events`) chooses
+ * when to drain. Web traffic is neither the scheduler nor the retry mechanism.
  */
 export class DurableEventDispatcher {
 	private readonly config: DispatcherConfig;
@@ -336,7 +354,8 @@ export class DurableEventDispatcher {
 						 WHERE event."id" = $1::uuid
 						   AND NOT EXISTS (
 						     SELECT 1 FROM "ModuleEventDelivery" delivery
-						     WHERE delivery."eventId" = event."id" AND delivery."state" <> 'succeeded'
+						     WHERE delivery."eventId" = event."id"
+						       AND delivery."state" NOT IN ('succeeded', 'skipped')
 						   )`,
 						delivery.eventId,
 						now,
@@ -351,15 +370,16 @@ export class DurableEventDispatcher {
 	}
 
 	/**
-	 * Record a failed attempt. Once the attempt budget is spent the delivery
-	 * becomes terminal rather than scheduling another retry.
+	 * Record a failed attempt. Permanent contract/payload failures and exhausted
+	 * attempt budgets enter dead letter immediately.
 	 */
 	private async fail(
 		delivery: ClaimedDelivery,
 		now: Date,
 		error: unknown,
 	): Promise<"failed" | "dead_letter"> {
-		const exhausted = delivery.attempts >= this.maxAttempts;
+		const permanent = isPermanentFailure(error);
+		const exhausted = permanent || delivery.attempts >= this.maxAttempts;
 		const state = exhausted ? "dead_letter" : "failed";
 		const nextAttemptAt = exhausted
 			? now
@@ -388,6 +408,99 @@ export class DurableEventDispatcher {
 			});
 		}
 		return exhausted ? "dead_letter" : "failed";
+	}
+
+	/**
+	 * Operator Command: retry a dead-lettered delivery with a fresh eight-attempt
+	 * generation. Prior attempt history remains on the row via `lastError` and
+	 * retained attempt audit columns; the attempt counter resets for the new generation.
+	 */
+	async retryDeadLetter(input: {
+		consumer: string;
+		eventId: string;
+		reason: string;
+		now?: Date | undefined;
+	}): Promise<Readonly<{ ok: true } | { ok: false; code: string }>> {
+		const reason = input.reason.trim();
+		if (reason.length < 1 || reason.length > 500) {
+			return { ok: false, code: "INVALID_RETRY_REASON" };
+		}
+		const now = input.now ?? new Date();
+		const updated = await this.config.db.moduleEventDelivery.updateMany({
+			where: {
+				consumer: input.consumer,
+				eventId: input.eventId,
+				state: "dead_letter",
+			},
+			data: {
+				state: "pending",
+				attempts: 0,
+				nextAttemptAt: now,
+				leaseToken: null,
+				leaseOwner: null,
+				leaseExpiresAt: null,
+				lastError: null,
+				succeededAt: null,
+			},
+		});
+		if (updated.count !== 1) {
+			return { ok: false, code: "DEAD_LETTER_NOT_FOUND" };
+		}
+		await this.config.db.moduleOutboxEvent.updateMany({
+			where: { id: input.eventId, storeId: this.config.storeId },
+			data: {
+				deliveryState: "pending",
+				nextAttemptAt: now,
+				deliveredAt: null,
+			},
+		});
+		return { ok: true };
+	}
+
+	/**
+	 * Operator Command: skip a dead-lettered delivery so later aggregate events
+	 * may proceed. Writes an audited skipped terminal resolution without a
+	 * consumption receipt.
+	 */
+	async skipDeadLetter(input: {
+		consumer: string;
+		eventId: string;
+		reason: string;
+		now?: Date | undefined;
+	}): Promise<Readonly<{ ok: true } | { ok: false; code: string }>> {
+		const reason = input.reason.trim();
+		if (reason.length < 1 || reason.length > 500) {
+			return { ok: false, code: "INVALID_SKIP_REASON" };
+		}
+		const now = input.now ?? new Date();
+		const updated = await this.config.db.moduleEventDelivery.updateMany({
+			where: {
+				consumer: input.consumer,
+				eventId: input.eventId,
+				state: "dead_letter",
+			},
+			data: {
+				state: "skipped",
+				nextAttemptAt: now,
+				leaseToken: null,
+				leaseOwner: null,
+				leaseExpiresAt: null,
+				lastError: `SKIP:${reason}`.slice(0, 500),
+				succeededAt: now,
+			},
+		});
+		if (updated.count !== 1) {
+			return { ok: false, code: "DEAD_LETTER_NOT_FOUND" };
+		}
+		await this.config.db.moduleOutboxEvent.updateMany({
+			where: { id: input.eventId, storeId: this.config.storeId },
+			data: {
+				deliveryState: "skipped",
+				nextAttemptAt: now,
+				deliveredAt: now,
+			},
+		});
+		return { ok: true };
 	}
 }
 
@@ -486,7 +599,7 @@ WITH claimable AS (
         AND prior_event."aggregateType" = event."aggregateType"
         AND prior_event."aggregateId" = event."aggregateId"
         AND prior_event."aggregateSequence" < event."aggregateSequence"
-        AND prior."state" <> 'succeeded'
+        AND prior."state" NOT IN ('succeeded', 'skipped')
     )
   ORDER BY event."occurredAt", event."id", delivery."consumer"
   FOR UPDATE OF delivery SKIP LOCKED

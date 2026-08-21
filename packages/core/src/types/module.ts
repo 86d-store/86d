@@ -613,7 +613,14 @@ export type Module = {
 	 *   "inventory": { readWrite: ["productStock"] }
 	 * }
 	 */
-	requires?: string[] | ModuleRequires;
+	requires?:
+		| string[]
+		| ModuleRequires
+		| readonly {
+				module: string;
+				versions: readonly import("../graph/contract-range").ContractRange[];
+				optional?: true;
+		  }[];
 
 	/** Versioned decisions this Module provides or accepts. */
 	capabilities?: ModuleCapabilities;
@@ -798,24 +805,10 @@ export type Module = {
 	>;
 
 	/**
-	 * Advanced lifecycle hooks for pre/post endpoint processing.
+	 * Lifecycle hooks for endpoint processing and declared outcome hooks.
 	 *
-	 * @example
-	 * ```ts
-	 * hooks: {
-	 *   before: [
-	 *     {
-	 *       matcher: (context) => context.path?.startsWith("/store/cart"),
-	 *       // handler: myAuthMiddleware,
-	 *     }
-	 *   ],
-	 *   after: [
-	 *     {
-	 *       matcher: (context) => context.path?.endsWith("/store/cart"),
-	 *     }
-	 *   ]
-	 * }
-	 * ```
+	 * - `before` / `after`: HTTP matcher hooks (request path).
+	 * - `defines` / `implements`: build-time ordered outcome hooks (PRD contract).
 	 */
 	hooks?: {
 		before?: Array<{
@@ -826,6 +819,30 @@ export type Module = {
 			matcher: (context: HookEndpointContext) => boolean;
 			// handler: AuthMiddleware;
 		}>;
+		defines?: readonly import("../graph/hooks").AnyHookPointDefinition[];
+		implements?: readonly import("../graph/hooks").AnyHookImplementation[];
+	};
+
+	/**
+	 * Declared readers over another Module's published column-projected views.
+	 */
+	readers?: {
+		accepts?: readonly import("../graph/projections").ReaderAcceptance[];
+	};
+
+	/**
+	 * Template surfaces: versioned data projections and React components.
+	 */
+	templates?: {
+		data?: Readonly<
+			Record<
+				string,
+				| import("../graph/projections").AnyTemplateDataProjection
+				| readonly import("../graph/projections").AnyTemplateDataProjection[]
+			>
+		>;
+		// biome-ignore lint/suspicious/noExplicitAny: React component types are host-defined
+		components?: Record<string, any>;
 	};
 
 	/**

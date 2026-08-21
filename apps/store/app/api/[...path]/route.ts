@@ -11,7 +11,6 @@ import { NextResponse } from "next/server";
 import { logger } from "utils/logger";
 import { createRateLimiter } from "utils/rate-limit";
 import { ensureBooted } from "~/lib/api-registry";
-import { drainDurableEvents } from "~/lib/durable-events";
 import { resolveStoreCommerceGate } from "~/lib/store-commerce-availability";
 import { createApiRouter, getModuleIdForPath } from "../../../generated/api";
 
@@ -333,9 +332,6 @@ async function handleAuthedRequest(
 				req,
 				session,
 			);
-			if (commandResponse.status < 400) {
-				await drainDurableEvents(await ensureBooted());
-			}
 			return commandResponse;
 		}
 
@@ -376,9 +372,6 @@ async function handleAuthedRequest(
 				session,
 				catalogCommand,
 			);
-			if (commandResponse.status < 400) {
-				await drainDurableEvents(await ensureBooted());
-			}
 			return commandResponse;
 		}
 
@@ -402,13 +395,9 @@ async function handleAuthedRequest(
 			return normalizeErrorResponse(response);
 		}
 
-		// A successful state change may have committed durable events. Deliver a
-		// bounded batch now rather than leaving the outbox to a later request.
-		// Reads cannot emit, so they never pay for this.
-		if (req.method !== "GET" && req.method !== "HEAD") {
-			await drainDurableEvents(reg);
-		}
-
+		// Durable event delivery is independently scheduled
+		// (`bun run worker:durable-events`). Web traffic is neither the
+		// scheduler nor the retry mechanism.
 		return response;
 	} catch (error) {
 		console.error("API route unhandled error", fullPath, error);

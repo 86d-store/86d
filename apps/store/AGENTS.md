@@ -123,10 +123,10 @@ The catch-all route handler (`api/[...path]/route.ts`) enforces rate limits:
 - Returns `Retry-After` and `X-RateLimit-Reset` headers when limited
 - Structured logging on errors; consistent `{ error: { code, message } }` response shape
 
-Durable event delivery also has a bounded independent worker entrypoint:
+Durable event delivery has a bounded independent worker entrypoint:
 `bun run worker:durable-events`. Production scheduling is an operator/deployment
-responsibility; HTTP mutation drains remain a latency optimization, not the only
-retry path.
+responsibility. Web traffic is neither the scheduler nor the retry mechanism;
+mutation routes do not drain the outbox.
 
 Managed Store Runtimes enforce the v2 Store-scoped commerce-availability
 decision at the API edge. Unavailable, stale, malformed, or unreachable managed

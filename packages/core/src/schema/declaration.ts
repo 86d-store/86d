@@ -3,6 +3,9 @@ import type { z } from "zod";
 /** Stable SemVer without prerelease or build metadata. */
 export type StableSemVer = `${number}.${number}.${number}`;
 
+/** Exact version or one caret range. Arrays form a union of these tokens. */
+export type ContractRange = StableSemVer | `^${StableSemVer}`;
+
 /** Config key → Zod value schema. Parsed output must be JSON-compatible. */
 export type ConfigValues = Readonly<Record<string, z.ZodType>>;
 

@@ -1,10 +1,10 @@
 /**
  * Durable event delivery for this Store Runtime.
  *
- * The dispatcher creates no timer and no background process: a caller decides
- * when to drain. Delivery is at-least-once and every consumer commits its effect
- * with a dedupe receipt, so draining more often than necessary is harmless and
- * draining late only delays delivery.
+ * The dispatcher creates no timer here. A dedicated worker
+ * (`bun run worker:durable-events`) drains the outbox. Web traffic is neither
+ * the scheduler nor the retry mechanism. Delivery is at-least-once and every
+ * consumer commits its effect with a dedupe receipt.
  */
 
 import type { Module } from "@86d-app/core/types/module";
