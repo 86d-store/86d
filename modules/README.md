@@ -48,6 +48,7 @@ Available modules in the 86d commerce framework. Each package is published to np
 | invoices | [@86d-app/invoices](https://www.npmjs.com/package/@86d-app/invoices) | [docs](https://86d.app/docs/modules/invoices) |
 | kiosk | [@86d-app/kiosk](https://www.npmjs.com/package/@86d-app/kiosk) | [docs](https://86d.app/docs/modules/kiosk) |
 | loyalty | [@86d-app/loyalty](https://www.npmjs.com/package/@86d-app/loyalty) | [docs](https://86d.app/docs/modules/loyalty) |
+| managed-payments | [@86d-app/managed-payments](https://www.npmjs.com/package/@86d-app/managed-payments) | [docs](https://86d.app/docs/modules/managed-payments) |
 | media | [@86d-app/media](https://www.npmjs.com/package/@86d-app/media) | [docs](https://86d.app/docs/modules/media) |
 | memberships | [@86d-app/memberships](https://www.npmjs.com/package/@86d-app/memberships) | [docs](https://86d.app/docs/modules/memberships) |
 | multi-currency | [@86d-app/multi-currency](https://www.npmjs.com/package/@86d-app/multi-currency) | [docs](https://86d.app/docs/modules/multi-currency) |
@@ -74,6 +75,7 @@ Available modules in the 86d commerce framework. Each package is published to np
 | redirects | [@86d-app/redirects](https://www.npmjs.com/package/@86d-app/redirects) | [docs](https://86d.app/docs/modules/redirects) |
 | referrals | [@86d-app/referrals](https://www.npmjs.com/package/@86d-app/referrals) | [docs](https://86d.app/docs/modules/referrals) |
 | returns | [@86d-app/returns](https://www.npmjs.com/package/@86d-app/returns) | [docs](https://86d.app/docs/modules/returns) |
+| revenue | [@86d-app/revenue](https://www.npmjs.com/package/@86d-app/revenue) | [docs](https://86d.app/docs/modules/revenue) |
 | reviews | [@86d-app/reviews](https://www.npmjs.com/package/@86d-app/reviews) | [docs](https://86d.app/docs/modules/reviews) |
 | saved-addresses | [@86d-app/saved-addresses](https://www.npmjs.com/package/@86d-app/saved-addresses) | [docs](https://86d.app/docs/modules/saved-addresses) |
 | search | [@86d-app/search](https://www.npmjs.com/package/@86d-app/search) | [docs](https://86d.app/docs/modules/search) |
