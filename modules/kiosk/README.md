@@ -4,7 +4,7 @@
   </a>
 </p>
 
-<p align="center">Dynamic Commerce</p>
+<p align="center">The Modern Foundation for Commerce</p>
 
 <p align="center">
   <a href="https://x.com/86d_app"><strong>X</strong></a> ·

@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  Dynamic Commerce
+  The Modern Foundation for Commerce
 </p>
 
 <p align="center">

@@ -57,7 +57,7 @@ async function main() {
 function printHelp() {
 	const v = getVersion();
 	console.log(`
-${c.bold("86d")} ${c.dim(`v${v}`)} — Modular commerce platform
+${c.bold("86d")} ${c.dim(`v${v}`)} — The Modern Foundation for Commerce
 
 ${c.dim("Usage:")} 86d <command> [options]
 

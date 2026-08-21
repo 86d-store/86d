@@ -4,9 +4,9 @@
 
 ## About
 
-Dynamic commerce infrastructure built from modular components.
+The Modern Foundation for Commerce.
 
-86d is a modular architecture where features exist as isolated, interchangeable pieces of code. Swap modules, customize components, or build solutions tailored to your problems.
+Swap modules, customize components, or build solutions tailored to your problems.
 
 Stores are deployed in isolated environments, giving you complete control over your data and infrastructure. Modules are open source and, with agentic assistance, fast and easy to extend.
 

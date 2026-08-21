@@ -17,13 +17,13 @@ import { buildWebSiteJsonLd } from "../lib/seo";
 
 export const metadata: Metadata = {
 	metadataBase: new URL(getBaseUrl()),
-	title: "86d — Dynamic Commerce Platform",
+	title: "86d — The Modern Foundation for Commerce",
 	description:
-		"Sell now and sell out. Introducing the first dynamic commerce platform. Maintain your online presence with agentic assistance.",
+		"Sell now and sell out. The Modern Foundation for Commerce. Maintain your online presence with agentic assistance.",
 	openGraph: {
-		title: "86d — Dynamic Commerce Platform",
+		title: "86d — The Modern Foundation for Commerce",
 		description:
-			"Sell now and sell out. Introducing the first dynamic commerce platform. Maintain your online presence with agentic assistance.",
+			"Sell now and sell out. The Modern Foundation for Commerce. Maintain your online presence with agentic assistance.",
 		url: getBaseUrl(),
 		siteName: "86d",
 		images: "/opengraph-image",

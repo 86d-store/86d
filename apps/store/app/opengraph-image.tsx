@@ -48,7 +48,7 @@ export default function Image() {
 						lineHeight: "1.5",
 					}}
 				>
-					Dynamic commerce, built for developers.
+					The Modern Foundation for Commerce.
 				</div>
 			</div>
 		</div>,
