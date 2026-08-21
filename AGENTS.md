@@ -207,6 +207,8 @@ One shared version line covers the root `package.json`, the `86d` CLI, every pub
 
 A new package joins the current shared version on creation. Run `bun run bump-version` for every version change; do not hand-edit `version` fields or invent a second line for one package.
 
+**Release CI** (`.github/workflows/release.yml`) publishes on push to `main` when no pending `.changeset/` files remain and package versions are ahead of npm. The `NPM_TOKEN` secret must be a granular **automation** token with Bypass 2FA and read/write on the entire `@86d-app` org (and `86d`); a token scoped to a package subset returns E404 on the rest. Provenance uses `id-token: write`.
+
 ## Detailed docs
 
 - `apps/store/AGENTS.md`: Store app architecture, routes, Store Admin, and theme system.
