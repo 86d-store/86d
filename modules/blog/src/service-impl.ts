@@ -128,7 +128,7 @@ export function createBlogController(data: ModuleDataService): BlogController {
 				where: { slug },
 				take: 1,
 			});
-			return (matches[0] as unknown as BlogPost) ?? null;
+			return matches[0] as unknown as BlogPost;
 		},
 
 		async publishPost(id) {
@@ -209,7 +209,7 @@ export function createBlogController(data: ModuleDataService): BlogController {
 			const post = existing as unknown as BlogPost;
 			const updated: BlogPost = {
 				...post,
-				views: (post.views ?? 0) + 1,
+				views: post.views + 1,
 			};
 			await data.upsert("post", id, updated as Record<string, unknown>);
 			return updated;
@@ -264,7 +264,7 @@ export function createBlogController(data: ModuleDataService): BlogController {
 				.filter((p) => p.id !== id)
 				.map((p) => {
 					let score = 0;
-					if (post.tags && p.tags) {
+					if (p.tags) {
 						for (const tag of p.tags) {
 							if ((post.tags as string[]).includes(tag)) score += 2;
 						}
@@ -312,7 +312,7 @@ export function createBlogController(data: ModuleDataService): BlogController {
 						stats.archived++;
 						break;
 				}
-				stats.totalViews += post.views ?? 0;
+				stats.totalViews += post.views;
 
 				if (post.category) {
 					categoryMap.set(
@@ -320,7 +320,7 @@ export function createBlogController(data: ModuleDataService): BlogController {
 						(categoryMap.get(post.category) ?? 0) + 1,
 					);
 				}
-				for (const tag of post.tags ?? []) {
+				for (const tag of post.tags) {
 					tagMap.set(tag, (tagMap.get(tag) ?? 0) + 1);
 				}
 			}

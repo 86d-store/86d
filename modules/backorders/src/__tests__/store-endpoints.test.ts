@@ -269,13 +269,14 @@ describe("store endpoint: create backorder — auth required", () => {
 		);
 
 		expect("backorder" in result && result.backorder !== null).toBe(true);
-		if ("backorder" in result && result.backorder) {
-			expect(result.backorder.customerId).toBe("cust_1");
-			expect(result.backorder.productId).toBe("prod_1");
-			expect(result.backorder.quantity).toBe(2);
-			expect(result.backorder.status).toBe("pending");
-			expect(result.backorder.estimatedAvailableAt).toBeDefined();
+		if (!("backorder" in result && result.backorder)) {
+			throw new Error("expected 'backorder' in result && result.backorder");
 		}
+		expect(result.backorder.customerId).toBe("cust_1");
+		expect(result.backorder.productId).toBe("prod_1");
+		expect(result.backorder.quantity).toBe(2);
+		expect(result.backorder.status).toBe("pending");
+		expect(result.backorder.estimatedAvailableAt).toBeDefined();
 	});
 
 	it("returns null backorder when no policy exists", async () => {
@@ -395,9 +396,10 @@ describe("store endpoint: create backorder — auth required", () => {
 		);
 
 		expect("backorder" in result && result.backorder !== null).toBe(true);
-		if ("backorder" in result && result.backorder) {
-			expect(result.backorder.status).toBe("confirmed");
+		if (!("backorder" in result && result.backorder)) {
+			throw new Error("expected 'backorder' in result && result.backorder");
 		}
+		expect(result.backorder.status).toBe("confirmed");
 	});
 
 	it("sets status to pending when autoConfirm is disabled", async () => {
@@ -415,9 +417,10 @@ describe("store endpoint: create backorder — auth required", () => {
 		);
 
 		expect("backorder" in result && result.backorder !== null).toBe(true);
-		if ("backorder" in result && result.backorder) {
-			expect(result.backorder.status).toBe("pending");
+		if (!("backorder" in result && result.backorder)) {
+			throw new Error("expected 'backorder' in result && result.backorder");
 		}
+		expect(result.backorder.status).toBe("pending");
 	});
 
 	it("includes variant information", async () => {
@@ -437,10 +440,11 @@ describe("store endpoint: create backorder — auth required", () => {
 		);
 
 		expect("backorder" in result && result.backorder !== null).toBe(true);
-		if ("backorder" in result && result.backorder) {
-			expect(result.backorder.variantId).toBe("var_xl_red");
-			expect(result.backorder.variantLabel).toBe("XL / Red");
+		if (!("backorder" in result && result.backorder)) {
+			throw new Error("expected 'backorder' in result && result.backorder");
 		}
+		expect(result.backorder.variantId).toBe("var_xl_red");
+		expect(result.backorder.variantLabel).toBe("XL / Red");
 	});
 });
 
@@ -483,11 +487,12 @@ describe("store endpoint: my backorders — auth required", () => {
 		});
 
 		expect("backorders" in result).toBe(true);
-		if ("backorders" in result) {
-			expect(result.backorders).toHaveLength(2);
-			for (const bo of result.backorders) {
-				expect(bo.customerId).toBe("cust_1");
-			}
+		if (!("backorders" in result)) {
+			throw new Error("expected 'backorders' in result");
+		}
+		expect(result.backorders).toHaveLength(2);
+		for (const bo of result.backorders) {
+			expect(bo.customerId).toBe("cust_1");
 		}
 	});
 
@@ -497,9 +502,10 @@ describe("store endpoint: my backorders — auth required", () => {
 		});
 
 		expect("backorders" in result).toBe(true);
-		if ("backorders" in result) {
-			expect(result.backorders).toHaveLength(0);
+		if (!("backorders" in result)) {
+			throw new Error("expected 'backorders' in result");
 		}
+		expect(result.backorders).toHaveLength(0);
 	});
 
 	it("does not include other customers' backorders", async () => {
@@ -518,9 +524,10 @@ describe("store endpoint: my backorders — auth required", () => {
 		});
 
 		expect("backorders" in result).toBe(true);
-		if ("backorders" in result) {
-			expect(result.backorders).toHaveLength(0);
+		if (!("backorders" in result)) {
+			throw new Error("expected 'backorders' in result");
 		}
+		expect(result.backorders).toHaveLength(0);
 	});
 });
 
@@ -546,11 +553,12 @@ describe("store endpoint: get backorder — public", () => {
 		const result = await simulateGetBackorder(data, created.id);
 
 		expect("backorder" in result && result.backorder !== null).toBe(true);
-		if ("backorder" in result && result.backorder) {
-			expect(result.backorder.id).toBe(created.id);
-			expect(result.backorder.productName).toBe("Widget");
-			expect(result.backorder.quantity).toBe(3);
+		if (!("backorder" in result && result.backorder)) {
+			throw new Error("expected 'backorder' in result && result.backorder");
 		}
+		expect(result.backorder.id).toBe(created.id);
+		expect(result.backorder.productName).toBe("Widget");
+		expect(result.backorder.quantity).toBe(3);
 	});
 
 	it("returns not found for nonexistent backorder", async () => {
@@ -599,11 +607,13 @@ describe("store endpoint: cancel backorder — auth + ownership", () => {
 		);
 
 		expect("cancelled" in result && result.cancelled).toBe(true);
-		if ("backorder" in result && result.backorder) {
-			expect(result.backorder.status).toBe("cancelled");
-			expect(result.backorder.cancelReason).toBe("Changed my mind");
-			expect(result.backorder.cancelledAt).toBeDefined();
+		expect("backorder" in result && result.backorder).toBeTruthy();
+		if (!("backorder" in result && result.backorder)) {
+			throw new Error("expected 'backorder' in result && result.backorder");
 		}
+		expect(result.backorder.status).toBe("cancelled");
+		expect(result.backorder.cancelReason).toBe("Changed my mind");
+		expect(result.backorder.cancelledAt).toBeDefined();
 	});
 
 	it("returns not found for another customer's backorder", async () => {
@@ -669,9 +679,11 @@ describe("store endpoint: cancel backorder — auth + ownership", () => {
 
 		// cancelBackorder returns the backorder unchanged when already delivered
 		expect("cancelled" in result && result.cancelled).toBe(true);
-		if ("backorder" in result && result.backorder) {
-			expect(result.backorder.status).toBe("delivered");
+		expect("backorder" in result && result.backorder).toBeTruthy();
+		if (!("backorder" in result && result.backorder)) {
+			throw new Error("expected 'backorder' in result && result.backorder");
 		}
+		expect(result.backorder.status).toBe("delivered");
 	});
 
 	it("prevents cancel on already cancelled backorder", async () => {
@@ -698,10 +710,12 @@ describe("store endpoint: cancel backorder — auth + ownership", () => {
 
 		// cancelBackorder returns the backorder unchanged when already cancelled
 		expect("cancelled" in result && result.cancelled).toBe(true);
-		if ("backorder" in result && result.backorder) {
-			expect(result.backorder.status).toBe("cancelled");
-			// Original reason preserved
-			expect(result.backorder.cancelReason).toBe("First cancel");
+		expect("backorder" in result && result.backorder).toBeTruthy();
+		if (!("backorder" in result && result.backorder)) {
+			throw new Error("expected 'backorder' in result && result.backorder");
 		}
+		expect(result.backorder.status).toBe("cancelled");
+		// Original reason preserved
+		expect(result.backorder.cancelReason).toBe("First cancel");
 	});
 });

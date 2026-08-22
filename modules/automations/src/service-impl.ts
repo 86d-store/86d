@@ -70,10 +70,13 @@ function evaluateConditions(
 async function executeAction(
 	action: AutomationAction,
 	payload: Record<string, unknown>,
-	options: ActionExecutorOptions,
-	capabilities: CapabilityInvoker | undefined,
-	data: ModuleDataService,
+	ctx: {
+		options: ActionExecutorOptions;
+		capabilities: CapabilityInvoker | undefined;
+		data: ModuleDataService;
+	},
 ): Promise<AutomationActionResult & { actionIndex: number }> {
+	const { options, capabilities, data } = ctx;
 	switch (action.type) {
 		case "send_notification": {
 			const {
@@ -576,13 +579,11 @@ export function createAutomationsController(
 
 			for (let i = 0; i < automation.actions.length; i++) {
 				const action = automation.actions[i];
-				const result = await executeAction(
-					action,
-					triggerPayload,
+				const result = await executeAction(action, triggerPayload, {
 					options,
 					capabilities,
 					data,
-				);
+				});
 				result.actionIndex = i;
 				results.push(result);
 				if (result.status === "failed") {

@@ -181,10 +181,7 @@ export default function automations(options?: AutomationsOptions): Module {
 			for (const eventName of CROSS_MODULE_EVENTS) {
 				ctx.events?.on(eventName, async (event) => {
 					await controller
-						.evaluateEvent(
-							eventName,
-							(event.payload as Record<string, unknown>) ?? {},
-						)
+						.evaluateEvent(eventName, event.payload as Record<string, unknown>)
 						.catch(() => {});
 				});
 			}
