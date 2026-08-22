@@ -91,7 +91,7 @@
 	},
 	"overrides": [
 		{
-			"includes": ["packages/ui/src/core/**"],
+			"includes": ["packages/ui/src/shadcn/**"],
 			"linter": {
 				"rules": {
 					"a11y": {
