@@ -29,8 +29,7 @@ export function SignInForm({ show86dSso = false }: { show86dSso?: boolean }) {
 			if (!res.ok) {
 				const data = await res.json().catch(() => null);
 				throw new Error(
-					(data as { message?: string })?.message ??
-						"Invalid email or password",
+					(data as { message?: string }).message ?? "Invalid email or password",
 				);
 			}
 
