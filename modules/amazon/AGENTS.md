@@ -2,6 +2,15 @@
 
 Amazon Seller Central integration for listing management, order fulfillment, and inventory sync.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -30,11 +39,11 @@ interface AmazonOptions extends ModuleConfig {
 
 ## Data models
 
-- **Listing** - localProductId, asin, sku, title, status (active|inactive|suppressed|incomplete), fulfillmentChannel (FBA|FBM), price, quantity, condition, buyBoxOwned, metadata
-- **AmazonOrder** - amazonOrderId, status (pending|unshipped|shipped|cancelled|returned), fulfillmentChannel, items, orderTotal, shippingTotal, marketplaceFee, netProceeds, buyerName, shippingAddress, trackingNumber, carrier
-- **InventorySync** - status (pending|syncing|synced|failed), totalSkus, updatedSkus, failedSkus
-- **ChannelStats** - totalListings, active/inactive/suppressed/incomplete counts, fba/fbm counts, totalOrders, totalRevenue
-- **InventoryHealth** - totalSkus, lowStock, outOfStock, fbaCount, fbmCount
+- **Listing** — localProductId, asin, sku, title, status (active|inactive|suppressed|incomplete), fulfillmentChannel (FBA|FBM), price, quantity, condition, buyBoxOwned, metadata
+- **AmazonOrder** — amazonOrderId, status (pending|unshipped|shipped|cancelled|returned), fulfillmentChannel, items, orderTotal, shippingTotal, marketplaceFee, netProceeds, buyerName, shippingAddress, trackingNumber, carrier
+- **InventorySync** — status (pending|syncing|synced|failed), totalSkus, updatedSkus, failedSkus
+- **ChannelStats** — totalListings, active/inactive/suppressed/incomplete counts, fba/fbm counts, totalOrders, totalRevenue
+- **InventoryHealth** — totalSkus, lowStock, outOfStock, fbaCount, fbmCount
 
 ## Patterns
 

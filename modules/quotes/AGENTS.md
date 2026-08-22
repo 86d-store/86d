@@ -1,8 +1,17 @@
-# @86d-app/quotes
+# Quotes Module
 
 B2B request-for-quote (RFQ) module. Customers create quotes with line items, submit for review, and negotiate pricing with admin before converting to orders.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -55,7 +64,7 @@ draft → submitted → under_review → countered → accepted → converted
 |--------|------|---------|-------------|
 | defaultExpirationDays | number | 30 | Days until counter-offer expires |
 
-## Key patterns
+## Patterns
 
 - Items can only be added/updated/removed in `draft` status
 - Submit requires at least 1 item
@@ -67,7 +76,7 @@ draft → submitted → under_review → countered → accepted → converted
 - All status changes recorded in quoteHistory with changedBy + optional reason
 - Expired quotes cannot be accepted
 
-## Gotchas
+## Caveats
 
 - `exactOptionalPropertyTypes` is on — use `| undefined` on all optional interface fields
 - QuoteController extends ModuleController (required for endpoint cast)

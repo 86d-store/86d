@@ -2,6 +2,15 @@
 
 Braintree payment provider implementing the `PaymentProvider` interface from `@86d-app/payments`.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -53,10 +62,10 @@ BraintreeOptions {
 }
 ```
 
-## API Mapping
+## API mapping
 
 | Method | Braintree endpoint |
-|---|---|
+| --- | --- |
 | createIntent | POST /merchants/{id}/transactions (submit_for_settlement: false) |
 | confirmIntent | POST /merchants/{id}/transactions/{txId}/submit_for_settlement |
 | cancelIntent | POST /merchants/{id}/transactions/{txId}/void |
@@ -65,7 +74,7 @@ BraintreeOptions {
 ## Status mapping
 
 | Braintree status | Provider status |
-|---|---|
+| --- | --- |
 | settled | succeeded |
 | voided | cancelled |
 | submitted_for_settlement, settling, settlement_pending, settlement_confirmed | processing |

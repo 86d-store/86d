@@ -1,6 +1,15 @@
 # Auth
 
-Authentication and authorization layer built on better-auth with Drizzle adapter and Next.js integration.
+Authentication and authorization on better-auth with Drizzle adapter and Next.js integration.
+
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide and this file.
+2. **Implement** using the local patterns below.
+3. **Verify.** Focused package tests while iterating. Full pre-commit gates live in the parent guide. After `modules/` changes, prove `bun run generate:modules -- --frozen` from repo root.
+   - Done when every required parent gate for the _slice_ is _green_.
 
 ## Structure
 
@@ -11,15 +20,7 @@ src/
   store-access.ts   Role-based store admin access check
 ```
 
-## Key exports
-
-- `auth` — better-auth instance configured with Drizzle + PostgreSQL, email/password, session cookie cache, admin plugin
-- `handler` — `toNextJsHandler(auth)` for use in Next.js API routes
-- `Session` — inferred session type from `auth.$Infer.Session`
-- `getSession()` — server action that reads session from Next.js `headers()`
-- `verifyStoreAdminAccess(user)` — returns `{ hasAccess, role }` based on `user.role === "admin"`
-
-## Import paths
+## Exports and import paths
 
 | Path | Export |
 |---|---|
@@ -27,17 +28,23 @@ src/
 | `auth/actions` | `getSession` |
 | `auth/store-access` | `verifyStoreAdminAccess` |
 
+- `auth` — better-auth instance: Drizzle + PostgreSQL, email/password, session cookie cache, admin plugin
+- `handler` — `toNextJsHandler(auth)` for Next.js API routes
+- `Session` — inferred from `auth.$Infer.Session`
+- `getSession()` — server action reading session from Next.js `headers()`
+- `verifyStoreAdminAccess(user)` — `{ hasAccess, role }` when `user.role === "admin"`
+
 ## Dependencies
 
 - `better-auth` — auth framework
-- `db` (workspace) — Drizzle client for database access
+- `db` (workspace) — Drizzle client
 - `env` (workspace) — validated auth secret and managed OAuth configuration
-- `next` (peer, optional) — needed for `actions.ts` server headers
+- `next` (peer, optional) — required for `actions.ts` server headers
 
 ## Patterns
 
-- Session uses cookie caching with 5-minute TTL (`cookieCache.maxAge: 300`)
+- Session cookie cache TTL: 5 minutes (`cookieCache.maxAge: 300`)
 - Better Auth is created only when `BETTER_AUTH_SECRET` is set and safe; otherwise `auth` is `null`, `isAuthEnabled` is false, and handlers return 503
-- Admin plugin from better-auth provides role-based access
-- `verifyStoreAdminAccess` only checks for `"admin"` role — no other roles grant store access
-- `StoreAccessResult.role` uses `string | undefined` (not `null`) to satisfy `exactOptionalPropertyTypes`
+- Admin plugin supplies role-based access
+- `verifyStoreAdminAccess` grants store access only for `"admin"` — no other roles
+- `StoreAccessResult.role` uses `string | undefined` (not `null`) for `exactOptionalPropertyTypes`

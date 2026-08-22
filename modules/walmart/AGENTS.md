@@ -2,6 +2,15 @@
 
 Integrates with Walmart Marketplace for item management, feed submissions, order fulfillment, and inventory tracking.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -26,7 +35,7 @@ interface WalmartOptions extends ModuleConfig {
 }
 ```
 
-## Data Models
+## Data models
 
 - **WalmartItem** -- id, localProductId, walmartItemId, sku, title, status (published|unpublished|retired|system-error), lifecycleStatus (active|archived), price, quantity, upc, gtin, brand, category, fulfillmentType (seller|wfs), publishStatus, lastSyncedAt, error, metadata
 - **WalmartOrder** -- id, purchaseOrderId, status (created|acknowledged|shipped|delivered|cancelled|refunded), items, orderTotal, shippingTotal, walmartFee, tax, customerName, shippingAddress, trackingNumber, carrier, shipDate, estimatedDelivery

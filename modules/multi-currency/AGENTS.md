@@ -2,7 +2,16 @@
 
 Manages multiple currencies, exchange rates, price conversions, and per-product price overrides for international commerce.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -56,7 +65,7 @@ Key methods:
 - `setPriceOverride/getPriceOverride/listPriceOverrides/deletePriceOverride` — fixed prices
 - `getProductPrice({ productId, basePriceInCents, currencyCode })` — resolves override or converts
 
-## Key patterns
+## Patterns
 
 - Currency codes are always stored/queried as uppercase
 - Setting a new base currency automatically unsets the previous base and sets rate to 1
@@ -73,7 +82,7 @@ interface MultiCurrencyOptions {
 }
 ```
 
-## Gotchas
+## Caveats
 
 - Base currency rate is always 1 — `updateRate` on the base currency is a no-op
 - Cross-currency conversion (non-base to non-base) goes through the base rate

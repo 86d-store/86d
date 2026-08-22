@@ -2,7 +2,16 @@
 
 Add-on gift wrapping options for order items with custom messages and recipient names.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -43,7 +52,7 @@ src/
 ## Options
 
 | Option | Type | Default | Description |
-|--------|------|---------|-------------|
+| --- | --- | --- | --- |
 | `maxMessageLength` | `number` | `500` | Maximum gift message length in characters |
 
 ## Data models
@@ -51,7 +60,7 @@ src/
 - **wrapOption** — Name, description, price in cents, image URL, active flag, sort order
 - **wrapSelection** — Order/item IDs, chosen option (denormalized name + price snapshot), recipient name, gift message, customer ID
 
-## Key patterns
+## Patterns
 
 - Options are managed by admin, selections are created by customers during checkout
 - Price is **snapshotted** at selection time — updating the option price doesn't affect existing selections
@@ -61,9 +70,6 @@ src/
 - Store endpoint lists only `active: true` options; admin can see all
 - Free wrapping options (priceInCents = 0) are supported
 - `exactOptionalPropertyTypes` is on — build objects conditionally, never pass `undefined`
-
-## Gotchas
-
 - Deleting a wrap option cascades to its selections (via schema reference)
 - Inactive options cannot be selected but existing selections remain valid
 - Selections are per order item, not per order — each item can have different wrapping

@@ -2,6 +2,15 @@
 
 Authoritative delivery-obligation foundation with quantity-validated creation. Shipping owns parcels, labels, and tracking; Orders owns only the accepted commercial lines. Direct status, tracking, and cancellation transport is contained until durable workflows own those transitions.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -57,7 +66,7 @@ pending → processing → shipped → delivered
 - `cancelFulfillment` is idempotent — returns existing if already cancelled
 - Cannot cancel delivered fulfillments (throws)
 
-## Key patterns
+## Patterns
 
 - Requires the typed `orders.line-quantities.validate@1.0.0` capability; no Orders data is read directly
 - Creation fails closed without the Orders capability, transactions, or row locking
@@ -69,6 +78,9 @@ pending → processing → shipped → delivered
 - Store endpoints strip `notes` and `updatedAt` from responses
 - `autoShipOnTracking` only applies to pending/processing fulfillments
 - Events emitter is optional — controller works without it (graceful no-op)
+- `exactOptionalPropertyTypes` is on — use `| undefined` for optional interface fields
+- Admin endpoints use POST for mutations (not PUT) despite REST conventions
+- notes field is admin-only — store endpoints strip it from responses
 
 ## Remaining authority gaps
 
@@ -76,12 +88,6 @@ pending → processing → shipped → delivered
 - Existing fulfillment rows have no migration/backfill adapter from the legacy Orders-owned tables.
 - Store reads still need Customer or scoped guest-proof authorization before they are safe as the canonical account surface.
 
-## Events emitted
+## Events
 
 `fulfillment.created`, `fulfillment.shipped`, `fulfillment.delivered`, `fulfillment.cancelled`
-
-## Gotchas
-
-- `exactOptionalPropertyTypes` is on — use `| undefined` for optional interface fields
-- Admin endpoints use POST for mutations (not PUT) despite REST conventions
-- notes field is admin-only — store endpoints strip it from responses

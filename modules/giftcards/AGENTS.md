@@ -2,6 +2,15 @@
 
 Digital gift cards with purchasing, gifting, redemption, balance management, top-ups, and analytics.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -54,7 +63,7 @@ GiftCardOptions {
 
 Emits: `giftCard.created`, `giftCard.purchased`, `giftCard.redeemed`, `giftCard.credited`, `giftCard.depleted`, `giftCard.sent`, `giftCard.toppedUp`, `giftCard.expired`
 
-## Key patterns
+## Patterns
 
 - Codes are uppercase alphanumeric, no ambiguous chars (0/O/1/I/L), format GIFT-XXXX-XXXX-XXXX
 - `purchase()` creates card + records purchase transaction; assigns customerId for self-purchases, leaves unassigned for gifts
@@ -66,9 +75,6 @@ Emits: `giftCard.created`, `giftCard.purchased`, `giftCard.redeemed`, `giftCard.
 - `getStats()` computes issued/redeemed/outstanding values from cards + transactions
 - `disableExpired()` batch-updates active cards with past expiresAt to "expired" status
 - Cards already delivered cannot be re-sent to prevent forwarding abuse
-
-## Gotchas
-
 - `ModuleConfig` only allows `Primitive` values — store array options as comma-separated strings
 - Transaction type includes "purchase" and "topup" in addition to "debit"/"credit"
 - `delivered` field defaults to `false` on create, not `undefined`

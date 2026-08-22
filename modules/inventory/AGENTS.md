@@ -2,6 +2,15 @@
 
 Stock tracking for products across variants and locations. Supports reservations, deductions, low-stock alerts, back-in-stock subscriptions, and backorder control.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -49,7 +58,7 @@ InventoryOptions {
 
 Items identified by `productId:variantId:locationId` (uses `_` as placeholder). E.g. `prod_1:_:_`, `prod_1:var_1:loc_1`.
 
-## Key patterns
+## Patterns
 
 - `available` is computed, never stored: `Math.max(0, quantity - reserved)`
 - The admin adjust route is an authenticated transport adapter to `inventory.stock.adjust@1`; its Module handler fails closed so there is no second direct writer
@@ -63,12 +72,12 @@ Items identified by `productId:variantId:locationId` (uses `_` as placeholder). 
 - `exactOptionalPropertyTypes` compatible: all optional params use `T | undefined`
 - `findMany` uses spread pattern for optional take/skip
 
-## Events emitted
+## Events
 
 - `inventory.updated` — on any stock mutation (set, adjust, reserve, release, deduct)
 - `inventory.low` — when available ≤ lowStockThreshold (only if threshold is set)
 - `inventory.back-in-stock` — when stock transitions from 0 to >0; includes subscriber list; auto-marks as notified
 
-## Exports (for inter-module contracts)
+## Exports
 
 read: `stockQuantity`, `stockAvailability`; readWrite: `stockReservation`

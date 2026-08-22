@@ -2,6 +2,15 @@
 
 Product brand management. Organize products by manufacturer or brand with brand pages, featured brands, and SEO metadata.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -47,7 +56,7 @@ BrandsOptions {
 - **brand**: id, name, slug (unique), description?, logo?, bannerImage?, website?, isActive, isFeatured, position, seoTitle?, seoDescription?, createdAt, updatedAt
 - **brandProduct**: id, brandId (indexed), productId (indexed), assignedAt
 
-## Key behaviors
+## Patterns
 
 - A product can belong to only one brand — assigning to a new brand automatically removes from the old one
 - Store endpoints only return active brands
@@ -58,7 +67,7 @@ BrandsOptions {
 ## Events
 
 | Event | Trigger | Payload |
-|---|---|---|
+| --- | --- | --- |
 | `brand.created` | Brand created via admin endpoint | `brandId`, `name`, `slug` |
 | `brand.updated` | Brand updated via admin endpoint | `brandId`, `name`, `slug` |
 | `brand.deleted` | Brand deleted via admin endpoint | `brandId` |

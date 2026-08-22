@@ -1,10 +1,15 @@
 # Products Module
 
-Product and Variant catalog with accepted Categories. New price writes use integer
-minor units. Inventory is authoritative for stock, and Collections is
-authoritative for Collection writes; the similarly named Products fields/tables
-are temporary read projections. Direct spreadsheet import is contained until the
-reviewed revision pipeline exists.
+Product and Variant catalog with accepted Categories. New price writes use integer minor units. Inventory is authoritative for stock, and Collections is authoritative for Collection writes; the similarly named Products fields/tables are temporary read projections. Direct spreadsheet import is contained until the reviewed revision pipeline exists.
+
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
 
 ## Structure
 
@@ -49,7 +54,7 @@ ProductsOptions {
 - **collection**: id, name, slug (unique), isFeatured, isVisible, position, metadata
 - **collectionProduct**: id, collectionId (FK cascade), productId (FK cascade), position
 
-## Key patterns
+## Patterns
 
 - Two controller layers: `controllers.ts` (raw ctx pattern for endpoints) and `service-impl.ts` (clean typed API with `createProductController(data)`)
 - Service-impl uses `crypto.randomUUID()` for IDs; raw controllers use `Date.now()`
@@ -78,7 +83,7 @@ ProductsOptions {
   dead-letter state while the last good projection remains readable.
 - Related products scored: same category (+10), shared tags (+1 each)
 
-## Gotchas
+## Caveats
 
 - `exactOptionalPropertyTypes` is on — use `undefined` carefully for optional fields
 - Direct import returns `PRODUCT_IMPORT_REVIEW_REQUIRED` before mutation.

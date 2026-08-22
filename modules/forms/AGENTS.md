@@ -2,7 +2,16 @@
 
 Custom forms for contact, surveys, inquiries, and feedback. Merchants create form definitions with configurable fields; customers submit responses via store endpoints.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -37,8 +46,9 @@ src/
 ## Data models
 
 ### form
+
 | Field | Type | Notes |
-|-------|------|-------|
+| --- | --- | --- |
 | id | string | UUID |
 | name | string | Display name |
 | slug | string | Unique, used in store URLs |
@@ -52,8 +62,9 @@ src/
 | maxSubmissions | number | 0 = unlimited |
 
 ### formSubmission
+
 | Field | Type | Notes |
-|-------|------|-------|
+| --- | --- | --- |
 | id | string | UUID |
 | formId | string | References form.id, cascade delete |
 | values | json | Field name → value map |
@@ -67,21 +78,13 @@ src/
 ## Admin components
 
 | Component | Path | Description |
-|-----------|------|-------------|
+| --- | --- | --- |
 | `FormsList` | `/admin/forms` | Stats dashboard + form table with status, field count, creation date |
 | `FormCreate` | `/admin/forms/create` | Create form with field builder, settings, slug auto-generation |
 | `FormDetail` | `/admin/forms/:id` | View/edit form with inline field builder, toggle active, delete |
 | `FormSubmissions` | `/admin/forms/:id/submissions` | Submission list with status filter, bulk select/delete, mark read/spam/archive |
 
 All components use `useModuleClient()` from `@86d-app/core/client`. The `FieldBuilder` internal component is shared between create and edit views.
-
-## Key patterns
-
-- **Validation** happens in `service-impl.ts` `validateSubmission()` — checks required, email/url format, number range, text length, regex pattern, select/radio options
-- **Honeypot** spam protection: store submit endpoint accepts `_hp` field; if non-empty, silently discards the submission
-- **Auto-read**: admin `get-submission` endpoint marks unread submissions as read
-- **Cascade delete**: deleting a form removes all its submissions
-- **Label a11y**: all form inputs are nested inside `<label>` elements for accessibility
 
 ## Options
 
@@ -90,3 +93,11 @@ interface FormsOptions extends ModuleConfig {
   maxSubmissionsPerHour?: number; // rate limit per IP (default 10)
 }
 ```
+
+## Patterns
+
+- **Validation** happens in `service-impl.ts` `validateSubmission()` — checks required, email/url format, number range, text length, regex pattern, select/radio options
+- **Honeypot** spam protection: store submit endpoint accepts `_hp` field; if non-empty, silently discards the submission
+- **Auto-read**: admin `get-submission` endpoint marks unread submissions as read
+- **Cascade delete**: deleting a form removes all its submissions
+- **Label a11y**: all form inputs are nested inside `<label>` elements for accessibility

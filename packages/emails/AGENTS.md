@@ -1,12 +1,21 @@
 # Emails
 
-Transactional email templates and Resend client for the 86d platform.
+Transactional email templates and send client for the Store Runtime.
+
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide and this file. Merchant-reachable email copy follows parent product language (supplier invisibility).
+2. **Implement** using the local patterns below.
+3. **Verify.** Focused package tests while iterating. Full pre-commit gates live in the parent guide. After `modules/` changes, prove `bun run generate:modules -- --frozen` from repo root.
+   - Done when every required parent gate for the _slice_ is _green_.
 
 ## Structure
 
 ```
 src/
-  index.ts              Resend client instance (default export)
+  index.ts              Send client instance (default export)
   templates/
     base.tsx            BaseEmail layout wrapper (header, body, footer)
     styles.ts           Shared inline CSS styles, formatCurrency, formatDate
@@ -28,28 +37,23 @@ src/
     subscription-update.tsx
 ```
 
-## Key exports
-
-- Default export: `resend` — Resend client instance (reads `RESEND_API_KEY` from env)
-- Each template is a separate export path (e.g., `emails/welcome`, `emails/order-confirmation`)
-
-## Import paths
+## Exports and import paths
 
 | Path | Export |
 |---|---|
-| `emails` | Resend client instance |
+| `emails` | Send client instance (reads `RESEND_API_KEY` from env) |
 | `emails/<template-name>` | React component (default export) |
 
 ## Patterns
 
-- All templates are React components using inline styles (no CSS-in-JS or external stylesheets)
-- `BaseEmail` wraps every template with consistent header/footer and email preview text
-- `styles.ts` provides shared style objects and helper functions (`formatCurrency`, `formatDate`)
+- Templates are React components with inline styles (no CSS-in-JS or external stylesheets)
+- `BaseEmail` wraps every template with consistent header/footer and preview text
+- `styles.ts` shared style objects plus `formatCurrency` / `formatDate`
 - `formatCurrency` expects amounts in **cents** (divides by 100)
-- Templates accept props like `storeName`, `orderNumber`, `items`, etc. — each is self-documenting
-- 16 templates total covering orders, shipping, payments, subscriptions, reviews, and admin alerts
+- Template props (`storeName`, `orderNumber`, `items`, …) are self-documenting per file
+- Sixteen templates cover orders, shipping, payments, subscriptions, reviews, and admin alerts
 
 ## Gotchas
 
-- `RESEND_API_KEY` must be set in env for the client to work (no validation at import time)
-- Templates use raw React elements, not JSX email libraries — compatible with `resend.emails.send()`
+- `RESEND_API_KEY` must be set for the client to work (no validation at import time)
+- Templates use raw React elements compatible with the send client's `emails.send()` API — not a separate JSX email framework

@@ -2,7 +2,16 @@
 
 Scheduled delivery time windows by day of week with capacity limits, surcharges, and blackout dates.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -47,7 +56,7 @@ src/
 ## Options
 
 | Option | Type | Default | Description |
-|--------|------|---------|-------------|
+| --- | --- | --- | --- |
 | `horizonDays` | `number` | `14` | Number of days into the future to show available slots |
 
 ## Data models
@@ -56,7 +65,7 @@ src/
 - **deliveryBooking** — A confirmed or cancelled booking tying an order to a schedule + date. Denormalizes schedule name, time window, and surcharge for order history.
 - **deliveryBlackout** — A blocked date (YYYY-MM-DD) with optional reason. No bookings allowed on blackout dates.
 
-## Key patterns
+## Patterns
 
 - Schedules define recurring weekly slots (e.g. "Monday 08:00–12:00, capacity 10")
 - Bookings tie a specific date + schedule to an order
@@ -69,9 +78,6 @@ src/
 - Day of week: 0 = Sunday, 6 = Saturday (matches JS `Date.getDay()`)
 - Booking date must match the schedule's `dayOfWeek` (validated on creation)
 - `exactOptionalPropertyTypes` is on — build objects conditionally, never pass `undefined`
-
-## Gotchas
-
 - Deleting a schedule cascades to its bookings (via schema reference)
 - Inactive schedules cannot be booked but existing bookings remain valid
 - Duplicate blackout dates for the same date are rejected

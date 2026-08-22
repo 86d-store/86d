@@ -2,7 +2,16 @@
 
 XML sitemap generation from products, collections, pages, blog posts, and brands. Supports custom entries, configurable priorities/frequencies, path exclusions, and on-demand regeneration.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -42,7 +51,7 @@ src/
 
 **sitemapEntry**: `id`, `loc` (full URL, indexed), `lastmod?`, `changefreq`, `priority`, `source` (static|product|collection|page|blog|brand|custom, indexed), `sourceId?`.
 
-## Key patterns
+## Patterns
 
 - **Singleton config**: Auto-created with defaults on first `getConfig()` call
 - **Regenerate**: Clears all non-custom entries, rebuilds from provided page data, preserves custom entries

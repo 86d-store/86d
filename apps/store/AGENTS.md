@@ -1,6 +1,15 @@
 # Store
 
-Customer-facing storefront AND per-store admin. Next.js app with two surfaces: the public storefront (theme/template system) and a secure store admin where modules register management UI.
+Customer-facing storefront and per-store admin in one Next.js app.
+
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide and this file. Module usage examples: [`EXAMPLES.md`](./EXAMPLES.md). Visual or interaction work also loads workspace `prd/experience.md` per the parent.
+2. **Implement** using the local patterns below. Merchant-reachable copy follows parent product language.
+3. **Verify.** Focused checks while iterating: `bun run typecheck` and package tests from repo root as needed. Full pre-commit gates live in the parent guide. After `modules/` changes, prove `bun run generate:modules -- --frozen` from repo root.
+   - Done when every required parent gate for the _slice_ is _green_.
 
 ## Structure
 
@@ -46,36 +55,26 @@ components/
     product-form.tsx   ProductForm: create/edit form, fetches categories, slug auto-gen
 ```
 
-## Two surfaces
+## Surfaces
 
-### Storefront (public)
-Customer-facing pages. Modules contribute store endpoints (`/api/[module]/...`) and store components. Uses the theme/template system.
+**Storefront (public).** Customer pages. Modules contribute store endpoints (`/api/[module]/...`) and store components through the theme/template system.
 
-### Store admin (`/admin/`)
-Auth-protected, per-store management interface. Built at `app/admin/`.
-- Layout: server component with `getSession()` auth guard + `AdminShell` client sidebar
-- All admin pages are client components using `useModuleClient()` hooks to `/api/admin/...` endpoints
-- Admin module components use the TSX+MDX pattern internally (logic in TSX, presentation in MDX)
-- API routes served through existing catch-all `api/[...path]/route.ts` (no separate admin route needed)
+**Store admin (`/admin/`).** Auth-protected management UI under `app/admin/`.
+- Server layout: `getSession()` guard + `AdminShell` client sidebar
+- Admin pages are client components via `useModuleClient()` to `/api/admin/...`
+- Admin module components use TSX logic + MDX presentation
+- API traffic shares catch-all `api/[...path]/route.ts` (no separate admin route)
 
-### Admin sidebar navigation (2-level)
-The sidebar uses a 2-level collapsible navigation system:
-- **Level 1 (Groups)**: Catalog, Sales, Customers, Fulfillment, Marketing, Content, Finance, Support, System
-- **Level 2 (Subgroups)**: Larger groups have collapsible subgroups (e.g., Sales → Orders, Cart, Billing, Scheduling, Promotions, Add-ons)
-- Subgroup assignment is centralized in `lib/admin-registry.ts` via `SUBGROUP_CONFIG` — maps first path segment after `/admin/` to a subgroup
-- Modules can override subgroup via `subgroup` field on `AdminPage` declarations
-- All 9 groups have subgroups: Content (Publishing, Knowledge, Site), Finance (Gateways, Configuration), Support (Helpdesk, Messaging), System (Monitoring, Tools)
-- Both group and subgroup collapse state persists in localStorage (`86d-admin-sidebar-collapsed`)
-- Active items auto-expand their parent group and subgroup
+**Admin sidebar (2-level).**
+- Groups: Catalog, Sales, Customers, Fulfillment, Marketing, Content, Finance, Support, System
+- Subgroups: larger groups nest (e.g. Sales → Orders, Cart, Billing, Scheduling, Promotions, Add-ons). All nine groups have subgroups — Content (Publishing, Knowledge, Site), Finance (Gateways, Configuration), Support (Helpdesk, Messaging), System (Monitoring, Tools)
+- Subgroup assignment is centralized in `lib/admin-registry.ts` via `SUBGROUP_CONFIG` (first path segment after `/admin/`). Modules may override with `subgroup` on `AdminPage`
+- Collapse state persists in localStorage (`86d-admin-sidebar-collapsed`); active items auto-expand parents
 
-## Theme/template pattern
+## Theme and templates
 
-Every visual component follows the two-file pattern:
+Every visual component uses two files: `.tsx` for logic (state, fetch, handlers, config) and `.mdx` for presentation (props only). Numbered MDX files (`1.mdx`, `2.mdx`, …) are design variants; swap the import to change theme without touching logic.
 
-1. **`.tsx` file** — business logic: state management, data fetching, event handlers, configuration objects
-2. **`.mdx` file** — render logic: pure presentation template that receives all data as props
-
-The `.tsx` file imports the MDX template and passes state as props:
 ```tsx
 import One from "./1.mdx";
 export function Navbar() {
@@ -84,85 +83,52 @@ export function Navbar() {
 }
 ```
 
-Numbered MDX files (1.mdx, 2.mdx, 3.mdx) are design variants for the same component. Switching themes means swapping which numbered template is imported — business logic stays identical.
+`mdx-components.tsx` merges in override order: `ui` primitives → `appComponents` (Navbar, Footer, Logo) → `moduleComponents` (generated) → per-page overrides.
 
-## Component registry
+**Breeza** is the first theme: minimal, high contrast, single primary accent, typography-forward, mobile-first. No gradients, glow, or multi-color accents.
 
-`mdx-components.tsx` merges components from multiple sources (in override order):
-1. `ui` — UI primitives (needs reimplementation — was in removed `packages/ui`)
-2. `appComponents` — store-specific (Navbar, Footer, Logo variants)
-3. `moduleComponents` — auto-generated from installed modules (Cart, ProductCard, ProductGrid, etc.)
-4. Per-page custom overrides
+`templates/brisa/config.json` drives theme name, installed modules, module options, OKLCH light/dark tokens, and asset paths. `layout.mdx` wraps pages; `index.mdx` is the homepage. Template details: [`templates/brisa/AGENTS.md`](../../templates/brisa/AGENTS.md).
 
-## Theme: Breeza
+## API edge
 
-The first theme. Design principles:
-- Minimal and clean — no gradients, no glow effects, no multi-color accents
-- High contrast — text and interactive elements immediately readable
-- Single primary color — monochromatic palette with one accent hue for CTAs
-- Typography-forward — generous whitespace, let content breathe
-- Mobile-first, responsive, fast
+Catch-all `api/[...path]/route.ts` owns centralized rate limits (do not recreate per endpoint):
+- Public: 2,000 requests/minute/IP
+- Sensitive public (subscribe, checkout session creation, payment intents): 10 requests/10 minutes/IP
+- Admin: 300 requests/minute/session user
+- Provider webhooks: 600 requests/minute/source IP (parent security section)
+- Limited responses include `Retry-After` and `X-RateLimit-Reset`
+- Errors use structured logging and `{ error: { code, message } }`
 
-## Template configuration
+**Durable events.** Bounded worker entrypoint: `bun run worker:durable-events`. Production scheduling is an operator/deployment concern. Web traffic is neither the scheduler nor the retry mechanism; mutation routes do not drain the outbox.
 
-`templates/brisa/config.json` drives the store:
-- Theme name and installed modules list
-- Module options (cart expiration, page sizes, etc.)
-- OKLCH color tokens for light and dark mode CSS custom properties
-- Asset paths (favicon, logo light/dark variants)
-
-`templates/brisa/layout.mdx` — global page wrapper (Navbar, main, Footer)
-`templates/brisa/index.mdx` — homepage content
-
-## API rate limiting
-
-The catch-all route handler (`api/[...path]/route.ts`) enforces rate limits:
-- Public endpoints: 2000 requests/min per IP
-- Sensitive endpoints (subscribe, checkout session creation, payment intents): 10 requests/10 min per IP
-- Admin endpoints: 300 requests/min per userId
-- Returns `Retry-After` and `X-RateLimit-Reset` headers when limited
-- Structured logging on errors; consistent `{ error: { code, message } }` response shape
-
-Durable event delivery has a bounded independent worker entrypoint:
-`bun run worker:durable-events`. Production scheduling is an operator/deployment
-responsibility. Web traffic is neither the scheduler nor the retry mechanism;
-mutation routes do not drain the outbox.
-
-Managed Store Runtimes enforce the v2 Store-scoped commerce-availability
-decision at the API edge. Unavailable, stale, malformed, or unreachable managed
-configuration blocks shopper mutations and the insecure Storefront serves a
-same-domain unavailable view. Admin operations, signed provider webhooks, and
-shopper reads remain reachable. A standalone Runtime has no managed credential
-signal, never calls the Control Plane for this gate, and remains fully operable.
+**Managed commerce-availability.** Managed Store Runtimes enforce the v2 Store-scoped commerce-availability decision at the API edge. Unavailable, stale, malformed, or unreachable managed configuration blocks shopper mutations and the insecure storefront serves a same-domain unavailable view. Admin operations, signed provider webhooks, and shopper reads remain reachable. A standalone Runtime has no managed credential signal, never calls the Control Plane for this gate, and remains fully operable.
 
 ## Webhook verification
 
-Payment provider modules (stripe, square, paypal, braintree) each implement webhook signature verification inline — no external crypto dependency. They use the Web Crypto API directly to stay publishable. Each module's webhook endpoint:
-- Captures the webhook secret in a closure at init via a factory function
-- Uses `requireRequest: true` in endpoint options to access `ctx.request` for raw body reading
-- Verifies HMAC signatures with timing-safe comparison
-- Returns 401 on invalid or expired signatures; passthrough when no secret configured
+Payment provider modules (stripe, square, paypal, braintree) verify webhook signatures inline with the Web Crypto API (no external crypto dependency; publishable). Each webhook endpoint:
+- Captures the webhook secret in a closure at init via a factory
+- Uses `requireRequest: true` so `ctx.request` can read the raw body
+- Verifies HMAC with timing-safe comparison
+- Returns 401 on invalid or expired signatures; passthrough when no secret is configured
 
-## File upload & storage
+## File upload and storage
 
-- `POST /api/upload` — Admin-only file upload. Accepts JPEG, PNG, WebP, GIF, SVG, PDF.
-  - Magic-byte validation prevents MIME spoofing
-  - SVG files are checked for XSS (scripts, event handlers, javascript URIs)
-  - Size limits: 4.5 MB for images, 10 MB for PDFs
-  - Files stored at `stores/{storeId}/{uuid}` via `@86d-app/storage` abstraction
-  - When `STORAGE_PUBLIC_URL_MODE=proxy`, upload responses return same-origin `/uploads/{key}` URLs
-- `DELETE /api/upload` — Admin-only file deletion with store isolation (cross-store deletion prevented)
-- `GET /uploads/[...path]` — Serves local files or proxies S3-backed uploads
-  - Local mode reads from `STORAGE_LOCAL_DIR`
-  - S3 proxy mode fetches from the internal storage URL and re-serves it as a same-origin response
+- `POST /api/upload` — admin-only. Accepts JPEG, PNG, WebP, GIF, SVG, PDF.
+  - Magic-byte validation (blocks MIME spoofing)
+  - SVG XSS checks (scripts, event handlers, javascript URIs)
+  - Size limits: 4.5 MB images, 10 MB PDFs
+  - Stored at `stores/{storeId}/{uuid}` via `@86d-app/storage`
+  - When `STORAGE_PUBLIC_URL_MODE=proxy`, responses use same-origin `/uploads/{key}` URLs
+- `DELETE /api/upload` — admin-only; store isolation blocks cross-store deletion
+- `GET /uploads/[...path]` — local files or S3-backed proxy
+  - Local: `STORAGE_LOCAL_DIR`; S3 proxy: fetch internal storage URL, re-serve same-origin
   - Path traversal protection, immutable cache headers
-  - SVGs served with restrictive CSP (`default-src 'none'; style-src 'unsafe-inline'`)
-  - PDFs served as attachments
+  - SVGs: restrictive CSP (`default-src 'none'; style-src 'unsafe-inline'`); PDFs as attachments
 
-## Key details
+## Local notes
 
-- MDX support enabled — pages can be `.md` or `.mdx` (configured in next.config.ts)
-- Modules (`@86d-app/cart`, `@86d-app/products`) are direct dependencies
-- Module endpoints served through catch-all API route at `api/[...path]/`
-- Turbopack configured with raw-loader for `.txt` files
-- Dev: `bun run dev:store` from monorepo root
+- MDX pages: `.md` or `.mdx` (next.config.ts)
+- Modules such as `@86d-app/cart` and `@86d-app/products` are direct dependencies; endpoints go through `api/[...path]/`
+- Turbopack raw-loader for `.txt` files
+- Dev: `bun run dev:store` from monorepo root (never leave running in a headless agent cycle)
+- Inside this app, use `~/` for local imports; bare `lib/` conflicts with `packages/lib`

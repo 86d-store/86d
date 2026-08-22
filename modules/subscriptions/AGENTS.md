@@ -2,6 +2,15 @@
 
 Subscription plan and subscriber management. Handles trial and subscription lifecycle status only. Free plans and paid plans with a free trial can be activated through the Store endpoint. Non-trial paid activation remains unavailable until P3 provides purpose-bound, duplicate-safe payment proof consumption.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -51,7 +60,7 @@ src/
 - `year` → add N years
 - Used in both `subscribe` (from now) and `renewSubscription` (from currentPeriodEnd)
 
-## Exports (for inter-module contracts)
+## Exports
 
 Types exported: `Subscription`, `SubscriptionPlan`, `SubscriptionController`, `SubscriptionInterval`, `SubscriptionStatus`
 

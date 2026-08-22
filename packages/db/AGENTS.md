@@ -1,6 +1,15 @@
 # DB
 
-Drizzle client singleton for the Store Runtime, using `drizzle-orm/node-postgres` with a lazy `pg.Pool`.
+Drizzle client singleton for the Store Runtime (`drizzle-orm/node-postgres` with a lazy `pg.Pool`).
+
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide and this file. Schema ownership (framework tables vs Module DDL) is in the parent Module and runtime section.
+2. **Implement** using the local patterns below.
+3. **Verify.** Focused package tests and seed paths while iterating. Full pre-commit gates live in the parent guide. After `modules/` changes, prove `bun run generate:modules -- --frozen` from repo root.
+   - Done when every required parent gate for the _slice_ is _green_.
 
 ## Structure
 
@@ -23,10 +32,11 @@ seed/             Seed data definitions and assets
 
 ## Seed
 
-- `bun run seed` from this package (or `bun run db:seed` from repo root)
+- From this package: `bun run seed`
+- From repo root: `bun run db:seed`
 - Applies compiled Module DDL, then writes typed `mod_*` rows and valid `core.*` money rows
 
 ## Gotchas
 
-- Do NOT import a database client in Modules — always use `ModuleDataService`
+- Modules never import a database client — always `ModuleDataService`
 - Never use `drizzle-kit push` / `db push` in Docker or boot

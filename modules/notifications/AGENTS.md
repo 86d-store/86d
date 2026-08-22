@@ -2,6 +2,15 @@
 
 In-app and email notification system with templates, batch send, priority levels, event emission, and per-customer preferences.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -100,7 +109,7 @@ consumed through this in-memory bus. Their future consumer must receive durable
 outbox facts and create a `notificationIntent` before any local-provider or
 managed-gateway attempt.
 
-## Key patterns
+## Patterns
 
 - Controller accepts `events?: ScopedEventEmitter` and `options?: { maxPerCustomer?: number }` parameters
 - Literal Resend/Twilio options remain available to standalone and BYO Stores. Managed provisioning does not supply an upstream provider key.

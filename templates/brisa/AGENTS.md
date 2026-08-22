@@ -1,8 +1,17 @@
 # Brisa Template
 
-Default store template for 86d. Defines layout, pages, and theme using MDX and module components.
+Default store template: layout, pages, and theme via MDX and Module components.
 
-## File Structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide and this file. Storefront/admin theme work also uses [`apps/store/AGENTS.md`](../../apps/store/AGENTS.md). Visual work loads workspace `prd/experience.md` per the parent.
+2. **Implement** using the local patterns below. Merchant-reachable copy follows parent product language.
+3. **Verify.** Focused store checks while iterating. Full pre-commit gates live in the parent guide. After `modules/` changes, prove `bun run generate:modules -- --frozen` from repo root.
+   - Done when every required parent gate for the _slice_ is _green_.
+
+## Structure
 
 ```
 templates/brisa/
@@ -39,25 +48,23 @@ templates/brisa/
 ## config.json
 
 - `theme`: `"brisa"`
-- `name`: Store display name
+- `name`: store display name
 - `modules`: `"*"` (wildcard) or array of module package names
-- `moduleOptions`: Per-module config (e.g., cart expiration)
-- `variables.light` / `variables.dark`: OKLCH color tokens applied as CSS custom properties
+- `moduleOptions`: per-module config (e.g. cart expiration)
+- `variables.light` / `variables.dark`: OKLCH color tokens as CSS custom properties
 
-## MDX Props
+## MDX props
 
-All MDX files receive props from their rendering context:
-
-- **layout.mdx**: `props.config` (store config), `props.theme` (next-themes), `props.children`
+- **layout.mdx**: `props.config`, `props.theme`, `props.children`
 - **navbar.mdx**: `props.logo`, `props.storeName`, `props.navItems`, `props.actions`, `props.scrolled`, `props.isOpen`, `props.mounted`, `props.resolvedTheme`, `props.toggleTheme`, `props.toggleMenu`, `props.handleNavClick`
 - **footer.mdx**: `props.logo`, `props.storeName`, `props.sections`
 - **contact.mdx**: `props.submitted`, `props.submitting`, `props.handleSubmit`, `props.newsletter`, `props.setNewsletter`
 - **terms/privacy.mdx**: `props.lastUpdated`
 - **[slug]/layout.mdx**: `props.slug` (from URL params)
 
-## Module Components Used
+## Module components used
 
-Components are auto-registered from enabled modules. Used in template:
+Components auto-register from enabled modules:
 
 | Component | Source Module | Used In |
 |-----------|-------------|---------|
@@ -81,17 +88,17 @@ Components are auto-registered from enabled modules. Used in template:
 
 ## Patterns
 
-- **Two-file pattern**: Module components use `.tsx` (logic) + `.mdx` (presentation). Template MDX imports module components by name.
-- **Detail pages**: Wrapper div with max-width + padding, passes `slug={props.slug}` to component
-- **Listing pages**: Heading section + component, no slug needed
-- **Static pages**: Self-contained MDX with Tailwind classes, `max-w-3xl` container
-- **Animations**: `animate-marquee` (infinite scroll) and `animate-fade-in` are defined in the store's `globals.css`
-- **Font**: `font-display` class uses `--font-display` CSS variable (Zalando Sans in default setup)
+- **Two-file pattern**: Module components use `.tsx` (logic) + `.mdx` (presentation). Template MDX imports Module components by name.
+- **Detail pages**: wrapper with max-width + padding; pass `slug={props.slug}`
+- **Listing pages**: heading + component; no slug
+- **Static pages**: self-contained MDX with Tailwind; `max-w-3xl` container
+- **Animations**: `animate-marquee` and `animate-fade-in` live in `apps/store/app/globals.css`
+- **Font**: `font-display` uses `--font-display` (Zalando Sans in default setup)
 
 ## Gotchas
 
-- Template `globals.css` is NOT auto-imported — it's a reference file. Animations live in `apps/store/app/globals.css`.
-- `modules: "*"` in config.json enables all installed modules. Use an array to restrict.
-- SVG assets use hardcoded colors (`#111`/`#f5f5f5`) instead of CSS variables since SVGs may be loaded outside the theme context (favicon, OG image).
-- The `animate-marquee` class requires the content to be duplicated in the MDX for seamless looping.
-- `props.slug` on detail pages comes from URL params, not from the module.
+- Template `globals.css` is **not** auto-imported — reference only. Animations live in `apps/store/app/globals.css`
+- `modules: "*"` enables all installed modules; use an array to restrict
+- SVG assets use hardcoded colors (`#111` / `#f5f5f5`) instead of CSS variables (favicon, OG image may load outside theme context)
+- `animate-marquee` requires duplicated content in the MDX for seamless looping
+- `props.slug` on detail pages comes from URL params, not from the Module

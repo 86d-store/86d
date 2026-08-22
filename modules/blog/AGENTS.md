@@ -2,6 +2,15 @@
 
 Content management for blog posts with drafts, scheduled publishing, featured posts, view tracking, and markdown rendering for store pages.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -46,15 +55,15 @@ BlogOptions {
 }
 ```
 
-## Data model
+## Data models
 
 - **post**: id, title, slug, content, excerpt?, coverImage?, author?, status (draft|published|scheduled|archived), tags (json[]), category?, featured (bool), readingTime (number), metaTitle?, metaDescription?, scheduledAt?, publishedAt?, views (number), createdAt, updatedAt
 
 ## Events
 
-- Emits: `blog.published`, `blog.unpublished`, `blog.deleted`, `blog.scheduled`, `blog.featured`
+Emits: `blog.published`, `blog.unpublished`, `blog.deleted`, `blog.scheduled`, `blog.featured`
 
-## Key patterns
+## Patterns
 
 - **Scheduled publishing**: Create with `status: "scheduled"` + `scheduledAt` date. `checkScheduledPosts()` publishes posts whose scheduledAt is in the past. Scheduling without a date falls back to draft.
 - **Reading time**: Auto-calculated on create/update from word count (~200 wpm). HTML tags and markdown syntax stripped before counting.
@@ -67,9 +76,6 @@ BlogOptions {
 - **Store visibility**: Store endpoints only serve posts with `status: "published"`.
 - **Slug resolution**: Store uses slug, admin uses id. Auto-slugify from title when slug is empty.
 - **SEO**: `metaTitle` and `metaDescription` fields for per-post SEO overrides.
-
-## Gotchas
-
 - `scheduledAt` must be provided when `status: "scheduled"` — otherwise status reverts to current.
 - `publishPost()` clears `scheduledAt` to prevent re-triggering.
 - `readingTime` is recalculated only when `content` is explicitly updated, not on status changes.

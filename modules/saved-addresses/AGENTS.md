@@ -1,8 +1,17 @@
-# saved-addresses
+# Saved Addresses Module
 
 Customer address book management. Stores shipping and billing addresses with default selection per customer.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -28,7 +37,7 @@ src/
 |--------|------|---------|-------------|
 | maxAddresses | string | "20" | Max addresses per customer |
 
-## Key patterns
+## Patterns
 
 - First address auto-becomes default shipping + billing
 - Setting a new default clears previous default (per customer)
@@ -37,7 +46,7 @@ src/
 - All user text inputs sanitized via `sanitizeText`
 - Country field capped at 2 chars (ISO 3166-1 alpha-2)
 
-## Events emitted
+## Events
 
 `address.created`, `address.updated`, `address.deleted`, `address.defaultChanged`
 

@@ -2,7 +2,16 @@
 
 URL redirect management for SEO and URL migration. Supports exact-match and regex-based redirects with 301/302/307/308 status codes, hit tracking, and bulk operations.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -34,7 +43,7 @@ src/
 
 **redirect**: `id`, `sourcePath` (indexed), `targetPath`, `statusCode` (301|302|307|308), `isActive`, `isRegex`, `preserveQueryString`, `note?`, `hitCount`, `lastHitAt?`, `createdAt`, `updatedAt`
 
-## Key patterns
+## Patterns
 
 - **Resolution order**: exact match first, then regex patterns (first match wins)
 - **Regex redirects**: `sourcePath` is a regex pattern, `targetPath` supports `$1`, `$2` group replacements

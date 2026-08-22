@@ -1,8 +1,17 @@
-# store-locator
+# Store Locator Module
 
 Physical store location management with proximity search, hours tracking, and click-and-collect support. Omnichannel bridge for brands with brick-and-mortar presence.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -35,7 +44,7 @@ Single entity `location` with fields: id, name, slug (unique), description, addr
 | `maxNearbyResults` | `number` | `20` | Max results for nearby search |
 | `defaultUnit` | `"km" \| "mi"` | `"km"` | Default distance unit |
 
-## Key patterns
+## Patterns
 
 - Controller registered as `storeLocator` on `ctx.context.controllers`
 - Haversine formula for geo distance (service-impl.ts, ~30 lines)
@@ -45,7 +54,7 @@ Single entity `location` with fields: id, name, slug (unique), description, addr
 - Store endpoints only return active locations; admin endpoints return all
 - `exactOptionalPropertyTypes` is on — use explicit `findOpts` pattern instead of passing `undefined` to `take`/`skip`
 
-## Gotchas
+## Caveats
 
 - `isOpen()` uses server timezone, not location timezone — caller should account for this
 - Nearby search radius param is always in km regardless of unit — unit only affects output distance values

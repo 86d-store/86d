@@ -1,495 +1,495 @@
 {
   "lockfileVersion": 1,
-  "generatedAt": "2026-08-22T21:39:44.242Z",
+  "generatedAt": "2026-08-22T23:19:32.066Z",
   "modules": {
     "abandoned-carts": {
       "source": "local",
       "packageName": "@86d-app/abandoned-carts",
       "version": "0.0.42",
-      "integrity": "sha256-e6487809fec1942398ac6d5afba26f44a4ae832a24391045d2f359c31703ea2b",
+      "integrity": "sha256-7b8df41d04a450656be4b9413f89a44c8e589fe871158d8f01354c9376d7c6d6",
       "localPath": "modules/abandoned-carts"
     },
     "affiliates": {
       "source": "local",
       "packageName": "@86d-app/affiliates",
       "version": "0.0.42",
-      "integrity": "sha256-f39f60a22bbfd37ca0d2f7cd2048ddff7bb5df252d688bbf902ac22ac28bc67f",
+      "integrity": "sha256-785056aa7ff01c9d06b2dc062b36a799cd8b41b6fde3bbbc1ae79b4e2bc1388c",
       "localPath": "modules/affiliates"
     },
     "amazon": {
       "source": "local",
       "packageName": "@86d-app/amazon",
       "version": "0.0.42",
-      "integrity": "sha256-b3b820ad2c62597b9a547caef1758e7728e14ac874eb0ddc32de1840edc36f4c",
+      "integrity": "sha256-fecd4efb04b05665dee5d1f1a2c7080e844db1ff81db10a5ff6f95a345cf277a",
       "localPath": "modules/amazon"
     },
     "analytics": {
       "source": "local",
       "packageName": "@86d-app/analytics",
       "version": "0.0.42",
-      "integrity": "sha256-5280c6d941007080e474957ab6424df23da3cac27dc396cb23e75a2c213ca7b1",
+      "integrity": "sha256-333bd04b5d4a94ededb480992a41b9f20c651c9405ac73127af15597ed53a519",
       "localPath": "modules/analytics"
     },
     "announcements": {
       "source": "local",
       "packageName": "@86d-app/announcements",
       "version": "0.0.42",
-      "integrity": "sha256-ab7c4683b97fe08495b1a0b1850a09c7b8abeca00b80ecfc1685e181e2484990",
+      "integrity": "sha256-2a7274faf5ba248864930707bd073fde538c363f77044f0dea525fa2b8e9cb0c",
       "localPath": "modules/announcements"
     },
     "appointments": {
       "source": "local",
       "packageName": "@86d-app/appointments",
       "version": "0.0.42",
-      "integrity": "sha256-a03f95a9de4491094275e92c17967b075433db233fec468cee145b4e641ed105",
+      "integrity": "sha256-b0ac826f6eff0106c351d0f1a324d34fcab480c61a5eaf55af9d78230b8d056f",
       "localPath": "modules/appointments"
     },
     "auctions": {
       "source": "local",
       "packageName": "@86d-app/auctions",
       "version": "0.0.42",
-      "integrity": "sha256-bb3f2bbe57e3b401a1e6d240bae061af93a429e66932f600531c32ca33f041c2",
+      "integrity": "sha256-406b0c9baf67bedc8ce01704fdcb65b967832126f5555ae49bcf3d85469136b6",
       "localPath": "modules/auctions"
     },
     "audit-log": {
       "source": "local",
       "packageName": "@86d-app/audit-log",
       "version": "0.0.42",
-      "integrity": "sha256-ea831bd260c629657c1c456ba757369fded9d2a7a48b7f5647170f9d2f397f87",
+      "integrity": "sha256-f987fa73a6a2cacf28cf4e860b637d17ae51e9b0719bb8b61172a1ad83e691d3",
       "localPath": "modules/audit-log"
     },
     "automations": {
       "source": "local",
       "packageName": "@86d-app/automations",
       "version": "0.0.42",
-      "integrity": "sha256-72b89d48432b9fd46b964c8545dc9e3a90d0c83de6e436621ae171d7f3150011",
+      "integrity": "sha256-740ab33a84c77a084fd587d8235ea5bcaadc9176577b02dbd507be45fb6a35c2",
       "localPath": "modules/automations"
     },
     "backorders": {
       "source": "local",
       "packageName": "@86d-app/backorders",
       "version": "0.0.42",
-      "integrity": "sha256-fd7d874f9898ab9fc3b0b10bbb0ef710374c03649be30e268dee93954e87f614",
+      "integrity": "sha256-f0ffccab38a46a6f6cd38437e28e21347a8059695af1e240f319a8f32ee18cae",
       "localPath": "modules/backorders"
     },
     "blog": {
       "source": "local",
       "packageName": "@86d-app/blog",
       "version": "0.0.42",
-      "integrity": "sha256-ca5c88010f85aaf666146f7aa0c18b87af86239e4e486566ea3041f6c99b0d59",
+      "integrity": "sha256-06d9b277ac8a64addc0fde292c47838e3bdc7e936f50eb6e7959575faa1730e6",
       "localPath": "modules/blog"
     },
     "braintree": {
       "source": "local",
       "packageName": "@86d-app/braintree",
       "version": "0.0.42",
-      "integrity": "sha256-8df61a40e492da707e533c2d7aac6d5e63f41f4490e5806b80b830311446aad8",
+      "integrity": "sha256-5c7691bc0aa9aa91b0215640ecd2bb1a4352e5fd3a21a40e43c36ea9829320b1",
       "localPath": "modules/braintree"
     },
     "brands": {
       "source": "local",
       "packageName": "@86d-app/brands",
       "version": "0.0.42",
-      "integrity": "sha256-8752115db2e258c0c55072a6c292c84e913e67b702ae5f939305ac3f75387c41",
+      "integrity": "sha256-7527b4b087b658fc9de61b107c00c2a758a1380f1939639005d3865160650a70",
       "localPath": "modules/brands"
     },
     "bulk-pricing": {
       "source": "local",
       "packageName": "@86d-app/bulk-pricing",
       "version": "0.0.42",
-      "integrity": "sha256-8e57a0987847ba89676d372e278c566ac4e7120b1b60ca477722cca13d2a0869",
+      "integrity": "sha256-6ae8d1bd02f642e808ddb5f57f639ed7220c0a6c809ec06bb5a197b04711450e",
       "localPath": "modules/bulk-pricing"
     },
     "bundles": {
       "source": "local",
       "packageName": "@86d-app/bundles",
       "version": "0.0.42",
-      "integrity": "sha256-254327bd27d0be19caeaee4043b107cf8b5bc77ce57b2da5762cb44c0aec8a4e",
+      "integrity": "sha256-7fad9f4d4e8764746981687f3410b409913bdf6662c3741a3a538613a9d47f63",
       "localPath": "modules/bundles"
     },
     "cart": {
       "source": "local",
       "packageName": "@86d-app/cart",
       "version": "0.0.42",
-      "integrity": "sha256-cd096e2b2f2a99225b10b2b33769cb7925900e49edbc2211b9064486f6b9eacb",
+      "integrity": "sha256-06ba90d16bc2bfb6b2b22dd3547743b2186cd05412e0ac1cf9067c5947f86b1d",
       "localPath": "modules/cart"
     },
     "checkout": {
       "source": "local",
       "packageName": "@86d-app/checkout",
       "version": "0.0.42",
-      "integrity": "sha256-ecda9bd3ab748b15a9e067f60b45b07395c009e670ef02102c122f7f158abed8",
+      "integrity": "sha256-0d4625ff1b0155b76adc0a04c1b3716efb34e0aa48d6f83a0d5f1c7e37660d46",
       "localPath": "modules/checkout"
     },
     "collections": {
       "source": "local",
       "packageName": "@86d-app/collections",
       "version": "0.0.42",
-      "integrity": "sha256-21c9c7f0dcb732b40d8ea119f9e4b92ad2aa3c8d0a2e95bd5ef577f1c6ef2e0c",
+      "integrity": "sha256-f25076db1fc39e791edee1c3ffc19d8d95608f9fd37eb609843e4a0cc82a39bb",
       "localPath": "modules/collections"
     },
     "comparisons": {
       "source": "local",
       "packageName": "@86d-app/comparisons",
       "version": "0.0.42",
-      "integrity": "sha256-f9c6343c73f9a72e567a492bd12e05fb4382df05adac3593e1b4865c093b6eba",
+      "integrity": "sha256-ab4349bf3dc844b8ce21391e0048cc5c39c141044ea4784134a26bff90c49851",
       "localPath": "modules/comparisons"
     },
     "customer-groups": {
       "source": "local",
       "packageName": "@86d-app/customer-groups",
       "version": "0.0.42",
-      "integrity": "sha256-f958dd3dab25926eed2a1494dfa0c0e53b9f52f8417cc51a980ed6e952d722a2",
+      "integrity": "sha256-f768f79381884362269e2c14a3d24588a3a189847b2fbc9c32202cb8902d6d8e",
       "localPath": "modules/customer-groups"
     },
     "customers": {
       "source": "local",
       "packageName": "@86d-app/customers",
       "version": "0.0.42",
-      "integrity": "sha256-6dbbd0c9c130099b3f7de71f0e5ee26617c95c5662df43eb1c5624bb2c534d57",
+      "integrity": "sha256-d3a955d3baef48081aefb4b970fd55a5c76508e6c924c8a4cbb8a591db9c7a18",
       "localPath": "modules/customers"
     },
     "delivery-slots": {
       "source": "local",
       "packageName": "@86d-app/delivery-slots",
       "version": "0.0.42",
-      "integrity": "sha256-f85864cd3c975743cb1d439ce3cc25d91d7d7ee0cc05a11a51e3abb91f49ce55",
+      "integrity": "sha256-fb2fb00afc4a4d3b7daacc6d9514040a34c827456186bd4b15c97fcbfea08a94",
       "localPath": "modules/delivery-slots"
     },
     "digital-downloads": {
       "source": "local",
       "packageName": "@86d-app/digital-downloads",
       "version": "0.0.42",
-      "integrity": "sha256-f7987b79173227eea2bde4cf37ac95a7604c39281c968565ea62116ced306909",
+      "integrity": "sha256-a9d042251e70855be053ffe4bde210a8fefb5fb87aa621032f9f4a81d1b2e175",
       "localPath": "modules/digital-downloads"
     },
     "discounts": {
       "source": "local",
       "packageName": "@86d-app/discounts",
       "version": "0.0.42",
-      "integrity": "sha256-ae402ec7a5290064b0e322c2d686ff29b2d084b434316f7e86e9efbd38155ea3",
+      "integrity": "sha256-263e9424e2a128a3e850c60d7889a3c0835b22dc856e6369d31cb289771793bc",
       "localPath": "modules/discounts"
     },
     "doordash": {
       "source": "local",
       "packageName": "@86d-app/doordash",
       "version": "0.0.42",
-      "integrity": "sha256-c8bf4fe5cd6d9e043873c78d42964bd476d140f8af2784458585f532633bdb08",
+      "integrity": "sha256-1f4fd6d7061d159814e29f732821756bc34f3193e5c3316d665691d47281c200",
       "localPath": "modules/doordash"
     },
     "ebay": {
       "source": "local",
       "packageName": "@86d-app/ebay",
       "version": "0.0.42",
-      "integrity": "sha256-189c2806e4f7a35e0adcd98f4bfbf84ad86ff1202baf367b0a08bec0721ade0e",
+      "integrity": "sha256-451d93b93e35df23ad6930fa0a6cf2e7b5f22fa27f5bfcad5c2b3451d3c5e46b",
       "localPath": "modules/ebay"
     },
     "etsy": {
       "source": "local",
       "packageName": "@86d-app/etsy",
       "version": "0.0.42",
-      "integrity": "sha256-2757dc2ef26b74803b975220db05c65f57e200fca571c1a9feb2c3efd3695751",
+      "integrity": "sha256-cb29a9ff954d43f707a9a29d4065d83d86112b0f5999f37c080fba722cf73328",
       "localPath": "modules/etsy"
     },
     "facebook-shop": {
       "source": "local",
       "packageName": "@86d-app/facebook-shop",
       "version": "0.0.42",
-      "integrity": "sha256-f0d106cb014da109f5a40d15dcc1896b4119699104e1190a26f5f5a593a1eaa9",
+      "integrity": "sha256-7e3a8c11de4162022915cc99f586a22cc97e84b62741a6c0db0f5cc3a308350d",
       "localPath": "modules/facebook-shop"
     },
     "faq": {
       "source": "local",
       "packageName": "@86d-app/faq",
       "version": "0.0.42",
-      "integrity": "sha256-223def69202401554ee84e7b254261baea7cb7ca68b668b4c091d8d7165f4073",
+      "integrity": "sha256-95033d43b77150897a4af7684e8ad507d71e83727cb54079f3cfdd95d996be0d",
       "localPath": "modules/faq"
     },
     "favor": {
       "source": "local",
       "packageName": "@86d-app/favor",
       "version": "0.0.42",
-      "integrity": "sha256-d73161afc9270fb782c0171c08c8bce9852391933f6a551bf5b94fd71ba8a931",
+      "integrity": "sha256-444879c38db9101e524feaf3eec85e8c6f819ec44401710c438ff1d677d97679",
       "localPath": "modules/favor"
     },
     "flash-sales": {
       "source": "local",
       "packageName": "@86d-app/flash-sales",
       "version": "0.0.42",
-      "integrity": "sha256-522d9f4b5288df807d4e139ebc989a6d982e39492687c413b5a71a51cece7b81",
+      "integrity": "sha256-b1cb44f1643753029d83d86523441a7a4fa4045a66307e3910ef83a9a61f6da2",
       "localPath": "modules/flash-sales"
     },
     "forms": {
       "source": "local",
       "packageName": "@86d-app/forms",
       "version": "0.0.42",
-      "integrity": "sha256-b4d76bef5484df24e1ed0199491eddc47caf0a9b07a6732418791aed63aebeac",
+      "integrity": "sha256-4f5d0cc257aba3afd745c1e625a89ba867975cf1ad2d4a89e840a3ae3298830c",
       "localPath": "modules/forms"
     },
     "fulfillment": {
       "source": "local",
       "packageName": "@86d-app/fulfillment",
       "version": "0.0.42",
-      "integrity": "sha256-10990990f2c4610120c4d2888e7c8b7543d3286642e72d49781c7e8b1134858b",
+      "integrity": "sha256-bc955331afe41e84d2995f2a625f5a91a37c409a4abf9b369ae4fea3d464ed4f",
       "localPath": "modules/fulfillment"
     },
     "gamification": {
       "source": "local",
       "packageName": "@86d-app/gamification",
       "version": "0.0.42",
-      "integrity": "sha256-4c3e41e99354d2334254223fec18b05dfd55e3b1f0a777d8e3521bbb5fc2d97a",
+      "integrity": "sha256-634d5197f04363953e188f56113bc2f8a1587771f15e292df91003b598dfcbbd",
       "localPath": "modules/gamification"
     },
     "gift-registry": {
       "source": "local",
       "packageName": "@86d-app/gift-registry",
       "version": "0.0.42",
-      "integrity": "sha256-fb15b8deb7ef0aeacf0be09967547aa7aeddd23e8e474fa66c0b374589d68386",
+      "integrity": "sha256-57d087a21fc4f44896aa068aacfb16217c9f5fc3873afecaca6082acd1e8f6ca",
       "localPath": "modules/gift-registry"
     },
     "gift-wrapping": {
       "source": "local",
       "packageName": "@86d-app/gift-wrapping",
       "version": "0.0.42",
-      "integrity": "sha256-7d4b10cf5c48224d9a885b6cf4ae766adfd0bd5bc8211caef8e19f7ce2b54897",
+      "integrity": "sha256-9402fd4e54ab673a687017a6f7ff9b20d1365e11b8763b3ad50dedaf5f4d8c10",
       "localPath": "modules/gift-wrapping"
     },
     "giftcards": {
       "source": "local",
       "packageName": "@86d-app/giftcards",
       "version": "0.0.42",
-      "integrity": "sha256-bbd371181d8799d0428ed3ed5fb1475e024800ec988630607c25f0131544670a",
+      "integrity": "sha256-05338d9ac28391f95698cfb7854165095e8d2b80dd4611aa2ca26d46dd931543",
       "localPath": "modules/giftcards"
     },
     "google-shopping": {
       "source": "local",
       "packageName": "@86d-app/google-shopping",
       "version": "0.0.42",
-      "integrity": "sha256-45318d62a9e67169f41502857a5ca3f10042682002d5540fa933067d7285a3a0",
+      "integrity": "sha256-dff12a3e4684e1b018214f0b22eb61cff15ef3ac1ef7142b2824d9458af84dad",
       "localPath": "modules/google-shopping"
     },
     "import-export": {
       "source": "local",
       "packageName": "@86d-app/import-export",
       "version": "0.0.42",
-      "integrity": "sha256-464a83d09cdf1b1694f7f5ef6bdf5be5c8ff55e5401a2f7c6d65b0b11e8b8dcb",
+      "integrity": "sha256-ec6e37fab3edf1c49374361572426fe1147552afbaaf14dfe41b4230c0bd931d",
       "localPath": "modules/import-export"
     },
     "instagram-shop": {
       "source": "local",
       "packageName": "@86d-app/instagram-shop",
       "version": "0.0.42",
-      "integrity": "sha256-b124729b333cb6ef51b40512215120462710d91193cbfd8d4b4cd451ee5e44d8",
+      "integrity": "sha256-91bec71e87c7bf0e06b7f4dea3ae8b6b6f4c254a0596165469e2f312749fdfc1",
       "localPath": "modules/instagram-shop"
     },
     "inventory": {
       "source": "local",
       "packageName": "@86d-app/inventory",
       "version": "0.0.42",
-      "integrity": "sha256-bef83526ab7b007b3e94bbc92d437ea57739af2ec806441f5c867aec26fdeb9f",
+      "integrity": "sha256-39ba1a2fa0f0a1c5d13f11f9c60af7a28401a7e1218e3d65df20b10f76ef3727",
       "localPath": "modules/inventory"
     },
     "invoices": {
       "source": "local",
       "packageName": "@86d-app/invoices",
       "version": "0.0.42",
-      "integrity": "sha256-9df082c0f9bea3fe7258359c5d4b54ca903f1ccee2a77e59f3a75ba109fd7faa",
+      "integrity": "sha256-29bc21e9bcec206f8262a21e0753e864d064f1bb0ef4b068a5e0be66b7adc723",
       "localPath": "modules/invoices"
     },
     "kiosk": {
       "source": "local",
       "packageName": "@86d-app/kiosk",
       "version": "0.0.42",
-      "integrity": "sha256-9740628065cc0d021dc0be46ac99513d4931073c484f657ea60085ac245a8669",
+      "integrity": "sha256-87a80ca179916f3009c902f89817d70c30b773b54ad58f4f7f5cab9be0f45e93",
       "localPath": "modules/kiosk"
     },
     "loyalty": {
       "source": "local",
       "packageName": "@86d-app/loyalty",
       "version": "0.0.42",
-      "integrity": "sha256-90007cb7bfb686429bab5aa86a13df428d4964da15914fd159acb8ac317021c9",
+      "integrity": "sha256-4633130dcf9d83b70887c32ff38d3ac0f5e172e0e86cb3174050c0a62b205519",
       "localPath": "modules/loyalty"
     },
     "media": {
       "source": "local",
       "packageName": "@86d-app/media",
       "version": "0.0.42",
-      "integrity": "sha256-0f9d9b2b17097f829044d29595607cf61e913c12dce51bbbe21dd44ea8f21f21",
+      "integrity": "sha256-b7fc73f232c202ff8c56aecd3f20e66d60acdda5e8ad46ab929e9a975d7feb4b",
       "localPath": "modules/media"
     },
     "memberships": {
       "source": "local",
       "packageName": "@86d-app/memberships",
       "version": "0.0.42",
-      "integrity": "sha256-69ea1b7fcfbe6f088eab5cc79c6e4591a7d6e30a322c89cb85d51ab21bb372de",
+      "integrity": "sha256-1e615ecfa32a19a7bcf9c03f532f7cdb53bd866b50316106108fff445c43686f",
       "localPath": "modules/memberships"
     },
     "multi-currency": {
       "source": "local",
       "packageName": "@86d-app/multi-currency",
       "version": "0.0.42",
-      "integrity": "sha256-acba00d6c42eca43e0af3d9235d56b7d34f59984bb0448134c391a38370ae2b9",
+      "integrity": "sha256-7293071f7772403c2129c0f8083ac2b97dfdc351e6f1e72215e6e5209a5e5be0",
       "localPath": "modules/multi-currency"
     },
     "navigation": {
       "source": "local",
       "packageName": "@86d-app/navigation",
       "version": "0.0.42",
-      "integrity": "sha256-1b2d422a0f55109ff011f04df6c79587b6c5127ef4cab917a8e9d2639908d0d5",
+      "integrity": "sha256-6ef48889875b9ebc3dd26c6b2b2c8060deb5862a76f2ff7f8b9361be099e69fd",
       "localPath": "modules/navigation"
     },
     "newsletter": {
       "source": "local",
       "packageName": "@86d-app/newsletter",
       "version": "0.0.42",
-      "integrity": "sha256-b3fc051d1bcd7060d3fa8867acd9f88684acce7d8a8e44de5de7a74283f9cb20",
+      "integrity": "sha256-a9f1d0cf74b2d080689d68bb42bd29fbf4d19c2ef0a320754a6b80820342a9fa",
       "localPath": "modules/newsletter"
     },
     "notifications": {
       "source": "local",
       "packageName": "@86d-app/notifications",
       "version": "0.0.42",
-      "integrity": "sha256-fda3ec5c462b483f93e48daa2b2a3a1c58bc4bab157e503bf6048d951ad3937b",
+      "integrity": "sha256-a57190aae0f418146264fe81234ec28da24f2001381a4e56c1dfc95c2affb041",
       "localPath": "modules/notifications"
     },
     "order-notes": {
       "source": "local",
       "packageName": "@86d-app/order-notes",
       "version": "0.0.42",
-      "integrity": "sha256-64688297201af155d099f386234478f279dec4d6ea695c1ba38523e46a556a68",
+      "integrity": "sha256-4a83e4ac44130f4c50fb9cca36b4ce00aac42a5b49734e41543b421b4d8958a1",
       "localPath": "modules/order-notes"
     },
     "orders": {
       "source": "local",
       "packageName": "@86d-app/orders",
       "version": "0.0.42",
-      "integrity": "sha256-d5b199b47918b735d83708cd3f9ac40f668a6557e6ae0daf4303fbbb5a286fb9",
+      "integrity": "sha256-b1f61fe4b7f8f5efe7212ba0f2101da2d3499bc19938eac6d6dbceff2457dc00",
       "localPath": "modules/orders"
     },
     "pages": {
       "source": "local",
       "packageName": "@86d-app/pages",
       "version": "0.0.42",
-      "integrity": "sha256-a3545e950da6387bd9dfe7787b806d9a3250497781247bbf91723166127ab007",
+      "integrity": "sha256-3a31446cd8443c2296b01d21130a567a106e12271dacec30618ba6a2f1ea700b",
       "localPath": "modules/pages"
     },
     "payments": {
       "source": "local",
       "packageName": "@86d-app/payments",
       "version": "0.0.42",
-      "integrity": "sha256-c3583f4fc209ae84fbd15df7f4f119531aadeefcc947abfb83e6a6105c70cb11",
+      "integrity": "sha256-734db9bcb5741ec5bc24ae53696a18a5abc09deef30520123598103b14a18dc1",
       "localPath": "modules/payments"
     },
     "paypal": {
       "source": "local",
       "packageName": "@86d-app/paypal",
       "version": "0.0.42",
-      "integrity": "sha256-473e0c215cbae70a8df67fe5858a576cf8a162ad273b97eb67ee8df3bab6ca22",
+      "integrity": "sha256-639a1ec135743fd5143cd11e88967d23b1141eec778e322a286788441e69d53a",
       "localPath": "modules/paypal"
     },
     "photo-booth": {
       "source": "local",
       "packageName": "@86d-app/photo-booth",
       "version": "0.0.42",
-      "integrity": "sha256-0179fb12e72f016be0e57237e75d27cab10fd9733389da00cae43bf10283c53e",
+      "integrity": "sha256-d4400f6d4c4d246eca91c28ad3e4c587bf214a6b80fef8f4f03049002e8c7d0d",
       "localPath": "modules/photo-booth"
     },
     "pinterest-shop": {
       "source": "local",
       "packageName": "@86d-app/pinterest-shop",
       "version": "0.0.42",
-      "integrity": "sha256-898c60c38d575856d572038f4a1fd06ae152e20e95ad4c77c63601ea520a5676",
+      "integrity": "sha256-80f7cd9598ed72c06b4f8d715d43614f81645be3578b06ef4a3c05486fec1820",
       "localPath": "modules/pinterest-shop"
     },
     "preorders": {
       "source": "local",
       "packageName": "@86d-app/preorders",
       "version": "0.0.42",
-      "integrity": "sha256-8d1e87db55f8c243f2dd2c782b621114f4b0e15df4fdd82419875defa92b3af7",
+      "integrity": "sha256-7fe042f228ece1ba1a01280d4f1bc6615ebb796468a3f52278f81e5262e7a7c6",
       "localPath": "modules/preorders"
     },
     "price-lists": {
       "source": "local",
       "packageName": "@86d-app/price-lists",
       "version": "0.0.42",
-      "integrity": "sha256-9459c20e0c5b98e365de885a5e255139682b5f46bba732ed900557ad10fd208e",
+      "integrity": "sha256-4c016280967c10badb5837fff637be80e8536a55c67884bbea955abbb269abf3",
       "localPath": "modules/price-lists"
     },
     "product-feeds": {
       "source": "local",
       "packageName": "@86d-app/product-feeds",
       "version": "0.0.42",
-      "integrity": "sha256-b3517df23e589d5548e7123e6495cce75b2b3f0755d84ea98a9acfbc818a2338",
+      "integrity": "sha256-3dc9d80367bd38c565c9c241d1f99ebb0bcd295d37e6d895106d2eb62e8ddcf6",
       "localPath": "modules/product-feeds"
     },
     "product-labels": {
       "source": "local",
       "packageName": "@86d-app/product-labels",
       "version": "0.0.42",
-      "integrity": "sha256-64338696bf4a934395553e6d4c522450a00969625cbd9bb42083fb063c9437e9",
+      "integrity": "sha256-5ceb868d0794a59d96926d6eb48f3cefcb34cf10e9772f1c97465dbfab6716d9",
       "localPath": "modules/product-labels"
     },
     "product-qa": {
       "source": "local",
       "packageName": "@86d-app/product-qa",
       "version": "0.0.42",
-      "integrity": "sha256-c3ce4287fb099ffff7d50394dfe431a7399233a8d368e3711d74df82f6fb8f9b",
+      "integrity": "sha256-c43b7a4829d55db8d3c962d6b7f519a3d993ebc6e1470f4d778157e61d3a6ce4",
       "localPath": "modules/product-qa"
     },
     "products": {
       "source": "local",
       "packageName": "@86d-app/products",
       "version": "0.0.42",
-      "integrity": "sha256-56cd10f0021f33c097dfc7c1489f87c6bb0b73f3908904c524eb8f96d250f813",
+      "integrity": "sha256-bd5faa61a9bd2ccf58165f40b5944f750fe187fd96cc42520269e19d31200450",
       "localPath": "modules/products"
     },
     "qr-code": {
       "source": "local",
       "packageName": "@86d-app/qr-code",
       "version": "0.0.42",
-      "integrity": "sha256-3667354aca10f11f9be67f7f62e45abeeba3ffde49f4b7c6ae9602d540fc8b7b",
+      "integrity": "sha256-592753201aeae70ae89efe10eef6f502b91f5a7d22daedff32c81156debd83d2",
       "localPath": "modules/qr-code"
     },
     "quotes": {
       "source": "local",
       "packageName": "@86d-app/quotes",
       "version": "0.0.42",
-      "integrity": "sha256-c6a0a4fb1643657c2c94f73a7b7c5fbe2f739d58e4b2e375e6ba253edc7f0b69",
+      "integrity": "sha256-951691d6029262864fc205bc62c6d851070cd71a6d1a8ddaf354f277b43d589b",
       "localPath": "modules/quotes"
     },
     "recently-viewed": {
       "source": "local",
       "packageName": "@86d-app/recently-viewed",
       "version": "0.0.42",
-      "integrity": "sha256-4e51abb9362298f1530d8de136c2a93260f08fd1b5f6e183d4ceb78cbecffdc2",
+      "integrity": "sha256-afa5163c26bede4465e493bd589623400523f993ebd03e79e21f4e3a32a29fe6",
       "localPath": "modules/recently-viewed"
     },
     "recommendations": {
       "source": "local",
       "packageName": "@86d-app/recommendations",
       "version": "0.0.42",
-      "integrity": "sha256-21b327377cfe4dc7a875cf730c43dddabf357eda173f05881e6bdfb1101f3489",
+      "integrity": "sha256-36c7eb138ebf7af6549240de7c037417c80d3b4640796b6dc0be1d6922eb71cd",
       "localPath": "modules/recommendations"
     },
     "redirects": {
       "source": "local",
       "packageName": "@86d-app/redirects",
       "version": "0.0.42",
-      "integrity": "sha256-975f2d02e5cd53f762d982de47db577da87d195da2ef12f42c29133ea9c491f7",
+      "integrity": "sha256-0219095c685048c46eaac244e60bb44a736676aeb92c047bc89741d6d1d4a47a",
       "localPath": "modules/redirects"
     },
     "referrals": {
       "source": "local",
       "packageName": "@86d-app/referrals",
       "version": "0.0.42",
-      "integrity": "sha256-83aeb113d114924ed68952da993b0fe6d73716986ef5538a2d02766db8f1f9a3",
+      "integrity": "sha256-8d2a5c30cfb2fbb1585d322f09bb58a962f800cadf8ee08e57c9d20d8881acd0",
       "localPath": "modules/referrals"
     },
     "returns": {
       "source": "local",
       "packageName": "@86d-app/returns",
       "version": "0.0.42",
-      "integrity": "sha256-ee8707b9a7b0c99090d14b46480c2d169ead86a7def84eddaaf494ba5d4b4dc1",
+      "integrity": "sha256-646a46d330d03c46c656fdcad6890f33a164caff01ee49ad6d179b5f86af85c7",
       "localPath": "modules/returns"
     },
     "revenue": {
@@ -503,203 +503,203 @@
       "source": "local",
       "packageName": "@86d-app/reviews",
       "version": "0.0.42",
-      "integrity": "sha256-e06f9a468020f8c3b96fe723607c2689721c4e1153ee6db002d1da3f0a08c694",
+      "integrity": "sha256-f9453b80ae8e9b3893ddfdfa7bab2cd8f999ab34ae5f16675ac8ae5e02580b12",
       "localPath": "modules/reviews"
     },
     "saved-addresses": {
       "source": "local",
       "packageName": "@86d-app/saved-addresses",
       "version": "0.0.42",
-      "integrity": "sha256-9b7cadfad501a22ecb55184c3f5b7ba8d0de04b6a766a685f811b2a1a115503e",
+      "integrity": "sha256-263ce47304b6117f30b2b9cc46fd07beb258f4aeedba68311cc42a3916bbaea1",
       "localPath": "modules/saved-addresses"
     },
     "search": {
       "source": "local",
       "packageName": "@86d-app/search",
       "version": "0.0.42",
-      "integrity": "sha256-31e3c7015827de1b320caabc47b7d844220b453f6fbacd51f629abeb55904298",
+      "integrity": "sha256-b1dcf85f8e19b91cb516b51b1c5f1c17fae122ca91c801f9bd4413d12d786b60",
       "localPath": "modules/search"
     },
     "seo": {
       "source": "local",
       "packageName": "@86d-app/seo",
       "version": "0.0.42",
-      "integrity": "sha256-1164e7a14cfd52c09c17dca906c7d9e677da8cedfef32900d19ac79c37157569",
+      "integrity": "sha256-0f4cb66317c03372d67c756a2f9131de328e14dc13a93d21a8e203869a873720",
       "localPath": "modules/seo"
     },
     "settings": {
       "source": "local",
       "packageName": "@86d-app/settings",
       "version": "0.0.42",
-      "integrity": "sha256-387988bcd14ff21e3779e1665903d0df9416023c73bbd36c543af61ace5c4df9",
+      "integrity": "sha256-a504f491c347f4ae2eb1e341e9feea4a707b5e8e31c915b8a0ae8012ac623194",
       "localPath": "modules/settings"
     },
     "shipping": {
       "source": "local",
       "packageName": "@86d-app/shipping",
       "version": "0.0.42",
-      "integrity": "sha256-3e993ff2d995d131c7d806d130f6c238a9dc25444ff2dce912088b9577df79cb",
+      "integrity": "sha256-e54864a8276879432650d597ec33be318c9cc6c94608cc06a587f97ade74018e",
       "localPath": "modules/shipping"
     },
     "sitemap": {
       "source": "local",
       "packageName": "@86d-app/sitemap",
       "version": "0.0.42",
-      "integrity": "sha256-e7f72e9db1c55882cf472cef7466172a9cb5485d072b3f210761adbf0d8e7144",
+      "integrity": "sha256-6dd5c27e4ad7e970accf732e7c25f4459f5a72796612e1915bdc0aa23e527859",
       "localPath": "modules/sitemap"
     },
     "social-proof": {
       "source": "local",
       "packageName": "@86d-app/social-proof",
       "version": "0.0.42",
-      "integrity": "sha256-90ca30a2d82ea57c65e78b7a9bb0a56945bca283dc6d96c4d2282e371ac38592",
+      "integrity": "sha256-d03a6a60c8141c6f4cd8c7d497301b59b2d8f2eb254ff326519c6172a54352e2",
       "localPath": "modules/social-proof"
     },
     "social-sharing": {
       "source": "local",
       "packageName": "@86d-app/social-sharing",
       "version": "0.0.42",
-      "integrity": "sha256-a412a21bfbecfb090780aa0fc1f8e329c3cc06623ab5a6da2c5dd6c7b8af3094",
+      "integrity": "sha256-4088b8caad7f5f01bd65361435d70c4b1bec005dd52288fcfc4a0a361decbf58",
       "localPath": "modules/social-sharing"
     },
     "square": {
       "source": "local",
       "packageName": "@86d-app/square",
       "version": "0.0.42",
-      "integrity": "sha256-dea342964b5f3ff2ed199330723b99c371a0d2e2c305d7ccf94aae18e1cf9ff0",
+      "integrity": "sha256-4ad0e6b67f823c5564ce8b8e9368bbce7d9390dab054ce5d3b24fd6219814c24",
       "localPath": "modules/square"
     },
     "store-credits": {
       "source": "local",
       "packageName": "@86d-app/store-credits",
       "version": "0.0.42",
-      "integrity": "sha256-f048705154c6a4473a1a40a4b73595a2d3c7d2454bbc4ce44169f701e10e191a",
+      "integrity": "sha256-ce1cd1ce96adffb9651bdf7cebf1a8d5751c6129c22e67518fa6b830393c36de",
       "localPath": "modules/store-credits"
     },
     "store-locator": {
       "source": "local",
       "packageName": "@86d-app/store-locator",
       "version": "0.0.42",
-      "integrity": "sha256-7f53f4f8b29d05992a3d864e8c2f3f30404d652a062fd389927e91a5f3617b49",
+      "integrity": "sha256-5eea8ef1172b56d61be5e4cff679e8dc5f1ca168b730f75fd97d72700f2b1824",
       "localPath": "modules/store-locator"
     },
     "store-pickup": {
       "source": "local",
       "packageName": "@86d-app/store-pickup",
       "version": "0.0.42",
-      "integrity": "sha256-ae1fbd136a4949d5c052d73edb0bc69456b514f09c564b7bb16a362cc3afb2d1",
+      "integrity": "sha256-6d441315a556593df9f6cec6fe0f8472309100f683505fb7c64f281686892ebb",
       "localPath": "modules/store-pickup"
     },
     "stripe": {
       "source": "local",
       "packageName": "@86d-app/stripe",
       "version": "0.0.42",
-      "integrity": "sha256-b0ab44a4b314ebc79cbfc4cca8bc1c8c43348657633fd6582b2e5f7df4cb3ab8",
+      "integrity": "sha256-4baaf11a6c57b6b9677d7efd5763fb11ee93097d57786c4121f5fe97a82f1031",
       "localPath": "modules/stripe"
     },
     "subscriptions": {
       "source": "local",
       "packageName": "@86d-app/subscriptions",
       "version": "0.0.42",
-      "integrity": "sha256-65cf556ad52b025079dde5087f7b9a8a88e4209ccc8c636f048ede7d43532cb2",
+      "integrity": "sha256-3cd1d600e1d25531ac1daa5a04c9cb1885ae76eacb408c54e3b290bd0ba7025c",
       "localPath": "modules/subscriptions"
     },
     "tax": {
       "source": "local",
       "packageName": "@86d-app/tax",
       "version": "0.0.42",
-      "integrity": "sha256-af889426b48c9f009e57345561be6f1c69bb20120e21f44dc830595364f09040",
+      "integrity": "sha256-dab764496fadb276be7d2a8f985e43d89158a65e4d8ceffe1cbdf07e1c9bc015",
       "localPath": "modules/tax"
     },
     "tickets": {
       "source": "local",
       "packageName": "@86d-app/tickets",
       "version": "0.0.42",
-      "integrity": "sha256-9576a276a61bf493b1f823af5c342190eaabb938b435032595a67630af7d8c1b",
+      "integrity": "sha256-5421754185f6840afb788d45af33721f41036c1704b6ee219b8a83d5535316cd",
       "localPath": "modules/tickets"
     },
     "tiktok-shop": {
       "source": "local",
       "packageName": "@86d-app/tiktok-shop",
       "version": "0.0.42",
-      "integrity": "sha256-159af1649838d63bcf8461f716c4fae3947a8176c2bddf272715f02fb484ac4a",
+      "integrity": "sha256-ae2118fceb54fd44e6593d36dbb60ca62d48c32c50bfe76bd832235df45039ef",
       "localPath": "modules/tiktok-shop"
     },
     "tipping": {
       "source": "local",
       "packageName": "@86d-app/tipping",
       "version": "0.0.42",
-      "integrity": "sha256-beaccd4f54d3b9b4d354d744a0df6414b7f053c7bdb30bee37172f866e8df947",
+      "integrity": "sha256-d370ce1121342a086692d7230d6c7c0db23d7d2cf5c8209e1b970ef049e43c9b",
       "localPath": "modules/tipping"
     },
     "toast": {
       "source": "local",
       "packageName": "@86d-app/toast",
       "version": "0.0.42",
-      "integrity": "sha256-7b0437a18c5d44fb393bf589edd2a6e6479fa94b2281be127e1ce69665a0914e",
+      "integrity": "sha256-8b0c97998df4d3047a45a113691db28fb7269f9ccced628a6c399674d1105cc8",
       "localPath": "modules/toast"
     },
     "uber-direct": {
       "source": "local",
       "packageName": "@86d-app/uber-direct",
       "version": "0.0.42",
-      "integrity": "sha256-cfda4c09ef3716f665801c1827f7836515cc26e9874104e509c750becf9b5faf",
+      "integrity": "sha256-65b7fc4158e514cddd08c5965fcdaa0028cee27189d0ca1d5b17d754ffde93ae",
       "localPath": "modules/uber-direct"
     },
     "uber-eats": {
       "source": "local",
       "packageName": "@86d-app/uber-eats",
       "version": "0.0.42",
-      "integrity": "sha256-376254ec2aef9ae537253dd75a361df3742b191b15c9eb4a30930caa763e2e85",
+      "integrity": "sha256-bc5ba22134263b421aca89e03779808cc2ce78d57215082af93025a77f5cdab9",
       "localPath": "modules/uber-eats"
     },
     "vendors": {
       "source": "local",
       "packageName": "@86d-app/vendors",
       "version": "0.0.42",
-      "integrity": "sha256-45177e1258c747dcefb512bbf080304e51ef5a88f1a10943afbcefe7d624048b",
+      "integrity": "sha256-8dd97f3cc15dc4b99fe462bbc26fa8d3fd9f0b68e381714067b9cd6cc282c9bd",
       "localPath": "modules/vendors"
     },
     "waitlist": {
       "source": "local",
       "packageName": "@86d-app/waitlist",
       "version": "0.0.42",
-      "integrity": "sha256-2ed928fdaa1a626aff0f17fdc5815287be1a16eb06994c9cecd5dd060d61d169",
+      "integrity": "sha256-7d34b03e15a5682eaf3f91eaa0f360f9ddf6f07d7695f68281eba5e7e9f2f843",
       "localPath": "modules/waitlist"
     },
     "walmart": {
       "source": "local",
       "packageName": "@86d-app/walmart",
       "version": "0.0.42",
-      "integrity": "sha256-b6a09ae07329ab69b3ac3b7584d51a7f71cc04b01998110da74eef7c68c2703a",
+      "integrity": "sha256-4b54f96932f182517a391da6cb24239595363bbdf4261487ab975aba0bd1398e",
       "localPath": "modules/walmart"
     },
     "warranties": {
       "source": "local",
       "packageName": "@86d-app/warranties",
       "version": "0.0.42",
-      "integrity": "sha256-e391f98e63784f203d0fa21bf438170b9be16483189e1ef187ff15fa28d2d31d",
+      "integrity": "sha256-1350d65d3fbac370c8e86e9268682c664d73dd1fc6996f429d2558e230f1f353",
       "localPath": "modules/warranties"
     },
     "wish": {
       "source": "local",
       "packageName": "@86d-app/wish",
       "version": "0.0.42",
-      "integrity": "sha256-73579d34500ec83112126863ff1a9424dca269795679f45ed463fffde75c36ac",
+      "integrity": "sha256-f24085c4a2266dea5a863aedc070883afce103b611721827381d71a73254695c",
       "localPath": "modules/wish"
     },
     "wishlist": {
       "source": "local",
       "packageName": "@86d-app/wishlist",
       "version": "0.0.42",
-      "integrity": "sha256-ca4e8da5e3e739adaa7ba5a622723b72aa3afa675ca9efdd8d49421add740acd",
+      "integrity": "sha256-f5cc2114a01572460002491f55e7f0d59eb65f0de2b9b23c8d57134cb9f4b075",
       "localPath": "modules/wishlist"
     },
     "x-shop": {
       "source": "local",
       "packageName": "@86d-app/x-shop",
       "version": "0.0.42",
-      "integrity": "sha256-c5f507225e5d2ddfa03ac560de575317560d57da7b30fcdbbb25e26bd80ea55e",
+      "integrity": "sha256-42c1bc6261b17a4e04c853b806308da2ee43e229e657ea893e2e319d83319e2c",
       "localPath": "modules/x-shop"
     }
   }

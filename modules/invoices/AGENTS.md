@@ -2,7 +2,16 @@
 
 Invoice lifecycle management with payment terms, partial payments, credit notes, and configurable numbering.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -55,7 +64,7 @@ src/
 ## Options
 
 | Option | Type | Default | Description |
-|--------|------|---------|-------------|
+| --- | --- | --- | --- |
 | `currency` | `string` | `"USD"` | Default currency code |
 | `defaultPaymentTerms` | `string` | `"due_on_receipt"` | Default payment terms for new invoices |
 
@@ -67,7 +76,7 @@ src/
 - **creditNote** — Credit adjustments linked to invoices. When applied, records as store_credit payment.
 - **creditNoteLineItem** — Line items on credit notes.
 
-## Key patterns
+## Patterns
 
 - All monetary amounts are in **cents** (integer) to avoid floating-point issues
 - Invoice lifecycle: `draft` → `sent` → `viewed` → `paid` (or `partially_paid`, `overdue`, `void`)
@@ -78,13 +87,10 @@ src/
 - Credit note lifecycle: `draft` → `issued` → `applied` (or `void`)
 - `applyCreditNote()` records a `store_credit` payment on the linked invoice
 - Invoice numbers: `INV-YYYYMMDD-NNNN`, credit notes: `CN-YYYYMMDD-NNNN`
-- Guest tracking uses POST (not GET) with invoice number + email for security
+- Guest tracking uses POST (not GET) with invoice number + email
 - Store endpoints check `ctx.context.session?.user.id` for auth, return 404 (not 403) for non-owned resources
 - `exactOptionalPropertyTypes` is on — use `| undefined` for optional interface properties
 - Use `DataRecord` type alias in service-impl.ts instead of inline `Record<string, any>` casts
-
-## Gotchas
-
 - Deleting an invoice cascades to line items, payments, and credit notes (manual cascade in service-impl)
 - Cannot record payments on draft or void invoices
 - Cannot add line items to non-draft invoices

@@ -1,6 +1,15 @@
 # Lib
 
-Shared platform libraries for carrier tracking, webhook delivery, LLM content rendering, and notification settings.
+Shared platform libraries: carrier tracking, webhook delivery, LLM content rendering, and notification settings.
+
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide and this file.
+2. **Implement** using the local patterns below.
+3. **Verify.** Focused package tests while iterating. Full pre-commit gates live in the parent guide. After `modules/` changes, prove `bun run generate:modules -- --frozen` from repo root.
+   - Done when every required parent gate for the _slice_ is _green_.
 
 ## Structure
 
@@ -14,6 +23,8 @@ src/
 
 ## Import paths
 
+No barrel export — import each file via its export path.
+
 | Path | Key exports |
 |---|---|
 | `lib/carrier-tracking` | `getTrackingUrl(carrier, trackingNumber)` |
@@ -21,18 +32,16 @@ src/
 | `lib/llms-content` | `LlmsProduct`, `LlmsCollection`, `LlmsBlogPost`, `LlmsFullContent`, `renderLlmsFullMarkdown` |
 | `lib/notification-settings` | `NOTIFICATION_EVENT_TYPES`, `NotificationEventType`, `parseNotificationSettings`, `isEventEnabled` |
 
-## Key details
+## Patterns
 
-- **No barrel export** — each file is imported individually via its export path
 - `getTrackingUrl` supports UPS, FedEx, USPS, DHL — returns `null` for unknown carriers
-- `deliverWebhook` signs payloads with HMAC-SHA256, sends with 10s timeout, returns `DeliveryResult`
+- `deliverWebhook` signs with HMAC-SHA256, 10s timeout, returns `DeliveryResult`; signature header `X-Webhook-Signature`
 - `buildWebhookPayload` generates a UUID `id` and ISO timestamp per payload
-- Webhook signature is sent in `X-Webhook-Signature` header
 - `renderLlmsFullMarkdown` produces markdown with products, collections, and blog posts
 - `parseNotificationSettings` safely parses unknown input into typed settings
-- `isEventEnabled` defaults to `true` if no event-specific override exists
+- `isEventEnabled` defaults to `true` when no event-specific override exists
 
 ## Gotchas
 
-- No external dependencies — uses Node.js `crypto` and global `fetch`
+- No external dependencies — Node.js `crypto` and global `fetch`
 - `getWebhookDeliveryByHash` is a stub that always returns `null`

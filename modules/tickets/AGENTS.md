@@ -2,7 +2,16 @@
 
 Customer support ticket system with threaded messages, categories, priority levels, and status tracking.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 modules/tickets/src/
@@ -101,15 +110,19 @@ interface TicketsOptions {
 }
 ```
 
-## Key behaviors
+## Patterns
 
 - **Ticket numbering**: Sequential starting at 1001, auto-incremented
 - **Status transitions**: Customer reply on non-open ticket → `pending`. Admin reply on open ticket → `in-progress`. Close/resolve sets `closedAt`.
 - **Internal notes**: Messages with `isInternal: true` are hidden from store endpoints
 - **Customer access**: Store endpoints verify `customerEmail` matches ticket owner
 - **Controller key**: `ctx.context.controllers.tickets as TicketController`
+- `onDelete: "set null"` (with space) not `"set-null"` in schema references
+- Type `data.upsert()` call sites at the boundary; do not widen with `any` or suppress diagnostics
+- Store `GET /tickets/:id` requires `?email=` query for customer verification
+- Apply `.transform(sanitizeText)` from `@86d-app/core/sanitize` on every new store text field
 
-## Admin Components
+## Admin components
 
 | Component | Path | Description |
 |---|---|---|
@@ -118,18 +131,12 @@ interface TicketsOptions {
 | `TicketCategories` | `/admin/tickets/categories` | Category list with active/inactive badges, inline create form, edit/delete actions |
 | `TicketCategoryDetail` | `/admin/tickets/categories/:id` | Edit form for name, slug, description, position, active toggle |
 
-## Events emitted
+## Events
 
 `ticket.created`, `ticket.updated`, `ticket.closed`, `ticket.reopened`, `ticket.message.added`
 
 ## Security
 
-- All text inputs in store endpoints (`subject`, `description`, `customerName`, `body`) are sanitized via `sanitizeText` transform to prevent stored XSS
+- All text inputs in store endpoints (`subject`, `description`, `customerName`, `body`) use `.transform(sanitizeText)`
 - `customerName` is length-bounded to 200 chars
 
-## Gotchas
-
-- `onDelete: "set null"` (with space) not `"set-null"` in schema references
-- Cast data to `Record<string, any>` for `data.upsert()` calls
-- Store `GET /tickets/:id` requires `?email=` query for customer verification
-- Always import `sanitizeText` from `@86d-app/core` when adding new text fields to store endpoints

@@ -2,6 +2,15 @@
 
 eBay marketplace integration for fixed-price and auction listings, order management, and channel analytics.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -29,9 +38,9 @@ interface EbayOptions extends ModuleConfig {
 
 ## Data models
 
-- **EbayListing** - localProductId, ebayItemId, title, status (active|ended|sold|draft|error), listingType (fixed-price|auction), price, auctionStartPrice, currentBid, bidCount, quantity, condition, categoryId, duration, startTime, endTime, watchers, views, metadata
-- **EbayOrder** - ebayOrderId, status (pending|paid|shipped|delivered|cancelled|returned), items, subtotal, shippingCost, ebayFee, paymentProcessingFee, total, buyerUsername, buyerName, shippingAddress, trackingNumber, carrier
-- **ChannelStats** - totalListings, activeListings, totalOrders, totalRevenue, activeAuctions, averagePrice
+- **EbayListing** — localProductId, ebayItemId, title, status (active|ended|sold|draft|error), listingType (fixed-price|auction), price, auctionStartPrice, currentBid, bidCount, quantity, condition, categoryId, duration, startTime, endTime, watchers, views, metadata
+- **EbayOrder** — ebayOrderId, status (pending|paid|shipped|delivered|cancelled|returned), items, subtotal, shippingCost, ebayFee, paymentProcessingFee, total, buyerUsername, buyerName, shippingAddress, trackingNumber, carrier
+- **ChannelStats** — totalListings, activeListings, totalOrders, totalRevenue, activeAuctions, averagePrice
 
 ## Patterns
 
@@ -40,11 +49,12 @@ interface EbayOptions extends ModuleConfig {
 - `endListing()` sets status to "ended" and records endTime
 - `getActiveAuctions()` filters by status=active AND listingType=auction
 - Admin page: `/admin/ebay` (single page)
+- Events: `ebay.listing.created`, `ebay.listing.ended`, `ebay.order.received`, `ebay.order.shipped`, `ebay.bid.received`, `ebay.catalog.synced`
 
-### Admin Endpoints
+### Admin endpoints
 
 | Method | Path | Description |
-|--------|------|-------------|
+| --- | --- | --- |
 | GET | `/admin/ebay/listings` | List listings with optional status/type/page/limit filters |
 | POST | `/admin/ebay/listings/create` | Create a new listing (fixed-price or auction) |
 | GET | `/admin/ebay/listings/:id` | Get a single listing by ID |
@@ -55,9 +65,8 @@ interface EbayOptions extends ModuleConfig {
 | GET | `/admin/ebay/stats` | Get channel stats |
 | GET | `/admin/ebay/auctions` | Get active auctions |
 
-### Store Endpoints
+### Store endpoints
 
 | Method | Path | Description |
-|--------|------|-------------|
+| --- | --- | --- |
 | POST | `/ebay/webhooks` | Receive eBay webhook events (e.g. order.created) |
-- Events: `ebay.listing.created`, `ebay.listing.ended`, `ebay.order.received`, `ebay.order.shipped`, `ebay.bid.received`, `ebay.catalog.synced`

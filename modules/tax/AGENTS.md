@@ -2,6 +2,15 @@
 
 Jurisdiction-based tax calculation engine with nexus management, transaction audit logging, compliance reporting, tax-inclusive pricing, categories, exemptions, compound rates, and rate stacking.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -52,7 +61,7 @@ TaxOptions {
 - **taxNexus**: id, country, state, type (physical|economic|voluntary), enabled, notes?
 - **taxTransaction**: id, orderId?, customerId?, country, state, city?, postalCode?, subtotal, shippingAmount, totalTax, shippingTax, effectiveRate, inclusive, exempt, lineDetails (json), rateNames (json)
 
-## Key patterns
+## Patterns
 
 - **Jurisdiction matching**: scoring system — country=1, +state=10, +city=100, +postal=1000. Higher score wins.
 - **Category-specific rates** take precedence over "default" category rates.

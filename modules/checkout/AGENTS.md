@@ -2,6 +2,15 @@
 
 Checkout session management: cart-to-order conversion flow. Handles session creation, address collection, discount application, payment coordination, and authoritative Order creation. It has customer-facing endpoints plus bounded Store Admin maintenance endpoints.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -43,76 +52,31 @@ Product and variant resolution plus Order creation are required capabilities. In
 
 M0 activation containment remains in force: confirm, payment, capture, payment-status, and completion routes return `CHECKOUT_ACTIVATION_UNAVAILABLE`. The consumer operation grants cover only currently reachable decisions (`check`/`release`, validation/balance reads, and payment cancellation); duplicate-sensitive commit, redeem, debit, reserve, deduct, create, get, and confirm operations are not granted to Checkout.
 
-The Store Admin expiry route also fails with
-`CHECKOUT_EXPIRY_WORKFLOW_REQUIRED`. Expiring a session cannot be activated
-until reservation release and Payment cancellation/reconciliation are a
-durable, idempotent workflow.
+The Store Admin expiry route also fails with `CHECKOUT_EXPIRY_WORKFLOW_REQUIRED`. Expiring a session cannot be activated until reservation release and Payment cancellation/reconciliation are a durable, idempotent workflow.
 
-Session creation accepts a Cart identity and resolves an owner-authorized,
-versioned Cart snapshot before re-resolving Product/Variant prices. Guest access
-uses a high-entropy proof held in an httpOnly cookie; a Checkout UUID alone is
-not authorization. The accepted-offer/finalizer path is still unavailable, so
-this must not be described as activated commerce completion.
+Session creation accepts a Cart identity and resolves an owner-authorized, versioned Cart snapshot before re-resolving Product/Variant prices. Guest access uses a high-entropy proof held in an httpOnly cookie; a Checkout UUID alone is not authorization. The accepted-offer/finalizer path is still unavailable, so this must not be described as activated commerce completion.
 
-Every shopper mutation requires the session's current `expectedRevision`.
-Checkout locks the owner-local session row, compares that token, and increments
-`revision` in the same transaction. A stale token returns
-`CHECKOUT_REVISION_CONFLICT`; unavailable row locking fails closed.
+Every shopper mutation requires the session's current `expectedRevision`. Checkout locks the owner-local session row, compares that token, and increments `revision` in the same transaction. A stale token returns `CHECKOUT_REVISION_CONFLICT`; unavailable row locking fails closed.
 
 ## Checkout Requests
 
-`createCheckoutRequestStore()` is an exported, owner-local foundation for an
-explicitly non-binding Checkout Request. Creation is deterministic and
-idempotent by operation key plus a canonical request digest. The aggregate
-stores a sanitized contact, failure reason, immutable Cart snapshot identity
-and line choices, 30-day expiry, invitation state, and audit actor.
+`createCheckoutRequestStore()` is an exported, owner-local foundation for an explicitly non-binding Checkout Request. Creation is deterministic and idempotent by operation key plus a canonical request digest. The aggregate stores a sanitized contact, failure reason, immutable Cart snapshot identity and line choices, 30-day expiry, invitation state, and audit actor.
 
-`POST /checkout/requests` resolves the caller-owned active Cart snapshot and
-accepts only a reason, contact, Cart ID, and operation key. `GET
-/checkout/requests/:id` requires the same authenticated owner or a
-request-scoped high-entropy guest proof in a secure httpOnly cookie. The guest
-owner and proof are stored only as digests and are omitted from responses.
-Creation and reads require owner-local row-locking transactions and fail closed
-when that contract is unavailable. Creation is subject to the Store edge's
-strict sensitive-path rate limiter.
+`POST /checkout/requests` resolves the caller-owned active Cart snapshot and accepts only a reason, contact, Cart ID, and operation key. `GET /checkout/requests/:id` requires the same authenticated owner or a request-scoped high-entropy guest proof in a secure httpOnly cookie. The guest owner and proof are stored only as digests and are omitted from responses. Creation and reads require owner-local row-locking transactions and fail closed when that contract is unavailable. Creation is subject to the Store edge's strict sensitive-path rate limiter.
 
-There is deliberately no invitation transition transport yet. Marking a
-request invited or reminded before a durable notification workflow proves the
-send would be false success. The persisted invitation state remains
-`not_invited` until that workflow exists.
+There is deliberately no invitation transition transport yet. Marking a request invited or reminded before a durable notification workflow proves the send would be false success. The persisted invitation state remains `not_invited` until that workflow exists.
 
-The strict request input has no place for Payment credentials, totals, prices,
-final Tax or Shipping decisions, an Order reference, or an Inventory promise. A
-future activation workflow must calculate a fresh Checkout and obtain explicit
-shopper acceptance before an invitation can produce commerce state.
+The strict request input has no place for Payment credentials, totals, prices, final Tax or Shipping decisions, an Order reference, or an Inventory promise. A future activation workflow must calculate a fresh Checkout and obtain explicit shopper acceptance before an invitation can produce commerce state.
 
-Checkout session containment remains separate: create/update reject Shipping
-addresses and caller Shipping/Payment selections until revision-bound Tax v2
-and accepted-offer integration exists; rate lookup returns
-`CHECKOUT_SHIPPING_QUOTE_V2_REQUIRED`; confirmation success requires server
-verification.
+Checkout session containment remains separate: create/update reject Shipping addresses and caller Shipping/Payment selections until revision-bound Tax v2 and accepted-offer integration exists; rate lookup returns `CHECKOUT_SHIPPING_QUOTE_V2_REQUIRED`; confirmation success requires server verification.
 
 ## Checkout Finalization foundation
 
-`createCheckoutFinalizationStore()` is an additive, unregistered Checkout-owned
-ledger. Its stable identity is derived from Checkout plus operation key.
-Admission locks the Checkout-local Finalization row, validates the expected
-Checkout revision, persists a canonical input digest and immutable accepted-
-input references, and conflicts if the same Checkout or operation is reused
-with changed input.
+`createCheckoutFinalizationStore()` is an additive, unregistered Checkout-owned ledger. Its stable identity is derived from Checkout plus operation key. Admission locks the Checkout-local Finalization row, validates the expected Checkout revision, persists a canonical input digest and immutable accepted-input references, and conflicts if the same Checkout or operation is reused with changed input.
 
-The ledger records current step, state, sequenced idempotent attempts,
-Order/Payment references, compensation/reconciliation records, and
-`needs_attention`. Each admission or progress record emits
-`checkout.finalization-lifecycle@1` atomically with its owner-local state. Its
-strict contracts contain identifiers and policy/decision references, never
-caller-supplied monetary values.
+The ledger records current step, state, sequenced idempotent attempts, Order/Payment references, compensation/reconciliation records, and `needs_attention`. Each admission or progress record emits `checkout.finalization-lifecycle@1` atomically with its owner-local state. Its strict contracts contain identifiers and policy/decision references, never caller-supplied monetary values.
 
-This foundation is not the finalizer. It invokes no capability, has no route or
-UI registration, and deliberately exposes no successful completion transition.
-The full ten-step orchestration, owner capability idempotency, per-step
-compensation/reconciliation, atomic Checkout completion, and injected-failure
-matrix must exist before activation.
+This foundation is not the finalizer. It invokes no capability, has no route or UI registration, and deliberately exposes no successful completion transition. The full ten-step orchestration, owner capability idempotency, per-step compensation/reconciliation, atomic Checkout completion, and injected-failure matrix must exist before activation.
 
 ## Patterns
 
@@ -123,7 +87,6 @@ matrix must exist before activation.
 - `applyDiscount` handles `freeShipping: true` by zeroing `shippingAmount`; clamps total to 0
 - `removeDiscount` restores `subtotal + taxAmount + shippingAmount` total
 - `complete` only transitions from `pending` status; stores `orderId`
-- `expireStale` remains an owner-local compatibility method and is not exposed
-  as an active mutation path
+- `expireStale` remains an owner-local compatibility method and is not exposed as an active mutation path
 - `exactOptionalPropertyTypes` compatible: all optional params use `T | undefined`
 - `findMany` uses `take` (not `limit`) for the options API

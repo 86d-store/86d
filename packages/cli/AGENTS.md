@@ -1,6 +1,15 @@
 # CLI
 
-Command-line interface for the 86d platform, published as `86d`.
+Command-line interface for the Store Runtime, published as `86d`.
+
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide and this file.
+2. **Implement** using the local patterns below.
+3. **Verify.** `bun run test` in this package (or `vitest run`). Full pre-commit gates live in the parent guide. After `modules/` changes, prove `bun run generate:modules -- --frozen` from repo root.
+   - Done when every required parent gate for the _slice_ is _green_.
 
 ## Structure
 
@@ -18,7 +27,7 @@ src/
     template.ts         Template subcommands (create, list, activate)
     generate.ts         Code generation (module imports, API router, component docs)
   __tests__/
-    *.test.ts           Vitest test files (9 test files, 69+ tests)
+    *.test.ts           Vitest test files
 ```
 
 ## Commands
@@ -40,22 +49,23 @@ src/
 | `86d template activate <name>` | Switch the store to use a template |
 | `86d generate [modules\|components]` | Run code generation |
 
-## Key utilities (utils.ts)
+Use `package.json` and `--help` as the live command inventory.
 
-- `findProjectRoot()` — walks up from cwd looking for `turbo.json` with `package.json` name `"86d"`
-- `getVersion()` — reads version from CLI or root `package.json`
-- `c` — zero-dep ANSI color helpers (bold, dim, green, yellow, blue, cyan, red, gray)
-- `parseEnvFile(path)` — parses `.env` files into `Record<string, string>`
-- `readJson<T>(path)` — safe JSON file reader, returns `undefined` on failure
-- `detectActiveTemplate(root)` — reads store tsconfig to find active template name
-- `getTemplateConfigPath(root)` — resolves active template's `config.json` path
+## Utilities (`utils.ts`)
+
+- `findProjectRoot()` — walks up from cwd for `turbo.json` plus `package.json` name `"86d"`
+- `getVersion()` — CLI or root `package.json` version
+- `c` — zero-dep ANSI helpers (bold, dim, green, yellow, blue, cyan, red, gray)
+- `parseEnvFile(path)` — `.env` → `Record<string, string>`
+- `readJson<T>(path)` — safe JSON read; `undefined` on failure
+- `detectActiveTemplate(root)` — active template from store tsconfig
+- `getTemplateConfigPath(root)` — active template `config.json` path
 
 ## Gotchas
 
-- Workspace `bin` is `bin/86d.mjs` (exists at install time). `publishConfig.bin` is `dist/index.js`.
-- No external CLI framework — uses raw `process.argv` parsing
+- Workspace `bin` is `bin/86d.mjs` (must exist at install time). `publishConfig.bin` is `dist/index.js`. A gitignored build output cannot be the workspace bin target.
+- No external CLI framework — raw `process.argv` parsing
 - `findProjectRoot` requires both `turbo.json` and `package.json` with name `"86d"`
-- Tests use Vitest — run with `bun run test` or `vitest run`
-- `init --yes` / `-y`: skips all interactive Y/N prompts, auto-confirms migrate + seed
-- `init` with a reachable DATABASE_URL: prompts to run migrations then seed (prints admin credentials on success)
-- `init` in non-TTY (CI, pipes): skips DB setup automatically since stdin is not interactive
+- `init --yes` / `-y`: skips interactive Y/N prompts; auto-confirms migrate + seed
+- `init` with reachable `DATABASE_URL`: prompts migrate then seed (prints admin credentials on success)
+- `init` in non-TTY (CI, pipes): skips DB setup automatically

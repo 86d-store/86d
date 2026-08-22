@@ -1,8 +1,17 @@
-# payments module
+# Payments Module
 
 Provider-neutral payment ownership. The legacy v1 controller tracks payment intents, saved payment methods, and refunds. The additive v2 boundary owns named Payment Connections and durable connection-bound provider operations without exposing live shopper routes.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -24,7 +33,7 @@ src/
     financial-safety.test.ts  Amount validation, status guards, refund cap, webhook dedup (35 tests)
 ```
 
-## Key patterns
+## Patterns
 
 - **Payment Connection v2**: Store-scoped, named, immutable identity with provider, server-provisioned upstream provider account ID, mode, capabilities, health, lifecycle, and an opaque server-only secret reference. The host must verify that its credential authorizes that account before binding the adapter.
 - **Explicit routing**: A v2 adapter is bound to exactly one `connectionId`; no default provider or provider fallback exists in the v2 service.
@@ -60,17 +69,17 @@ Legacy v1 migration behavior follows:
 - **paymentMethod**: id, customerId, providerMethodId, type, last4?, brand?, expiryMonth?, expiryYear?, isDefault, timestamps
 - **refund**: id, paymentIntentId, providerRefundId, amount, reason?, status (pending|succeeded|failed), timestamps
 
-## Events emitted
+## Events
 
 `payment.completed`, `payment.failed`, `payment.refunded`
 
-## Gotchas
+## Caveats
 
 - Endpoint validates `amount` as `z.number().int().positive()` — controller also validates (defense in depth).
 - `createRefund` throws on non-existent intent, wrong status, exceeded cap, or missing provider. Endpoints should catch and return structured errors.
 - `handleWebhookEvent` has no status guards — it trusts the provider (Stripe can set any status). `handleWebhookRefund` deduplicates but doesn't cap amounts (provider-side refunds are authoritative).
 - The legacy Admin refund handler remains in source for migration reference but is unregistered; the registered path requires a durable original-Connection-bound v2 operation.
 
-## Tests (205 total)
+## Tests
 
-Run: `bun test` from this directory. All 5 test files cover: CRUD, status guards, refund cap, webhook dedup, provider delegation, customer isolation, pagination.
+Focused tests live in `__tests__/`. Run them from this Module directory after the _frozen_ check. All 5 test files cover: CRUD, status guards, refund cap, webhook dedup, provider delegation, customer isolation, pagination.

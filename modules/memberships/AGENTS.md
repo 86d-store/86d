@@ -2,7 +2,16 @@
 
 Paid membership plans with exclusive benefits, gated products, and member pricing. Customers subscribe to plans that grant access to restricted products and perks like discounts and free shipping.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -44,7 +53,7 @@ src/
 - **membershipBenefit** — id, planId (indexed), type (discount_percentage/free_shipping/early_access/exclusive_products/priority_support), value, description?, isActive
 - **membershipProduct** — id, planId (indexed), productId (indexed), assignedAt
 
-## Key behaviors
+## Patterns
 
 - **One active membership per customer** — subscribing to a new plan auto-cancels the previous one
 - **Trial support** — plans with `trialDays > 0` create memberships with `status: "trial"` and `trialEndDate`
@@ -73,10 +82,9 @@ Requires: `customers`
 - **Ownership before mutation**: `cancel` endpoint verifies `membership.customerId === session.user.id` BEFORE calling `cancelMembership`
 - **Unauthenticated access**: `check-access` returns `{ hasAccess: false }` for unauthenticated requests (no 401)
 
-## Gotchas
-
 - `gateProduct` is idempotent — re-gating the same product returns the existing record
 - `pauseMembership` only works on active/trial memberships; `resumeMembership` only works on paused ones
 - `cancelMembership` on already-cancelled returns the membership unchanged (no error)
 - Store endpoints only return active plans; admin endpoints show all
 - Store components follow TSX + MDX pattern: logic in `.tsx`, presentation in `.mdx`
+

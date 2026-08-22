@@ -2,7 +2,16 @@
 
 Event-driven workflow automation. Rules trigger on platform events, evaluate conditions, and execute configurable actions.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -43,6 +52,7 @@ src/
 ## Data models
 
 **automation** — Rule definition
+
 - `id`, `name`, `description`, `status` (active|paused|draft)
 - `triggerEvent` — event type string (e.g. "order.placed")
 - `conditions` — JSON array of `{field, operator, value}`
@@ -51,6 +61,7 @@ src/
 - `runCount`, `lastRunAt`, `createdAt`, `updatedAt`
 
 **automationExecution** — Run history
+
 - `id`, `automationId`, `triggerEvent`, `triggerPayload`
 - `status` (pending|running|completed|failed|skipped)
 - `results` — JSON array of action results
@@ -65,21 +76,13 @@ All conditions are ANDed. Empty conditions = always match.
 ## Action types
 
 | Type | Required config |
-|------|----------------|
+| --- | --- |
 | `send_notification` | `title`, `message` |
 | `send_email` | `to`, `subject` |
 | `webhook` | `url` |
 | `update_field` | `entity`, `field` |
 | `create_record` | `entity` |
 | `log` | (none) |
-
-## Key patterns
-
-- Controller created via `init()` with `createAutomationsController(ctx.data)`
-- `evaluateEvent(eventType, payload)` — finds all active automations matching the event, runs them in priority order
-- Conditions evaluated in-memory against the trigger payload
-- Actions are validated and produce `AutomationActionResult` (actual side-effects dispatched through events in production)
-- Cascade delete: deleting an automation removes its executions
 
 ## Options
 
@@ -89,8 +92,13 @@ interface AutomationsOptions {
 }
 ```
 
-## Gotchas
+## Patterns
 
+- Controller created via `init()` with `createAutomationsController(ctx.data)`
+- `evaluateEvent(eventType, payload)` — finds all active automations matching the event, runs them in priority order
+- Conditions evaluated in-memory against the trigger payload
+- Actions are validated and produce `AutomationActionResult` (actual side-effects dispatched through events in production)
+- Cascade delete: deleting an automation removes its executions
 - Two store endpoints: `/automations/trigger` (public, allowlisted storefront events only) and `/automations/webhooks` (external integrations, authenticated via `x-webhook-secret` header)
 - `createStoreEndpoints(opts?)` factory accepts optional `webhookSecret` for webhook authentication
 - Action execution is synchronous validation; real side-effects (email, webhook) require integration with the notification/email modules

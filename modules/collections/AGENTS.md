@@ -2,6 +2,15 @@
 
 Curated product collections for merchandising. Supports manual (hand-picked) and automatic (rule-based) groupings with featured collection highlighting, SEO fields, and drag-and-drop product ordering.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -51,7 +60,7 @@ CollectionsOptions {
 - **collection**: id, title, slug (unique), description?, image?, type (manual|automatic), sortOrder, isActive, isFeatured, position, conditions? (JSON), seoTitle?, seoDescription?, publishedAt?, createdAt, updatedAt
 - **collectionProduct**: id, collectionId (indexed), productId (indexed), position, addedAt
 
-## Key types
+## Types
 
 - `CollectionType`: "manual" | "automatic"
 - `CollectionSortOrder`: "manual" | "title-asc" | "title-desc" | "price-asc" | "price-desc" | "created-asc" | "created-desc" | "best-selling"
@@ -67,9 +76,5 @@ CollectionsOptions {
 - Position-based ordering for both collections (global) and products within collections
 - Store endpoints only return active collections; admin endpoints return all
 - `buildFindOptions` helper strips undefined take/skip to satisfy `exactOptionalPropertyTypes`
-
-## Gotchas
-
 - `exactOptionalPropertyTypes` is enabled — never assign `undefined` to optional properties; use conditional spread or conditional assignment instead
-- Biome auto-formats — run `check:fix` after writing code
 - Slug must be unique — create/update endpoints check for duplicates

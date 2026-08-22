@@ -2,6 +2,15 @@
 
 Self-service knowledge base with categorized questions, full-text search, and helpfulness voting.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -36,7 +45,6 @@ src/
       update-item.ts         PUT    /admin/faq/items/:id
       delete-item.ts         DELETE /admin/faq/items/:id/delete
       stats.ts               GET    /admin/faq/stats
-  admin/
     components/
       index.tsx           FaqList, FaqDetail, FaqCategories, FaqCategoryDetail
   __tests__/
@@ -56,16 +64,16 @@ FaqOptions {
 - **faqCategory**: id, name, slug (unique), description?, icon?, position, isVisible, metadata
 - **faqItem**: id, categoryId (FK cascade), question, answer, slug (unique), position, isVisible, tags[], helpfulCount, notHelpfulCount, metadata
 
-## Admin Components
+## Admin components
 
 | Component | Path | Description |
-|---|---|---|
+| --- | --- | --- |
 | `FaqList` | `/admin/faq` | Stats (categories/questions/helpful/not helpful), category filter, item list with visibility badges, inline create form |
 | `FaqDetail` | `/admin/faq/:id` | Edit form for question, answer, category, slug, tags, position, visibility toggle |
 | `FaqCategories` | `/admin/faq/categories` | Category list with visibility badges, inline create form with auto-slug, edit/delete actions |
 | `FaqCategoryDetail` | `/admin/faq/categories/:id` | Edit form for name, slug, description, icon, position, visibility toggle |
 
-## Key patterns
+## Patterns
 
 - Categories and items are ordered by `position` field (ascending)
 - Slug-based lookups for SEO-friendly URLs
@@ -78,7 +86,7 @@ FaqOptions {
 ## Events
 
 | Event | Trigger | Payload |
-|---|---|---|
+| --- | --- | --- |
 | `faq.category.created` | Category created via admin endpoint | `categoryId`, `name`, `slug` |
 | `faq.category.updated` | Category updated via admin endpoint | `categoryId`, `name`, `slug` |
 | `faq.category.deleted` | Category deleted via admin endpoint | `categoryId` |

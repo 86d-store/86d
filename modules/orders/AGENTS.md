@@ -2,6 +2,15 @@
 
 Order ownership and compatibility reads for the accepted commercial agreement. Competing Fulfillment/Return writers, destructive bulk operations, and identifier-plus-email guest lookup are contained.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -82,7 +91,7 @@ Fulfillment: unfulfilled | partially_fulfilled | fulfilled
 
 Cancellable: `pending`, `processing`, `on_hold`. Non-cancellable: `completed`, `cancelled`, `refunded`.
 
-## Events emitted
+## Events
 
 `order.placed`, `order.updated`, `order.fulfilled`, `order.cancelled`, `order.shipped`, `return.requested`, `return.approved`, `return.rejected`, `return.refunded`, `return.completed`
 
@@ -95,7 +104,7 @@ mismatched component totals, and non-uppercase ISO currency codes.
 Invoice projections resolve the Store name through the typed Settings-owned
 presentation capability; callers cannot supply branding.
 
-## Key patterns
+## Patterns
 
 - Authenticated history/detail/invoice/reorder/cancellation routes remain
   contained until Orders performs an audited attribution migration for legacy
@@ -112,6 +121,6 @@ presentation capability; callers cannot supply branding.
 - `findMany` uses `take`/`skip` for pagination
 - `exactOptionalPropertyTypes` compatible: all optional params use `T | undefined`
 
-## Exports (for inter-module contracts)
+## Exports
 
 `Order`, `OrderItem`, `OrderAddress`, `OrderWithDetails`, `OrderController`, `CreateOrderParams`, `OrderStatus`, `PaymentStatus`

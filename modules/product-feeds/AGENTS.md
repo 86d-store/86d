@@ -1,8 +1,17 @@
-# product-feeds
+# Product Feeds Module
 
 Product feed generation for shopping channels (Google Shopping, Facebook/Meta, Microsoft, Pinterest, TikTok, custom).
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -41,7 +50,7 @@ src/
 
 **categoryMapping** — Maps store categories to channel-specific categories (e.g. Google product taxonomy).
 
-## Key patterns
+## Patterns
 
 - Each channel has default field mappings (Google uses `g:` prefix, Facebook uses bare names)
 - Field transforms: `uppercase`, `lowercase`, `prefix`, `suffix`, `template` (uses `{value}` placeholder)
@@ -59,7 +68,7 @@ src/
 | `maxFeeds` | string | `"50"` | Max feeds per store |
 | `maxProductsPerFeed` | string | `"100000"` | Max products per generation |
 
-## Gotchas
+## Caveats
 
 - The generation endpoint currently returns `PRODUCT_FEED_GENERATION_REVIEW_REQUIRED` without mutating feed state
 - Feed auto-transitions from `draft` → `active` on first successful generation

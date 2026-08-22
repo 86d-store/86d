@@ -2,6 +2,15 @@
 
 Site-wide announcement bars, promotional banners, and popup notices with scheduling, audience targeting, and engagement analytics.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -49,11 +58,11 @@ AnnouncementsOptions {
 }
 ```
 
-## Data model
+## Data models
 
 - **announcement**: id, title, content, type (bar|banner|popup), position (top|bottom), linkUrl?, linkText?, backgroundColor?, textColor?, iconName?, priority, isActive, isDismissible, startsAt?, endsAt?, targetAudience (all|authenticated|guest), impressions, clicks, dismissals, metadata, createdAt, updatedAt
 
-## Key patterns
+## Patterns
 
 - Schedule window: `startsAt`/`endsAt` control visibility. Both optional — missing = unbounded.
 - Audience targeting: `all` shows to everyone, `authenticated`/`guest` filter by login state.
@@ -61,9 +70,6 @@ AnnouncementsOptions {
 - Analytics: `recordImpression`, `recordClick`, `recordDismissal` increment counters. `getStats()` computes rates.
 - `updateAnnouncement` preserves analytics counters — only content/config fields can be changed.
 - All `record*` methods silently no-op for non-existent IDs (fire-and-forget from frontend).
-
-## Gotchas
-
 - `updateAnnouncement` uses `??` coalescing — cannot set optional fields to `undefined` once set. Pass explicit values instead.
 - `isActive: false` via `updateAnnouncement` is the only way to deactivate; `getActiveAnnouncements` checks both `isActive` and schedule window.
 - `getStats().clickRate` and `dismissRate` are rounded to 4 decimal places.

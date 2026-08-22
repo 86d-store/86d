@@ -2,6 +2,15 @@
 
 Discount and promo code management. Supports percentage, fixed-amount, and free-shipping discount types with optional applies-to filters (all, products, categories). Standalone — no dependencies on other modules.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -33,12 +42,12 @@ src/
 ## Discount types
 
 | type | value | behaviour |
-|---|---|---|
+| --- | --- | --- |
 | `percentage` | 0–100 | `subtotal * value / 100` |
 | `fixed_amount` | cents | `min(value, subtotal)` |
 | `free_shipping` | 0 | returns `freeShipping: true` |
 
-## Exports (for inter-module contracts)
+## Exports
 
 Types exported: `Discount`, `DiscountCode`, `DiscountController`, `DiscountType`, `DiscountAppliesTo`, `ApplyResult`
 

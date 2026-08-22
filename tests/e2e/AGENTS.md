@@ -1,8 +1,17 @@
-# tests/e2e — E2E Test Suite
+# E2E Tests
 
-Playwright tests for the 86d store. Runs against a live dev server.
+Playwright suite for the Store Runtime against a live, seeded Store.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only. Parent [Testing](../../AGENTS.md#testing) waiting rules take precedence over any stale examples in this tree.
+
+## Change protocol
+
+1. **Route.** Read the parent guide (especially Testing) and this file. Visual coverage also follows workspace `prd/experience.md` via the parent.
+2. **Implement** using the local patterns below. New tests use web-first assertions and `data-testid` selectors.
+3. **Verify.** Run Playwright against an already running, seeded Store. Full pre-commit gates live in the parent guide. After `modules/` changes, prove `bun run generate:modules -- --frozen` from repo root.
+   - Done when focused e2e coverage for the change passes and every required parent gate for the _slice_ is _green_.
+
+## Structure
 
 ```
 tests/e2e/
@@ -16,23 +25,26 @@ tests/e2e/
   visual.spec.ts               Screenshot regression
 ```
 
-## Key patterns
+## Patterns
 
 - Fixtures extend Playwright `test` with typed page-objects (`storefront`, `admin`, `dashboard`)
-- All tests use `waitForLoadState("networkidle")` — never `waitForTimeout()`
-- Admin elements use `data-testid` (e.g., `stat-card`, `stat-value`) for stable selectors
-- Out-of-stock catalog cases skip the rest of that test. Authenticated setup fails if the admin session cannot be created.
+- Import from `./fixtures/test-fixtures`, not `@playwright/test` directly
+- Prefer `data-testid` selectors (e.g. `stat-card`, `stat-value`) over CSS classes that may change styling
+- Wait with **web-first assertions** (e.g. `expect(locator).toBeVisible()`). New tests never use `waitForTimeout()` or `waitForLoadState("networkidle")` — those patterns are stale and do not override the parent Testing section
+- Out-of-stock catalog cases skip the rest of that test. Authenticated setup fails when the admin session cannot be created
 - Credentials default to seed data: `admin@86d.app` / `password123`
 
 ## Config
 
-- `tests/playwright.config.ts` (parent directory)
-- Projects: `store-chromium`, `store-mobile`, `visual-desktop/tablet/mobile`
-- WebServer auto-starts `bun run dev:store` on port 3000
+- `tests/playwright.config.ts` (parent directory) is the executable source of truth
+- Projects: `store-chromium`, `store-mobile`, `visual-desktop` / tablet / mobile
+- Visual viewports: desktop 1280×720, tablet 768×1024, mobile 375×667 (light and dark)
+- WebServer may auto-start `bun run dev:store` on port 3000; Playwright still needs a seeded Store
 
 ## Adding tests
 
-1. Import from `./fixtures/test-fixtures` (not `@playwright/test` directly) to get page-objects
+1. Import from `./fixtures/test-fixtures` to get page-objects
 2. Add new spec files to the appropriate `testMatch` array in `tests/playwright.config.ts`
-3. Prefer `data-testid` over CSS class selectors for elements that may change styling
-4. Always seed data first: `bun run db:seed`
+3. Prefer `data-testid` over fragile CSS class selectors
+4. Seed first: `bun run db:seed`
+5. Cover every touched page route, empty state, and error state when the _slice_ adds UI surface

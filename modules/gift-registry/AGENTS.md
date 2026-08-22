@@ -2,7 +2,16 @@
 
 Customer-created gift registries (wedding, baby, birthday, etc.) that visitors can purchase from.
 
-## File structure
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
+## Structure
 
 ```
 src/
@@ -18,7 +27,7 @@ src/
       get-registry.ts    GET  /admin/gift-registry/:id
       delete-registry.ts POST /admin/gift-registry/:id/delete
       archive-registry.ts POST /admin/gift-registry/:id/archive
-      registry-summary.ts GET /admin/gift-registry/summary
+      registry-summary.ts GET  /admin/gift-registry/summary
       list-items.ts      GET  /admin/gift-registry/:id/items
       list-purchases.ts  GET  /admin/gift-registry/:id/purchases
     components/
@@ -47,7 +56,7 @@ src/
 ## Options
 
 | Option | Type | Default | Description |
-|--------|------|---------|-------------|
+| --- | --- | --- | --- |
 | `maxRegistriesPerCustomer` | `number` | `0` | Max registries per customer (0 = unlimited) |
 
 ## Data models
@@ -56,7 +65,7 @@ src/
 - **registryItem** — Product reference, price, quantity desired/received, priority, note
 - **registryPurchase** — Purchaser, quantity, amount, gift message, anonymous flag
 
-## Key patterns
+## Patterns
 
 - Registries are accessed by **slug** on the storefront, by **ID** in admin
 - Visibility: `public` (browsable), `unlisted` (link only), `private` (owner only)
@@ -65,15 +74,7 @@ src/
 - Store endpoints enforce ownership via `customerId !== userId` checks
 - Slugs are auto-generated with UUID suffix to avoid collisions, or user-specified
 - `exactOptionalPropertyTypes` is on — build objects conditionally, never pass `undefined`
-
-## Security
-
-- All user-facing text inputs (`title`, `description`, `thankYouMessage`, `productName`, `variantName`, `note`, `purchaserName`, `giftMessage`) are sanitized via `sanitizeText` transform
-- Prevents stored XSS when registry content is displayed to visitors
-
-## Gotchas
-
 - Slug uniqueness is checked on create; changing slugs after creation is not supported
 - Purchases from guests (no session) still allowed — `purchaserId` is optional
 - Archived registries reject both item additions and purchases
-- Always import `sanitizeText` from `@86d-app/core` when adding new text fields to store endpoints
+- Sanitize user-facing text fields (`title`, `description`, `thankYouMessage`, `productName`, `variantName`, `note`, `purchaserName`, `giftMessage`) with `.transform(sanitizeText)` from `@86d-app/core/sanitize` (parent owns the sanitize rule; this list is the local field inventory)

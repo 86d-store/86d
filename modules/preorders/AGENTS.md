@@ -2,6 +2,15 @@
 
 Manages preorder campaigns for upcoming or limited-edition products. Supports full payment and deposit-based preorders with quantity limits, estimated ship dates, and customer notifications.
 
+**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+
+## Change protocol
+
+1. **Route.** Read the parent guide, `../../../prd/contexts/store-runtime/module-system.md` when storage or cross-Module contracts change, and this file.
+2. **Implement** within the Module source shape and patterns below.
+3. **Verify.** From the repository root after any Module source change: `bun run generate:modules`, then prove `bun run generate:modules -- --frozen`. Run this Module's focused tests.
+   - Done when the frozen check is _green_ and touched Module tests pass.
+
 ## Structure
 
 ```
@@ -69,7 +78,7 @@ Any non-terminal status can transition to `cancelled`. Cancelling a campaign can
 
 Pending and confirmed items can be `cancelled`. Fulfilled items can be `refunded`.
 
-## Key patterns
+## Patterns
 
 - Campaigns auto-activate if startDate is in the past at creation; otherwise created as `draft`
 - `paymentType: "full"` charges full price; `paymentType: "deposit"` charges depositAmount per unit or depositPercent of total
