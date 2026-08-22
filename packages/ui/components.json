@@ -23,12 +23,6 @@
 	},
 	"registries": {
 		"@magicui": "https://magicui.design/r/{name}.json",
-		"@shadcnblocks": {
-			"url": "https://shadcnblocks.com/r/{name}",
-			"headers": {
-				"Authorization": "Bearer ${SHADCNBLOCKS_API_KEY}"
-			}
-		},
 		"@ai-elements": "https://ai-sdk.dev/elements/api/registry/{name}.json"
 	}
 }
