@@ -188,10 +188,11 @@ describe("store endpoint: get plan — slug lookup", () => {
 		const result = await simulateGetPlan(data, "premium");
 
 		expect("plan" in result).toBe(true);
-		if ("plan" in result) {
-			expect(result.plan.name).toBe("Premium");
-			expect(result.plan.price).toBe(1999);
+		if (!("plan" in result)) {
+			throw new Error("expected 'plan' in result");
 		}
+		expect(result.plan.name).toBe("Premium");
+		expect(result.plan.price).toBe(1999);
 	});
 
 	it("returns 404 for inactive plan", async () => {
@@ -243,10 +244,11 @@ describe("store endpoint: subscribe — auth required", () => {
 		);
 
 		expect("membership" in result).toBe(true);
-		if ("membership" in result) {
-			expect(result.membership.customerId).toBe("cust_1");
-			expect(result.membership.planId).toBe(plan.id);
+		if (!("membership" in result)) {
+			throw new Error("expected 'membership' in result");
 		}
+		expect(result.membership.customerId).toBe("cust_1");
+		expect(result.membership.planId).toBe(plan.id);
 	});
 
 	it("returns 404 for inactive plan", async () => {
@@ -279,9 +281,10 @@ describe("store endpoint: subscribe — auth required", () => {
 		);
 
 		expect("membership" in result).toBe(true);
-		if ("membership" in result) {
-			expect(result.membership.status).toBe("trial");
+		if (!("membership" in result)) {
+			throw new Error("expected 'membership' in result");
 		}
+		expect(result.membership.status).toBe("trial");
 	});
 });
 
@@ -310,11 +313,13 @@ describe("store endpoint: get my membership — auth required", () => {
 		});
 
 		expect("membership" in result).toBe(true);
-		if ("membership" in result && result.membership) {
-			expect(result.membership.customerId).toBe("cust_1");
-			expect(result.membership.plan).toBeDefined();
-			expect(result.membership.plan.name).toBe("Basic");
+		expect("membership" in result && result.membership).toBeTruthy();
+		if (!("membership" in result && result.membership)) {
+			throw new Error("expected 'membership' in result && result.membership");
 		}
+		expect(result.membership.customerId).toBe("cust_1");
+		expect(result.membership.plan).toBeDefined();
+		expect(result.membership.plan.name).toBe("Basic");
 	});
 
 	it("returns null for customer without membership", async () => {
@@ -323,9 +328,10 @@ describe("store endpoint: get my membership — auth required", () => {
 		});
 
 		expect("membership" in result).toBe(true);
-		if ("membership" in result) {
-			expect(result.membership).toBeNull();
+		if (!("membership" in result)) {
+			throw new Error("expected 'membership' in result");
 		}
+		expect(result.membership).toBeNull();
 	});
 });
 
@@ -357,9 +363,10 @@ describe("store endpoint: cancel membership — auth + ownership", () => {
 		});
 
 		expect("membership" in result).toBe(true);
-		if ("membership" in result) {
-			expect(result.membership.status).toBe("cancelled");
+		if (!("membership" in result)) {
+			throw new Error("expected 'membership' in result");
 		}
+		expect(result.membership.status).toBe("cancelled");
 	});
 
 	it("returns 404 for another customer's membership", async () => {

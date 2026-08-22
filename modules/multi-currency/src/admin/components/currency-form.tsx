@@ -25,12 +25,13 @@ export function CurrencyForm({ params }: { params?: { id?: string } } = {}) {
 	const [error, setError] = useState("");
 	const [saved, setSaved] = useState(false);
 
-	const { data: currencyData, isLoading } = isEdit
-		? (api.getCurrency.useQuery({ params: { id: params?.id ?? "" } }) as {
-				data: { currency?: Currency } | undefined;
-				isLoading: boolean;
-			})
-		: { data: undefined, isLoading: false };
+	const { data: currencyData, isLoading } = api.getCurrency.useQuery(
+		{ params: { id: params?.id ?? "" } },
+		{ enabled: isEdit },
+	) as {
+		data: { currency?: Currency } | undefined;
+		isLoading: boolean;
+	};
 
 	const currency = currencyData?.currency;
 

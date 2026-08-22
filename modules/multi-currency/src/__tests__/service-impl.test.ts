@@ -551,7 +551,7 @@ describe("createMultiCurrencyController", () => {
 				currencyCode: "EUR",
 			});
 			expect(history).toHaveLength(3);
-			const rates = history.map((h) => h.rate).sort();
+			const rates = history.map((h) => h.rate).sort((a, b) => a - b);
 			expect(rates).toEqual([0.85, 0.88, 0.9]);
 		});
 

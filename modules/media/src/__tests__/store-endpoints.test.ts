@@ -218,10 +218,11 @@ describe("store endpoint: get asset", () => {
 		const result = await simulateGetAsset(data, asset.id);
 
 		expect("asset" in result).toBe(true);
-		if ("asset" in result) {
-			expect(result.asset.name).toBe("banner.png");
-			expect(result.asset.mimeType).toBe("image/png");
+		if (!("asset" in result)) {
+			throw new Error("expected 'asset' in result");
 		}
+		expect(result.asset.name).toBe("banner.png");
+		expect(result.asset.mimeType).toBe("image/png");
 	});
 
 	it("returns 404 for nonexistent asset", async () => {

@@ -1,6 +1,7 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
 import { readManagedWorkloadConfig } from "@86d-app/sdk/workload-token-client";
+import { getProcessEnv } from "env/process-env";
+import { z } from "zod";
 import { createManagedPaymentClient } from "../../managed-payment-client";
 
 const prepareInputSchema = z
@@ -24,7 +25,7 @@ export function createPrepareManagedPaymentEndpoint(options?: {
 		async ({ body }) => {
 			const liveActivation =
 				options?.liveActivation ??
-				process.env["86D_PAYMENTS_LIVE_ACTIVATION"] === "true";
+				getProcessEnv("86D_PAYMENTS_LIVE_ACTIVATION") === "true";
 			if (!liveActivation) {
 				return Response.json(
 					{

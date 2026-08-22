@@ -547,7 +547,9 @@ describe("multi-currency controllers — edge cases", () => {
 			});
 			expect(history).toHaveLength(3);
 
-			const sources = history.map((h) => h.source).sort();
+			const sources = history
+				.map((h) => h.source)
+				.sort((a, b) => a.localeCompare(b));
 			expect(sources).toEqual(["api", "manual", "openexchangerates"]);
 		});
 
@@ -849,7 +851,9 @@ describe("multi-currency controllers — edge cases", () => {
 
 			const active = await controller.list({ activeOnly: true });
 			expect(active).toHaveLength(2);
-			const codes = active.map((c) => c.code).sort();
+			const codes = active
+				.map((c) => c.code)
+				.sort((a, b) => a.localeCompare(b));
 			expect(codes).toEqual(["GBP", "USD"]);
 		});
 

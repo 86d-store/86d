@@ -1,7 +1,7 @@
 {props.loading && (
   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-    {Array.from({ length: 8 }).map((_, i) => (
-      <div key={i} className="aspect-square animate-pulse rounded-lg bg-muted" />
+    {(["k0", "k1", "k2", "k3", "k4", "k5", "k6", "k7"] as const).map((key) => (
+      <div key={key} className="aspect-square animate-pulse rounded-lg bg-muted" />
     ))}
   </div>
 )}

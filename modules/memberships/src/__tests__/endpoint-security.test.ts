@@ -124,10 +124,14 @@ describe("memberships endpoint security", () => {
 			const attackerSessionId = "attacker";
 
 			// Attacker trying to cancel victim's membership
-			if (targetMembership?.customerId !== attackerSessionId) {
-				// Endpoint should return 404 and NOT call cancelMembership
-				expect(targetMembership?.customerId).toBe("victim");
+			expect(targetMembership?.customerId !== attackerSessionId).toBeTruthy();
+			if (!(targetMembership?.customerId !== attackerSessionId)) {
+				throw new Error(
+					"expected targetMembership?.customerId !== attackerSessionId",
+				);
 			}
+			// Endpoint should return 404 and NOT call cancelMembership
+			expect(targetMembership?.customerId).toBe("victim");
 
 			// Verify victim's membership is still active (not cancelled)
 			const stillActive = await controller.getMembership(victimMembership.id);

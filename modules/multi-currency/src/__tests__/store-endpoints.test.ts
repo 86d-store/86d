@@ -152,10 +152,11 @@ describe("store endpoint: convert price", () => {
 		});
 
 		expect("converted" in result).toBe(true);
-		if ("converted" in result) {
-			expect(result.converted.amount).toBeDefined();
-			expect(result.converted.currency.code).toBe("EUR");
+		if (!("converted" in result)) {
+			throw new Error("expected 'converted' in result");
 		}
+		expect(result.converted.amount).toBeDefined();
+		expect(result.converted.currency.code).toBe("EUR");
 	});
 
 	it("returns error for unknown currency", async () => {
@@ -211,9 +212,10 @@ describe("store endpoint: product price — override priority", () => {
 		});
 
 		expect("price" in result).toBe(true);
-		if ("price" in result) {
-			expect(result.price.currency.code).toBe("EUR");
+		if (!("price" in result)) {
+			throw new Error("expected 'price' in result");
 		}
+		expect(result.price.currency.code).toBe("EUR");
 	});
 
 	it("uses price override when set", async () => {
@@ -247,9 +249,10 @@ describe("store endpoint: product price — override priority", () => {
 		});
 
 		expect("price" in result).toBe(true);
-		if ("price" in result) {
-			expect(result.price.amount).toBe(1599);
+		if (!("price" in result)) {
+			throw new Error("expected 'price' in result");
 		}
+		expect(result.price.amount).toBe(1599);
 	});
 
 	it("returns error for unknown target currency", async () => {

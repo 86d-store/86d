@@ -56,7 +56,7 @@ export function createMembershipController(
 
 		async getPlan(id) {
 			const raw = await data.get("membershipPlan", id);
-			return (raw as unknown as MembershipPlan) ?? null;
+			return raw as unknown as MembershipPlan;
 		},
 
 		async getPlanBySlug(slug) {
@@ -309,7 +309,7 @@ export function createMembershipController(
 
 		async getMembership(id) {
 			const raw = await data.get("membership", id);
-			return (raw as unknown as Membership) ?? null;
+			return raw as unknown as Membership;
 		},
 
 		async getCustomerMembership(customerId) {
