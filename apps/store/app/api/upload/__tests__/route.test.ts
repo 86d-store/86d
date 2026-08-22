@@ -1,3 +1,4 @@
+import { setProcessEnv } from "env/process-env";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -73,16 +74,16 @@ describe("/api/upload route", () => {
 		});
 		mocks.delete.mockResolvedValue(undefined);
 		vi.spyOn(crypto, "randomUUID").mockReturnValue("uuid-123");
-		delete process.env.STORAGE_PUBLIC_URL_MODE;
+		setProcessEnv("STORAGE_PUBLIC_URL_MODE", undefined);
 	});
 
 	afterEach(() => {
 		vi.restoreAllMocks();
-		delete process.env.STORAGE_PUBLIC_URL_MODE;
+		setProcessEnv("STORAGE_PUBLIC_URL_MODE", undefined);
 	});
 
 	it("returns proxied upload URLs in proxy mode", async () => {
-		process.env.STORAGE_PUBLIC_URL_MODE = "proxy";
+		setProcessEnv("STORAGE_PUBLIC_URL_MODE", "proxy");
 
 		const formData = new FormData();
 		formData.append(
