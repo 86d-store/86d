@@ -1,6 +1,6 @@
 {
   "lockfileVersion": 1,
-  "generatedAt": "2026-08-22T03:51:50.716Z",
+  "generatedAt": "2026-08-22T04:04:21.771Z",
   "modules": {
     "abandoned-carts": {
       "source": "local",
@@ -538,7 +538,7 @@
       "source": "local",
       "packageName": "@86d-app/shipping",
       "version": "0.0.42",
-      "integrity": "sha256-5e04e5d6cc137543f42459102d97a8c22da726ea9510938ea3e8b98ea9494e3f",
+      "integrity": "sha256-94a50ec289bb537d74ababece7e9ff8de1bbea053dd0a02403a45583438cc24f",
       "localPath": "modules/shipping"
     },
     "sitemap": {
@@ -643,7 +643,7 @@
       "source": "local",
       "packageName": "@86d-app/uber-direct",
       "version": "0.0.42",
-      "integrity": "sha256-b4b12e0a026ac9647f862625c24272467df7f87fb981efa0e25b3bc75e740019",
+      "integrity": "sha256-7e3bf00d50e76dfe50e286b6e648c5ed27ef5df6dac0194e9be20f68e7e25f47",
       "localPath": "modules/uber-direct"
     },
     "uber-eats": {

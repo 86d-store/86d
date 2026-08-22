@@ -144,6 +144,10 @@ execSync("tsx apps/registry/src/generate-manifest.ts", {
 	cwd: ROOT,
 	stdio: "inherit",
 });
+execSync("tsx internals/generators/src/generate-modules.ts", {
+	cwd: ROOT,
+	stdio: "inherit",
+});
 
 // Record timestamp so subsequent calls within 24h are skipped
 writeFileSync(STAMP_FILE, String(Date.now()));
