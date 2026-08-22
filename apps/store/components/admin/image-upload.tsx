@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
 
 interface ImageUploadProps {
@@ -63,7 +64,6 @@ export function ImageUpload({
 				setError(err instanceof Error ? err.message : "Upload failed");
 			} finally {
 				setUploading(false);
-				if (inputRef.current) inputRef.current.value = "";
 			}
 		},
 		[images, max, onChange, uploadFile],
@@ -108,11 +108,13 @@ export function ImageUpload({
 				<div className="mb-3 grid grid-cols-4 gap-2 sm:grid-cols-5">
 					{images.map((url, i) => (
 						<div key={url} className="group relative">
-							<div className="aspect-square overflow-hidden rounded-md border border-border bg-muted">
-								<img
+							<div className="relative aspect-square overflow-hidden rounded-md border border-border bg-muted">
+								<Image
 									src={url}
 									alt={`Upload ${i + 1}`}
-									className="h-full w-full object-cover"
+									fill
+									className="object-cover"
+									unoptimized
 								/>
 							</div>
 							<div className="absolute top-1 right-1 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
@@ -324,7 +326,6 @@ export function SingleImageUpload({
 			setError(err instanceof Error ? err.message : "Upload failed");
 		} finally {
 			setUploading(false);
-			if (inputRef.current) inputRef.current.value = "";
 		}
 	};
 
@@ -336,11 +337,13 @@ export function SingleImageUpload({
 
 			{image ? (
 				<div className="group relative inline-block">
-					<div className="h-24 w-24 overflow-hidden rounded-md border border-border bg-muted">
-						<img
+					<div className="relative h-24 w-24 overflow-hidden rounded-md border border-border bg-muted">
+						<Image
 							src={image}
 							alt="Uploaded"
-							className="h-full w-full object-cover"
+							fill
+							className="object-cover"
+							unoptimized
 						/>
 					</div>
 					<button
