@@ -32,7 +32,7 @@ bun run test        # Vitest unit tests
 bun run build       # Production build
 ```
 
-Run them locally and fix everything they flag. The same `ci/cd` job also runs on pushes to `main` (commitlint first). Playwright E2E (`bun run test:e2e`) runs in CI only on `main`, not on pull requests.
+Run them locally and fix everything they flag. The same `ci/cd` job also runs on pushes to `main` (commitlint first) and must pass before Release. Playwright E2E (`bun run test:e2e`) runs in a separate workflow only on `main`; it does not block publish.
 
 ## Commit messages
 

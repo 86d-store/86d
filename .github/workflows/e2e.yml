@@ -1,0 +1,96 @@
+name: E2E
+
+on:
+  push:
+    branches: ["main"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FORCE_COLOR: 3
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  # Production builds (and e2e) reject short/placeholder secrets from .env.example.
+  BETTER_AUTH_SECRET: ci-test-secret-not-for-production
+
+jobs:
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: 86d
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/86d
+      DATABASE_URL_UNPOOLED: postgresql://postgres:postgres@localhost:5432/86d
+      # Force IPv4 in CI (some runners resolve `localhost` to ::1 first).
+      E2E_STORE_URL: http://127.0.0.1:3000
+      E2E_ADMIN_PASSWORD: abc12321
+      APP_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_STORE_URL: http://127.0.0.1:3000
+      BETTER_AUTH_URL: http://127.0.0.1:3000
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./internals/github/setup
+
+      - name: Copy env
+        uses: ./internals/github/copy-env
+
+      - name: Generate modules
+        run: bun run generate:modules
+
+      - name: Bootstrap database
+        uses: ./internals/github/e2e-database
+
+      - name: Start store for E2E
+        id: e2e-store
+        uses: ./internals/github/e2e-store
+
+      - name: E2E tests
+        id: e2e-tests
+        continue-on-error: true
+        run: bun test:e2e
+
+      # Refresh Linux CI baselines when visuals drift, then prove green in-job.
+      # Only when Playwright browsers were installed (e2e-store).
+      - name: Update visual snapshots
+        id: update-snapshots
+        if: steps.e2e-store.outcome == 'success' && steps.e2e-tests.outcome == 'failure'
+        uses: ./internals/github/update-visual-snapshots
+
+      - name: Re-run E2E after snapshot update
+        id: e2e-retest
+        if: steps.update-snapshots.outcome == 'success'
+        run: bun test:e2e
+
+      - name: Fail if E2E did not recover
+        if: >
+          steps.e2e-tests.outcome == 'failure' &&
+          steps.e2e-retest.outcome != 'success'
+        run: |
+          echo "E2E failed and snapshot recovery did not produce a green re-run."
+          exit 1
+
+      - uses: actions/upload-artifact@v5
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: warn

@@ -1,7 +1,9 @@
 name: Release
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches: [main]
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
@@ -14,6 +16,7 @@ env:
 jobs:
   release:
     name: Release
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     # Pin publish to this environment; set the same name on each npm trusted publisher.
     # Create Settings → Environments → npm-publish with required reviewers before relying on OIDC.
@@ -27,6 +30,7 @@ jobs:
         with:
           # changesets needs full history for changelogs and publish decisions
           fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Setup
         uses: ./internals/github/setup
