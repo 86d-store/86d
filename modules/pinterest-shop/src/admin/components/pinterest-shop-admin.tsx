@@ -351,8 +351,8 @@ export function PinterestShopAdmin() {
 				<Skeleton className="h-6 w-48" />
 				<Skeleton className="h-28 w-full rounded-lg" />
 				<div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-					{Array.from({ length: 3 }, (_, i) => (
-						<Skeleton key={i} className="h-24 rounded-lg" />
+					{Array.from({ length: 3 }, (_, _i) => (
+						<Skeleton key={key} className="h-24 rounded-lg" />
 					))}
 				</div>
 				<Skeleton className="h-64 w-full rounded-lg" />
@@ -380,8 +380,8 @@ export function PinterestShopAdmin() {
 			{/* Stats */}
 			{statsLoading ? (
 				<div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-					{Array.from({ length: 3 }, (_, i) => (
-						<Skeleton key={i} className="h-24 rounded-lg" />
+					{Array.from({ length: 3 }, (_, _i) => (
+						<Skeleton key={key} className="h-24 rounded-lg" />
 					))}
 				</div>
 			) : stats ? (

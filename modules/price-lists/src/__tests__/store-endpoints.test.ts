@@ -86,9 +86,10 @@ describe("store endpoint: resolve price — best price for product", () => {
 		const result = await simulateResolvePrice(data, "prod_1");
 
 		expect("price" in result).toBe(true);
-		if ("price" in result) {
-			expect(result.price.price).toBe(1999);
+		if (!("price" in result)) {
+			throw new Error("expected 'price' in result");
 		}
+		expect(result.price.price).toBe(1999);
 	});
 
 	it("returns 404 when no price exists", async () => {
@@ -129,9 +130,10 @@ describe("store endpoint: resolve price — best price for product", () => {
 		});
 
 		expect("price" in result).toBe(true);
-		if ("price" in result) {
-			expect(result.price.price).toBe(1800);
+		if (!("price" in result)) {
+			throw new Error("expected 'price' in result");
 		}
+		expect(result.price.price).toBe(1800);
 	});
 });
 
@@ -169,10 +171,11 @@ describe("store endpoint: resolve prices — bulk resolution", () => {
 		]);
 
 		expect("prices" in result).toBe(true);
-		if ("prices" in result) {
-			expect(result.prices.prod_a).toBeDefined();
-			expect(result.prices.prod_b).toBeDefined();
+		if (!("prices" in result)) {
+			throw new Error("expected 'prices' in result");
 		}
+		expect(result.prices.prod_a).toBeDefined();
+		expect(result.prices.prod_b).toBeDefined();
 	});
 });
 

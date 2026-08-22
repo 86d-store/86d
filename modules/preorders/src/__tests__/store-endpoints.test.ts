@@ -206,10 +206,11 @@ describe("store endpoint: place preorder — auth required", () => {
 		);
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.customerId).toBe("cust_1");
-			expect(result.item.status).toBe("pending");
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.customerId).toBe("cust_1");
+		expect(result.item.status).toBe("pending");
 	});
 
 	it("returns 404 for non-active campaign", async () => {
@@ -249,9 +250,10 @@ describe("store endpoint: place preorder — auth required", () => {
 		);
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.quantity).toBe(3);
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.quantity).toBe(3);
 	});
 });
 
@@ -287,10 +289,11 @@ describe("store endpoint: my preorders — auth required", () => {
 		});
 
 		expect("items" in result).toBe(true);
-		if ("items" in result) {
-			expect(result.items).toHaveLength(1);
-			expect(result.items[0].customerId).toBe("cust_1");
+		if (!("items" in result)) {
+			throw new Error("expected 'items' in result");
 		}
+		expect(result.items).toHaveLength(1);
+		expect(result.items[0].customerId).toBe("cust_1");
 	});
 
 	it("returns empty for customer with no preorders", async () => {
@@ -299,9 +302,10 @@ describe("store endpoint: my preorders — auth required", () => {
 		});
 
 		expect("items" in result).toBe(true);
-		if ("items" in result) {
-			expect(result.items).toHaveLength(0);
+		if (!("items" in result)) {
+			throw new Error("expected 'items' in result");
 		}
+		expect(result.items).toHaveLength(0);
 	});
 
 	it("does not include other customers' preorders", async () => {
@@ -321,9 +325,10 @@ describe("store endpoint: my preorders — auth required", () => {
 		});
 
 		expect("items" in result).toBe(true);
-		if ("items" in result) {
-			expect(result.items).toHaveLength(0);
+		if (!("items" in result)) {
+			throw new Error("expected 'items' in result");
 		}
+		expect(result.items).toHaveLength(0);
 	});
 });
 
@@ -360,9 +365,10 @@ describe("store endpoint: cancel preorder — auth + ownership", () => {
 		});
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.status).toBe("cancelled");
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.status).toBe("cancelled");
 	});
 
 	it("returns 404 for another customer's preorder", async () => {

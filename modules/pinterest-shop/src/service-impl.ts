@@ -124,7 +124,7 @@ export function createPinterestShopController(
 				where: { localProductId: productId },
 				take: 1,
 			});
-			return (matches[0] as unknown as CatalogItem) ?? null;
+			return matches[0] as unknown as CatalogItem;
 		},
 
 		async listCatalogItems(params) {
@@ -208,8 +208,8 @@ export function createPinterestShopController(
 					);
 				}
 
-				sync.syncedItems = result.total_count ?? items.length;
-				sync.failedItems = result.failure_count ?? 0;
+				sync.syncedItems = result.total_count;
+				sync.failedItems = result.failure_count;
 				sync.status = sync.failedItems > 0 ? "failed" : "synced";
 				sync.completedAt = new Date();
 			} catch (err) {
@@ -236,7 +236,7 @@ export function createPinterestShopController(
 				orderBy: { createdAt: "desc" },
 				take: 1,
 			});
-			return (all[0] as unknown as CatalogSync) ?? null;
+			return all[0] as unknown as CatalogSync;
 		},
 
 		async listSyncs(params) {
@@ -342,7 +342,7 @@ export function createPinterestShopController(
 						endDate,
 					);
 
-					const metrics = result.all?.lifetime_metrics ?? {};
+					const metrics = result.all.lifetime_metrics;
 					const impressions = metrics.IMPRESSION ?? 0;
 					const saves = metrics.SAVE ?? 0;
 					const clicks = metrics.PIN_CLICK ?? 0;

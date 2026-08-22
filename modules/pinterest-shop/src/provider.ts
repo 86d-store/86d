@@ -170,7 +170,7 @@ export class PinterestApiProvider {
 				let message = `HTTP ${res.status}`;
 				try {
 					const body = (await res.json()) as PinterestApiError;
-					if (body?.message) {
+					if (body.message) {
 						message = body.message;
 					}
 				} catch {

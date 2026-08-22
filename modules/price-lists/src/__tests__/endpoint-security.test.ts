@@ -601,8 +601,8 @@ describe("price-lists endpoint security", () => {
 				["prod_1", "prod_2", "prod_3"],
 				{},
 			);
-			expect(resolved.prod_1?.price).toBe(500);
-			expect(resolved.prod_2?.price).toBe(700);
+			expect(resolved.prod_1.price).toBe(500);
+			expect(resolved.prod_2.price).toBe(700);
 			expect(resolved.prod_3).toBeUndefined();
 		});
 

@@ -391,7 +391,7 @@ describe("PinterestApiProvider", () => {
 			]);
 
 			const body = JSON.parse(
-				(vi.mocked(globalThis.fetch).mock.calls[0][1]?.body as string) ?? "{}",
+				vi.mocked(globalThis.fetch).mock.calls[0][1]?.body as string,
 			);
 			expect(body.items[0].attributes.sale_price).toBeUndefined();
 			expect(body.items[0].attributes.google_product_category).toBeUndefined();
@@ -416,7 +416,7 @@ describe("PinterestApiProvider", () => {
 			);
 
 			const body = JSON.parse(
-				(vi.mocked(globalThis.fetch).mock.calls[0][1]?.body as string) ?? "{}",
+				vi.mocked(globalThis.fetch).mock.calls[0][1]?.body as string,
 			);
 			expect(body.country).toBe("FR");
 			expect(body.language).toBe("fr");
@@ -431,7 +431,7 @@ describe("PinterestApiProvider", () => {
 			expect(result.batch_id).toBe("5189842903846103");
 
 			const body = JSON.parse(
-				(vi.mocked(globalThis.fetch).mock.calls[0][1]?.body as string) ?? "{}",
+				vi.mocked(globalThis.fetch).mock.calls[0][1]?.body as string,
 			);
 			expect(body.operation).toBe("DELETE");
 			expect(body.items).toHaveLength(2);
@@ -526,7 +526,7 @@ describe("PinterestApiProvider", () => {
 			});
 
 			const body = JSON.parse(
-				(vi.mocked(globalThis.fetch).mock.calls[0][1]?.body as string) ?? "{}",
+				vi.mocked(globalThis.fetch).mock.calls[0][1]?.body as string,
 			);
 			expect(body.description).toBeUndefined();
 			expect(body.board_id).toBeUndefined();

@@ -512,9 +512,9 @@ describe("price-list controllers — edge cases", () => {
 				"prod-3",
 			]);
 			expect(Object.keys(resolved)).toHaveLength(2);
-			expect(resolved["prod-1"]?.price).toBe(10);
+			expect(resolved["prod-1"].price).toBe(10);
 			expect(resolved["prod-2"]).toBeUndefined();
-			expect(resolved["prod-3"]?.price).toBe(30);
+			expect(resolved["prod-3"].price).toBe(30);
 		});
 
 		it("applies params consistently across all products", async () => {
@@ -543,13 +543,13 @@ describe("price-list controllers — edge cases", () => {
 			const vipResolved = await controller.resolvePrices(["prod-1", "prod-2"], {
 				customerGroupId: "vip",
 			});
-			expect(vipResolved["prod-1"]?.price).toBe(5);
-			expect(vipResolved["prod-2"]?.price).toBe(20);
+			expect(vipResolved["prod-1"].price).toBe(5);
+			expect(vipResolved["prod-2"].price).toBe(20);
 
 			// Anonymous customer should only see general list
 			const anonResolved = await controller.resolvePrices(["prod-1", "prod-2"]);
 			expect(anonResolved["prod-1"]).toBeUndefined();
-			expect(anonResolved["prod-2"]?.price).toBe(20);
+			expect(anonResolved["prod-2"].price).toBe(20);
 		});
 
 		it("empty product list returns empty result", async () => {
