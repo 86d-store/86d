@@ -90,11 +90,12 @@ describe("store endpoint: subscribe to waitlist", () => {
 		});
 
 		expect("entry" in result).toBe(true);
-		if ("entry" in result) {
-			expect(result.entry.productId).toBe("prod_1");
-			expect(result.entry.email).toBe("alice@example.com");
-			expect(result.entry.status).toBe("waiting");
+		if (!("entry" in result)) {
+			throw new Error("expected 'entry' in result");
 		}
+		expect(result.entry.productId).toBe("prod_1");
+		expect(result.entry.email).toBe("alice@example.com");
+		expect(result.entry.status).toBe("waiting");
 	});
 
 	it("returns 409 when already subscribed", async () => {
@@ -127,9 +128,10 @@ describe("store endpoint: subscribe to waitlist", () => {
 		});
 
 		expect("entry" in result).toBe(true);
-		if ("entry" in result) {
-			expect(result.entry.productId).toBe("prod_2");
+		if (!("entry" in result)) {
+			throw new Error("expected 'entry' in result");
 		}
+		expect(result.entry.productId).toBe("prod_2");
 	});
 
 	it("includes variant information", async () => {
@@ -142,10 +144,11 @@ describe("store endpoint: subscribe to waitlist", () => {
 		});
 
 		expect("entry" in result).toBe(true);
-		if ("entry" in result) {
-			expect(result.entry.variantId).toBe("var_xl_blue");
-			expect(result.entry.variantLabel).toBe("XL / Blue");
+		if (!("entry" in result)) {
+			throw new Error("expected 'entry' in result");
 		}
+		expect(result.entry.variantId).toBe("var_xl_blue");
+		expect(result.entry.variantLabel).toBe("XL / Blue");
 	});
 
 	it("associates with customer when authenticated", async () => {
@@ -157,9 +160,10 @@ describe("store endpoint: subscribe to waitlist", () => {
 		});
 
 		expect("entry" in result).toBe(true);
-		if ("entry" in result) {
-			expect(result.entry.customerId).toBe("cust_1");
+		if (!("entry" in result)) {
+			throw new Error("expected 'entry' in result");
 		}
+		expect(result.entry.customerId).toBe("cust_1");
 	});
 });
 
@@ -267,9 +271,10 @@ describe("store endpoint: my waitlists — auth required", () => {
 		});
 
 		expect("entries" in result).toBe(true);
-		if ("entries" in result) {
-			expect(result.entries).toHaveLength(2);
+		if (!("entries" in result)) {
+			throw new Error("expected 'entries' in result");
 		}
+		expect(result.entries).toHaveLength(2);
 	});
 
 	it("returns empty for customer with no waitlists", async () => {
@@ -278,8 +283,9 @@ describe("store endpoint: my waitlists — auth required", () => {
 		});
 
 		expect("entries" in result).toBe(true);
-		if ("entries" in result) {
-			expect(result.entries).toHaveLength(0);
+		if (!("entries" in result)) {
+			throw new Error("expected 'entries' in result");
 		}
+		expect(result.entries).toHaveLength(0);
 	});
 });

@@ -201,10 +201,11 @@ describe("store endpoint: get plan — single plan details", () => {
 		const result = await simulateGetPlan(data, plan.id);
 
 		expect("plan" in result).toBe(true);
-		if ("plan" in result) {
-			expect(result.plan.name).toBe("Extended Protection");
-			expect(result.plan.durationMonths).toBe(36);
+		if (!("plan" in result)) {
+			throw new Error("expected 'plan' in result");
 		}
+		expect(result.plan.name).toBe("Extended Protection");
+		expect(result.plan.durationMonths).toBe(36);
 	});
 
 	it("returns 404 for inactive plan", async () => {
@@ -272,10 +273,11 @@ describe("store endpoint: my registrations — auth required", () => {
 		});
 
 		expect("registrations" in result).toBe(true);
-		if ("registrations" in result) {
-			expect(result.registrations).toHaveLength(1);
-			expect(result.registrations[0].productName).toBe("Laptop");
+		if (!("registrations" in result)) {
+			throw new Error("expected 'registrations' in result");
 		}
+		expect(result.registrations).toHaveLength(1);
+		expect(result.registrations[0].productName).toBe("Laptop");
 	});
 
 	it("returns empty for customer with no registrations", async () => {
@@ -284,9 +286,10 @@ describe("store endpoint: my registrations — auth required", () => {
 		});
 
 		expect("registrations" in result).toBe(true);
-		if ("registrations" in result) {
-			expect(result.registrations).toHaveLength(0);
+		if (!("registrations" in result)) {
+			throw new Error("expected 'registrations' in result");
 		}
+		expect(result.registrations).toHaveLength(0);
 	});
 });
 
@@ -336,11 +339,12 @@ describe("store endpoint: submit claim — file warranty claim", () => {
 		);
 
 		expect("claim" in result).toBe(true);
-		if ("claim" in result) {
-			expect(result.claim.status).toBe("submitted");
-			expect(result.claim.issueType).toBe("accidental_damage");
-			expect(result.claim.customerId).toBe("cust_1");
+		if (!("claim" in result)) {
+			throw new Error("expected 'claim' in result");
 		}
+		expect(result.claim.status).toBe("submitted");
+		expect(result.claim.issueType).toBe("accidental_damage");
+		expect(result.claim.customerId).toBe("cust_1");
 	});
 
 	it("returns 404 when claiming against another customer's warranty", async () => {
@@ -449,10 +453,11 @@ describe("store endpoint: my claims — auth required", () => {
 		const result = await simulateMyClams(data, { customerId: "cust_1" });
 
 		expect("claims" in result).toBe(true);
-		if ("claims" in result) {
-			expect(result.claims).toHaveLength(1);
-			expect(result.claims[0].issueDescription).toBe("Broken handle");
+		if (!("claims" in result)) {
+			throw new Error("expected 'claims' in result");
 		}
+		expect(result.claims).toHaveLength(1);
+		expect(result.claims[0].issueDescription).toBe("Broken handle");
 	});
 
 	it("returns empty for customer with no claims", async () => {
@@ -461,9 +466,10 @@ describe("store endpoint: my claims — auth required", () => {
 		});
 
 		expect("claims" in result).toBe(true);
-		if ("claims" in result) {
-			expect(result.claims).toHaveLength(0);
+		if (!("claims" in result)) {
+			throw new Error("expected 'claims' in result");
 		}
+		expect(result.claims).toHaveLength(0);
 	});
 });
 
@@ -509,9 +515,10 @@ describe("store endpoint: get claim — ownership check", () => {
 		});
 
 		expect("claim" in result).toBe(true);
-		if ("claim" in result) {
-			expect(result.claim.issueType).toBe("malfunction");
+		if (!("claim" in result)) {
+			throw new Error("expected 'claim' in result");
 		}
+		expect(result.claim.issueType).toBe("malfunction");
 	});
 
 	it("returns 404 for another customer's claim", async () => {

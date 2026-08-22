@@ -26,15 +26,16 @@ export function WaitlistButton({
 	const [emailInput, setEmailInput] = useState(email ?? "");
 	const [showForm, setShowForm] = useState(false);
 
-	const { data: checkData, isLoading: checking } = email
-		? (api.checkWaitlist.useQuery({
-				params: { productId },
-				email,
-			}) as {
-				data: { subscribed: boolean; waitingCount: number } | undefined;
-				isLoading: boolean;
-			})
-		: { data: undefined, isLoading: false };
+	const { data: checkData, isLoading: checking } = api.checkWaitlist.useQuery(
+		{
+			params: { productId },
+			email: email ?? "",
+		},
+		{ enabled: Boolean(email) },
+	) as {
+		data: { subscribed: boolean; waitingCount: number } | undefined;
+		isLoading: boolean;
+	};
 
 	const subscribed = checkData?.subscribed ?? false;
 	const waitingCount = checkData?.waitingCount ?? 0;

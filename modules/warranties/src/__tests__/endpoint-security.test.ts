@@ -535,10 +535,11 @@ describe("warranties endpoint security", () => {
 			);
 
 			expect("registration" in response).toBe(true);
-			if ("registration" in response) {
-				expect(response.registration.id).toBe(registration.id);
-				expect(response.registration.customerId).toBe("owner");
+			if (!("registration" in response)) {
+				throw new Error("expected 'registration' in response");
 			}
+			expect(response.registration.id).toBe(registration.id);
+			expect(response.registration.customerId).toBe("owner");
 		});
 
 		it("getClaim still returns the claim for the owning customer", async () => {
@@ -562,10 +563,11 @@ describe("warranties endpoint security", () => {
 			);
 
 			expect("claim" in response).toBe(true);
-			if ("claim" in response) {
-				expect(response.claim.id).toBe(claim.id);
-				expect(response.claim.customerId).toBe("owner");
+			if (!("claim" in response)) {
+				throw new Error("expected 'claim' in response");
 			}
+			expect(response.claim.id).toBe(claim.id);
+			expect(response.claim.customerId).toBe("owner");
 		});
 	});
 });

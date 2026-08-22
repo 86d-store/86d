@@ -214,11 +214,11 @@ export class WalmartProvider {
 						error_description?: string;
 						error?: string;
 					};
-					if (body?.error_description) {
+					if (body.error_description) {
 						message = body.error_description;
-					} else if (body?.error) {
+					} else if (body.error) {
 						message = body.error;
-					} else if (body?.errors?.[0]?.message) {
+					} else if (body.errors?.[0]?.message) {
 						message = body.errors[0].message;
 					}
 				} catch {

@@ -28,14 +28,13 @@ async function simulateWebhook(
 	if (body.type === "order.created" && body.payload.purchaseOrderId) {
 		const order = await controller.receiveOrder({
 			purchaseOrderId: body.payload.purchaseOrderId as string,
-			items: (body.payload.items as unknown[]) ?? [],
-			orderTotal: (body.payload.orderTotal as number) ?? 0,
-			shippingTotal: (body.payload.shippingTotal as number) ?? 0,
-			walmartFee: (body.payload.walmartFee as number) ?? 0,
-			tax: (body.payload.tax as number) ?? 0,
+			items: body.payload.items as unknown[],
+			orderTotal: body.payload.orderTotal as number,
+			shippingTotal: body.payload.shippingTotal as number,
+			walmartFee: body.payload.walmartFee as number,
+			tax: body.payload.tax as number,
 			customerName: body.payload.customerName as string | undefined,
-			shippingAddress:
-				(body.payload.shippingAddress as Record<string, unknown>) ?? {},
+			shippingAddress: body.payload.shippingAddress as Record<string, unknown>,
 		});
 		return { received: true, orderId: order.id };
 	}
@@ -211,9 +210,13 @@ describe("store endpoint: webhooks", () => {
 			expect(result1.received).toBe(true);
 			expect(result2.received).toBe(true);
 
-			if ("orderId" in result1 && "orderId" in result2) {
-				expect(result1.orderId).not.toBe(result2.orderId);
+			expect("orderId" in result1 && "orderId" in result2).toBeTruthy();
+			if (!("orderId" in result1 && "orderId" in result2)) {
+				throw new Error(
+					"expected 'orderId' in result1 && 'orderId' in result2",
+				);
 			}
+			expect(result1.orderId).not.toBe(result2.orderId);
 		});
 	});
 });

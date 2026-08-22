@@ -171,7 +171,7 @@ export function createWalmartController(
 				where: { localProductId: productId },
 				take: 1,
 			});
-			return (matches[0] as unknown as WalmartItem) ?? null;
+			return matches[0] as unknown as WalmartItem;
 		},
 
 		async listItems(params) {
@@ -242,7 +242,7 @@ export function createWalmartController(
 				orderBy: { createdAt: "desc" },
 				take: 1,
 			});
-			return (all[0] as unknown as FeedSubmission) ?? null;
+			return all[0] as unknown as FeedSubmission;
 		},
 
 		async listFeeds(params) {
@@ -411,7 +411,7 @@ export function createWalmartController(
 					limit: 50,
 				});
 
-				const apiOrders = response.list?.elements?.order ?? [];
+				const apiOrders = response.list.elements.order;
 
 				for (const apiOrder of apiOrders) {
 					const existing = await data.findMany("walmartOrder", {
