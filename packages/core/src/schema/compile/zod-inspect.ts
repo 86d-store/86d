@@ -1,4 +1,4 @@
-import type { z } from "zod";
+import type { ZodType } from "zod";
 
 export type ZodDef = {
 	type?: string;
@@ -18,7 +18,7 @@ export type FieldWrappers = Readonly<{
 	nullable: boolean;
 	hasDefault: boolean;
 	defaultValue: unknown;
-	inner: z.ZodType;
+	inner: ZodType;
 }>;
 
 /** Read Zod 4 def from a schema instance. */
@@ -28,7 +28,7 @@ export function getZodDef(schema: unknown): ZodDef | undefined {
 }
 
 /** Classify the base Zod construct after wrappers are removed. */
-export function classifyZodBase(schema: z.ZodType): string {
+export function classifyZodBase(schema: ZodType): string {
 	const withFormat = schema as { isInt?: boolean; format?: string };
 	const def = getZodDef(schema);
 	const typeName = def?.type ?? def?.typeName;
@@ -49,8 +49,8 @@ export function classifyZodBase(schema: z.ZodType): string {
 }
 
 /** Unwrap optional / nullable / default wrappers; preserve each independently. */
-export function unwrapFieldWrappers(schema: z.ZodType): FieldWrappers {
-	let current: z.ZodType = schema;
+export function unwrapFieldWrappers(schema: ZodType): FieldWrappers {
+	let current: ZodType = schema;
 	let optional = false;
 	let nullable = false;
 	let hasDefault = false;
@@ -65,7 +65,7 @@ export function unwrapFieldWrappers(schema: z.ZodType): FieldWrappers {
 			if (!inner || typeof inner !== "object") {
 				break;
 			}
-			current = inner as z.ZodType;
+			current = inner as ZodType;
 			continue;
 		}
 		if (typeName === "nullable") {
@@ -74,7 +74,7 @@ export function unwrapFieldWrappers(schema: z.ZodType): FieldWrappers {
 			if (!inner || typeof inner !== "object") {
 				break;
 			}
-			current = inner as z.ZodType;
+			current = inner as ZodType;
 			continue;
 		}
 		if (typeName === "default") {
@@ -86,7 +86,7 @@ export function unwrapFieldWrappers(schema: z.ZodType): FieldWrappers {
 			if (!inner || typeof inner !== "object") {
 				break;
 			}
-			current = inner as z.ZodType;
+			current = inner as ZodType;
 			continue;
 		}
 		break;
@@ -132,7 +132,7 @@ function checkValue(check: {
 }
 
 /** Collect finite min/max and length checks from a base Zod schema. */
-export function readFiniteChecks(schema: z.ZodType): {
+export function readFiniteChecks(schema: ZodType): {
 	minValue?: number;
 	maxValue?: number;
 	minLength?: number;
@@ -209,9 +209,7 @@ export function readFiniteChecks(schema: z.ZodType): {
 	return result;
 }
 
-export function readEnumValues(
-	schema: z.ZodType,
-): readonly string[] | undefined {
+export function readEnumValues(schema: ZodType): readonly string[] | undefined {
 	const def = getZodDef(schema);
 	if ((def?.type ?? def?.typeName) !== "enum" || !def?.entries) {
 		return undefined;

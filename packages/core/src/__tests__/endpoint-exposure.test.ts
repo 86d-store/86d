@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createAdminEndpoint, createStoreEndpoint, z } from "../api";
+import { createAdminEndpoint, createStoreEndpoint } from "../api";
 import {
 	collectEndpointExposures,
 	createEndpointExposureResolver,
@@ -8,6 +8,7 @@ import {
 	isEndpointExposure,
 } from "../endpoint-exposure";
 import type { Module } from "../types/module";
+import { z } from "../zod";
 
 type ModuleEndpoints = NonNullable<Module["endpoints"]>;
 

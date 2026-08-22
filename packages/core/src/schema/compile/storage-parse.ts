@@ -1,4 +1,4 @@
-import type { z } from "../../zod";
+import type { ZodError } from "../../zod";
 import type { CompiledTable } from "./types";
 
 export type StorageParseIssue = Readonly<{
@@ -30,7 +30,7 @@ export class ModuleStorageParseError extends Error {
 function zodIssuesToStorageIssues(
 	moduleId: string,
 	tableName: string,
-	error: z.ZodError,
+	error: ZodError,
 ): StorageParseIssue[] {
 	return error.issues.map((issue) => {
 		const fieldName =

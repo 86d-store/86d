@@ -808,9 +808,13 @@ describe("event emission", () => {
 
 describe("autoShipOnTracking", () => {
 	it("auto-transitions to shipped when tracking is added to pending fulfillment", async () => {
-		const ctrl = createFulfillmentController(createMockDataService(), {
-			options: { autoShipOnTracking: true },
-		});
+		const ctrl = createFulfillmentController(
+			createMockDataService(),
+			undefined,
+			{
+				autoShipOnTracking: true,
+			},
+		);
 		const f = await ctrl.createFulfillment({
 			orderId: "o-1",
 			items: [{ lineItemId: "i-1", quantity: 1 }],
@@ -824,9 +828,13 @@ describe("autoShipOnTracking", () => {
 	});
 
 	it("auto-transitions to shipped when tracking is added to processing fulfillment", async () => {
-		const ctrl = createFulfillmentController(createMockDataService(), {
-			options: { autoShipOnTracking: true },
-		});
+		const ctrl = createFulfillmentController(
+			createMockDataService(),
+			undefined,
+			{
+				autoShipOnTracking: true,
+			},
+		);
 		const f = await ctrl.createFulfillment({
 			orderId: "o-1",
 			items: [{ lineItemId: "i-1", quantity: 1 }],
@@ -841,9 +849,13 @@ describe("autoShipOnTracking", () => {
 	});
 
 	it("does not auto-ship when adding tracking to already shipped fulfillment", async () => {
-		const ctrl = createFulfillmentController(createMockDataService(), {
-			options: { autoShipOnTracking: true },
-		});
+		const ctrl = createFulfillmentController(
+			createMockDataService(),
+			undefined,
+			{
+				autoShipOnTracking: true,
+			},
+		);
 		const f = await ctrl.createFulfillment({
 			orderId: "o-1",
 			items: [{ lineItemId: "i-1", quantity: 1 }],
@@ -858,9 +870,13 @@ describe("autoShipOnTracking", () => {
 	});
 
 	it("does not auto-ship when autoShipOnTracking is false", async () => {
-		const ctrl = createFulfillmentController(createMockDataService(), {
-			options: { autoShipOnTracking: false },
-		});
+		const ctrl = createFulfillmentController(
+			createMockDataService(),
+			undefined,
+			{
+				autoShipOnTracking: false,
+			},
+		);
 		const f = await ctrl.createFulfillment({
 			orderId: "o-1",
 			items: [{ lineItemId: "i-1", quantity: 1 }],

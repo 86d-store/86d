@@ -354,7 +354,7 @@ function MenuDetail({
 	if (!menu) {
 		return (
 			<div className="divide-y divide-border">
-				{Array.from({ length: 6 }, (_, _i) => (
+				{Array.from({ length: 6 }, (_, i) => `skel-${i}`).map((key) => (
 					<div key={key} className="px-4 py-2.5">
 						<Skeleton className="h-4 w-1/3" />
 					</div>
@@ -709,10 +709,10 @@ export function NavigationAdmin() {
 	const subtitle = `${menus.length} ${menus.length === 1 ? "menu" : "menus"}`;
 
 	const tableBody = loading ? (
-		(["k0", "k1", "k2"] as const).map((_key) => (
-			<tr key={rowKey}>
-				{(["k0", "k1", "k2", "k3", "k4"] as const).map((_key) => (
-					<td key={cellKey} className="px-4 py-3">
+		(["k0", "k1", "k2"] as const).map((key) => (
+			<tr key={key}>
+				{(["k0", "k1", "k2", "k3", "k4"] as const).map((key) => (
+					<td key={key} className="px-4 py-3">
 						<div className="h-4 w-24 animate-pulse rounded bg-muted" />
 					</td>
 				))}

@@ -22,6 +22,7 @@ import {
 	readJson,
 	success,
 	warn,
+	writeLine,
 } from "../utils.js";
 
 const BASE_TEMPLATE = "brisa";
@@ -51,12 +52,30 @@ export function templateCommand(
 			return printHelp();
 		default:
 			error(`Unknown subcommand: ${subcommand}`);
+			writeLine();
 			printHelp();
 			process.exit(1);
 	}
 }
 
-function printHelp() {}
+function printHelp() {
+	writeLine(`
+${c.bold("86d template")} — Manage templates
+
+${c.dim("Usage:")}
+  86d template create <name>       Scaffold a new template from ${BASE_TEMPLATE}
+  86d template add <specifier>     Add a template from GitHub or npm
+  86d template remove <name>       Remove an installed template
+  86d template activate <name>     Switch the store to use a template
+  86d template list                List all templates
+
+${c.dim("Template specifiers (for 'add'):")}
+  github:owner/repo                Entire repository as a template
+  github:owner/repo/templates/x    Specific template from a repository
+  github:owner/repo#branch         Specific branch or tag
+  npm:@scope/store-template        npm package
+`);
+}
 
 // ── Manifest Helper ──────────────────────────────────────────────────
 
@@ -81,14 +100,17 @@ function listTemplates() {
 	const activeTemplate = detectActiveTemplate(root);
 
 	heading(`Templates (${templates.length})`);
+	writeLine();
 
 	for (const t of templates) {
 		const config = readJson<{ name?: string; theme?: string }>(
 			join(templatesDir, t, "config.json"),
 		);
-		const _label = config?.name ? `${c.dim("—")} ${config.name}` : "";
-		const _isActive = t === activeTemplate ? c.green(" (active)") : "";
+		const label = config?.name ? `${c.dim("—")} ${config.name}` : "";
+		const isActive = t === activeTemplate ? c.green(" (active)") : "";
+		writeLine(`  ${c.bold(t)}${isActive} ${label}`);
 	}
+	writeLine();
 }
 
 // ── Add Template ─────────────────────────────────────────────────────
@@ -96,6 +118,13 @@ function listTemplates() {
 async function addTemplate(specifier: string | undefined) {
 	if (!specifier) {
 		error("Template specifier is required.");
+		writeLine(`\n  Usage: 86d template add <specifier>`);
+		writeLine("  Examples:");
+		writeLine(`    ${c.dim("86d template add github:owner/repo")}`);
+		writeLine(
+			`    ${c.dim("86d template add github:owner/repo/templates/custom")}`,
+		);
+		writeLine(`    ${c.dim("86d template add npm:@acme/store-template")}`);
 		process.exit(1);
 	}
 
@@ -104,11 +133,15 @@ async function addTemplate(specifier: string | undefined) {
 	const spec = parseSpecifier(specifier);
 
 	heading(`Adding template: ${spec.name}`);
+	writeLine();
 
 	// Check if already installed locally
 	const templateDir = join(root, "templates", spec.name);
 	if (existsSync(join(templateDir, "config.json"))) {
 		info(`Template "${spec.name}" already exists locally`);
+		writeLine(
+			`\n  Run ${c.bold(`86d template activate ${spec.name}`)} to use it.\n`,
+		);
 		return;
 	}
 
@@ -129,10 +162,25 @@ async function addTemplate(specifier: string | undefined) {
 		error(
 			`Template "${spec.name}" is missing config.json. The theme must ship an explicit modules array.`,
 		);
+		writeLine(
+			`\n  Copy the shape of ${c.cyan("templates/brisa/config.json")}, then run ${c.bold("86d module enable")} for named selection.\n`,
+		);
 		process.exit(1);
 	}
 
 	success(`Added template ${c.bold(spec.name)}`);
+
+	writeLine(`\n  Next steps:`);
+	writeLine(
+		`  ${c.dim("1.")} Run: ${c.bold(`86d template activate ${spec.name}`)}`,
+	);
+	writeLine(
+		`  ${c.dim("2.")} Edit ${c.cyan(`templates/${spec.name}/config.json`)} to customize`,
+	);
+	writeLine(
+		`  ${c.dim("3.")} Run: ${c.bold("86d generate")} to update generated code`,
+	);
+	writeLine();
 }
 
 // ── Remove Template ──────────────────────────────────────────────────
@@ -140,6 +188,8 @@ async function addTemplate(specifier: string | undefined) {
 function removeTemplate(name: string | undefined) {
 	if (!name) {
 		error("Template name is required.");
+		writeLine(`\n  Usage: 86d template remove <name>`);
+		writeLine(`  Example: ${c.dim("86d template remove my-custom-theme")}`);
 		process.exit(1);
 	}
 
@@ -163,11 +213,13 @@ function removeTemplate(name: string | undefined) {
 		error(
 			`Cannot remove "${name}" — it is the active template. Switch to another template first.`,
 		);
+		writeLine(`\n  Run ${c.bold("86d template activate <other>")} first.\n`);
 		process.exit(1);
 	}
 
 	rmSync(templateDir, { recursive: true });
 	success(`Removed template ${c.bold(name)}`);
+	writeLine();
 }
 
 // ── Create Template ──────────────────────────────────────────────────
@@ -175,6 +227,8 @@ function removeTemplate(name: string | undefined) {
 function createTemplate(name: string | undefined) {
 	if (!name) {
 		error("Template name is required.");
+		writeLine(`\n  Usage: 86d template create <name>`);
+		writeLine(`  Example: ${c.dim("86d template create minimal")}`);
 		process.exit(1);
 	}
 
@@ -194,6 +248,7 @@ function createTemplate(name: string | undefined) {
 	}
 
 	heading(`Creating template "${name}"`);
+	writeLine();
 
 	// Copy the base template
 	cpSync(baseDir, templateDir, { recursive: true });
@@ -212,11 +267,23 @@ function createTemplate(name: string | undefined) {
 			warn("Could not update config.json — edit it manually");
 		}
 	}
+
+	writeLine(`\n  Next steps:`);
+	writeLine(
+		`  ${c.dim("1.")} Edit ${c.cyan(`templates/${name}/config.json`)} (colors, modules)`,
+	);
+	writeLine(
+		`  ${c.dim("2.")} Customize the MDX files in ${c.cyan(`templates/${name}/`)}`,
+	);
+	writeLine(`  ${c.dim("3.")} Run: ${c.bold(`86d template activate ${name}`)}`);
+	writeLine();
 }
 
 function activateTemplate(name: string | undefined) {
 	if (!name) {
 		error("Template name is required.");
+		writeLine(`\n  Usage: 86d template activate <name>`);
+		writeLine(`  Example: ${c.dim("86d template activate minimal")}`);
 		process.exit(1);
 	}
 
@@ -263,6 +330,7 @@ function activateTemplate(name: string | undefined) {
 		success(
 			`Activated template ${c.bold(name)}${activeTemplate ? ` (was ${activeTemplate})` : ""}`,
 		);
+		writeLine(`\n  Run ${c.bold("86d generate")} to regenerate module code.\n`);
 	} catch (err) {
 		error(`Failed to update tsconfig.json: ${err}`);
 		process.exit(1);

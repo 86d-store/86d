@@ -7,7 +7,10 @@ describe("cn", () => {
 	});
 
 	it("handles conditional classes", () => {
-		expect(cn("hidden", "visible")).toBe("base visible");
+		const includeHidden = false as boolean;
+		expect(cn("base", includeHidden && "hidden", "visible")).toBe(
+			"base visible",
+		);
 	});
 
 	it("resolves Tailwind conflicts by keeping the last class", () => {

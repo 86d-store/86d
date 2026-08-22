@@ -251,7 +251,10 @@ function ConfirmationContent() {
 					</div>
 					<ul className="divide-y divide-border">
 						{summary.items.map((item) => (
-							<li key={item.id} className="flex items-center gap-4 px-6 py-4">
+							<li
+								key={`${item.name}-${item.quantity}`}
+								className="flex items-center gap-4 px-6 py-4"
+							>
 								{item.image ? (
 									<Image
 										src={item.image}

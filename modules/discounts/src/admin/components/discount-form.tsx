@@ -196,8 +196,8 @@ export function DiscountForm(props: {
 	const formContent =
 		isEdit && loadingDiscount ? (
 			<div className="space-y-4">
-				{[1, 2, 3, 4].map((_i) => (
-					<div key={key} className="space-y-1.5">
+				{[1, 2, 3, 4].map((n) => (
+					<div key={n} className="space-y-1.5">
 						<div className="h-3 w-1/4 animate-pulse rounded bg-muted" />
 						<div className="h-9 w-full animate-pulse rounded-md bg-muted" />
 					</div>

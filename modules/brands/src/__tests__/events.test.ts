@@ -246,7 +246,7 @@ describe("no events without emitter", () => {
 		await ctrl.updateBrand(brand.id, { name: "Nike Inc." });
 		await ctrl.assignProduct({ brandId: brand.id, productId: "p1" });
 		await ctrl.unassignProduct({ brandId: brand.id, productId: "p1" });
-		await expect(ctrl.deleteBrand(brand.id)).resolves.toBeUndefined();
+		await expect(ctrl.deleteBrand(brand.id)).resolves.toBe(true);
 
 		// No errors thrown — graceful no-op
 	});

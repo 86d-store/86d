@@ -194,9 +194,13 @@ describe("search endpoint security", () => {
 			// These should not throw
 			await controller.search("<script>alert(1)</script>");
 			await controller.search("'; DROP TABLE--");
-			await expect(
-				controller.search("../../etc/passwd"),
-			).resolves.toBeUndefined();
+			const result = await controller.search("../../etc/passwd");
+			expect(result).toEqual(
+				expect.objectContaining({
+					results: expect.any(Array),
+					total: expect.any(Number),
+				}),
+			);
 		});
 
 		it("entityType filter prevents cross-type leakage", async () => {

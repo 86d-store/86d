@@ -120,7 +120,7 @@ export function createXShopController(
 				where: { localProductId },
 				take: 1,
 			});
-			return matches[0] as unknown as Listing;
+			return (matches[0] as unknown as Listing | undefined) ?? null;
 		},
 
 		async listListings(params) {

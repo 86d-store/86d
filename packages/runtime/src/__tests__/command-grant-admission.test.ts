@@ -1,3 +1,4 @@
+import { computeCommandBindingHash } from "@86d-app/contracts/command";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import {
@@ -7,7 +8,7 @@ import {
 	defineCommand,
 	type MemoryCommandTransaction,
 } from "../command";
-import { type CommandGrantAdapter, computeCommandBindingHash } from "../grants";
+import type { CommandGrantAdapter } from "../grants";
 
 const principal = {
 	principal: {

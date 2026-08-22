@@ -85,11 +85,12 @@ export function createInstagramShopWebhook(appSecret?: string | undefined) {
 				);
 			}
 
-			const controller = ctx.context?.controllers?.instagramShop;
+			const controller = ctx.context?.controllers?.instagramShop as
+				| InstagramShopController
+				| undefined;
 			if (!controller) {
 				return Response.json({ received: true, handled: false });
 			}
-			const _instagramShop = controller as InstagramShopController;
 
 			const { type, payload } = body;
 
@@ -99,9 +100,9 @@ export function createInstagramShopWebhook(appSecret?: string | undefined) {
 						return Response.json({ received: true });
 					const order = await controller.receiveOrder({
 						externalOrderId: payload.externalOrderId as string,
-						instagramOrderId: (payload.instagramOrderId as string)(
-							payload.externalOrderId as string,
-						),
+						instagramOrderId:
+							(payload.instagramOrderId as string | undefined) ??
+							(payload.externalOrderId as string),
 						igUsername: payload.igUsername as string | undefined,
 						status:
 							(payload.status as "pending" | "confirmed" | undefined) ??

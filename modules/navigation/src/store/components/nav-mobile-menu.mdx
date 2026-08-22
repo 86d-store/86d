@@ -46,7 +46,7 @@
 
         {props.isLoading ? (
           <div className="mt-8 space-y-4">
-            {(["k0", "k1", "k2", "k3", "k4"] as const).map((key) => (
+            {(["k0", "k1", "k2", "k3", "k4"]).map((key) => (
               <div key={key} className="h-5 w-32 animate-pulse rounded bg-muted" />
             ))}
           </div>

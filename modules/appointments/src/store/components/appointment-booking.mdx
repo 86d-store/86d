@@ -144,7 +144,7 @@
 
     {props.isLoadingSlots ? (
       <div className="grid gap-2 sm:grid-cols-3">
-        {(["k0", "k1", "k2", "k3", "k4", "k5"] as const).map((key) => (
+        {(["k0", "k1", "k2", "k3", "k4", "k5"]).map((key) => (
           <div key={key} className="h-10 animate-pulse rounded-lg border border-border bg-muted/30" />
         ))}
       </div>
@@ -255,7 +255,7 @@
 
     {props.isLoadingServices ? (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {(["k0", "k1", "k2", "k3", "k4", "k5"] as const).map((key) => (
+        {(["k0", "k1", "k2", "k3", "k4", "k5"]).map((key) => (
           <div key={key} className="h-28 animate-pulse rounded-xl border border-border bg-muted/30" />
         ))}
       </div>

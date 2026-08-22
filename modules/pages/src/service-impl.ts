@@ -101,7 +101,7 @@ export function createPagesController(
 				where: { slug },
 				take: 1,
 			});
-			return matches[0] as unknown as Page;
+			return (matches[0] as unknown as Page | undefined) ?? null;
 		},
 
 		async publishPage(id) {

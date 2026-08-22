@@ -634,11 +634,15 @@ if (process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET && process.
   };
 }
 if (process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET && process.env.PAYPAL_CONNECTION_ID && process.env.PAYPAL_PROVIDER_ACCOUNT_ID) {
+  const paypalConnectionId = process.env.PAYPAL_CONNECTION_ID!;
+  const paypalProviderAccountId = process.env.PAYPAL_PROVIDER_ACCOUNT_ID!;
+  const paypalClientId = process.env.PAYPAL_CLIENT_ID!;
+  const paypalClientSecret = process.env.PAYPAL_CLIENT_SECRET!;
   const paypalConnection = new PayPalPaymentConnectionProvider({
-    connectionId: process.env.PAYPAL_CONNECTION_ID,
-    providerAccountId: process.env.PAYPAL_PROVIDER_ACCOUNT_ID,
-    clientId: process.env.PAYPAL_CLIENT_ID,
-    clientSecret: process.env.PAYPAL_CLIENT_SECRET,
+    connectionId: paypalConnectionId,
+    providerAccountId: paypalProviderAccountId,
+    clientId: paypalClientId,
+    clientSecret: paypalClientSecret,
     mode: process.env.PAYPAL_SANDBOX === "true" ? "test" : "live",
     // The payer returns to this Store, never to a caller-supplied address. The
     // provider rejects a non-HTTPS or credential-bearing URL, so a misconfigured

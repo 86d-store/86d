@@ -144,8 +144,8 @@ export function StoreCreditsDashboard() {
 
 	const summaryCards = summaryLoading ? (
 		<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-			{[1, 2, 3, 4].map((_i) => (
-				<div key={key} className="rounded-lg border border-border bg-card p-4">
+			{[1, 2, 3, 4].map((n) => (
+				<div key={n} className="rounded-lg border border-border bg-card p-4">
 					<Skeleton className="mb-2 h-3 w-2/3" />
 					<Skeleton className="h-7 w-1/2" />
 				</div>
@@ -190,10 +190,10 @@ export function StoreCreditsDashboard() {
 
 	const tableBody =
 		accountsLoading && accounts.length === 0 ? (
-			Array.from({ length: 5 }, (_, _i) => (
-				<tr key={rowKey}>
-					{Array.from({ length: 6 }, (_, _j) => (
-						<td key={cellKey} className="px-4 py-3">
+			Array.from({ length: 5 }, (_, i) => `skel-row-${i}`).map((key) => (
+				<tr key={key}>
+					{Array.from({ length: 6 }, (_, i) => `skel-cell-${i}`).map((key) => (
+						<td key={key} className="px-4 py-3">
 							<Skeleton className="h-4" />
 						</td>
 					))}

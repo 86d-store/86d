@@ -793,9 +793,8 @@ describe("event emission", () => {
 			lowStockThreshold: 5,
 		});
 		await ctrl.adjustStock({ productId: "p1", delta: -1 });
-		await expect(
-			ctrl.reserve({ productId: "p1", quantity: 1 }),
-		).resolves.toBeUndefined();
+		const reserved = await ctrl.reserve({ productId: "p1", quantity: 1 });
+		expect(reserved.quantity).toBe(1);
 	});
 
 	it("includes variantId and locationId in event payloads", async () => {

@@ -1,10 +1,10 @@
 import { computeChangeSetReviewHash } from "@86d-app/contracts/change-set";
-import { computeCommandInputDigest } from "@86d-app/contracts/command";
-import { describe, expect, it } from "vitest";
 import {
 	computeCommandBindingHash,
+	computeCommandInputDigest,
 	computeConfirmationNonceDigest,
-} from "../grants";
+} from "@86d-app/contracts/command";
+import { describe, expect, it } from "vitest";
 
 const store = { type: "store" as const, id: "store-001" };
 

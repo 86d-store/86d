@@ -116,9 +116,9 @@ export interface TaxJarRateResponse {
 }
 
 export interface TaxJarErrorResponse {
-	status: number;
-	error: string;
-	detail: string;
+	status?: number;
+	error?: string;
+	detail?: string;
 }
 
 // ── Provider class ──────────────────────────────────────────────────────────
@@ -151,7 +151,9 @@ export class TaxJarProvider {
 		const json = (await res.json()) as T | TaxJarErrorResponse;
 		if (!res.ok) {
 			const err = json as TaxJarErrorResponse;
-			throw new Error(`TaxJar API error: ${err.detail}`);
+			throw new Error(
+				`TaxJar API error: ${err.detail ?? err.error ?? `HTTP ${res.status}`}`,
+			);
 		}
 		return json as T;
 	}

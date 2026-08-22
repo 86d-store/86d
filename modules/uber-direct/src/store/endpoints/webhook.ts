@@ -16,7 +16,7 @@ type UberWebhookKind =
 	| "event.shopping_progress";
 
 interface WebhookPayload {
-	kind: UberWebhookKind;
+	kind?: UberWebhookKind;
 	id?: string | undefined;
 	status?: string | undefined;
 	external_id?: string | undefined;
@@ -144,6 +144,10 @@ export function createUberDirectWebhook(signingKey?: string | undefined) {
 				payload = JSON.parse(rawBody) as WebhookPayload;
 			} catch {
 				return Response.json({ error: "Invalid JSON body." }, { status: 400 });
+			}
+
+			if (!payload.kind) {
+				return Response.json({ error: "Missing event kind." }, { status: 400 });
 			}
 
 			const receiptKey = await sha256Hex(rawBody);

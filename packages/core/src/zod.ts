@@ -12,7 +12,14 @@
 
 import { z as zodZ } from "zod";
 
-export type { infer as ZodInfer, ZodSchema, ZodType } from "zod";
+export type {
+	infer as ZodInfer,
+	ZodError,
+	ZodObject,
+	ZodRawShape,
+	ZodSchema,
+	ZodType,
+} from "zod";
 
 /** Runtime Zod namespace (local binding — avoids export-from barrel rules). */
 export const z = zodZ;

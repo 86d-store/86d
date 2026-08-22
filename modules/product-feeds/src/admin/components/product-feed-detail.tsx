@@ -212,8 +212,10 @@ export function ProductFeedDetail({
 									</tr>
 								</thead>
 								<tbody className="divide-y divide-border">
-									{feed.fieldMappings.map((fm, _i) => (
-										<tr key={fm.id}>
+									{feed.fieldMappings.map((fm) => (
+										<tr
+											key={`${fm.sourceField}-${fm.targetField}-${fm.transform ?? ""}`}
+										>
 											<td className="px-4 py-2.5 font-mono text-foreground text-sm">
 												{fm.sourceField}
 											</td>

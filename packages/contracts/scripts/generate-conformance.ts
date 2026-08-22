@@ -5,11 +5,11 @@ import { fileURLToPath } from "node:url";
 import fixture from "../src/__tests__/fixtures/command-conformance.json";
 import {
 	COMMAND_TRANSITIONS,
-	canonicalJson,
 	commandFailureCodeSchema,
 	NORMALIZED_FAILURE_CATALOG,
 	WORKFLOW_TRANSITIONS,
 } from "../src/command";
+import { canonicalJson } from "../src/serialize";
 
 const packageVersion = "0.0.42";
 const artifactVersion = "0.0.42";

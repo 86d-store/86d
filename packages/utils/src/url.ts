@@ -7,16 +7,19 @@ export function getBaseUrl(): string {
 		return window.location.origin;
 	}
 
-	if (getProcessEnv("NEXT_PUBLIC_STORE_URL")) {
-		return getProcessEnv("NEXT_PUBLIC_STORE_URL");
+	const storeUrl = getProcessEnv("NEXT_PUBLIC_STORE_URL");
+	if (storeUrl) {
+		return storeUrl;
 	}
 
-	if (getProcessEnv("RAILWAY_PUBLIC_DOMAIN")) {
-		return `https://${getProcessEnv("RAILWAY_PUBLIC_DOMAIN")}`;
+	const railwayDomain = getProcessEnv("RAILWAY_PUBLIC_DOMAIN");
+	if (railwayDomain) {
+		return `https://${railwayDomain}`;
 	}
 
-	if (getProcessEnv("VERCEL_URL")) {
-		return `https://${getProcessEnv("VERCEL_URL")}`;
+	const vercelUrl = getProcessEnv("VERCEL_URL");
+	if (vercelUrl) {
+		return `https://${vercelUrl}`;
 	}
 
 	return `http://localhost:${getProcessEnv("PORT") ?? 3000}`;

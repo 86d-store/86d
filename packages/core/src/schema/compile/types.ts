@@ -1,4 +1,4 @@
-import type { z } from "../../zod";
+import type { ZodObject, ZodRawShape } from "../../zod";
 import type { ColumnMeta } from "../col";
 import { col } from "../col";
 import { getZodDef } from "./zod-inspect";
@@ -22,7 +22,7 @@ export type CompiledTable = Readonly<{
 	moduleId: string;
 	schemaName: string;
 	tableName: string;
-	shape: z.ZodObject<z.ZodRawShape>;
+	shape: ZodObject<ZodRawShape>;
 	columns: readonly CompiledColumn[];
 	primaryKey: readonly string[];
 	uniqueConstraints: readonly (readonly string[])[];

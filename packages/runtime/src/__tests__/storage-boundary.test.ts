@@ -2,7 +2,7 @@ import { col } from "@86d-app/core/schema/col";
 import {
 	compileModuleDeclarations,
 	emitSql,
-} from "@86d-app/core/schema/compile/index";
+} from "@86d-app/core/schema/compile";
 import { ModuleStorageParseError } from "@86d-app/core/schema/compile/storage-parse";
 import type { Module } from "@86d-app/core/types/module";
 import { PGlite } from "@electric-sql/pglite";

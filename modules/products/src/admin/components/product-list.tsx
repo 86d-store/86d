@@ -570,9 +570,7 @@ export function ProductList() {
 	const api = useProductsAdminApi();
 
 	const [page, setPage] = useState(1);
-	const _search = "";
 	const [status, setStatus] = useState("");
-	const _category = "";
 	const [deleting, setDeleting] = useState<string | null>(null);
 	const [exporting, setExporting] = useState(false);
 	const [showImport, setShowImport] = useState(false);

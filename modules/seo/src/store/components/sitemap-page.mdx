@@ -1,7 +1,7 @@
 {props.loading && (
   <div className="space-y-3">
     <div className="h-6 w-32 animate-pulse rounded bg-muted" />
-    {(["k0", "k1", "k2", "k3", "k4", "k5"] as const).map((key) => (
+    {(["k0", "k1", "k2", "k3", "k4", "k5"]).map((key) => (
       <div key={key} className="h-5 animate-pulse rounded bg-muted" style={{ width: `${60 + Math.random() * 30}%` }} />
     ))}
   </div>

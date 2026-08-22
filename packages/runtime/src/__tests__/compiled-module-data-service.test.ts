@@ -1,4 +1,8 @@
-import { col, compileModuleDeclarations, emitSql } from "@86d-app/core/schema";
+import { col } from "@86d-app/core/schema/col";
+import {
+	compileModuleDeclarations,
+	emitSql,
+} from "@86d-app/core/schema/compile";
 import type { Module } from "@86d-app/core/types/module";
 import { PGlite } from "@electric-sql/pglite";
 import { splitModuleDdlStatements } from "db/schema/apply-disposable-ddl";

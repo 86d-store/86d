@@ -135,17 +135,15 @@ describe("no events without emitter", () => {
 	it("works without event emitter", async () => {
 		const ctrl = createSocialSharingController(createMockDataService());
 
-		await ctrl.recordShare({
+		const share = await ctrl.recordShare({
 			targetType: "product",
 			targetId: "prod-1",
 			network: "twitter",
 			url: "https://example.com/1",
 		});
-		await expect(
-			ctrl.updateSettings({ enabledNetworks: ["twitter"] }),
-		).resolves.toBeUndefined();
+		await ctrl.updateSettings({ enabledNetworks: ["twitter"] });
 
-		// No errors thrown
+		expect(share.id).toBeTruthy();
 	});
 });
 

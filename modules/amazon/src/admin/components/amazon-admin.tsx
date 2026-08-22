@@ -333,7 +333,7 @@ export function AmazonAdmin() {
 				<Skeleton className="h-6 w-48" />
 				<Skeleton className="h-28 w-full rounded-lg" />
 				<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-					{Array.from({ length: 4 }, (_, _i) => (
+					{Array.from({ length: 4 }, (_, i) => `skel-${i}`).map((key) => (
 						<Skeleton key={key} className="h-24 rounded-lg" />
 					))}
 				</div>
@@ -363,7 +363,7 @@ export function AmazonAdmin() {
 			{/* Stats */}
 			{statsLoading ? (
 				<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-					{Array.from({ length: 4 }, (_, _i) => (
+					{Array.from({ length: 4 }, (_, i) => `skel-${i}`).map((key) => (
 						<Skeleton key={key} className="h-24 rounded-lg" />
 					))}
 				</div>
@@ -471,20 +471,25 @@ export function AmazonAdmin() {
 							<div className="hidden md:block">
 								<table className="w-full text-left text-sm">
 									<tbody className="divide-y divide-border">
-										{Array.from({ length: 5 }, (_, _i) => (
-											<tr key={rowKey}>
-												{Array.from({ length: 6 }, (_, _j) => (
-													<td key={cellKey} className="px-5 py-3">
-														<Skeleton className="h-4 rounded" />
-													</td>
-												))}
-											</tr>
-										))}
+										{Array.from({ length: 5 }, (_, i) => `skel-row-${i}`).map(
+											(key) => (
+												<tr key={key}>
+													{Array.from(
+														{ length: 6 },
+														(_, i) => `skel-cell-${i}`,
+													).map((key) => (
+														<td key={key} className="px-5 py-3">
+															<Skeleton className="h-4 rounded" />
+														</td>
+													))}
+												</tr>
+											),
+										)}
 									</tbody>
 								</table>
 							</div>
 							<div className="space-y-3 p-4 md:hidden">
-								{Array.from({ length: 3 }, (_, _i) => (
+								{Array.from({ length: 3 }, (_, i) => `skel-${i}`).map((key) => (
 									<Skeleton key={key} className="h-16 rounded-lg" />
 								))}
 							</div>
@@ -692,20 +697,25 @@ export function AmazonAdmin() {
 							<div className="hidden md:block">
 								<table className="w-full text-left text-sm">
 									<tbody className="divide-y divide-border">
-										{Array.from({ length: 5 }, (_, _i) => (
-											<tr key={rowKey}>
-												{Array.from({ length: 6 }, (_, _j) => (
-													<td key={cellKey} className="px-5 py-3">
-														<Skeleton className="h-4 rounded" />
-													</td>
-												))}
-											</tr>
-										))}
+										{Array.from({ length: 5 }, (_, i) => `skel-row-${i}`).map(
+											(key) => (
+												<tr key={key}>
+													{Array.from(
+														{ length: 6 },
+														(_, i) => `skel-cell-${i}`,
+													).map((key) => (
+														<td key={key} className="px-5 py-3">
+															<Skeleton className="h-4 rounded" />
+														</td>
+													))}
+												</tr>
+											),
+										)}
 									</tbody>
 								</table>
 							</div>
 							<div className="space-y-3 p-4 md:hidden">
-								{Array.from({ length: 3 }, (_, _i) => (
+								{Array.from({ length: 3 }, (_, i) => `skel-${i}`).map((key) => (
 									<Skeleton key={key} className="h-16 rounded-lg" />
 								))}
 							</div>

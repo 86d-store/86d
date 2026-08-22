@@ -44,9 +44,9 @@ export function FeaturedCollections({ limit }: { limit?: number }) {
 			<section className="py-8">
 				<div className="mb-6 h-8 w-52 animate-pulse rounded-lg bg-muted" />
 				<div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-					{[...Array(8)].map((_, _i) => (
+					{Array.from({ length: 8 }, (_, i) => `skel-${i}`).map((key) => (
 						<div
-							key={_.id}
+							key={key}
 							className="aspect-square animate-pulse rounded-xl bg-muted"
 						/>
 					))}

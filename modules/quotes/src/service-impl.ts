@@ -26,7 +26,7 @@ async function recordStatusChange(options: {
 	fromStatus: string;
 	toStatus: string;
 	changedBy: string;
-	reason?: string;
+	reason?: string | undefined;
 }): Promise<void> {
 	const { data, quoteId, fromStatus, toStatus, changedBy, reason } = options;
 	const historyId = crypto.randomUUID();

@@ -128,7 +128,7 @@ export function createBlogController(data: ModuleDataService): BlogController {
 				where: { slug },
 				take: 1,
 			});
-			return matches[0] as unknown as BlogPost;
+			return (matches[0] as unknown as BlogPost | undefined) ?? null;
 		},
 
 		async publishPost(id) {

@@ -76,21 +76,9 @@ describe("module create", () => {
 		expect(pkg.name).toBe("@86d-app/loyalty-points");
 		expect(pkg.version).toBe("0.0.1");
 		expect(pkg.dependencies["@86d-app/core"]).toBe("workspace:*");
-		expect(pkg.devDependencies["86d"]).toBe("workspace:*");
-		expect(pkg.scripts.build).toBe("86d module build");
-		expect(pkg.exports["."]).toEqual({
-			types: "./src/index.ts",
-			default: "./src/index.ts",
-		});
+		expect(pkg.scripts.build).toBe("tsc");
+		expect(pkg.exports["."]).toBe("./src/index.ts");
 		expect(pkg.scripts.test).toBe("vitest run");
-		expect(pkg.publishConfig.exports["."]).toEqual({
-			types: "./dist/index.d.ts",
-			default: "./dist/index.js",
-		});
-		expect(pkg.files).toContain("dist");
-		expect(
-			existsSync(join(tempDir, "modules", "loyalty-points", ".npmignore")),
-		).toBe(true);
 	});
 
 	it("generates module entry with correct ID and camelCase name", async () => {

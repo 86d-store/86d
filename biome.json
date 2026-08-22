@@ -138,6 +138,23 @@
 					}
 				}
 			}
+		},
+		{
+			"includes": [
+				"packages/core/src/schema/index.ts",
+				"packages/core/src/graph/index.ts",
+				"packages/core/src/commands.ts"
+			],
+			"linter": {
+				"rules": {
+					"performance": {
+						"noBarrelFile": "off"
+					},
+					"style": {
+						"noExportedImports": "off"
+					}
+				}
+			}
 		}
 	],
 	"files": {

@@ -137,7 +137,7 @@ export function createEtsyController(
 				where: { localProductId: productId },
 				take: 1,
 			});
-			return matches[0] as unknown as EtsyListing;
+			return (matches[0] as unknown as EtsyListing | undefined) ?? null;
 		},
 
 		async listListings(params) {

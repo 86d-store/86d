@@ -44,10 +44,10 @@ function Slider({
 						className="select-none bg-primary data-horizontal:h-full data-vertical:w-full"
 					/>
 				</SliderPrimitive.Track>
-				{Array.from({ length: _values.length }, (_, _index) => (
+				{_values.map((thumbValue) => (
 					<SliderPrimitive.Thumb
 						data-slot="slider-thumb"
-						key={key}
+						key={String(thumbValue)}
 						className="block size-4 shrink-0 select-none rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:outline-hidden focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50"
 					/>
 				))}

@@ -63,10 +63,10 @@ export interface GoogleProductStatusesListResponse {
 }
 
 export interface GoogleApiErrorResponse {
-	error: {
-		code: number;
-		message: string;
-		status: string;
+	error?: {
+		code?: number;
+		message?: string;
+		status?: string;
 		errors?: Array<{ message: string; domain: string; reason: string }>;
 	};
 }
@@ -105,7 +105,9 @@ export class GoogleShoppingProvider {
 		const json = (await res.json()) as T | GoogleApiErrorResponse;
 		if (!res.ok) {
 			const err = json as GoogleApiErrorResponse;
-			throw new Error(`Google Shopping API error: ${err.error.message}`);
+			throw new Error(
+				`Google Shopping API error: ${err.error?.message ?? `HTTP ${res.status}`}`,
+			);
 		}
 		return json as T;
 	}

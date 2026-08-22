@@ -2,15 +2,12 @@ import { describe, expect, it } from "vitest";
 import { computeChangeSetReviewHash } from "../change-set";
 import {
 	actionLevelSchema,
-	assertCanonicalJson,
-	canonicalJson,
 	canTransitionCommand,
 	canTransitionWorkflow,
 	commandRequestSchema,
 	computeCommandBindingHash,
 	computeCommandInputDigest,
 	computeConfirmationNonceDigest,
-	parseCanonicalJson,
 } from "../command";
 import {
 	assertConformancePin,
@@ -19,6 +16,11 @@ import {
 	EXPECTED_PIN,
 	isCompatiblePackagePair,
 } from "../conformance";
+import {
+	assertCanonicalJson,
+	canonicalJson,
+	parseCanonicalJson,
+} from "../serialize";
 import fixture from "./fixtures/command-conformance.json";
 
 describe("@86d-app/contracts command surface", () => {

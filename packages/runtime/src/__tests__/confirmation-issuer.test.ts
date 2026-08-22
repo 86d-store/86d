@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
-import { createDrizzleStoreConfirmationIssuer } from "../confirmation-issuer";
 import {
 	computeCommandBindingHash,
 	computeConfirmationNonceDigest,
-} from "../grants";
+} from "@86d-app/contracts/command";
+import { describe, expect, it, vi } from "vitest";
+import { createDrizzleStoreConfirmationIssuer } from "../confirmation-issuer";
 
 const databaseNow = new Date("2026-08-11T20:00:00.000Z");
 const nonce = "n".repeat(43);

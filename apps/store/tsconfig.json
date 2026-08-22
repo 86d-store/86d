@@ -9,9 +9,22 @@
 			"~/*": ["./*"],
 			"template/*": ["../../templates/brisa/*"],
 			"@86d-app/*/components": ["../../modules/*/src/store/components/mdx.tsx"],
-			"lib/*": ["../../packages/lib/src/*"]
+			"lib/*": ["../../packages/lib/src/*"],
+			"@86d-app/products/catalog-revisions": [
+				"../../modules/products/src/catalog-revisions.ts"
+			],
+			"@86d-app/inventory/commands": [
+				"../../modules/inventory/src/commands.ts"
+			],
+			"@86d-app/paypal/connection-provider": [
+				"../../modules/paypal/src/connection-provider.ts"
+			]
 		},
-		"plugins": [{ "name": "next" }],
+		"plugins": [
+			{
+				"name": "next"
+			}
+		],
 		"module": "esnext"
 	},
 	"include": [".", ".next/types/**/*.ts"],

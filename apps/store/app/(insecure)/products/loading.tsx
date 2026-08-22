@@ -13,7 +13,7 @@ export default function ProductsLoading() {
 			<div className="mb-6 flex gap-2 overflow-hidden">
 				{(["k0", "k1", "k2", "k3", "k4"] as const).map((key, idx) => (
 					<Skeleton
-						key={key.id}
+						key={key}
 						className="h-8 shrink-0 rounded-full"
 						style={{ width: `${60 + idx * 10}px` }}
 					/>
@@ -38,7 +38,7 @@ export default function ProductsLoading() {
 						"k11",
 					] as const
 				).map((key, _idx) => (
-					<div key={key.id} className="flex flex-col">
+					<div key={key} className="flex flex-col">
 						<Skeleton className="aspect-[3/4] w-full rounded-lg" />
 						<div className="mt-3 flex flex-col gap-1.5">
 							<Skeleton className="h-4 w-3/4" />

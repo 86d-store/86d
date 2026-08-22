@@ -226,7 +226,7 @@ describe("no events without emitter", () => {
 		});
 		await ctrl.play(game.id, {});
 		await ctrl.updateGame(game.id, { name: "Updated" });
-		await expect(ctrl.deleteGame(game.id)).resolves.toBeUndefined();
+		await expect(ctrl.deleteGame(game.id)).resolves.toBe(true);
 
 		// No errors thrown
 	});

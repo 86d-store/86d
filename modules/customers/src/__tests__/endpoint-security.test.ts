@@ -272,10 +272,10 @@ describe("customers endpoint security", () => {
 		});
 	});
 
-	// -- Loyalty Isolation ------------------------------------------------
+	// -- Loyalty quarantine ------------------------------------------------
 
-	describe("loyalty isolation", () => {
-		it("earning points for one customer does not affect another", async () => {
+	describe("loyalty quarantine", () => {
+		it("loyalty writes refuse across customers", async () => {
 			const customerA = await controller.create({
 				email: "alice@test.com",
 				firstName: "Alice",
@@ -287,187 +287,40 @@ describe("customers endpoint security", () => {
 				lastName: "B",
 			});
 
-			await controller.earnPoints({
-				customerId: customerA.id,
-				points: 500,
-				reason: "Order reward",
-			});
+			await expect(
+				controller.earnPoints({
+					customerId: customerA.id,
+					points: 500,
+					reason: "Order reward",
+				}),
+			).rejects.toThrow("Loyalty writes belong to the Loyalty module.");
 
 			const balanceA = await controller.getLoyaltyBalance(customerA.id);
 			const balanceB = await controller.getLoyaltyBalance(customerB.id);
-
-			expect(balanceA.balance).toBe(500);
+			expect(balanceA.balance).toBe(0);
 			expect(balanceB.balance).toBe(0);
 		});
 
-		it("loyalty history is scoped per customer", async () => {
-			const customerA = await controller.create({
-				email: "alice@test.com",
-				firstName: "Alice",
-				lastName: "A",
-			});
-			const customerB = await controller.create({
-				email: "bob@test.com",
-				firstName: "Bob",
-				lastName: "B",
-			});
-
-			await controller.earnPoints({
-				customerId: customerA.id,
-				points: 100,
-				reason: "Purchase A",
-			});
-			await controller.earnPoints({
-				customerId: customerB.id,
-				points: 200,
-				reason: "Purchase B",
-			});
-
-			const historyA = await controller.getLoyaltyHistory(customerA.id);
-			const historyB = await controller.getLoyaltyHistory(customerB.id);
-
-			expect(historyA.transactions).toHaveLength(1);
-			expect(historyA.transactions[0].points).toBe(100);
-			expect(historyB.transactions).toHaveLength(1);
-			expect(historyB.transactions[0].points).toBe(200);
-		});
-
-		it("redeeming from one customer does not reduce another's balance", async () => {
-			const customerA = await controller.create({
-				email: "alice@test.com",
-				firstName: "Alice",
-				lastName: "A",
-			});
-			const customerB = await controller.create({
-				email: "bob@test.com",
-				firstName: "Bob",
-				lastName: "B",
-			});
-
-			await controller.earnPoints({
-				customerId: customerA.id,
-				points: 500,
-				reason: "Reward",
-			});
-			await controller.earnPoints({
-				customerId: customerB.id,
-				points: 300,
-				reason: "Reward",
-			});
-
-			await controller.redeemPoints({
-				customerId: customerA.id,
-				points: 200,
-				reason: "Redeem",
-			});
-
-			const balanceA = await controller.getLoyaltyBalance(customerA.id);
-			const balanceB = await controller.getLoyaltyBalance(customerB.id);
-
-			expect(balanceA.balance).toBe(300);
-			expect(balanceB.balance).toBe(300);
-		});
-	});
-
-	// -- Redeem Validation ------------------------------------------------
-
-	describe("redeem validation", () => {
-		it("cannot redeem more points than available balance", async () => {
+		it("redeem and adjust also refuse", async () => {
 			const customer = await controller.create({
 				email: "alice@test.com",
 				firstName: "Alice",
 				lastName: "A",
 			});
-
-			await controller.earnPoints({
-				customerId: customer.id,
-				points: 100,
-				reason: "Reward",
-			});
-
 			await expect(
 				controller.redeemPoints({
 					customerId: customer.id,
-					points: 200,
+					points: 10,
 					reason: "Redeem",
 				}),
-			).rejects.toThrow("Insufficient loyalty points");
-		});
-
-		it("exact balance redemption succeeds and zeroes out", async () => {
-			const customer = await controller.create({
-				email: "alice@test.com",
-				firstName: "Alice",
-				lastName: "A",
-			});
-
-			await controller.earnPoints({
-				customerId: customer.id,
-				points: 250,
-				reason: "Reward",
-			});
-
-			const tx = await controller.redeemPoints({
-				customerId: customer.id,
-				points: 250,
-				reason: "Redeem",
-			});
-			expect(tx.balance).toBe(0);
-
-			const balance = await controller.getLoyaltyBalance(customer.id);
-			expect(balance.balance).toBe(0);
-		});
-
-		it("cannot redeem zero or negative points", async () => {
-			const customer = await controller.create({
-				email: "alice@test.com",
-				firstName: "Alice",
-				lastName: "A",
-			});
-
-			await controller.earnPoints({
-				customerId: customer.id,
-				points: 100,
-				reason: "Reward",
-			});
-
-			await expect(
-				controller.redeemPoints({
-					customerId: customer.id,
-					points: 0,
-					reason: "Redeem",
-				}),
-			).rejects.toThrow("Points to redeem must be positive");
-
-			await expect(
-				controller.redeemPoints({
-					customerId: customer.id,
-					points: -10,
-					reason: "Redeem",
-				}),
-			).rejects.toThrow("Points to redeem must be positive");
-		});
-
-		it("adjustment cannot result in negative balance", async () => {
-			const customer = await controller.create({
-				email: "alice@test.com",
-				firstName: "Alice",
-				lastName: "A",
-			});
-
-			await controller.earnPoints({
-				customerId: customer.id,
-				points: 100,
-				reason: "Reward",
-			});
-
+			).rejects.toThrow("Loyalty writes belong to the Loyalty module.");
 			await expect(
 				controller.adjustPoints({
 					customerId: customer.id,
-					points: -200,
-					reason: "Correction",
+					points: -5,
+					reason: "Adjust",
 				}),
-			).rejects.toThrow("Adjustment would result in negative balance");
+			).rejects.toThrow("Loyalty writes belong to the Loyalty module.");
 		});
 	});
 

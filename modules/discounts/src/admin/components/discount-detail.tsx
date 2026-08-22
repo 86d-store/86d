@@ -518,9 +518,9 @@ export function DiscountDetail(props: {
 			<div className="space-y-6 py-4">
 				<div className="h-7 w-1/3 animate-pulse rounded bg-muted" />
 				<div className="grid gap-4 sm:grid-cols-3">
-					{[1, 2, 3].map((_i) => (
+					{[1, 2, 3].map((n) => (
 						<div
-							key={key}
+							key={n}
 							className="space-y-2 rounded-lg border border-border p-4"
 						>
 							<div className="h-3 w-1/2 animate-pulse rounded bg-muted" />

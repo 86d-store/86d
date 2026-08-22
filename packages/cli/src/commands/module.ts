@@ -21,13 +21,11 @@ import {
 	success,
 	type TemplateConfig,
 	warn,
+	writeLine,
 } from "../utils.js";
-import { buildModule } from "./module-build.js";
 
 export function moduleCommand(subcommand: string | undefined, args: string[]) {
 	switch (subcommand) {
-		case "build":
-			return buildModule(args);
 		case "create":
 			return createModule(args[0]);
 		case "add":
@@ -53,12 +51,33 @@ export function moduleCommand(subcommand: string | undefined, args: string[]) {
 			return printHelp();
 		default:
 			error(`Unknown subcommand: ${subcommand}`);
+			writeLine();
 			printHelp();
 			process.exit(1);
 	}
 }
 
-function printHelp() {}
+function printHelp() {
+	writeLine(`
+${c.bold("86d module")} — Manage modules
+
+${c.dim("Usage:")}
+  86d module create <name>           Scaffold a new module
+  86d module add <specifier>         Add a module from registry, GitHub, or npm
+  86d module update [name]           Check for and apply module updates
+  86d module list                    List all local modules
+  86d module search [query]          Search the registry for modules
+  86d module info <name>             Show module details
+  86d module enable <name>           Enable a module in the active template
+  86d module disable <name>          Disable a module in the active template
+
+${c.dim("Module specifiers (for 'add'):")}
+  products                           Official module (short name)
+  @86d-app/products                  Official module (full name)
+  github:owner/repo/modules/name    GitHub repository module
+  npm:@scope/package                 npm package
+`);
+}
 
 // ── Registry Helpers ──────────────────────────────────────────────────
 
@@ -71,6 +90,13 @@ function loadManifest(root: string): RegistryManifest | undefined {
 async function addModule(specifier: string | undefined) {
 	if (!specifier) {
 		error("Module specifier is required.");
+		writeLine(`\n  Usage: 86d module add <specifier>`);
+		writeLine(`  Examples:`);
+		writeLine(`    ${c.dim("86d module add products")}`);
+		writeLine(
+			`    ${c.dim("86d module add github:owner/repo/modules/loyalty")}`,
+		);
+		writeLine(`    ${c.dim("86d module add npm:@acme/commerce-module")}`);
 		process.exit(1);
 	}
 
@@ -81,6 +107,7 @@ async function addModule(specifier: string | undefined) {
 	const spec = parseSpecifier(specifier);
 
 	heading(`Adding module: ${spec.packageName}`);
+	writeLine();
 
 	// Check if already installed locally
 	const localDir = join(root, "modules", spec.name);
@@ -98,6 +125,9 @@ async function addModule(specifier: string | undefined) {
 		error(`Failed to add module: ${result.error}`);
 
 		if (spec.source === "registry") {
+			writeLine(
+				`\n  Try: ${c.bold(`86d module create ${spec.name}`)} to scaffold a new module.`,
+			);
 		}
 		process.exit(1);
 	}
@@ -112,6 +142,7 @@ async function addModule(specifier: string | undefined) {
 		);
 
 		if (missingDeps.length > 0) {
+			writeLine();
 			info(
 				`${spec.name} requires: ${missingDeps.map((d) => c.cyan(d)).join(", ")}`,
 			);
@@ -144,6 +175,8 @@ async function addModule(specifier: string | undefined) {
 
 	// Enable in template config
 	enableModule(spec.name);
+
+	writeLine(`\n  Run ${c.bold("86d generate")} to update generated code.\n`);
 }
 
 // ── Update Modules ────────────────────────────────────────────────────
@@ -163,6 +196,7 @@ async function updateModules(name: string | undefined) {
 	const targets = name ? [name.replace(/^@86d-app\//, "")] : localModules;
 
 	heading(`Checking for updates${name ? ` (${name})` : ""}`);
+	writeLine();
 
 	const outdated: Array<{
 		name: string;
@@ -207,18 +241,29 @@ async function updateModules(name: string | undefined) {
 		return;
 	}
 
+	writeLine(
+		`  ${c.yellow(`${outdated.length} module(s) have updates available:`)}`,
+	);
+	writeLine();
+
 	for (const mod of outdated) {
-		const _versionInfo =
+		const versionInfo =
 			mod.localVersion !== mod.registryVersion
 				? `${c.dim(mod.localVersion)} → ${c.green(mod.registryVersion)}`
 				: c.dim(mod.localVersion);
-		const _integrityTag = mod.integrityChanged
+		const integrityTag = mod.integrityChanged
 			? c.yellow(" (content changed)")
 			: "";
+		writeLine(
+			`  ${c.bold(`@86d-app/${mod.name}`)} ${versionInfo}${integrityTag}`,
+		);
 	}
+
+	writeLine();
 	info(
 		`To update, run: ${c.bold("86d module add <name>")} for each module above`,
 	);
+	writeLine();
 }
 
 // ── Search Registry ───────────────────────────────────────────────────
@@ -245,6 +290,7 @@ function searchRegistry(query: string | undefined) {
 	heading(
 		`Registry modules${query ? ` matching "${query}"` : ""} (${filtered.length})`,
 	);
+	writeLine();
 
 	// Group by category
 	const grouped: Record<string, Array<[string, RegistryModule]>> = {};
@@ -256,13 +302,20 @@ function searchRegistry(query: string | undefined) {
 
 	const localModules = new Set(getLocalModuleNames(root));
 
-	for (const [_category, mods] of Object.entries(grouped).sort((a, b) =>
+	for (const [category, mods] of Object.entries(grouped).sort((a, b) =>
 		a[0].localeCompare(b[0]),
 	)) {
-		for (const [name, _mod] of mods) {
+		writeLine(
+			`  ${c.bold(category.charAt(0).toUpperCase() + category.slice(1))}`,
+		);
+		for (const [name, mod] of mods) {
 			const installed = localModules.has(name);
-			const _status = installed ? c.green(" ●") : c.dim(" ○");
+			const status = installed ? c.green(" ●") : c.dim(" ○");
+			writeLine(
+				`  ${status} ${c.cyan(name)} ${c.dim(`v${mod.version}`)} — ${c.dim(mod.description.slice(0, 60))}`,
+			);
 		}
+		writeLine();
 	}
 }
 
@@ -281,12 +334,13 @@ function listModules() {
 	const manifest = loadManifest(root);
 
 	heading(`Local modules (${modules.length})`);
+	writeLine();
 
 	for (const mod of modules) {
 		const pkg = readJson<{ version?: string }>(
 			join(modulesDir, mod, "package.json"),
 		);
-		const _version = pkg?.version ? c.dim(` v${pkg.version}`) : "";
+		const version = pkg?.version ? c.dim(` v${pkg.version}`) : "";
 		const hasComponents = existsSync(
 			join(modulesDir, mod, "src/store/components/mdx.tsx"),
 		);
@@ -304,11 +358,14 @@ function listModules() {
 			tags.push(c.dim(registryEntry.category));
 		}
 
-		const _tagStr =
+		const tagStr =
 			tags.length > 0
 				? `  ${c.dim("[")}${tags.join(c.dim(", "))}${c.dim("]")}`
 				: "";
+
+		writeLine(`  ${c.bold(`@86d-app/${mod}`)}${version}${tagStr}`);
 	}
+	writeLine();
 }
 
 // ── Module Info ───────────────────────────────────────────────────────
@@ -316,6 +373,7 @@ function listModules() {
 function moduleInfo(name: string | undefined) {
 	if (!name) {
 		error("Module name is required.");
+		writeLine(`\n  Usage: 86d module info <name>`);
 		process.exit(1);
 	}
 
@@ -329,8 +387,19 @@ function moduleInfo(name: string | undefined) {
 		const entry = manifest?.modules[moduleName];
 		if (entry) {
 			heading(`@86d-app/${moduleName} ${c.dim("(not installed)")}`);
+			writeLine();
+			writeLine(`  ${c.dim("Version:")}     ${entry.version}`);
+			writeLine(`  ${c.dim("Category:")}    ${entry.category}`);
+			writeLine(`  ${c.dim("Description:")} ${entry.description}`);
 			if (entry.requires.length > 0) {
+				writeLine(`  ${c.dim("Requires:")}    ${entry.requires.join(", ")}`);
 			}
+			writeLine(
+				`  ${c.dim("Components:")}  store: ${entry.hasStoreComponents ? c.green("yes") : c.dim("no")}, admin: ${entry.hasAdminComponents ? c.green("yes") : c.dim("no")}`,
+			);
+			writeLine(
+				`\n  Install with: ${c.bold(`86d module add ${moduleName}`)}\n`,
+			);
 			return;
 		}
 
@@ -348,11 +417,14 @@ function moduleInfo(name: string | undefined) {
 	const registryEntry = manifest?.modules[moduleName];
 
 	heading(`@86d-app/${moduleName}`);
+	writeLine();
 
 	if (pkg?.version) {
+		writeLine(`  ${c.dim("Version:")}  ${pkg.version}`);
 	}
 
 	if (registryEntry?.category) {
+		writeLine(`  ${c.dim("Category:")} ${registryEntry.category}`);
 	}
 
 	// Read module ID from index.ts
@@ -361,6 +433,7 @@ function moduleInfo(name: string | undefined) {
 		const indexContent = readFileSync(indexPath, "utf-8");
 		const idMatch = indexContent.match(/id:\s*"([^"]+)"/);
 		if (idMatch) {
+			writeLine(`  ${c.dim("ID:")}       ${idMatch[1]}`);
 		}
 	}
 
@@ -369,29 +442,43 @@ function moduleInfo(name: string | undefined) {
 	const adminEndpointsPath = join(moduleDir, "src/admin/endpoints/routes.ts");
 	const storeCount = countEndpoints(storeEndpointsPath);
 	const adminCount = countEndpoints(adminEndpointsPath);
+	writeLine(
+		`  ${c.dim("Endpoints:")} ${storeCount} store, ${adminCount} admin`,
+	);
 
 	// Check for components
-	const _storeComponents = existsSync(
+	const storeComponents = existsSync(
 		join(moduleDir, "src/store/components/mdx.tsx"),
 	);
-	const _adminComponents = existsSync(join(moduleDir, "src/admin/components"));
+	const adminComponents = existsSync(join(moduleDir, "src/admin/components"));
+	writeLine(
+		`  ${c.dim("Components:")} ${storeComponents ? c.green("store") : c.dim("none")}${adminComponents ? `, ${c.green("admin")}` : ""}`,
+	);
 
 	if (registryEntry?.requires && registryEntry.requires.length > 0) {
+		writeLine(`  ${c.dim("Requires:")}   ${registryEntry.requires.join(", ")}`);
 	}
 
 	// Check for tests
-	const _hasTests =
+	const hasTests =
 		existsSync(join(moduleDir, "src/__tests__")) ||
 		existsSync(join(moduleDir, "src/tests"));
+	writeLine(
+		`  ${c.dim("Tests:")}     ${hasTests ? c.green("yes") : c.dim("none")}`,
+	);
 
 	// List store endpoint paths
 	if (storeCount > 0 && existsSync(storeEndpointsPath)) {
+		writeLine(`\n  ${c.dim("Store endpoints:")}`);
 		listEndpointPaths(storeEndpointsPath, "  ");
 	}
 
 	if (adminCount > 0 && existsSync(adminEndpointsPath)) {
+		writeLine(`\n  ${c.dim("Admin endpoints:")}`);
 		listEndpointPaths(adminEndpointsPath, "  ");
 	}
+
+	writeLine();
 }
 
 function countEndpoints(filePath: string): number {
@@ -401,12 +488,13 @@ function countEndpoints(filePath: string): number {
 	return matches?.length ?? 0;
 }
 
-function listEndpointPaths(filePath: string, _indent: string) {
+function listEndpointPaths(filePath: string, indent: string) {
 	const content = readFileSync(filePath, "utf-8");
 	const paths = content.match(/"(\/[^"]+)"/g);
 	if (!paths) return;
 	for (const raw of paths) {
-		const _path = raw.slice(1, -1);
+		const path = raw.slice(1, -1);
+		writeLine(`${indent}  ${c.cyan(path)}`);
 	}
 }
 
@@ -415,6 +503,7 @@ function listEndpointPaths(filePath: string, _indent: string) {
 function enableModule(name: string | undefined) {
 	if (!name) {
 		error("Module name is required.");
+		writeLine(`\n  Usage: 86d module enable <name>`);
 		process.exit(1);
 	}
 
@@ -456,11 +545,13 @@ function enableModule(name: string | undefined) {
 	config.modules = modules;
 	writeFileSync(configPath, `${JSON.stringify(config, null, "\t")}\n`);
 	success(`Enabled ${c.bold(fullName)}`);
+	writeLine(`\n  Run ${c.bold("86d generate")} to update generated code.\n`);
 }
 
 function disableModule(name: string | undefined) {
 	if (!name) {
 		error("Module name is required.");
+		writeLine(`\n  Usage: 86d module disable <name>`);
 		process.exit(1);
 	}
 
@@ -489,6 +580,7 @@ function disableModule(name: string | undefined) {
 		config.modules = allModules;
 		writeFileSync(configPath, `${JSON.stringify(config, null, "\t")}\n`);
 		success(`Disabled ${c.bold(fullName)} (converted "*" to explicit list)`);
+		writeLine(`\n  Run ${c.bold("86d generate")} to update generated code.\n`);
 		return;
 	}
 
@@ -503,6 +595,7 @@ function disableModule(name: string | undefined) {
 	config.modules = modules;
 	writeFileSync(configPath, `${JSON.stringify(config, null, "\t")}\n`);
 	success(`Disabled ${c.bold(fullName)}`);
+	writeLine(`\n  Run ${c.bold("86d generate")} to update generated code.\n`);
 }
 
 // ── Create Module ─────────────────────────────────────────────────────
@@ -510,6 +603,8 @@ function disableModule(name: string | undefined) {
 function createModule(name: string | undefined) {
 	if (!name) {
 		error("Module name is required.");
+		writeLine(`\n  Usage: 86d module create <name>`);
+		writeLine(`  Example: ${c.dim("86d module create loyalty-points")}`);
 		process.exit(1);
 	}
 
@@ -526,6 +621,7 @@ function createModule(name: string | undefined) {
 	}
 
 	heading(`Creating @86d-app/${moduleName}`);
+	writeLine();
 
 	// Create directory structure
 	const dirs = [
@@ -544,7 +640,7 @@ function createModule(name: string | undefined) {
 		mkdirSync(dir, { recursive: true });
 	}
 
-	// package.json — workspace exports stay on src; publishConfig + files ship dist.
+	// package.json
 	writeFileSync(
 		join(moduleDir, "package.json"),
 		JSON.stringify(
@@ -554,41 +650,11 @@ function createModule(name: string | undefined) {
 				private: true,
 				type: "module",
 				exports: {
-					".": {
-						types: "./src/index.ts",
-						default: "./src/index.ts",
-					},
-					"./*": "./src/*",
-					"./components": {
-						types: "./src/store/components/mdx.tsx",
-						default: "./src/store/components/mdx.tsx",
-					},
+					".": "./src/index.ts",
+					"./components": "./src/store/components/mdx.tsx",
 				},
-				publishConfig: {
-					access: "public",
-					exports: {
-						".": {
-							types: "./dist/index.d.ts",
-							default: "./dist/index.js",
-						},
-						"./*": "./dist/*",
-						"./components": {
-							types: "./dist/store/components/mdx.d.ts",
-							default: "./dist/store/components/mdx.js",
-						},
-					},
-				},
-				files: [
-					"dist",
-					"!dist/**/__tests__",
-					"!dist/**/__tests__/**",
-					"!dist/**/*.test.js",
-					"!dist/**/*.test.d.ts",
-					"!dist/**/*.test.d.ts.map",
-					"README.md",
-				],
 				scripts: {
-					build: "86d module build",
+					build: "tsc",
 					check: "biome check src",
 					"check:fix": "biome check --write src",
 					test: "vitest run",
@@ -599,17 +665,9 @@ function createModule(name: string | undefined) {
 					"@86d-app/core": "workspace:*",
 				},
 				devDependencies: {
-					"86d": "workspace:*",
 					"@biomejs/biome": "catalog:",
-					"@types/react": "catalog:react",
 					typescript: "catalog:",
 					vitest: "catalog:vite",
-				},
-				peerDependencies: {
-					react: "catalog:react",
-				},
-				peerDependenciesMeta: {
-					react: { optional: true },
 				},
 			},
 			null,
@@ -617,45 +675,15 @@ function createModule(name: string | undefined) {
 		),
 	);
 
-	writeFileSync(
-		join(moduleDir, ".npmignore"),
-		`**/__tests__/
-**/*.test.ts
-**/*.test.tsx
-**/*.test.js
-src/
-.turbo/
-.cache/
-coverage/
-vitest.config.ts
-tsconfig.json
-tsconfig.*.json
-AGENTS.md
-*.tsbuildinfo
-`,
-	);
-
-	// tsconfig.json — flat dist emit with declarations for npm consumers
+	// tsconfig.json
 	writeFileSync(
 		join(moduleDir, "tsconfig.json"),
 		JSON.stringify(
 			{
 				extends: "../../tsconfig.base.json",
-				compilerOptions: {
-					lib: ["ES2022", "dom", "dom.iterable"],
-					jsx: "react-jsx",
-					rootDir: "src",
-					outDir: "dist",
-					declaration: true,
-					declarationMap: true,
-				},
+				compilerOptions: {},
 				include: ["src"],
-				exclude: [
-					"node_modules",
-					"src/**/__tests__",
-					"src/**/*.test.ts",
-					"src/**/*.test.tsx",
-				],
+				exclude: ["node_modules"],
 			},
 			null,
 			"\t",
@@ -690,7 +718,7 @@ export default function ${toCamelCase(moduleName)}(
 	// Schema
 	writeFileSync(
 		join(moduleDir, "src/schema.ts"),
-		`import { z } from "zod";
+		`import { z } from "@86d-app/core/zod";
 
 export const schema = z.object({
 	// Define your module's data schema here
@@ -769,6 +797,16 @@ describe("${moduleName}", () => {
 	success(
 		"Created module entry point, schema, endpoints, components, and test",
 	);
+
+	writeLine(`\n  Next steps:`);
+	writeLine(
+		`  ${c.dim("1.")} Implement your schema, controllers, and endpoints`,
+	);
+	writeLine(
+		`  ${c.dim("2.")} Run: ${c.bold(`86d module enable ${moduleName}`)}`,
+	);
+	writeLine(`  ${c.dim("3.")} Run: ${c.bold("86d generate")}`);
+	writeLine();
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────

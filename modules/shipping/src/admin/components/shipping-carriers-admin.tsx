@@ -315,13 +315,15 @@ export function ShippingCarriersAdmin() {
 	const loading = loadingCarriers || loadingMethods;
 
 	const skeletonRows = (cols: number, rows = 3) =>
-		Array.from({ length: rows }).map((_, _i) => (
-			<tr key={_.id}>
-				{Array.from({ length: cols }).map((_, _j) => (
-					<td key={cellKey} className="px-4 py-3">
-						<div className="h-4 w-24 animate-pulse rounded bg-muted" />
-					</td>
-				))}
+		Array.from({ length: rows }, (_, i) => `skel-row-${i}`).map((rowKey) => (
+			<tr key={rowKey}>
+				{Array.from({ length: cols }, (_, j) => `skel-cell-${j}`).map(
+					(cellKey) => (
+						<td key={cellKey} className="px-4 py-3">
+							<div className="h-4 w-24 animate-pulse rounded bg-muted" />
+						</td>
+					),
+				)}
 			</tr>
 		));
 

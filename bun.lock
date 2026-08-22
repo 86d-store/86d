@@ -167,6 +167,7 @@
         "@stripe/react-stripe-js": "6.8.1",
         "@stripe/stripe-js": "9.13.0",
         "@tanstack/react-form": "1.33.5",
+        "@tanstack/react-query": "5.101.4",
         "@tanstack/react-table": "9.1.2",
         "@vercel/analytics": "catalog:vercel",
         "@vercel/blob": "2.8.0",
@@ -303,6 +304,7 @@
         "86d": "workspace:*",
         "@biomejs/biome": "catalog:",
         "@types/react": "catalog:react",
+        "recharts": "2.15.4",
         "typescript": "catalog:",
         "vitest": "catalog:vite",
       },
@@ -499,6 +501,7 @@
         "vitest": "catalog:vite",
       },
       "peerDependencies": {
+        "next": "catalog:next",
         "react": "catalog:react",
       },
       "optionalPeers": [
@@ -558,6 +561,8 @@
         "@biomejs/biome": "catalog:",
         "@types/mdx": "catalog:mdx",
         "@types/react": "catalog:react",
+        "mobx": "6.15.3",
+        "mobx-react-lite": "4.1.1",
         "next": "catalog:next",
         "typescript": "catalog:",
         "vitest": "catalog:vite",
@@ -582,6 +587,8 @@
         "@biomejs/biome": "catalog:",
         "@types/mdx": "catalog:mdx",
         "@types/react": "catalog:react",
+        "mobx": "6.15.3",
+        "mobx-react-lite": "4.1.1",
         "typescript": "catalog:",
         "vitest": "catalog:vite",
       },
@@ -920,6 +927,8 @@
         "@biomejs/biome": "catalog:",
         "@types/mdx": "catalog:mdx",
         "@types/react": "catalog:react",
+        "mobx": "6.15.3",
+        "mobx-react-lite": "4.1.1",
         "typescript": "catalog:",
         "vitest": "catalog:vite",
       },
@@ -987,6 +996,7 @@
         "vitest": "catalog:vite",
       },
       "peerDependencies": {
+        "next": "catalog:next",
         "react": "catalog:react",
       },
       "optionalPeers": [
@@ -1188,10 +1198,13 @@
         "@biomejs/biome": "catalog:",
         "@types/mdx": "catalog:mdx",
         "@types/react": "catalog:react",
+        "mobx": "6.15.3",
+        "mobx-react-lite": "4.1.1",
         "typescript": "catalog:",
         "vitest": "catalog:vite",
       },
       "peerDependencies": {
+        "next": "catalog:next",
         "react": "catalog:react",
       },
       "optionalPeers": [
@@ -1423,10 +1436,12 @@
         "@biomejs/biome": "catalog:",
         "@types/mdx": "catalog:mdx",
         "@types/react": "catalog:react",
+        "next": "catalog:next",
         "typescript": "catalog:",
         "vitest": "catalog:vite",
       },
       "peerDependencies": {
+        "next": "catalog:next",
         "react": "catalog:react",
       },
       "optionalPeers": [
@@ -1575,6 +1590,8 @@
         "@biomejs/biome": "catalog:",
         "@types/mdx": "catalog:mdx",
         "@types/react": "catalog:react",
+        "mobx": "6.15.3",
+        "mobx-react-lite": "4.1.1",
         "next": "catalog:next",
         "typescript": "catalog:",
         "vitest": "catalog:vite",
@@ -1813,6 +1830,7 @@
         "vitest": "catalog:vite",
       },
       "peerDependencies": {
+        "next": "catalog:next",
         "react": "catalog:react",
       },
       "optionalPeers": [
@@ -1830,6 +1848,8 @@
         "@biomejs/biome": "catalog:",
         "@types/mdx": "catalog:mdx",
         "@types/react": "catalog:react",
+        "mobx": "6.15.3",
+        "mobx-react-lite": "4.1.1",
         "typescript": "catalog:",
         "vitest": "catalog:vite",
       },
@@ -1872,6 +1892,8 @@
         "@biomejs/biome": "catalog:",
         "@types/mdx": "catalog:mdx",
         "@types/react": "catalog:react",
+        "mobx": "6.15.3",
+        "mobx-react-lite": "4.1.1",
         "typescript": "catalog:",
         "vitest": "catalog:vite",
       },
@@ -2336,6 +2358,7 @@
         "vitest": "catalog:vite",
       },
       "peerDependencies": {
+        "next": "catalog:next",
         "react": "catalog:react",
       },
       "optionalPeers": [

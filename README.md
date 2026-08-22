@@ -17,9 +17,7 @@
 > [!WARNING]
 > This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
-📚 **Documentation:** [86d.app/docs/introduction](https://86d.app/docs/introduction)
-
-Modular open-source commerce platform. Bun + Turborepo monorepo.
+📚 **Documentation:** [86d.app/docs](https://86d.app/docs)
 
 ## Deploy
 

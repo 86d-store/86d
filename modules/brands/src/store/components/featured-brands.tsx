@@ -28,8 +28,8 @@ export function FeaturedBrands({ limit }: { limit?: number }) {
 			<div className="py-8">
 				<div className="mx-auto mb-6 h-8 w-40 animate-pulse rounded-lg bg-muted" />
 				<div className="flex flex-wrap items-center justify-center gap-8">
-					{[...Array(6)].map((_, _i) => (
-						<div key={_.id} className="flex items-center gap-3 px-4 py-3">
+					{Array.from({ length: 6 }, (_, i) => `skel-${i}`).map((key) => (
+						<div key={key} className="flex items-center gap-3 px-4 py-3">
 							<div className="size-12 animate-pulse rounded-full bg-muted" />
 							<div className="h-5 w-20 animate-pulse rounded bg-muted" />
 						</div>

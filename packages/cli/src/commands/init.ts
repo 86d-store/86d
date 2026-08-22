@@ -82,7 +82,7 @@ export async function init(args: string[]) {
 	const envVars = existsSync(envPath) ? parseEnvFile(envPath) : {};
 	const dbUrl = envVars.DATABASE_URL;
 
-	if (dbUrl.trim()) {
+	if (typeof dbUrl === "string" && dbUrl.trim() !== "") {
 		const reachable = await checkDbReachable(dbUrl);
 		if (reachable) {
 			info(`Database reachable`);

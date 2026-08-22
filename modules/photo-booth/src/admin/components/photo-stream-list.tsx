@@ -124,7 +124,7 @@ export function PhotoStreamList() {
 
 	const streamListContent = streamsLoading ? (
 		<div className="divide-y divide-border">
-			{Array.from({ length: 4 }, (_, _i) => (
+			{Array.from({ length: 4 }, (_, i) => `skel-${i}`).map((key) => (
 				<div key={key} className="flex items-center justify-between px-5 py-3">
 					<div className="flex-1 space-y-1.5">
 						<Skeleton className="h-4 w-32 rounded" />
@@ -199,7 +199,7 @@ export function PhotoStreamList() {
 
 			{photosLoading ? (
 				<div className="grid grid-cols-2 gap-3 p-3 sm:grid-cols-3">
-					{Array.from({ length: 6 }, (_, _i) => (
+					{Array.from({ length: 6 }, (_, i) => `skel-${i}`).map((key) => (
 						<Skeleton key={key} className="aspect-square rounded-lg" />
 					))}
 				</div>

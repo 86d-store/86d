@@ -724,497 +724,55 @@ describe("customer controllers — edge cases & interactions", () => {
 		});
 	});
 
-	// ── Loyalty Points — complex interactions ────────────────────────
+	// ── Loyalty quarantine (writes moved to Loyalty module) ─────────
 
-	describe("loyalty points — complex interactions", () => {
-		it("balance starts at zero for any customer", async () => {
+	describe("loyalty quarantine", () => {
+		it("read stubs return empty loyalty state", async () => {
 			const customer = await createTestCustomer();
-			const balance = await controller.getLoyaltyBalance(customer.id);
-			expect(balance.balance).toBe(0);
-			expect(balance.totalEarned).toBe(0);
-			expect(balance.totalRedeemed).toBe(0);
-			expect(balance.transactionCount).toBe(0);
-		});
-
-		it("earn then redeem then balance is correct", async () => {
-			const customer = await createTestCustomer();
-			await controller.earnPoints({
-				customerId: customer.id,
-				points: 100,
-				reason: "Purchase",
-			});
-			await controller.redeemPoints({
-				customerId: customer.id,
-				points: 30,
-				reason: "Discount",
-			});
-			const balance = await controller.getLoyaltyBalance(customer.id);
-			expect(balance.balance).toBe(70);
-			expect(balance.totalEarned).toBe(100);
-			expect(balance.totalRedeemed).toBe(30);
-			expect(balance.transactionCount).toBe(2);
-		});
-
-		it("multiple earn and redeem transactions track running balance", async () => {
-			const customer = await createTestCustomer();
-			const t1 = await controller.earnPoints({
-				customerId: customer.id,
-				points: 50,
-				reason: "Order 1",
-			});
-			expect(t1.balance).toBe(50);
-
-			const t2 = await controller.earnPoints({
-				customerId: customer.id,
-				points: 30,
-				reason: "Order 2",
-			});
-			expect(t2.balance).toBe(80);
-
-			const t3 = await controller.redeemPoints({
-				customerId: customer.id,
-				points: 20,
-				reason: "Reward",
-			});
-			expect(t3.balance).toBe(60);
-		});
-
-		it("redeem exactly the full balance succeeds", async () => {
-			const customer = await createTestCustomer();
-			await controller.earnPoints({
-				customerId: customer.id,
-				points: 100,
-				reason: "Earn",
-			});
-			const redeem = await controller.redeemPoints({
-				customerId: customer.id,
-				points: 100,
-				reason: "Full redeem",
-			});
-			expect(redeem.balance).toBe(0);
-			const balance = await controller.getLoyaltyBalance(customer.id);
-			expect(balance.balance).toBe(0);
-		});
-
-		it("redeem more than balance throws error", async () => {
-			const customer = await createTestCustomer();
-			await controller.earnPoints({
-				customerId: customer.id,
-				points: 50,
-				reason: "Earn",
-			});
 			await expect(
-				controller.redeemPoints({
-					customerId: customer.id,
-					points: 51,
-					reason: "Too much",
-				}),
-			).rejects.toThrow("Insufficient loyalty points");
+				controller.getLoyaltyBalance(customer.id),
+			).resolves.toMatchObject({
+				customerId: customer.id,
+				balance: 0,
+				totalEarned: 0,
+				totalRedeemed: 0,
+				transactionCount: 0,
+			});
+			await expect(controller.getLoyaltyHistory(customer.id)).resolves.toEqual({
+				transactions: [],
+				total: 0,
+			});
+			await expect(controller.getLoyaltyStats()).resolves.toMatchObject({
+				totalCustomersWithPoints: 0,
+				totalPointsIssued: 0,
+				totalPointsRedeemed: 0,
+				totalPointsOutstanding: 0,
+			});
 		});
 
-		it("earnPoints with zero throws error", async () => {
+		it("write methods refuse with Loyalty module boundary", async () => {
 			const customer = await createTestCustomer();
 			await expect(
 				controller.earnPoints({
 					customerId: customer.id,
-					points: 0,
-					reason: "Zero",
+					points: 10,
+					reason: "order",
 				}),
-			).rejects.toThrow("Points to earn must be positive");
-		});
-
-		it("earnPoints with negative throws error", async () => {
-			const customer = await createTestCustomer();
-			await expect(
-				controller.earnPoints({
-					customerId: customer.id,
-					points: -10,
-					reason: "Negative",
-				}),
-			).rejects.toThrow("Points to earn must be positive");
-		});
-
-		it("redeemPoints with zero throws error", async () => {
-			const customer = await createTestCustomer();
+			).rejects.toThrow("Loyalty writes belong to the Loyalty module.");
 			await expect(
 				controller.redeemPoints({
 					customerId: customer.id,
-					points: 0,
-					reason: "Zero",
+					points: 10,
+					reason: "order",
 				}),
-			).rejects.toThrow("Points to redeem must be positive");
-		});
-
-		it("redeemPoints with negative throws error", async () => {
-			const customer = await createTestCustomer();
-			await expect(
-				controller.redeemPoints({
-					customerId: customer.id,
-					points: -5,
-					reason: "Negative",
-				}),
-			).rejects.toThrow("Points to redeem must be positive");
-		});
-
-		it("adjustPoints positive increases balance", async () => {
-			const customer = await createTestCustomer();
-			const txn = await controller.adjustPoints({
-				customerId: customer.id,
-				points: 50,
-				reason: "Admin bonus",
-			});
-			expect(txn.type).toBe("adjust");
-			expect(txn.points).toBe(50);
-			expect(txn.balance).toBe(50);
-		});
-
-		it("adjustPoints negative decreases balance", async () => {
-			const customer = await createTestCustomer();
-			await controller.earnPoints({
-				customerId: customer.id,
-				points: 100,
-				reason: "Earn",
-			});
-			const txn = await controller.adjustPoints({
-				customerId: customer.id,
-				points: -30,
-				reason: "Correction",
-			});
-			expect(txn.balance).toBe(70);
-		});
-
-		it("adjustPoints with zero throws error", async () => {
-			const customer = await createTestCustomer();
+			).rejects.toThrow("Loyalty writes belong to the Loyalty module.");
 			await expect(
 				controller.adjustPoints({
 					customerId: customer.id,
-					points: 0,
-					reason: "Zero adjust",
+					points: 10,
+					reason: "manual",
 				}),
-			).rejects.toThrow("Adjustment points cannot be zero");
-		});
-
-		it("adjustPoints that would make balance negative throws error", async () => {
-			const customer = await createTestCustomer();
-			await controller.earnPoints({
-				customerId: customer.id,
-				points: 10,
-				reason: "Earn",
-			});
-			await expect(
-				controller.adjustPoints({
-					customerId: customer.id,
-					points: -11,
-					reason: "Too much negative",
-				}),
-			).rejects.toThrow("Adjustment would result in negative balance");
-		});
-
-		it("adjustPoints exactly to zero balance succeeds", async () => {
-			const customer = await createTestCustomer();
-			await controller.earnPoints({
-				customerId: customer.id,
-				points: 50,
-				reason: "Earn",
-			});
-			const txn = await controller.adjustPoints({
-				customerId: customer.id,
-				points: -50,
-				reason: "Zero out",
-			});
-			expect(txn.balance).toBe(0);
-		});
-
-		it("positive adjustment counts as earned in balance", async () => {
-			const customer = await createTestCustomer();
-			await controller.adjustPoints({
-				customerId: customer.id,
-				points: 75,
-				reason: "Bonus",
-			});
-			const balance = await controller.getLoyaltyBalance(customer.id);
-			expect(balance.totalEarned).toBe(75);
-			expect(balance.totalRedeemed).toBe(0);
-			expect(balance.balance).toBe(75);
-		});
-
-		it("negative adjustment counts as redeemed in balance", async () => {
-			const customer = await createTestCustomer();
-			await controller.earnPoints({
-				customerId: customer.id,
-				points: 100,
-				reason: "Earn",
-			});
-			await controller.adjustPoints({
-				customerId: customer.id,
-				points: -40,
-				reason: "Correction",
-			});
-			const balance = await controller.getLoyaltyBalance(customer.id);
-			expect(balance.totalEarned).toBe(100);
-			expect(balance.totalRedeemed).toBe(40);
-			expect(balance.balance).toBe(60);
-		});
-
-		it("earnPoints stores orderId when provided", async () => {
-			const customer = await createTestCustomer();
-			const txn = await controller.earnPoints({
-				customerId: customer.id,
-				points: 25,
-				reason: "Purchase",
-				orderId: "order-123",
-			});
-			expect(txn.orderId).toBe("order-123");
-		});
-
-		it("redeemPoints stores orderId when provided", async () => {
-			const customer = await createTestCustomer();
-			await controller.earnPoints({
-				customerId: customer.id,
-				points: 100,
-				reason: "Earn",
-			});
-			const txn = await controller.redeemPoints({
-				customerId: customer.id,
-				points: 10,
-				reason: "Discount",
-				orderId: "order-456",
-			});
-			expect(txn.orderId).toBe("order-456");
-		});
-	});
-
-	// ── Loyalty History ──────────────────────────────────────────────
-
-	describe("loyalty history — edge cases", () => {
-		it("history is empty for customer with no transactions", async () => {
-			const customer = await createTestCustomer();
-			const history = await controller.getLoyaltyHistory(customer.id);
-			expect(history.transactions).toEqual([]);
-			expect(history.total).toBe(0);
-		});
-
-		it("history default limit is 20", async () => {
-			const customer = await createTestCustomer();
-			for (let i = 0; i < 25; i++) {
-				await controller.earnPoints({
-					customerId: customer.id,
-					points: 1,
-					reason: `Earn ${i}`,
-				});
-			}
-			const history = await controller.getLoyaltyHistory(customer.id);
-			expect(history.transactions).toHaveLength(20);
-			expect(history.total).toBe(25);
-		});
-
-		it("history pagination with offset works", async () => {
-			const customer = await createTestCustomer();
-			for (let i = 0; i < 5; i++) {
-				await controller.earnPoints({
-					customerId: customer.id,
-					points: 1,
-					reason: `Earn ${i}`,
-				});
-			}
-			const page2 = await controller.getLoyaltyHistory(customer.id, {
-				limit: 2,
-				offset: 2,
-			});
-			expect(page2.transactions).toHaveLength(2);
-			expect(page2.total).toBe(5);
-		});
-
-		it("history with offset beyond total returns empty", async () => {
-			const customer = await createTestCustomer();
-			await controller.earnPoints({
-				customerId: customer.id,
-				points: 10,
-				reason: "Test",
-			});
-			const result = await controller.getLoyaltyHistory(customer.id, {
-				offset: 100,
-			});
-			expect(result.transactions).toEqual([]);
-			expect(result.total).toBe(1);
-		});
-
-		it("history includes all transaction types", async () => {
-			const customer = await createTestCustomer();
-			await controller.earnPoints({
-				customerId: customer.id,
-				points: 100,
-				reason: "Earn",
-			});
-			await controller.redeemPoints({
-				customerId: customer.id,
-				points: 20,
-				reason: "Redeem",
-			});
-			await controller.adjustPoints({
-				customerId: customer.id,
-				points: 5,
-				reason: "Adjust",
-			});
-			const history = await controller.getLoyaltyHistory(customer.id);
-			const types = history.transactions.map((t) => t.type);
-			expect(types).toContain("earn");
-			expect(types).toContain("redeem");
-			expect(types).toContain("adjust");
-		});
-
-		it("history only returns transactions for the specified customer", async () => {
-			const c1 = await createTestCustomer({ email: "c1@test.com" });
-			const c2 = await createTestCustomer({ email: "c2@test.com" });
-			await controller.earnPoints({
-				customerId: c1.id,
-				points: 50,
-				reason: "C1 earn",
-			});
-			await controller.earnPoints({
-				customerId: c2.id,
-				points: 30,
-				reason: "C2 earn",
-			});
-			const history = await controller.getLoyaltyHistory(c1.id);
-			expect(history.total).toBe(1);
-			expect(history.transactions[0]?.customerId).toBe(c1.id);
-		});
-	});
-
-	// ── Loyalty Stats — complex scenarios ────────────────────────────
-
-	describe("loyalty stats — complex scenarios", () => {
-		it("stats are zero when no transactions exist", async () => {
-			const stats = await controller.getLoyaltyStats();
-			expect(stats.totalCustomersWithPoints).toBe(0);
-			expect(stats.totalPointsIssued).toBe(0);
-			expect(stats.totalPointsRedeemed).toBe(0);
-			expect(stats.totalPointsOutstanding).toBe(0);
-			expect(stats.averageBalance).toBe(0);
-			expect(stats.topCustomers).toEqual([]);
-		});
-
-		it("stats reflect multiple customers with different balances", async () => {
-			const c1 = await createTestCustomer({ email: "c1@test.com" });
-			const c2 = await createTestCustomer({ email: "c2@test.com" });
-
-			await controller.earnPoints({
-				customerId: c1.id,
-				points: 100,
-				reason: "Earn",
-			});
-			await controller.earnPoints({
-				customerId: c2.id,
-				points: 200,
-				reason: "Earn",
-			});
-			await controller.redeemPoints({
-				customerId: c1.id,
-				points: 30,
-				reason: "Redeem",
-			});
-
-			const stats = await controller.getLoyaltyStats();
-			expect(stats.totalPointsIssued).toBe(300);
-			expect(stats.totalPointsRedeemed).toBe(30);
-			expect(stats.totalPointsOutstanding).toBe(270);
-			expect(stats.totalCustomersWithPoints).toBe(2);
-		});
-
-		it("topCustomers sorted by balance desc, limited to 10", async () => {
-			const customers: Awaited<ReturnType<typeof createTestCustomer>>[] = [];
-			for (let i = 0; i < 12; i++) {
-				const c = await createTestCustomer({
-					email: `top${i}@test.com`,
-					firstName: `Customer`,
-					lastName: `${i}`,
-				});
-				customers.push(c);
-				await controller.earnPoints({
-					customerId: c.id,
-					points: (i + 1) * 10,
-					reason: `Earn ${i}`,
-				});
-			}
-
-			const stats = await controller.getLoyaltyStats();
-			expect(stats.topCustomers).toHaveLength(10);
-			expect(stats.topCustomers[0]?.balance).toBe(120);
-			expect(stats.topCustomers[9]?.balance).toBe(30);
-		});
-
-		it("topCustomers includes email and name", async () => {
-			const c = await controller.create({
-				email: "loyal@test.com",
-				firstName: "Loyal",
-				lastName: "Customer",
-			});
-			await controller.earnPoints({
-				customerId: c.id,
-				points: 100,
-				reason: "Earn",
-			});
-
-			const stats = await controller.getLoyaltyStats();
-			expect(stats.topCustomers[0]?.email).toBe("loyal@test.com");
-			expect(stats.topCustomers[0]?.name).toBe("Loyal Customer");
-		});
-
-		it("customer with fully redeemed balance not counted in customersWithPoints", async () => {
-			const c = await createTestCustomer({ email: "zeroed@test.com" });
-			await controller.earnPoints({
-				customerId: c.id,
-				points: 50,
-				reason: "Earn",
-			});
-			await controller.redeemPoints({
-				customerId: c.id,
-				points: 50,
-				reason: "Redeem all",
-			});
-
-			const stats = await controller.getLoyaltyStats();
-			expect(stats.totalCustomersWithPoints).toBe(0);
-		});
-
-		it("averageBalance is rounded to nearest integer", async () => {
-			const c1 = await createTestCustomer({ email: "c1@test.com" });
-			const c2 = await createTestCustomer({ email: "c2@test.com" });
-
-			await controller.earnPoints({
-				customerId: c1.id,
-				points: 10,
-				reason: "Earn",
-			});
-			await controller.earnPoints({
-				customerId: c2.id,
-				points: 13,
-				reason: "Earn",
-			});
-
-			// Outstanding = 23, customers with points = 2, average = 11.5 → rounded = 12
-			const stats = await controller.getLoyaltyStats();
-			expect(stats.averageBalance).toBe(12);
-		});
-
-		it("stats with adjustments counts positive as issued and negative as redeemed", async () => {
-			const c = await createTestCustomer({ email: "adj@test.com" });
-			await controller.adjustPoints({
-				customerId: c.id,
-				points: 100,
-				reason: "Positive adjust",
-			});
-			await controller.adjustPoints({
-				customerId: c.id,
-				points: -25,
-				reason: "Negative adjust",
-			});
-
-			const stats = await controller.getLoyaltyStats();
-			expect(stats.totalPointsIssued).toBe(100);
-			expect(stats.totalPointsRedeemed).toBe(25);
-			expect(stats.totalPointsOutstanding).toBe(75);
+			).rejects.toThrow("Loyalty writes belong to the Loyalty module.");
 		});
 	});
 

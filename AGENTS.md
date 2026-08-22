@@ -211,7 +211,8 @@ Every commit follows [Conventional Commits](https://www.conventionalcommits.org/
 
 **Agent rules:**
 
-- Commit only when the user asks, or when finishing a self-contained slice that passes the PR health gates. Pre-commit runs Biome on staged files via lint-staged.
+- Commit only when the user asks, or when finishing a self-contained slice that passes **all** health gates below. Pre-commit runs Biome on staged files via lint-staged and `bun run typecheck`.
+- **Before every commit, run the full gate sequence in order and confirm exit code 0:** `bun run generate:modules -- --frozen`, `bun run typecheck`, `bun run check`, `bun run test`, `bun run build`. Run `bun run typecheck` immediately after the frozen registry check — a green `bun run check` alone is never sufficient. Typecheck, test, and build failures block commit.
 - One logical change per commit. Split unrelated work (for example a store UI fix and a module schema change) into separate commits.
 - Let the hooks run: `git commit --no-verify` only when the user explicitly requests it.
 - Run `bunx changeset` when a published package or module API changes, and commit the generated file in a separate `chore(repo): add changeset` commit when appropriate.

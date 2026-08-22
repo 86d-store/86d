@@ -230,7 +230,11 @@ async function findCustomerByVerifiedEmail(
 	email: string,
 ): Promise<
 	| { ok: true; customer: StoreCustomer | null }
-	| Extract<StoreCustomerResolutionResult, { ok: false }>
+	| {
+			ok: false;
+			code: Extract<StoreCustomerResolutionResult, { ok: false }>["code"];
+			message: string;
+	  }
 > {
 	const candidates = (await transaction.findMany("customer", {})).filter(
 		(record) =>
@@ -344,6 +348,7 @@ async function resolveLocked(
 		transaction,
 		input.identity.email,
 	);
+	if (!foundCustomer.ok) return foundCustomer;
 
 	let customer = foundCustomer.customer;
 	let createdCustomer = false;

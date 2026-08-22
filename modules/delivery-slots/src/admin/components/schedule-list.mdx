@@ -74,7 +74,7 @@ Manage delivery time windows — set capacity, surcharges, and availability by d
             onChange={(e) => props.onFormChange("dayOfWeek", Number(e.target.value))}
             className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            {props.dayNames.map((day, i) => <option key={key} value={i}>{day}</option>)}
+            {props.dayNames.map((day, i) => <option key={i} value={i}>{day}</option>)}
           </select>
         </div>
         <div>

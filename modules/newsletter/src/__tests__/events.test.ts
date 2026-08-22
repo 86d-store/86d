@@ -230,9 +230,9 @@ describe("no events without emitter", () => {
 			subject: "Test",
 			body: "Body",
 		});
-		await expect(ctrl.sendCampaign(campaign.id)).resolves.toBeUndefined();
+		const sent = await ctrl.sendCampaign(campaign.id);
 
-		// No errors thrown
+		expect(sent.status).toBe("sent");
 	});
 });
 

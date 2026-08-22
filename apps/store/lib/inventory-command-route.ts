@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import {
+	inventoryStockAdjustInputSchema,
 	inventoryStockAdjustOutcomeSchema,
-	inventoryStockAdjustTransportSchema,
 } from "@86d-app/inventory/commands";
 import type { CommandPrincipal } from "@86d-app/runtime/command";
 import type { Session } from "auth";
@@ -43,7 +43,7 @@ export async function handleInventoryStockAdjustCommand(
 	request: NextRequest,
 	session: Session,
 ) {
-	const parsed = inventoryStockAdjustTransportSchema.safeParse(
+	const parsed = inventoryStockAdjustInputSchema.safeParse(
 		await request.json().catch(() => undefined),
 	);
 	if (!parsed.success) {
@@ -83,7 +83,7 @@ export async function handleInventoryStockAdjustCommand(
 	const result = await executor.execute(
 		{
 			command: inventoryStockAdjustCommandReference,
-			idempotencyKey: parsed.data.idempotencyKey,
+			idempotencyKey: parsed.data.correlationId,
 			target: { type: "store", id: env.STORE_ID },
 			input: {
 				productId: parsed.data.productId,
@@ -92,7 +92,7 @@ export async function handleInventoryStockAdjustCommand(
 					? { locationId: parsed.data.locationId }
 					: {}),
 				delta: parsed.data.delta,
-				correlationId: parsed.data.idempotencyKey,
+				correlationId: parsed.data.correlationId,
 			},
 		},
 		{ principal },

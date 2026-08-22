@@ -8,7 +8,7 @@
 
   {props.loading ? (
     <div className="space-y-4">
-      {(["k0", "k1", "k2", "k3"] as const).map((key) => (
+      {(["k0", "k1", "k2", "k3"]).map((key) => (
         <div key={key} className="h-32 animate-pulse rounded-lg bg-muted" />
       ))}
     </div>

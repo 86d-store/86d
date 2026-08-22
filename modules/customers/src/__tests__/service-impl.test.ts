@@ -1301,349 +1301,49 @@ describe("createCustomerController", () => {
 		});
 	});
 
-	// --- Loyalty Points ---
+	// --- Loyalty quarantine (writes moved to Loyalty module) ---
 
-	describe("getLoyaltyBalance", () => {
-		it("returns zero balance when no transactions exist", async () => {
-			const balance = await controller.getLoyaltyBalance("cust-1");
-			expect(balance.customerId).toBe("cust-1");
-			expect(balance.balance).toBe(0);
-			expect(balance.totalEarned).toBe(0);
-			expect(balance.totalRedeemed).toBe(0);
-			expect(balance.transactionCount).toBe(0);
+	describe("loyalty quarantine", () => {
+		it("returns empty loyalty reads", async () => {
+			await expect(
+				controller.getLoyaltyBalance("cust-1"),
+			).resolves.toMatchObject({
+				customerId: "cust-1",
+				balance: 0,
+				transactionCount: 0,
+			});
+			await expect(controller.getLoyaltyHistory("cust-1")).resolves.toEqual({
+				transactions: [],
+				total: 0,
+			});
+			await expect(controller.getLoyaltyStats()).resolves.toMatchObject({
+				totalCustomersWithPoints: 0,
+				totalPointsOutstanding: 0,
+			});
 		});
 
-		it("calculates balance from earn transactions", async () => {
-			await controller.create({
-				id: "cust-loyalty-1",
-				email: "loyalty@example.com",
-				firstName: "Loyal",
-				lastName: "Customer",
-			});
-			await controller.earnPoints({
-				customerId: "cust-loyalty-1",
-				points: 100,
-				reason: "First purchase",
-			});
-			await controller.earnPoints({
-				customerId: "cust-loyalty-1",
-				points: 50,
-				reason: "Second purchase",
-			});
-
-			const balance = await controller.getLoyaltyBalance("cust-loyalty-1");
-			expect(balance.balance).toBe(150);
-			expect(balance.totalEarned).toBe(150);
-			expect(balance.totalRedeemed).toBe(0);
-			expect(balance.transactionCount).toBe(2);
-		});
-
-		it("calculates balance after redemption", async () => {
-			await controller.earnPoints({
-				customerId: "cust-bal",
-				points: 200,
-				reason: "Purchase",
-			});
-			await controller.redeemPoints({
-				customerId: "cust-bal",
-				points: 75,
-				reason: "Discount",
-			});
-
-			const balance = await controller.getLoyaltyBalance("cust-bal");
-			expect(balance.balance).toBe(125);
-			expect(balance.totalEarned).toBe(200);
-			expect(balance.totalRedeemed).toBe(75);
-		});
-	});
-
-	describe("earnPoints", () => {
-		it("creates an earn transaction with correct balance", async () => {
-			const tx = await controller.earnPoints({
-				customerId: "cust-earn",
-				points: 100,
-				reason: "Welcome bonus",
-			});
-			expect(tx.type).toBe("earn");
-			expect(tx.points).toBe(100);
-			expect(tx.balance).toBe(100);
-			expect(tx.reason).toBe("Welcome bonus");
-			expect(tx.id).toBeTruthy();
-			expect(tx.createdAt).toBeInstanceOf(Date);
-		});
-
-		it("accumulates points across multiple earns", async () => {
-			await controller.earnPoints({
-				customerId: "cust-multi",
-				points: 50,
-				reason: "Order 1",
-			});
-			const tx2 = await controller.earnPoints({
-				customerId: "cust-multi",
-				points: 30,
-				reason: "Order 2",
-			});
-			expect(tx2.balance).toBe(80);
-		});
-
-		it("throws when points are non-positive", async () => {
+		it("refuses loyalty writes", async () => {
 			await expect(
 				controller.earnPoints({
-					customerId: "cust-err",
-					points: 0,
-					reason: "Zero",
+					customerId: "cust-1",
+					points: 10,
+					reason: "order",
 				}),
-			).rejects.toThrow("Points to earn must be positive");
-
-			await expect(
-				controller.earnPoints({
-					customerId: "cust-err",
-					points: -10,
-					reason: "Negative",
-				}),
-			).rejects.toThrow("Points to earn must be positive");
-		});
-
-		it("stores orderId when provided", async () => {
-			const tx = await controller.earnPoints({
-				customerId: "cust-order",
-				points: 25,
-				reason: "Purchase",
-				orderId: "order-123",
-			});
-			expect(tx.orderId).toBe("order-123");
-		});
-	});
-
-	describe("redeemPoints", () => {
-		it("creates a redeem transaction with negative points", async () => {
-			await controller.earnPoints({
-				customerId: "cust-redeem",
-				points: 200,
-				reason: "Setup",
-			});
-			const tx = await controller.redeemPoints({
-				customerId: "cust-redeem",
-				points: 50,
-				reason: "Reward checkout",
-			});
-			expect(tx.type).toBe("redeem");
-			expect(tx.points).toBe(-50);
-			expect(tx.balance).toBe(150);
-		});
-
-		it("throws when insufficient balance", async () => {
-			await controller.earnPoints({
-				customerId: "cust-insuf",
-				points: 30,
-				reason: "Setup",
-			});
+			).rejects.toThrow("Loyalty writes belong to the Loyalty module.");
 			await expect(
 				controller.redeemPoints({
-					customerId: "cust-insuf",
-					points: 50,
-					reason: "Too much",
+					customerId: "cust-1",
+					points: 10,
+					reason: "order",
 				}),
-			).rejects.toThrow("Insufficient loyalty points");
-		});
-
-		it("throws when points are non-positive", async () => {
-			await expect(
-				controller.redeemPoints({
-					customerId: "cust-neg",
-					points: 0,
-					reason: "Zero",
-				}),
-			).rejects.toThrow("Points to redeem must be positive");
-		});
-	});
-
-	describe("adjustPoints", () => {
-		it("adjusts balance up with positive points", async () => {
-			const tx = await controller.adjustPoints({
-				customerId: "cust-adj",
-				points: 500,
-				reason: "Admin bonus",
-			});
-			expect(tx.type).toBe("adjust");
-			expect(tx.points).toBe(500);
-			expect(tx.balance).toBe(500);
-		});
-
-		it("adjusts balance down with negative points", async () => {
-			await controller.earnPoints({
-				customerId: "cust-adj-down",
-				points: 100,
-				reason: "Setup",
-			});
-			const tx = await controller.adjustPoints({
-				customerId: "cust-adj-down",
-				points: -40,
-				reason: "Correction",
-			});
-			expect(tx.points).toBe(-40);
-			expect(tx.balance).toBe(60);
-		});
-
-		it("throws when adjustment would result in negative balance", async () => {
-			await controller.earnPoints({
-				customerId: "cust-adj-neg",
-				points: 10,
-				reason: "Setup",
-			});
+			).rejects.toThrow("Loyalty writes belong to the Loyalty module.");
 			await expect(
 				controller.adjustPoints({
-					customerId: "cust-adj-neg",
-					points: -20,
-					reason: "Too much deduction",
+					customerId: "cust-1",
+					points: 10,
+					reason: "manual",
 				}),
-			).rejects.toThrow("Adjustment would result in negative balance");
-		});
-
-		it("throws when points are zero", async () => {
-			await expect(
-				controller.adjustPoints({
-					customerId: "cust-zero",
-					points: 0,
-					reason: "No change",
-				}),
-			).rejects.toThrow("Adjustment points cannot be zero");
-		});
-	});
-
-	describe("getLoyaltyHistory", () => {
-		it("returns all transactions for customer", async () => {
-			await controller.earnPoints({
-				customerId: "cust-hist",
-				points: 10,
-				reason: "First",
-			});
-			await controller.earnPoints({
-				customerId: "cust-hist",
-				points: 20,
-				reason: "Second",
-			});
-			await controller.earnPoints({
-				customerId: "cust-hist",
-				points: 30,
-				reason: "Third",
-			});
-
-			const { transactions, total } =
-				await controller.getLoyaltyHistory("cust-hist");
-			expect(total).toBe(3);
-			expect(transactions).toHaveLength(3);
-			const reasons = transactions.map((t) => t.reason);
-			expect(reasons).toContain("First");
-			expect(reasons).toContain("Second");
-			expect(reasons).toContain("Third");
-		});
-
-		it("supports pagination", async () => {
-			await controller.earnPoints({
-				customerId: "cust-page",
-				points: 10,
-				reason: "A",
-			});
-			await controller.earnPoints({
-				customerId: "cust-page",
-				points: 20,
-				reason: "B",
-			});
-			await controller.earnPoints({
-				customerId: "cust-page",
-				points: 30,
-				reason: "C",
-			});
-
-			const { transactions, total } = await controller.getLoyaltyHistory(
-				"cust-page",
-				{ limit: 2, offset: 0 },
-			);
-			expect(total).toBe(3);
-			expect(transactions).toHaveLength(2);
-		});
-
-		it("returns empty array when no transactions", async () => {
-			const { transactions, total } =
-				await controller.getLoyaltyHistory("cust-empty");
-			expect(transactions).toHaveLength(0);
-			expect(total).toBe(0);
-		});
-	});
-
-	describe("getLoyaltyStats", () => {
-		it("returns zero stats when no transactions", async () => {
-			const stats = await controller.getLoyaltyStats();
-			expect(stats.totalCustomersWithPoints).toBe(0);
-			expect(stats.totalPointsIssued).toBe(0);
-			expect(stats.totalPointsRedeemed).toBe(0);
-			expect(stats.totalPointsOutstanding).toBe(0);
-			expect(stats.averageBalance).toBe(0);
-			expect(stats.topCustomers).toHaveLength(0);
-		});
-
-		it("calculates stats across multiple customers", async () => {
-			await controller.create({
-				id: "cust-s1",
-				email: "s1@example.com",
-				firstName: "One",
-				lastName: "User",
-			});
-			await controller.create({
-				id: "cust-s2",
-				email: "s2@example.com",
-				firstName: "Two",
-				lastName: "User",
-			});
-
-			await controller.earnPoints({
-				customerId: "cust-s1",
-				points: 100,
-				reason: "Purchase",
-			});
-			await controller.earnPoints({
-				customerId: "cust-s2",
-				points: 200,
-				reason: "Purchase",
-			});
-			await controller.redeemPoints({
-				customerId: "cust-s1",
-				points: 30,
-				reason: "Reward",
-			});
-
-			const stats = await controller.getLoyaltyStats();
-			expect(stats.totalCustomersWithPoints).toBe(2);
-			expect(stats.totalPointsIssued).toBe(300);
-			expect(stats.totalPointsRedeemed).toBe(30);
-			expect(stats.totalPointsOutstanding).toBe(270);
-			expect(stats.topCustomers.length).toBeGreaterThanOrEqual(2);
-			// Top customer should be cust-s2 with 200 balance
-			expect(stats.topCustomers[0]?.balance).toBe(200);
-		});
-
-		it("includes customer email and name in top customers", async () => {
-			await controller.create({
-				id: "cust-top",
-				email: "top@example.com",
-				firstName: "Top",
-				lastName: "Customer",
-			});
-			await controller.earnPoints({
-				customerId: "cust-top",
-				points: 500,
-				reason: "Big purchase",
-			});
-
-			const stats = await controller.getLoyaltyStats();
-			const topEntry = stats.topCustomers.find(
-				(tc) => tc.customerId === "cust-top",
-			);
-			expect(topEntry).toBeDefined();
-			expect(topEntry?.email).toBe("top@example.com");
-			expect(topEntry?.name).toBe("Top Customer");
-			expect(topEntry?.balance).toBe(500);
+			).rejects.toThrow("Loyalty writes belong to the Loyalty module.");
 		});
 	});
 

@@ -356,9 +356,9 @@ function DetailPanel({
 					</div>
 				) : (
 					<div className="divide-y divide-border">
-						{cart.items.map((item: CartItemSnapshot, _idx: number) => (
+						{cart.items.map((item: CartItemSnapshot) => (
 							<div
-								key={key}
+								key={`${item.productId}-${item.variantId ?? item.name}`}
 								className="flex items-center justify-between px-5 py-3"
 							>
 								<div>

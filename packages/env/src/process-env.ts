@@ -11,7 +11,7 @@ export type ProcessEnv = NodeJS.ProcessEnv;
 /** Live process environment map (mutable; same object as `process.env`). */
 export function readProcessEnv(): ProcessEnv {
 	if (typeof process === "undefined") {
-		return {};
+		return { NODE_ENV: "development" };
 	}
 	const { env } = process;
 	return env;

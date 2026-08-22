@@ -85,11 +85,12 @@ export function createFacebookShopWebhook(appSecret?: string | undefined) {
 				);
 			}
 
-			const controller = ctx.context?.controllers?.facebookShop;
+			const controller = ctx.context?.controllers?.facebookShop as
+				| FacebookShopController
+				| undefined;
 			if (!controller) {
 				return Response.json({ received: true, handled: false });
 			}
-			const _facebookShop = controller as FacebookShopController;
 
 			const { type, payload } = body;
 

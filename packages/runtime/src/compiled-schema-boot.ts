@@ -1,8 +1,8 @@
+import type { CompileModuleResult } from "@86d-app/core/schema";
 import {
-	type CompileModuleResult,
 	compileModuleDeclarations,
 	emitSql,
-} from "@86d-app/core/schema";
+} from "@86d-app/core/schema/compile";
 import type { Module } from "@86d-app/core/types/module";
 import {
 	applyModuleDdl,

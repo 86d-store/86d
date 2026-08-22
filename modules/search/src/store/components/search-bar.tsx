@@ -70,7 +70,7 @@ export function SearchBar({
 	// Close suggestions on click outside
 	useEffect(() => {
 		const handleClick = (e: MouseEvent) => {
-			if (!containerRef.current.contains(e.target as Node)) {
+			if (!containerRef.current?.contains(e.target as Node)) {
 				setShowSuggestions(false);
 			}
 		};

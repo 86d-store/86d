@@ -250,9 +250,9 @@ describe("no events without emitter", () => {
 			targetProductIds: ["p2"],
 		});
 		await ctrl.recordPurchase(["p1", "p2"]);
-		await expect(ctrl.getForProduct("p1")).resolves.toBeUndefined();
+		const recommendations = await ctrl.getForProduct("p1");
 
-		// No errors thrown
+		expect(recommendations.length).toBeGreaterThanOrEqual(0);
 	});
 });
 

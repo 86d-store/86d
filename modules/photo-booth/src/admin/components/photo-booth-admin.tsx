@@ -188,7 +188,7 @@ export function PhotoBoothAdmin() {
 
 	const sessionsContent = sessionsLoading ? (
 		<div className="divide-y divide-border">
-			{Array.from({ length: 4 }, (_, _i) => (
+			{Array.from({ length: 4 }, (_, i) => `skel-${i}`).map((key) => (
 				<div key={key} className="flex items-center justify-between px-5 py-3">
 					<div className="flex-1 space-y-1.5">
 						<Skeleton className="h-4 w-40 rounded" />
@@ -281,7 +281,7 @@ export function PhotoBoothAdmin() {
 
 	const photosContent = photosLoading ? (
 		<div className="grid grid-cols-2 gap-4 p-5 sm:grid-cols-3 lg:grid-cols-4">
-			{Array.from({ length: 8 }, (_, _i) => (
+			{Array.from({ length: 8 }, (_, i) => `skel-${i}`).map((key) => (
 				<Skeleton key={key} className="aspect-square rounded-lg" />
 			))}
 		</div>

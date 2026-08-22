@@ -1,4 +1,11 @@
-import { body, container, footer, footerText, header } from "./styles";
+import {
+	body,
+	container,
+	footer,
+	footerText,
+	header,
+	storeName as storeNameStyle,
+} from "./styles";
 
 interface BaseEmailProps {
 	children: React.ReactNode;
@@ -34,7 +41,7 @@ export function BaseEmail({ children, preview, storeName }: BaseEmailProps) {
 			<div style={container}>
 				{storeName && (
 					<div style={header}>
-						<p style={storeName}>{storeName}</p>
+						<p style={storeNameStyle}>{storeName}</p>
 					</div>
 				)}
 				<div style={body}>{children}</div>

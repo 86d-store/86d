@@ -43,7 +43,7 @@
 		"README.md"
 	],
 	"scripts": {
-		"build": "86d module build",
+		"build": "tsc",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -59,6 +59,7 @@
 		"86d": "workspace:*",
 		"@biomejs/biome": "catalog:",
 		"@types/react": "catalog:react",
+		"recharts": "2.15.4",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
 	},

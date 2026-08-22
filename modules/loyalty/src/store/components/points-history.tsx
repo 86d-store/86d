@@ -72,7 +72,7 @@ export function PointsHistory({ limit = 10 }: { limit?: number | undefined }) {
 		return (
 			<div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800">
 				<div className="animate-pulse space-y-3">
-					{Array.from({ length: 3 }, (_, _i) => (
+					{Array.from({ length: 3 }, (_, i) => `skel-${i}`).map((key) => (
 						<div key={key} className="flex justify-between">
 							<div className="h-4 w-40 rounded bg-muted dark:bg-muted" />
 							<div className="h-4 w-16 rounded bg-muted dark:bg-muted" />

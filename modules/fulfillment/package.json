@@ -43,7 +43,7 @@
 		"README.md"
 	],
 	"scripts": {
-		"build": "86d module build",
+		"build": "tsc",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -60,6 +60,8 @@
 		"@biomejs/biome": "catalog:",
 		"@types/mdx": "catalog:mdx",
 		"@types/react": "catalog:react",
+		"mobx": "6.15.3",
+		"mobx-react-lite": "4.1.1",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
 	},

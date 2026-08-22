@@ -106,7 +106,7 @@ export function createDigitalDownloadsController(
 				where: { token: tokenValue },
 				take: 1,
 			});
-			return matches[0] as DownloadToken;
+			return (matches[0] as DownloadToken | undefined) ?? null;
 		},
 
 		async redeemToken(tokenValue) {

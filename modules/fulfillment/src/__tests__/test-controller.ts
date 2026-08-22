@@ -7,6 +7,7 @@ import {
 import type { OrderLineQuantityAuthority } from "../authority";
 import {
 	createFulfillmentController,
+	type FulfillmentControllerDeps,
 	type FulfillmentControllerOptions,
 } from "../service-impl";
 
@@ -28,16 +29,40 @@ const orderLineAuthority: OrderLineQuantityAuthority = {
 	},
 };
 
+function isDepsObject(value: unknown): value is FulfillmentControllerDeps {
+	if (!value || typeof value !== "object") return false;
+	if ("emit" in value) return false;
+	return (
+		"events" in value ||
+		"options" in value ||
+		"capabilities" in value ||
+		"transactions" in value
+	);
+}
+
 /** Exercise the controller through its required Order and transaction seams. */
 export function createTestFulfillmentController(
 	data: MockDataService,
-	events?: ScopedEventEmitter | undefined,
+	eventsOrDeps?: ScopedEventEmitter | FulfillmentControllerDeps | undefined,
 	options?: FulfillmentControllerOptions | undefined,
 ) {
-	return createFulfillmentController(data, {
-		events,
-		options,
+	const defaults = {
 		capabilities: orderLineAuthority,
 		transactions: createMockTransactionRunner({ data }),
+	};
+
+	if (isDepsObject(eventsOrDeps)) {
+		return createFulfillmentController(data, {
+			...defaults,
+			...eventsOrDeps,
+			capabilities: eventsOrDeps.capabilities ?? defaults.capabilities,
+			transactions: eventsOrDeps.transactions ?? defaults.transactions,
+		});
+	}
+
+	return createFulfillmentController(data, {
+		...defaults,
+		events: eventsOrDeps,
+		options,
 	});
 }

@@ -312,10 +312,10 @@ export function ShipmentsAdmin() {
 		deleteMutation.mutate({ params: { id } });
 	}
 
-	const skeletonRows = (["k0", "k1", "k2", "k3"] as const).map((_key) => (
-		<tr key={rowKey}>
-			{(["k0", "k1", "k2", "k3", "k4", "k5"] as const).map((_key) => (
-				<td key={cellKey} className="px-4 py-3">
+	const skeletonRows = (["k0", "k1", "k2", "k3"] as const).map((key) => (
+		<tr key={key}>
+			{(["k0", "k1", "k2", "k3", "k4", "k5"] as const).map((key) => (
+				<td key={key} className="px-4 py-3">
 					<div className="h-4 w-20 animate-pulse rounded bg-muted" />
 				</td>
 			))}

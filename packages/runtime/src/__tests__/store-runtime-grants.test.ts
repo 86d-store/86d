@@ -5,11 +5,15 @@ import type {
 	Confirmation,
 	StandingPermission,
 } from "@86d-app/contracts/command";
+import {
+	computeCommandBindingHash,
+	computeCommandInputDigest,
+	computeConfirmationNonceDigest,
+} from "@86d-app/contracts/command";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import {
 	type CommandAuthority,
-	computeCommandInputDigest,
 	createCommandExecutor,
 	createInMemoryCommandPersistence,
 	defineCommand,
@@ -25,11 +29,7 @@ import {
 	createInMemoryCommandGrantAdapter,
 	type InMemoryCommandGrantSeed,
 } from "../grant-memory";
-import {
-	computeCommandBindingHash,
-	computeConfirmationNonceDigest,
-	createConfirmationProof,
-} from "../grants";
+import { createConfirmationProof } from "../grants";
 
 const now = new Date("2026-08-11T20:00:00.000Z");
 const digestKey = "store-runtime-grant-input-digest-key-0001";

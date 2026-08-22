@@ -140,7 +140,7 @@ export function createGoogleShoppingController(
 				where: { localProductId },
 				take: 1,
 			});
-			return matches[0] as unknown as ProductFeedItem;
+			return (matches[0] as unknown as ProductFeedItem | undefined) ?? null;
 		},
 
 		async listFeedItems(params) {
@@ -277,7 +277,7 @@ export function createGoogleShoppingController(
 				orderBy: { createdAt: "desc" },
 				take: 1,
 			});
-			return all[0] as unknown as FeedSubmission;
+			return (all[0] as unknown as FeedSubmission | undefined) ?? null;
 		},
 
 		async listSubmissions(params) {

@@ -472,7 +472,7 @@ export class ModuleRegistry {
 			this.executionGraph = compileExecutionGraph({ modules: this.modules });
 		} catch (error) {
 			if (error instanceof GraphCompileError) {
-				throw new CapabilityContractError(error.message);
+				throw new CapabilityContractError((error as GraphCompileError).message);
 			}
 			throw error;
 		}

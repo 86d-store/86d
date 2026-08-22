@@ -1,7 +1,7 @@
 import {
 	compileModuleDeclarations,
 	emitSql,
-} from "@86d-app/core/schema/compile/index";
+} from "@86d-app/core/schema/compile";
 import { PGlite } from "@electric-sql/pglite";
 import { describe, expect, it } from "vitest";
 import { loadCuratedModules } from "../load-curated-modules";

@@ -1,4 +1,4 @@
-import type { z } from "../../zod";
+import type { ZodObject, ZodRawShape, ZodType } from "../../zod";
 import {
 	type CompiledColumn,
 	type CompiledTable,
@@ -35,7 +35,7 @@ function sqlLiteral(value: unknown): string | undefined {
 }
 
 function zodToSqlType(
-	schema: z.ZodType,
+	schema: ZodType,
 	provenance: {
 		moduleId: string;
 		tableName: string;
@@ -77,7 +77,7 @@ function zodToSqlType(
 	}
 }
 
-function zodChecksToSql(fieldName: string, schema: z.ZodType): string[] {
+function zodChecksToSql(fieldName: string, schema: ZodType): string[] {
 	const checks: string[] = [];
 	const bounds = readFiniteChecks(schema);
 	const base = classifyZodBase(schema);
@@ -144,7 +144,7 @@ function compileColumn(input: {
 	moduleId: string;
 	tableName: string;
 	fieldName: string;
-	fieldSchema: z.ZodType;
+	fieldSchema: ZodType;
 }): CompiledColumn {
 	const provenance = {
 		moduleId: input.moduleId,
@@ -183,7 +183,7 @@ function compileColumn(input: {
 export function compileTableShape(input: {
 	moduleId: string;
 	tableName: string;
-	shape: z.ZodObject<z.ZodRawShape>;
+	shape: ZodObject<ZodRawShape>;
 	excludes?: readonly {
 		using: "gist" | "btree";
 		with: string;
@@ -203,7 +203,7 @@ export function compileTableShape(input: {
 			moduleId: input.moduleId,
 			tableName: input.tableName,
 			fieldName,
-			fieldSchema: fieldSchema as z.ZodType,
+			fieldSchema: fieldSchema as ZodType,
 		});
 		columns.push(column);
 

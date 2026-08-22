@@ -192,7 +192,7 @@ describe("no events without emitter", () => {
 			location: "header",
 		});
 		await ctrl.updateMenu(menu.id, { name: "Updated" });
-		await expect(ctrl.deleteMenu(menu.id)).resolves.toBeUndefined();
+		await expect(ctrl.deleteMenu(menu.id)).resolves.toBe(true);
 
 		// No errors thrown — graceful no-op
 	});

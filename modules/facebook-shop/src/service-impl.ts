@@ -125,7 +125,7 @@ export function createFacebookShopController(
 				where: { localProductId },
 				take: 1,
 			});
-			return matches[0] as unknown as Listing;
+			return (matches[0] as unknown as Listing | undefined) ?? null;
 		},
 
 		async listListings(params) {
@@ -254,7 +254,7 @@ export function createFacebookShopController(
 				orderBy: { createdAt: "desc" },
 				take: 1,
 			});
-			return all[0] as unknown as CatalogSync;
+			return (all[0] as unknown as CatalogSync | undefined) ?? null;
 		},
 
 		async listSyncs(params) {
@@ -517,7 +517,7 @@ export function createFacebookShopController(
 
 					const now = new Date();
 					const listingData: Listing = {
-						id: existing.id(),
+						id: existing.id,
 						localProductId: existing.localProductId,
 						externalProductId: product.id,
 						title: product.name,
@@ -573,16 +573,13 @@ export function createFacebookShopController(
 				const shippingFee = parseMetaMoney(
 					metaOrder.estimated_payment_details?.shipping?.amount,
 				);
-				const _tax = parseMetaMoney(
-					metaOrder.estimated_payment_details?.tax?.amount,
-				);
 				const total = parseMetaMoney(
 					metaOrder.estimated_payment_details?.total_amount?.amount,
 				);
 
 				const now = new Date();
 				const orderData: ChannelOrder = {
-					id: existing.id(),
+					id: existing.id,
 					externalOrderId: metaOrder.id,
 					status: mapMetaOrderStatus(metaOrder.order_status.state),
 					items,

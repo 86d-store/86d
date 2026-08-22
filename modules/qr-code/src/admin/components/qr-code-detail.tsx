@@ -512,15 +512,20 @@ export function QrCodeDetail(props: {
 					<div className="overflow-x-auto">
 						<table className="w-full text-sm">
 							<tbody className="divide-y divide-border">
-								{Array.from({ length: 5 }, (_, _i) => (
-									<tr key={rowKey}>
-										{Array.from({ length: 4 }, (_, _j) => (
-											<td key={cellKey} className="px-5 py-3">
-												<Skeleton className="h-4 rounded" />
-											</td>
-										))}
-									</tr>
-								))}
+								{Array.from({ length: 5 }, (_, i) => `skel-row-${i}`).map(
+									(key) => (
+										<tr key={key}>
+											{Array.from(
+												{ length: 4 },
+												(_, i) => `skel-cell-${i}`,
+											).map((key) => (
+												<td key={key} className="px-5 py-3">
+													<Skeleton className="h-4 rounded" />
+												</td>
+											))}
+										</tr>
+									),
+								)}
 							</tbody>
 						</table>
 					</div>

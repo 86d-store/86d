@@ -158,8 +158,9 @@ describe("no events without emitter", () => {
 			total: 14,
 		});
 		await ctrl.acceptOrder(order.id);
-		await ctrl.markReady(order.id);
-		await expect(ctrl.syncMenu(10)).resolves.toBeUndefined();
+		const ready = await ctrl.markReady(order.id);
+		await ctrl.syncMenu(10);
+		expect(ready.status).toBe("ready");
 	});
 });
 

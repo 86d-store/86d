@@ -51,9 +51,9 @@ export function LocationList({ limit }: { limit?: number }) {
 			<div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
 				<div className="mb-6 h-8 w-48 animate-pulse rounded-lg bg-muted" />
 				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-					{[...Array(6)].map((_, _i) => (
+					{Array.from({ length: 6 }, (_, i) => `skel-${i}`).map((key) => (
 						<div
-							key={_.id}
+							key={key}
 							className="flex flex-col gap-3 rounded-xl border border-border p-5"
 						>
 							<div className="h-40 animate-pulse rounded-lg bg-muted" />

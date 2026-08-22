@@ -131,7 +131,7 @@ export function createTikTokShopController(
 				where: { localProductId },
 				take: 1,
 			});
-			return matches[0] as unknown as Listing;
+			return (matches[0] as unknown as Listing | undefined) ?? null;
 		},
 
 		async listListings(params) {
@@ -274,7 +274,7 @@ export function createTikTokShopController(
 				orderBy: { createdAt: "desc" },
 				take: 1,
 			});
-			return all[0] as unknown as CatalogSync;
+			return (all[0] as unknown as CatalogSync | undefined) ?? null;
 		},
 
 		async listSyncs(params) {
@@ -513,10 +513,9 @@ export function createTikTokShopController(
 					});
 					const existing = existingMatches[0] as unknown as Listing;
 
-					const _sellerSku = product.skus?.[0]?.seller_sku ?? product.id;
 					const now = new Date();
 					const listingData: Listing = {
-						id: existing.id(),
+						id: existing.id,
 						localProductId: existing.localProductId,
 						externalProductId: product.id,
 						title: product.title,
@@ -574,14 +573,11 @@ export function createTikTokShopController(
 
 					const subtotal = parseTikTokMoney(ttOrder.payment?.total_amount);
 					const shippingFee = parseTikTokMoney(ttOrder.payment?.shipping_fee);
-					const _platformDiscount = parseTikTokMoney(
-						ttOrder.payment?.platform_discount,
-					);
 					const total = subtotal + shippingFee;
 
 					const now = new Date();
 					const orderData: ChannelOrder = {
-						id: existing.id(),
+						id: existing.id,
 						externalOrderId: ttOrder.id,
 						status: mapTikTokOrderStatus(ttOrder.status),
 						items,

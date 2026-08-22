@@ -1,5 +1,5 @@
 import type { Module } from "../../types/module";
-import type { z } from "../../zod";
+import type { ZodType } from "../../zod";
 import { resolveModuleStorage, storageTables } from "../declaration";
 import { readColumnMeta } from "./types";
 import {
@@ -43,7 +43,7 @@ function inventoryField(options: {
 	moduleId: string;
 	tableName: string;
 	fieldName: string;
-	fieldSchema: z.ZodType;
+	fieldSchema: ZodType;
 }): void {
 	const { bucket, moduleId, tableName, fieldName, fieldSchema } = options;
 	const provenance = { moduleId, tableName, fieldName };
@@ -149,13 +149,13 @@ export function buildFeatureManifest(
 			}
 			const shape = declaration.shape.shape;
 			for (const [fieldName, fieldSchema] of Object.entries(shape)) {
-				inventoryField(
+				inventoryField({
 					bucket,
-					module.id,
+					moduleId: module.id,
 					tableName,
 					fieldName,
-					fieldSchema as z.ZodType,
-				);
+					fieldSchema: fieldSchema as ZodType,
+				});
 			}
 		}
 	}
@@ -176,7 +176,7 @@ export function buildFeatureManifest(
 
 /** Detect whether a field schema still contains an unsupported construct. */
 export function findUnsupportedConstruct(
-	fieldSchema: z.ZodType,
+	fieldSchema: ZodType,
 ): string | undefined {
 	const wrappers = unwrapFieldWrappers(fieldSchema);
 	let current: unknown = wrappers.inner;
@@ -184,7 +184,7 @@ export function findUnsupportedConstruct(
 
 	while (current && typeof current === "object" && !seen.has(current)) {
 		seen.add(current);
-		const base = classifyZodBase(current as z.ZodType);
+		const base = classifyZodBase(current as ZodType);
 		const supported = new Set([
 			"string",
 			"uuid",

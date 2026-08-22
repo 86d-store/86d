@@ -22,9 +22,9 @@ export function FormList({ title }: { title?: string | undefined }) {
 			<div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
 				<div className="mb-6 h-7 w-32 animate-pulse rounded-lg bg-muted" />
 				<div className="flex flex-col gap-4">
-					{[...Array(3)].map((_, _i) => (
+					{Array.from({ length: 3 }, (_, i) => `skel-${i}`).map((key) => (
 						<div
-							key={_.id}
+							key={key}
 							className="flex flex-col gap-2 rounded-xl border border-border p-5"
 						>
 							<div className="h-5 w-1/3 animate-pulse rounded bg-muted" />

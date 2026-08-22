@@ -197,7 +197,7 @@ export function SearchAnalytics() {
 			<div className="space-y-6">
 				<h1 className="font-bold text-2xl text-foreground">Search</h1>
 				<div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-					{Array.from({ length: 4 }, (_, _i) => (
+					{Array.from({ length: 4 }, (_, i) => `skel-${i}`).map((key) => (
 						<Skeleton key={key} className="h-20 rounded-lg" />
 					))}
 				</div>

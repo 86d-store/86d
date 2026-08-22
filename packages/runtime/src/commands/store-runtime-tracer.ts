@@ -1,6 +1,6 @@
+import { computeCommandBindingHash } from "@86d-app/contracts/command";
 import { z } from "zod";
 import { defineCommand } from "../command";
-import { computeCommandBindingHash } from "../grants";
 
 export interface StoreRuntimeTracerTransaction {
 	get(key: string): string | null;

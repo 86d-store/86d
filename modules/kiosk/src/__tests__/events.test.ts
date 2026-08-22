@@ -150,9 +150,8 @@ describe("no events without emitter", () => {
 			price: 5,
 			quantity: 1,
 		});
-		await expect(
-			ctrl.completeSession(session?.id as string, "cash"),
-		).resolves.toBeUndefined();
+		const completed = await ctrl.completeSession(session?.id as string, "cash");
+		expect(completed?.status).toBe("completed");
 	});
 });
 

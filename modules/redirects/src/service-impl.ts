@@ -19,14 +19,18 @@ function buildFindOptions(opts: {
  * Try to match a path against a regex source pattern.
  * Returns the rewritten target path (with $1, $2 group replacements) or null.
  */
+function execNullable(regex: RegExp, input: string): RegExpExecArray | null {
+	return regex.exec(input);
+}
+
 function tryRegexMatch(
 	sourcePath: string,
 	targetPath: string,
 	requestPath: string,
 ): string | null {
 	try {
-		const regex = new RegExp(`^${sourcePath}$`);
-		const match = regex.exec(requestPath);
+		const match = execNullable(new RegExp(`^${sourcePath}$`), requestPath);
+		if (!match) return null;
 		// Replace $1, $2, etc. with captured groups
 		let result = targetPath;
 		for (let i = 1; i < match.length; i++) {

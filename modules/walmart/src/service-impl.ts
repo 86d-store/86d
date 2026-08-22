@@ -171,7 +171,7 @@ export function createWalmartController(
 				where: { localProductId: productId },
 				take: 1,
 			});
-			return matches[0] as unknown as WalmartItem;
+			return (matches[0] as unknown as WalmartItem | undefined) ?? null;
 		},
 
 		async listItems(params) {
@@ -242,7 +242,7 @@ export function createWalmartController(
 				orderBy: { createdAt: "desc" },
 				take: 1,
 			});
-			return all[0] as unknown as FeedSubmission;
+			return (all[0] as unknown as FeedSubmission | undefined) ?? null;
 		},
 
 		async listFeeds(params) {

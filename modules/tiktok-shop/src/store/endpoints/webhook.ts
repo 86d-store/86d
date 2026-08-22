@@ -90,11 +90,12 @@ export function createTikTokShopWebhook(appSecret?: string | undefined) {
 				);
 			}
 
-			const controller = ctx.context?.controllers?.tiktokShop;
+			const controller = ctx.context?.controllers?.tiktokShop as
+				| TikTokShopController
+				| undefined;
 			if (!controller) {
 				return Response.json({ received: true, handled: false });
 			}
-			const _tiktokShop = controller as TikTokShopController;
 
 			const { type, payload } = body;
 

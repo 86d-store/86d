@@ -35,9 +35,9 @@ interface StripeRefund {
 }
 
 interface StripeError {
-	error: {
-		message: string;
-		type: string;
+	error?: {
+		message?: string;
+		type?: string;
 		code?: string;
 	};
 }
@@ -81,7 +81,9 @@ export class StripePaymentProvider implements PaymentProvider {
 		const json = (await res.json()) as T | StripeError;
 		if (!res.ok) {
 			const err = json as StripeError;
-			throw new Error(`Stripe error: ${err.error.message}`);
+			throw new Error(
+				`Stripe error: ${err.error?.message ?? `HTTP ${res.status}`}`,
+			);
 		}
 		return json as T;
 	}

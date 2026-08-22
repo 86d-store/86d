@@ -1,7 +1,6 @@
 import { createHash } from "node:crypto";
 import {
 	COMMAND_TRANSITIONS,
-	canonicalJson,
 	commandFailureCodeSchema,
 	type JsonValue,
 	NORMALIZED_FAILURE_CATALOG,
@@ -9,6 +8,7 @@ import {
 	WORKFLOW_TRANSITIONS,
 } from "./command";
 import { conformanceArtifact as artifact } from "./generated/conformance-artifact";
+import { canonicalJson } from "./serialize";
 
 export const CONTRACTS_PACKAGE_VERSION = "0.0.42" as const;
 export const CONTRACTS_ARTIFACT_VERSION = artifact.version;

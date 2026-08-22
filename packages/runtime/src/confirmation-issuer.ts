@@ -5,6 +5,7 @@ import {
 	actorReferenceSchema,
 	authoritySnapshotSchema,
 	commandReferenceSchema,
+	computeConfirmationNonceDigest,
 	confirmationSchema,
 	targetReferenceSchema,
 } from "@86d-app/contracts/command";
@@ -13,7 +14,6 @@ import type { CommandPrincipal } from "./command";
 import {
 	type CommandGrantFacts,
 	commandGrantFactsSchema,
-	computeConfirmationNonceDigest,
 	createConfirmationProof,
 	validateCommandGrantFacts,
 } from "./grants";

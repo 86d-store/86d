@@ -139,7 +139,7 @@ export function AmazonInventory() {
 			<div className="space-y-6 p-1">
 				<Skeleton className="h-6 w-48" />
 				<div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-					{Array.from({ length: 5 }, (_, _i) => (
+					{Array.from({ length: 5 }, (_, i) => `skel-${i}`).map((key) => (
 						<Skeleton key={key} className="h-24 rounded-lg" />
 					))}
 				</div>

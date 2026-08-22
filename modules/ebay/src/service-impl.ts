@@ -192,7 +192,7 @@ export function createEbayController(
 				where: { localProductId: productId },
 				take: 1,
 			});
-			return matches[0] as unknown as EbayListing;
+			return (matches[0] as unknown as EbayListing | undefined) ?? null;
 		},
 
 		async listListings(params) {

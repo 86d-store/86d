@@ -48,7 +48,7 @@
 		"README.md"
 	],
 	"scripts": {
-		"build": "86d module build",
+		"build": "tsc",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"test": "vitest run",
@@ -67,6 +67,7 @@
 		"vitest": "catalog:vite"
 	},
 	"peerDependencies": {
+		"next": "catalog:next",
 		"react": "catalog:react"
 	},
 	"peerDependenciesMeta": {

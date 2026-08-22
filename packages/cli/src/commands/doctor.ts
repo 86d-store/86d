@@ -11,6 +11,7 @@ import {
 	parseEnvFile,
 	readJson,
 	type TemplateConfig,
+	writeLine,
 } from "../utils.js";
 
 interface Check {
@@ -355,22 +356,34 @@ export async function doctor(options: DoctorOptions = {}) {
 
 function printResults(checks: Check[]) {
 	for (const check of checks) {
-		const _icon =
+		const icon =
 			check.status === "pass"
 				? c.green("✓")
 				: check.status === "warn"
 					? c.yellow("!")
 					: c.red("✗");
-		const _label = c.dim(`${check.label}:`);
-		const _msg = check.status === "fail" ? c.red(check.message) : check.message;
+		const label = c.dim(`${check.label}:`);
+		const msg = check.status === "fail" ? c.red(check.message) : check.message;
+		writeLine(`  ${icon} ${label} ${msg}`);
 		if (check.fix) {
+			writeLine(`          ${c.dim(`Fix: ${check.fix}`)}`);
 		}
 	}
 
 	const fails = checks.filter((ch) => ch.status === "fail").length;
 	const warns = checks.filter((ch) => ch.status === "warn").length;
+
+	writeLine("");
 	if (fails === 0 && warns === 0) {
+		writeLine(`  ${c.green("No issues found. Your project looks healthy.")}`);
 	} else if (fails === 0) {
+		writeLine(
+			`  ${c.yellow(`${warns} warning${warns === 1 ? "" : "s"}`)} — project is functional but could be improved`,
+		);
 	} else {
+		writeLine(
+			`  ${c.red(`${fails} error${fails === 1 ? "" : "s"}`)}${warns > 0 ? `, ${c.yellow(`${warns} warning${warns === 1 ? "" : "s"}`)}` : ""} — fix errors before running the store`,
+		);
 	}
+	writeLine("");
 }

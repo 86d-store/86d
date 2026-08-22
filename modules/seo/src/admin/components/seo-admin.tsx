@@ -575,7 +575,7 @@ function MetaTagsTab() {
 			{isLoading ? (
 				<div className="overflow-hidden rounded-lg border border-border bg-card">
 					<div className="divide-y divide-border">
-						{Array.from({ length: 5 }, (_, _i) => (
+						{Array.from({ length: 5 }, (_, i) => `skel-${i}`).map((key) => (
 							<div key={key} className="flex gap-4 px-4 py-3">
 								<Skeleton className="h-4 w-1/4" />
 								<Skeleton className="h-4 w-1/3" />
@@ -772,7 +772,7 @@ function RedirectsTab() {
 			{isLoading ? (
 				<div className="overflow-hidden rounded-lg border border-border bg-card">
 					<div className="divide-y divide-border">
-						{Array.from({ length: 5 }, (_, _i) => (
+						{Array.from({ length: 5 }, (_, i) => `skel-${i}`).map((key) => (
 							<div key={key} className="flex gap-4 px-4 py-3">
 								<Skeleton className="h-4 w-1/4" />
 								<Skeleton className="h-4 w-1/3" />

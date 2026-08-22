@@ -1,18 +1,24 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import {
+	c,
 	detectActiveTemplate,
 	findProjectRoot,
 	heading,
 	parseEnvFile,
 	readJson,
 	type TemplateConfig,
+	writeLine,
 } from "../utils.js";
 
 export function status() {
 	const root = findProjectRoot();
 
 	heading("86d project status");
+	writeLine();
+
+	// 1. Project root
+	writeLine(`  ${c.dim("Root:")}      ${root}`);
 
 	// 2. Active template
 	const templatesDir = join(root, "templates");
@@ -23,8 +29,12 @@ export function status() {
 		templateConfig = readJson<TemplateConfig>(
 			join(templatesDir, activeTemplate, "config.json"),
 		);
-		const _themeName = templateConfig?.name ?? activeTemplate;
+		const themeName = templateConfig?.name ?? activeTemplate;
+		writeLine(
+			`  ${c.dim("Template:")}  ${c.bold(activeTemplate)} ${c.dim(`— ${themeName}`)}`,
+		);
 	} else {
+		writeLine(`  ${c.dim("Template:")}  ${c.yellow("unknown")}`);
 	}
 
 	// 3. Modules
@@ -45,6 +55,10 @@ export function status() {
 		enabledModules.map((m: string) => m.replace(/^@86d-app\//, "")),
 	);
 	const disabledModules = allModules.filter((m) => !enabledNames.has(m));
+
+	writeLine(
+		`  ${c.dim("Modules:")}   ${c.green(`${enabledModules.length} enabled`)}${disabledModules.length > 0 ? `, ${c.yellow(`${disabledModules.length} available`)}` : ""}`,
+	);
 
 	// 4. Environment
 	const envPath = join(root, ".env");
@@ -68,22 +82,37 @@ export function status() {
 		const setOptional = optional.filter((k) => k in vars && vars[k] !== "");
 
 		if (missingRequired.length === 0) {
+			writeLine(`  ${c.dim("Env:")}       ${c.green("all required vars set")}`);
 		} else {
+			writeLine(
+				`  ${c.dim("Env:")}       ${c.yellow(`missing: ${missingRequired.join(", ")}`)}`,
+			);
 		}
 
 		if (setOptional.length > 0) {
+			writeLine(`  ${c.dim("Optional:")}  ${setOptional.join(", ")}`);
 		}
 	} else {
+		writeLine(
+			`  ${c.dim("Env:")}       ${c.yellow("no .env file — run 86d init")}`,
+		);
 	}
 
 	// 5. Dependencies
-	const _nodeModules = existsSync(join(root, "node_modules"));
-	const _lockFile =
+	const nodeModules = existsSync(join(root, "node_modules"));
+	const lockFile =
 		existsSync(join(root, "bun.lock")) || existsSync(join(root, "bun.lockb"));
+	writeLine(
+		`  ${c.dim("Deps:")}      ${nodeModules ? c.green("installed") : c.yellow("not installed — run bun install")}${lockFile ? "" : ` ${c.dim("(no lockfile)")}`}`,
+	);
 
 	// 6. Disabled modules list
 	if (disabledModules.length > 0) {
-		for (const _mod of disabledModules) {
+		writeLine(`\n  ${c.dim("Available but not enabled:")}`);
+		for (const mod of disabledModules) {
+			writeLine(`    ${c.dim("·")} ${mod}`);
 		}
 	}
+
+	writeLine();
 }

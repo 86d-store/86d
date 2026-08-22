@@ -1,6 +1,6 @@
 {props.isLoading ? (
   <div className="columns-2 gap-3 sm:columns-3 lg:columns-4">
-    {(["k0", "k1", "k2", "k3", "k4", "k5", "k6", "k7", "k8", "k9", "k10", "k11"] as const).map((key) => (
+    {(["k0", "k1", "k2", "k3", "k4", "k5", "k6", "k7", "k8", "k9", "k10", "k11"]).map((key) => (
       <div
         key={key}
         className={`mb-3 animate-pulse rounded-xl border border-border bg-muted/30 ${i % 3 === 0 ? "h-48" : i % 3 === 1 ? "h-32" : "h-40"}`}

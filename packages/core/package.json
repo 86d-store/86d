@@ -136,6 +136,18 @@
 			"types": "./src/schema/index.ts",
 			"default": "./src/schema/index.ts"
 		},
+		"./schema/compile": {
+			"types": "./src/schema/compile/index.ts",
+			"default": "./src/schema/compile/index.ts"
+		},
+		"./schema/compile/storage-parse": {
+			"types": "./src/schema/compile/storage-parse.ts",
+			"default": "./src/schema/compile/storage-parse.ts"
+		},
+		"./schema/col": {
+			"types": "./src/schema/col.ts",
+			"default": "./src/schema/col.ts"
+		},
 		"./schema/*": "./src/schema/*",
 		"./graph/*": "./src/graph/*",
 		"./curated-modules": {
@@ -145,6 +157,22 @@
 		"./zod": {
 			"types": "./src/zod.ts",
 			"default": "./src/zod.ts"
+		},
+		"./graph/compile": {
+			"types": "./src/graph/compile.ts",
+			"default": "./src/graph/compile.ts"
+		},
+		"./graph/contract-range": {
+			"types": "./src/graph/contract-range.ts",
+			"default": "./src/graph/contract-range.ts"
+		},
+		"./graph/diagnostics": {
+			"types": "./src/graph/diagnostics.ts",
+			"default": "./src/graph/diagnostics.ts"
+		},
+		"./graph/semver": {
+			"types": "./src/graph/semver.ts",
+			"default": "./src/graph/semver.ts"
 		}
 	},
 	"files": [

@@ -4,7 +4,7 @@
   </div>
 ) : props.isLoading ? (
   <div className="space-y-3">
-    {(["k0", "k1"] as const).map((key) => (
+    {(["k0", "k1"]).map((key) => (
       <div
         key={key}
         className="h-16 animate-pulse rounded-xl border border-border bg-muted/30"

@@ -124,7 +124,7 @@ export function createPinterestShopController(
 				where: { localProductId: productId },
 				take: 1,
 			});
-			return matches[0] as unknown as CatalogItem;
+			return (matches[0] as unknown as CatalogItem | undefined) ?? null;
 		},
 
 		async listCatalogItems(params) {
@@ -236,7 +236,7 @@ export function createPinterestShopController(
 				orderBy: { createdAt: "desc" },
 				take: 1,
 			});
-			return all[0] as unknown as CatalogSync;
+			return (all[0] as unknown as CatalogSync | undefined) ?? null;
 		},
 
 		async listSyncs(params) {

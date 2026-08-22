@@ -129,9 +129,8 @@ describe("no events without emitter", () => {
 			fee: 5.0,
 		});
 		await ctrl.updateDeliveryStatus(delivery.id, "picked-up");
-		await expect(
-			ctrl.updateDeliveryStatus(delivery.id, "delivered"),
-		).resolves.toBeUndefined();
+		const delivered = await ctrl.updateDeliveryStatus(delivery.id, "delivered");
+		expect(delivered.status).toBe("delivered");
 	});
 });
 

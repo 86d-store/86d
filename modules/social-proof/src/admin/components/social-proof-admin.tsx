@@ -169,20 +169,22 @@ export function SocialProofAdmin() {
 			<div className="hidden md:block">
 				<table className="w-full text-left text-sm">
 					<tbody className="divide-y divide-border">
-						{Array.from({ length: 5 }, (_, _i) => (
-							<tr key={rowKey}>
-								{Array.from({ length: 4 }, (_, _j) => (
-									<td key={cellKey} className="px-5 py-3">
-										<Skeleton className="h-4 rounded" />
-									</td>
-								))}
+						{Array.from({ length: 5 }, (_, i) => `skel-row-${i}`).map((key) => (
+							<tr key={key}>
+								{Array.from({ length: 4 }, (_, i) => `skel-cell-${i}`).map(
+									(key) => (
+										<td key={key} className="px-5 py-3">
+											<Skeleton className="h-4 rounded" />
+										</td>
+									),
+								)}
 							</tr>
 						))}
 					</tbody>
 				</table>
 			</div>
 			<div className="space-y-3 p-4 md:hidden">
-				{Array.from({ length: 3 }, (_, _i) => (
+				{Array.from({ length: 3 }, (_, i) => `skel-${i}`).map((key) => (
 					<Skeleton key={key} className="h-16 rounded-lg" />
 				))}
 			</div>
@@ -308,7 +310,7 @@ export function SocialProofAdmin() {
 
 	const badgesContent = loading ? (
 		<div className="divide-y divide-border">
-			{Array.from({ length: 4 }, (_, _i) => (
+			{Array.from({ length: 4 }, (_, i) => `skel-${i}`).map((key) => (
 				<div key={key} className="flex items-center gap-3 px-5 py-3">
 					<Skeleton className="h-8 w-8 rounded" />
 					<div className="flex-1 space-y-1.5">

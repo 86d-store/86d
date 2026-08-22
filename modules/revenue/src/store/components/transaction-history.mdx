@@ -27,7 +27,7 @@
 
     {props.isLoading ? (
       <div className="space-y-2">
-        {(["k0", "k1", "k2"] as const).map((key) => (
+        {(["k0", "k1", "k2"]).map((key) => (
           <div key={key} className="h-14 animate-pulse rounded-xl border border-border bg-muted/30" />
         ))}
       </div>

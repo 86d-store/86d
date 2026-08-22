@@ -47,7 +47,7 @@
 		"README.md"
 	],
 	"scripts": {
-		"build": "86d module build",
+		"build": "tsc",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -64,10 +64,12 @@
 		"@biomejs/biome": "catalog:",
 		"@types/mdx": "catalog:mdx",
 		"@types/react": "catalog:react",
+		"next": "catalog:next",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
 	},
 	"peerDependencies": {
+		"next": "catalog:next",
 		"react": "catalog:react"
 	},
 	"peerDependenciesMeta": {

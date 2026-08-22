@@ -14,6 +14,7 @@ import {
 	commandFailureSchema,
 	commandReferenceSchema,
 	commandRequestSchema,
+	computeCommandBindingHash,
 	computeCommandInputDigest,
 	type GrantUse,
 	type TargetReference,
@@ -30,7 +31,6 @@ import {
 	type CommandGrantAdapter,
 	type CommandGrantAdmissionRequest,
 	type CommandGrantFacts,
-	computeCommandBindingHash,
 	validateCommandGrantFacts,
 } from "./grants";
 

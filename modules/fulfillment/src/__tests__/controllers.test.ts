@@ -263,9 +263,8 @@ describe("fulfillment controllers — edge cases", () => {
 	describe("autoShipOnTracking option", () => {
 		it("auto-transitions to shipped when tracking added to pending", async () => {
 			const events = createMockEvents();
-			const autoController = createFulfillmentController(mockData, {
-				events,
-				options: { autoShipOnTracking: true },
+			const autoController = createFulfillmentController(mockData, events, {
+				autoShipOnTracking: true,
 			});
 
 			const f = await autoController.createFulfillment({
@@ -282,8 +281,8 @@ describe("fulfillment controllers — edge cases", () => {
 		});
 
 		it("auto-transitions processing to shipped", async () => {
-			const autoController = createFulfillmentController(mockData, {
-				options: { autoShipOnTracking: true },
+			const autoController = createFulfillmentController(mockData, undefined, {
+				autoShipOnTracking: true,
 			});
 
 			const f = await autoController.createFulfillment({
@@ -300,9 +299,13 @@ describe("fulfillment controllers — edge cases", () => {
 		});
 
 		it("does NOT auto-ship when option is false", async () => {
-			const noAutoController = createFulfillmentController(mockData, {
-				options: { autoShipOnTracking: false },
-			});
+			const noAutoController = createFulfillmentController(
+				mockData,
+				undefined,
+				{
+					autoShipOnTracking: false,
+				},
+			);
 
 			const f = await noAutoController.createFulfillment({
 				orderId: "order_1",
@@ -317,8 +320,8 @@ describe("fulfillment controllers — edge cases", () => {
 		});
 
 		it("does NOT auto-ship already-shipped fulfillment", async () => {
-			const autoController = createFulfillmentController(mockData, {
-				options: { autoShipOnTracking: true },
+			const autoController = createFulfillmentController(mockData, undefined, {
+				autoShipOnTracking: true,
 			});
 
 			const f = await autoController.createFulfillment({
@@ -337,9 +340,8 @@ describe("fulfillment controllers — edge cases", () => {
 
 		it("emits fulfillment.shipped event on auto-ship", async () => {
 			const events = createMockEvents();
-			const autoController = createFulfillmentController(mockData, {
-				events,
-				options: { autoShipOnTracking: true },
+			const autoController = createFulfillmentController(mockData, events, {
+				autoShipOnTracking: true,
 			});
 
 			const f = await autoController.createFulfillment({
@@ -487,7 +489,7 @@ describe("fulfillment controllers — edge cases", () => {
 	describe("event emission", () => {
 		it("emits fulfillment.created on creation", async () => {
 			const events = createMockEvents();
-			const evtController = createFulfillmentController(mockData, { events });
+			const evtController = createFulfillmentController(mockData, events);
 
 			await evtController.createFulfillment({
 				orderId: "order_1",
@@ -500,7 +502,7 @@ describe("fulfillment controllers — edge cases", () => {
 
 		it("emits fulfillment.shipped on status → shipped", async () => {
 			const events = createMockEvents();
-			const evtController = createFulfillmentController(mockData, { events });
+			const evtController = createFulfillmentController(mockData, events);
 
 			const f = await evtController.createFulfillment({
 				orderId: "order_1",
@@ -516,7 +518,7 @@ describe("fulfillment controllers — edge cases", () => {
 
 		it("emits fulfillment.delivered on status → delivered", async () => {
 			const events = createMockEvents();
-			const evtController = createFulfillmentController(mockData, { events });
+			const evtController = createFulfillmentController(mockData, events);
 
 			const f = await evtController.createFulfillment({
 				orderId: "order_1",
@@ -533,7 +535,7 @@ describe("fulfillment controllers — edge cases", () => {
 
 		it("emits fulfillment.cancelled on cancelFulfillment", async () => {
 			const events = createMockEvents();
-			const evtController = createFulfillmentController(mockData, { events });
+			const evtController = createFulfillmentController(mockData, events);
 
 			const f = await evtController.createFulfillment({
 				orderId: "order_1",
@@ -549,7 +551,7 @@ describe("fulfillment controllers — edge cases", () => {
 
 		it("does NOT emit cancelled event for already-cancelled (idempotent)", async () => {
 			const events = createMockEvents();
-			const evtController = createFulfillmentController(mockData, { events });
+			const evtController = createFulfillmentController(mockData, events);
 
 			const f = await evtController.createFulfillment({
 				orderId: "order_1",
@@ -590,7 +592,7 @@ describe("fulfillment controllers — edge cases", () => {
 	describe("full lifecycle", () => {
 		it("create → processing → shipped → delivered with events", async () => {
 			const events = createMockEvents();
-			const evtController = createFulfillmentController(mockData, { events });
+			const evtController = createFulfillmentController(mockData, events);
 
 			const f = await evtController.createFulfillment({
 				orderId: "order_1",

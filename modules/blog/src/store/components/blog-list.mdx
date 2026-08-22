@@ -18,7 +18,7 @@ import Link from "next/link";
   </div>
 ) : props.isLoading ? (
   <div className="space-y-8">
-    {(["k0", "k1", "k2"] as const).map((key) => (
+    {(["k0", "k1", "k2"]).map((key) => (
       <div
         key={key}
         className="animate-pulse space-y-3 rounded-xl border border-border/60 p-6"

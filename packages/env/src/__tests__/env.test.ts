@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { getProcessEnv, setProcessEnv } from "./process-env";
+import { getProcessEnv, setProcessEnv } from "../process-env";
 
 describe("env", () => {
 	it("rejects production without an auth secret", async () => {

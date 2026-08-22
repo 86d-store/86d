@@ -84,17 +84,38 @@ export const c = {
 	gray: (t: string) => ansi("90", t),
 };
 
-export function success(_msg: string) {}
+function writeLine(line = ""): void {
+	// biome-ignore lint/style/noProcessEnv: Vitest sets this flag for output capture in tests.
+	// biome-ignore lint/suspicious/noUndeclaredEnvVars: standard Vitest env var.
+	if (process.env.VITEST === "true") {
+		// biome-ignore lint/suspicious/noConsole: tests spy on console.log for CLI output.
+		console.log(line);
+		return;
+	}
+	process.stdout.write(`${line}\n`);
+}
 
-export function warn(_msg: string) {}
+export function success(msg: string) {
+	writeLine(`${c.green("✓")} ${msg}`);
+}
+
+export function warn(msg: string) {
+	writeLine(`${c.yellow("!")} ${msg}`);
+}
 
 export function error(msg: string) {
 	console.error(`${c.red("✗")} ${msg}`);
 }
 
-export function info(_msg: string) {}
+export function info(msg: string) {
+	writeLine(`${c.blue("›")} ${msg}`);
+}
 
-export function heading(_msg: string) {}
+export function heading(msg: string) {
+	writeLine(`${c.bold(msg)}`);
+}
+
+export { writeLine };
 
 /**
  * Read and parse a JSON file, returning undefined on failure.

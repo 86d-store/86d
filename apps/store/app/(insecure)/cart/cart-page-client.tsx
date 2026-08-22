@@ -62,17 +62,19 @@ function CartSkeleton() {
 			<Skeleton className="mb-8 h-8 w-32" />
 			<div className="flex flex-col gap-8 lg:flex-row">
 				<div className="flex-1 space-y-0 divide-y divide-border/40">
-					{Array.from({ length: 3 }, (_, _i) => (
-						<div key={key} className="flex gap-4 py-6">
-							<Skeleton className="h-24 w-24 flex-shrink-0 rounded-lg" />
-							<div className="flex flex-1 flex-col gap-2">
-								<Skeleton className="h-5 w-48" />
-								<Skeleton className="h-4 w-24" />
-								<Skeleton className="mt-auto h-8 w-28" />
+					{(["cart-sk-0", "cart-sk-1", "cart-sk-2"] as const).map(
+						(skeletonKey) => (
+							<div key={skeletonKey} className="flex gap-4 py-6">
+								<Skeleton className="h-24 w-24 flex-shrink-0 rounded-lg" />
+								<div className="flex flex-1 flex-col gap-2">
+									<Skeleton className="h-5 w-48" />
+									<Skeleton className="h-4 w-24" />
+									<Skeleton className="mt-auto h-8 w-28" />
+								</div>
+								<Skeleton className="h-5 w-16" />
 							</div>
-							<Skeleton className="h-5 w-16" />
-						</div>
-					))}
+						),
+					)}
 				</div>
 				<div className="lg:w-80">
 					<Skeleton className="h-48 rounded-xl" />
