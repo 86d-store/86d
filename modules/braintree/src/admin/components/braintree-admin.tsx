@@ -109,9 +109,9 @@ export function BraintreeAdmin() {
 			<BraintreeAdminTemplate
 				content={
 					<div className="space-y-4">
-						{Array.from({ length: 2 }).map((_, i) => (
+						{(["k0", "k1"] as const).map((key) => (
 							<div
-								key={`skeleton-${i}`}
+								key={key}
 								className="h-40 animate-pulse rounded-lg border border-border bg-muted/30"
 							/>
 						))}

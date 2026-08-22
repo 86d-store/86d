@@ -84,13 +84,20 @@ function createTestContext() {
 }
 
 /** Seed a payment intent with a specific providerIntentId. */
-async function seedIntent(
-	data: ReturnType<typeof createMockDataService>,
-	payments: ReturnType<typeof createPaymentController>,
-	providerIntentId: string,
-	amount = 2000,
-	status = "pending",
-) {
+async function seedIntent(options: {
+	data: ReturnType<typeof createMockDataService>;
+	payments: ReturnType<typeof createPaymentController>;
+	providerIntentId: string;
+	amount?: number;
+	status?: string;
+}) {
+	const {
+		data,
+		payments,
+		providerIntentId,
+		amount = 2000,
+		status = "pending",
+	} = options;
 	const intent = await payments.createIntent({ amount });
 	await data.upsert("paymentIntent", intent.id, {
 		...intent,
@@ -216,7 +223,11 @@ describe("createBraintreeWebhook — malformed payload", () => {
 describe("createBraintreeWebhook — event handling", () => {
 	it("handles transaction_settled and emits payment.completed", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(data, payments, "BT_TX_123");
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "BT_TX_123",
+		});
 
 		const extra = "<id>BT_TX_123</id><amount>20.00</amount>";
 		const body = await buildBody(
@@ -242,7 +253,11 @@ describe("createBraintreeWebhook — event handling", () => {
 
 	it("handles transaction_settlement_declined and emits payment.failed", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(data, payments, "BT_FAIL_TX");
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "BT_FAIL_TX",
+		});
 
 		const extra = "<id>BT_FAIL_TX</id>";
 		const body = await buildBody(
@@ -266,13 +281,13 @@ describe("createBraintreeWebhook — event handling", () => {
 
 	it("handles refund notification (credit transaction) and emits payment.refunded", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(
-			data,
-			payments,
-			"BT_REFUND_TX",
-			3000,
-			"succeeded",
-		);
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "BT_REFUND_TX",
+			amount: 3000,
+			status: "succeeded",
+		});
 
 		const extra =
 			"<id>BT_REFUND_TX</id><amount>30.00</amount><type>credit</type>";

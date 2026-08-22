@@ -154,10 +154,11 @@ describe("store endpoint: get active bundle by slug", () => {
 		const result = await simulateGetBySlug(data, "holiday-bundle");
 
 		expect("bundle" in result).toBe(true);
-		if ("bundle" in result) {
-			expect(result.bundle.name).toBe("Holiday Bundle");
-			expect(result.bundle.items).toHaveLength(1);
+		if (!("bundle" in result)) {
+			throw new Error("expected 'bundle' in result");
 		}
+		expect(result.bundle.name).toBe("Holiday Bundle");
+		expect(result.bundle.items).toHaveLength(1);
 	});
 
 	it("returns 404 for draft bundle", async () => {

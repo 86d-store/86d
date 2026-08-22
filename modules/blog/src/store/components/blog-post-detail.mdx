@@ -27,7 +27,7 @@ import Link from "next/link";
 
   <div className="prose prose-neutral dark:prose-invert max-w-none">
     {props.post.content.split("\n\n").map((paragraph, i) => (
-      <p key={`p-${props.post.id}-${i}`}>{paragraph}</p>
+      <p key={paragraph.id}>{paragraph}</p>
     ))}
   </div>
 

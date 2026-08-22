@@ -237,8 +237,8 @@ export function createBraintreeWebhook(opts: BraintreeWebhookOptions) {
 			requireRequest: true,
 		},
 		async (ctx) => {
-			const publicKey = opts.publicKey?.trim();
-			const privateKey = opts.privateKey?.trim();
+			const publicKey = opts.publicKey.trim();
+			const privateKey = opts.privateKey.trim();
 			if (!publicKey || !privateKey) {
 				return Response.json(
 					{ error: "Braintree webhook verification is not configured." },
@@ -361,8 +361,8 @@ export function createContainedBraintreeWebhook(opts: BraintreeWebhookOptions) {
 			requireRequest: true,
 		},
 		async (ctx) => {
-			const publicKey = opts.publicKey?.trim();
-			const privateKey = opts.privateKey?.trim();
+			const publicKey = opts.publicKey.trim();
+			const privateKey = opts.privateKey.trim();
 			if (!publicKey || !privateKey) {
 				return Response.json(
 					{ error: "Braintree webhook verification is not configured." },

@@ -102,13 +102,20 @@ function createTestContext() {
 	};
 }
 
-async function seedIntent(
-	data: ReturnType<typeof createMockDataService>,
-	payments: ReturnType<typeof createPaymentController>,
-	providerIntentId: string,
-	amount = 2000,
-	status = "pending",
-) {
+async function seedIntent(options: {
+	data: ReturnType<typeof createMockDataService>;
+	payments: ReturnType<typeof createPaymentController>;
+	providerIntentId: string;
+	amount?: number;
+	status?: string;
+}) {
+	const {
+		data,
+		payments,
+		providerIntentId,
+		amount = 2000,
+		status = "pending",
+	} = options;
 	const intent = await payments.createIntent({ amount });
 	await data.upsert("paymentIntent", intent.id, {
 		...intent,
@@ -209,7 +216,13 @@ describe("braintree endpoint security", () => {
 
 		it("does not handle dispute events as payment status changes", async () => {
 			const { data, payments, context } = createTestContext();
-			await seedIntent(data, payments, "BT_DISPUTE_TX", 5000, "succeeded");
+			await seedIntent({
+				data: data,
+				payments: payments,
+				providerIntentId: "BT_DISPUTE_TX",
+				amount: 5000,
+				status: "succeeded",
+			});
 			const extra = "<id>BT_DISPUTE_TX</id>";
 			const body = await buildBody(
 				"dispute_opened",
@@ -241,7 +254,13 @@ describe("braintree endpoint security", () => {
 
 		it("only maps transaction_settled to succeeded, not other settlement-like kinds", async () => {
 			const { data, payments, context } = createTestContext();
-			await seedIntent(data, payments, "BT_SETTLE_CONFIRM", 3000, "processing");
+			await seedIntent({
+				data: data,
+				payments: payments,
+				providerIntentId: "BT_SETTLE_CONFIRM",
+				amount: 3000,
+				status: "processing",
+			});
 			// settlement_confirmed is NOT in BRAINTREE_EVENT_MAP
 			const extra = "<id>BT_SETTLE_CONFIRM</id>";
 			const body = await buildBody(
@@ -263,13 +282,13 @@ describe("braintree endpoint security", () => {
 	describe("amount integrity", () => {
 		it("propagates the correct amount from webhook XML to refund handler", async () => {
 			const { data, payments, context } = createTestContext();
-			const intent = await seedIntent(
-				data,
-				payments,
-				"BT_AMT_TX",
-				5000,
-				"succeeded",
-			);
+			const intent = await seedIntent({
+				data: data,
+				payments: payments,
+				providerIntentId: "BT_AMT_TX",
+				amount: 5000,
+				status: "succeeded",
+			});
 			const extra = [
 				"<id>BT_AMT_TX</id>",
 				"<amount>25.50</amount>",
@@ -298,7 +317,13 @@ describe("braintree endpoint security", () => {
 
 		it("rejects a refund webhook with a missing amount", async () => {
 			const { data, payments, context } = createTestContext();
-			await seedIntent(data, payments, "BT_NO_AMT", 4000, "succeeded");
+			await seedIntent({
+				data: data,
+				payments: payments,
+				providerIntentId: "BT_NO_AMT",
+				amount: 4000,
+				status: "succeeded",
+			});
 			// Refund notification with no <amount> tag
 			const extra = ["<id>BT_NO_AMT</id>", "<type>credit</type>"].join("");
 			const body = await buildBody(
@@ -316,13 +341,13 @@ describe("braintree endpoint security", () => {
 
 		it("transaction_settlement_declined does not modify amount on the intent", async () => {
 			const { data, payments, context } = createTestContext();
-			const intent = await seedIntent(
-				data,
-				payments,
-				"BT_DECLINE_AMT",
-				7500,
-				"processing",
-			);
+			const intent = await seedIntent({
+				data: data,
+				payments: payments,
+				providerIntentId: "BT_DECLINE_AMT",
+				amount: 7500,
+				status: "processing",
+			});
 			const extra = "<id>BT_DECLINE_AMT</id><amount>75.00</amount>";
 			const body = await buildBody(
 				"transaction_settlement_declined",
@@ -343,13 +368,13 @@ describe("braintree endpoint security", () => {
 	describe("settlement status enforcement", () => {
 		it("transaction_settled maps to succeeded status", async () => {
 			const { data, payments, context } = createTestContext();
-			const intent = await seedIntent(
-				data,
-				payments,
-				"BT_SETTLED",
-				3000,
-				"processing",
-			);
+			const intent = await seedIntent({
+				data: data,
+				payments: payments,
+				providerIntentId: "BT_SETTLED",
+				amount: 3000,
+				status: "processing",
+			});
 			const extra = "<id>BT_SETTLED</id>";
 			const body = await buildBody(
 				"transaction_settled",
@@ -364,13 +389,13 @@ describe("braintree endpoint security", () => {
 
 		it("transaction_settlement_declined maps to failed status", async () => {
 			const { data, payments, context } = createTestContext();
-			const intent = await seedIntent(
-				data,
-				payments,
-				"BT_DECLINE",
-				2000,
-				"processing",
-			);
+			const intent = await seedIntent({
+				data: data,
+				payments: payments,
+				providerIntentId: "BT_DECLINE",
+				amount: 2000,
+				status: "processing",
+			});
 			const extra = "<id>BT_DECLINE</id>";
 			const body = await buildBody(
 				"transaction_settlement_declined",
@@ -385,13 +410,13 @@ describe("braintree endpoint security", () => {
 
 		it("transaction_disbursed maps to succeeded (not a different terminal state)", async () => {
 			const { data, payments, context } = createTestContext();
-			const intent = await seedIntent(
-				data,
-				payments,
-				"BT_DISBURSED",
-				1500,
-				"processing",
-			);
+			const intent = await seedIntent({
+				data: data,
+				payments: payments,
+				providerIntentId: "BT_DISBURSED",
+				amount: 1500,
+				status: "processing",
+			});
 			const extra = "<id>BT_DISBURSED</id>";
 			const body = await buildBody(
 				"transaction_disbursed",
@@ -410,7 +435,13 @@ describe("braintree endpoint security", () => {
 	describe("refund vs payment disambiguation", () => {
 		it("transaction_settled with credit type is treated as refund, not payment success", async () => {
 			const { data, payments, context } = createTestContext();
-			await seedIntent(data, payments, "BT_CREDIT", 6000, "succeeded");
+			await seedIntent({
+				data: data,
+				payments: payments,
+				providerIntentId: "BT_CREDIT",
+				amount: 6000,
+				status: "succeeded",
+			});
 			const extra = [
 				"<id>BT_CREDIT</id>",
 				"<amount>60.00</amount>",
@@ -432,7 +463,13 @@ describe("braintree endpoint security", () => {
 
 		it("transaction_settled with refunded-transaction-id is treated as refund", async () => {
 			const { data, payments, context } = createTestContext();
-			await seedIntent(data, payments, "BT_REFID", 4500, "succeeded");
+			await seedIntent({
+				data: data,
+				payments: payments,
+				providerIntentId: "BT_REFID",
+				amount: 4500,
+				status: "succeeded",
+			});
 			const extra = [
 				"<id>BT_REFID</id>",
 				"<amount>45.00</amount>",
@@ -453,7 +490,13 @@ describe("braintree endpoint security", () => {
 
 		it("transaction_settled without credit type or refund marker is a normal payment", async () => {
 			const { data, payments, context } = createTestContext();
-			await seedIntent(data, payments, "BT_NORMAL_PAY", 8000, "processing");
+			await seedIntent({
+				data: data,
+				payments: payments,
+				providerIntentId: "BT_NORMAL_PAY",
+				amount: 8000,
+				status: "processing",
+			});
 			const extra = ["<id>BT_NORMAL_PAY</id>", "<amount>80.00</amount>"].join(
 				"",
 			);
@@ -556,7 +599,13 @@ describe("braintree endpoint security", () => {
 		it("does not emit events when events object is missing from context", async () => {
 			const data = createMockDataService();
 			const payments = createPaymentController(data);
-			await seedIntent(data, payments, "BT_NO_EVT", 3000, "processing");
+			await seedIntent({
+				data: data,
+				payments: payments,
+				providerIntentId: "BT_NO_EVT",
+				amount: 3000,
+				status: "processing",
+			});
 			const context = {
 				controllers: { payments },
 				// events intentionally omitted

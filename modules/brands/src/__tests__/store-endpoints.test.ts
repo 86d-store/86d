@@ -172,9 +172,10 @@ describe("store endpoint: get brand — slug lookup", () => {
 		const result = await simulateGetBrand(data, "nike");
 
 		expect("brand" in result).toBe(true);
-		if ("brand" in result) {
-			expect(result.brand.name).toBe("Nike");
+		if (!("brand" in result)) {
+			throw new Error("expected 'brand' in result");
 		}
+		expect(result.brand.name).toBe("Nike");
 	});
 
 	it("returns 404 for inactive brand", async () => {
@@ -216,10 +217,12 @@ describe("store endpoint: get brand products — active brand check", () => {
 		const result = await simulateGetBrandProducts(data, "nike");
 
 		expect("products" in result).toBe(true);
-		if ("products" in result && "brand" in result) {
-			expect(result.products).toHaveLength(2);
-			expect(result.brand.name).toBe("Nike");
+		expect("products" in result && "brand" in result).toBeTruthy();
+		if (!("products" in result && "brand" in result)) {
+			throw new Error("expected 'products' in result && 'brand' in result");
 		}
+		expect(result.products).toHaveLength(2);
+		expect(result.brand.name).toBe("Nike");
 	});
 
 	it("returns 404 for inactive brand", async () => {
@@ -243,9 +246,10 @@ describe("store endpoint: get brand products — active brand check", () => {
 		const result = await simulateGetBrandProducts(data, "empty");
 
 		expect("products" in result).toBe(true);
-		if ("products" in result) {
-			expect(result.products).toHaveLength(0);
+		if (!("products" in result)) {
+			throw new Error("expected 'products' in result");
 		}
+		expect(result.products).toHaveLength(0);
 	});
 
 	it("paginates products", async () => {
@@ -263,9 +267,10 @@ describe("store endpoint: get brand products — active brand check", () => {
 			skip: 0,
 		});
 		expect("products" in page1).toBe(true);
-		if ("products" in page1) {
-			expect(page1.products).toHaveLength(2);
+		if (!("products" in page1)) {
+			throw new Error("expected 'products' in page1");
 		}
+		expect(page1.products).toHaveLength(2);
 	});
 });
 

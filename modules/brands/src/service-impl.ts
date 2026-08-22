@@ -62,7 +62,7 @@ export function createBrandController(
 
 		async getBrand(id) {
 			const raw = await data.get("brand", id);
-			return (raw as unknown as Brand) ?? null;
+			return raw as unknown as Brand;
 		},
 
 		async getBrandBySlug(slug) {

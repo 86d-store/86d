@@ -1,6 +1,7 @@
 "use client";
 
 import { useModuleClient } from "@86d-app/core/client/provider";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 /** Return an http(s) URL for img.src, or undefined. Rebuilds via URL.href so the sink is not the raw input. */
@@ -91,7 +92,7 @@ function BrandForm({
 			void api.stats.invalidate();
 			onSaved();
 		},
-		onError: (err: Error) => setError(err.message ?? "Failed to create"),
+		onError: (err: Error) => setError(err.message),
 	});
 
 	const updateMutation = api.update.useMutation({
@@ -100,7 +101,7 @@ function BrandForm({
 			void api.stats.invalidate();
 			onSaved();
 		},
-		onError: (err: Error) => setError(err.message ?? "Failed to update"),
+		onError: (err: Error) => setError(err.message),
 	});
 
 	const isPending = createMutation.isPending || updateMutation.isPending;
@@ -245,9 +246,12 @@ function BrandForm({
 						className={inputCls}
 					/>
 					{logoSrc && (
-						<img
+						<Image
 							src={logoSrc}
 							alt="Logo preview"
+							width={400}
+							height={400}
+							unoptimized
 							className="mt-2 h-10 w-auto rounded object-contain"
 						/>
 					)}
@@ -559,10 +563,10 @@ export function BrandAdmin() {
 
 	// ── Table body
 	const tableBody = listLoading ? (
-		Array.from({ length: 5 }, (_, i) => (
-			<tr key={`skeleton-${i}`}>
-				{Array.from({ length: 5 }, (_, j) => (
-					<td key={`cell-${j}`} className="px-4 py-3">
+		Array.from({ length: 5 }, (_, _i) => (
+			<tr key={rowKey}>
+				{Array.from({ length: 5 }, (_, _j) => (
+					<td key={cellKey} className="px-4 py-3">
 						<div className="h-4 w-24 animate-pulse rounded bg-muted" />
 					</td>
 				))}
@@ -583,9 +587,12 @@ export function BrandAdmin() {
 				<td className="px-4 py-3">
 					<div className="flex items-center gap-3">
 						{brand.logo ? (
-							<img
+							<Image
 								src={brand.logo}
 								alt={brand.name}
+								width={32}
+								height={32}
+								unoptimized
 								className="size-8 rounded object-contain"
 							/>
 						) : (
