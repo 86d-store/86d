@@ -146,11 +146,11 @@ export class XApiProvider {
 				let message = `HTTP ${res.status}`;
 				try {
 					const body = (await res.json()) as XApiErrorResponse;
-					if (body?.detail) {
+					if (body.detail) {
 						message = body.detail;
-					} else if (body?.errors?.[0]?.message) {
+					} else if (body.errors?.[0]?.message) {
 						message = body.errors[0].message;
-					} else if (body?.title) {
+					} else if (body.title) {
 						message = body.title;
 					}
 				} catch {

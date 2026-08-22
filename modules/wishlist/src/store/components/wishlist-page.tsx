@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useWishlistApi } from "./_hooks";
 import { extractError, formatDate } from "./_utils";
@@ -77,9 +78,9 @@ export function WishlistPage() {
 	if (loading) {
 		return (
 			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{Array.from({ length: 3 }).map((_, i) => (
+				{(["k0", "k1", "k2"] as const).map((key) => (
 					<div
-						key={`skel-${i}`}
+						key={key}
 						className="overflow-hidden rounded-lg border border-border"
 					>
 						<div className="h-48 w-full animate-pulse bg-muted" />
@@ -137,9 +138,12 @@ export function WishlistPage() {
 				>
 					{item.productImage ? (
 						<div className="aspect-square overflow-hidden bg-muted">
-							<img
+							<Image
 								src={item.productImage}
 								alt={item.productName}
+								width={400}
+								height={400}
+								unoptimized
 								className="h-full w-full object-cover transition-transform group-hover:scale-105"
 							/>
 						</div>

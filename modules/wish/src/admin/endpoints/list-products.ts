@@ -1,5 +1,5 @@
 import { createAdminEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { WishController, WishProductStatus } from "../../service";
 
 export const listProductsEndpoint = createAdminEndpoint(

@@ -164,7 +164,7 @@ export function createWishController(
 				where: { localProductId: productId },
 				take: 1,
 			});
-			return (matches[0] as unknown as WishProduct) ?? null;
+			return matches[0] as unknown as WishProduct;
 		},
 
 		async listProducts(params) {

@@ -28,13 +28,12 @@ async function simulateWebhook(
 	if (body.type === "order.created" && body.payload.wishOrderId) {
 		const order = await controller.receiveOrder({
 			wishOrderId: body.payload.wishOrderId as string,
-			items: (body.payload.items as unknown[]) ?? [],
-			orderTotal: (body.payload.orderTotal as number) ?? 0,
-			shippingTotal: (body.payload.shippingTotal as number) ?? 0,
-			wishFee: (body.payload.wishFee as number) ?? 0,
+			items: body.payload.items as unknown[],
+			orderTotal: body.payload.orderTotal as number,
+			shippingTotal: body.payload.shippingTotal as number,
+			wishFee: body.payload.wishFee as number,
 			customerName: body.payload.customerName as string | undefined,
-			shippingAddress:
-				(body.payload.shippingAddress as Record<string, unknown>) ?? {},
+			shippingAddress: body.payload.shippingAddress as Record<string, unknown>,
 		});
 		return { received: true, orderId: order.id };
 	}
@@ -83,13 +82,15 @@ describe("store endpoint: webhooks", () => {
 
 			expect(result.received).toBe(true);
 
-			if ("orderId" in result) {
-				const controller = createWishController(data);
-				const order = await controller.getOrder(result.orderId);
-				expect(order).not.toBeNull();
-				expect(order?.wishOrderId).toBe("wish-persist-001");
-				expect(order?.status).toBe("pending");
+			expect("orderId" in result).toBeTruthy();
+			if (!("orderId" in result)) {
+				throw new Error("expected 'orderId' in result");
 			}
+			const controller = createWishController(data);
+			const order = await controller.getOrder(result.orderId);
+			expect(order).not.toBeNull();
+			expect(order?.wishOrderId).toBe("wish-persist-001");
+			expect(order?.status).toBe("pending");
 		});
 
 		it("stores customer name when provided", async () => {
@@ -105,11 +106,13 @@ describe("store endpoint: webhooks", () => {
 				},
 			});
 
-			if ("orderId" in result) {
-				const controller = createWishController(data);
-				const order = await controller.getOrder(result.orderId);
-				expect(order?.customerName).toBe("Carlos Rivera");
+			expect("orderId" in result).toBeTruthy();
+			if (!("orderId" in result)) {
+				throw new Error("expected 'orderId' in result");
 			}
+			const controller = createWishController(data);
+			const order = await controller.getOrder(result.orderId);
+			expect(order?.customerName).toBe("Carlos Rivera");
 		});
 
 		it("stores line items when provided", async () => {
@@ -129,11 +132,13 @@ describe("store endpoint: webhooks", () => {
 				},
 			});
 
-			if ("orderId" in result) {
-				const controller = createWishController(data);
-				const order = await controller.getOrder(result.orderId);
-				expect(order?.items).toHaveLength(2);
+			expect("orderId" in result).toBeTruthy();
+			if (!("orderId" in result)) {
+				throw new Error("expected 'orderId' in result");
 			}
+			const controller = createWishController(data);
+			const order = await controller.getOrder(result.orderId);
+			expect(order?.items).toHaveLength(2);
 		});
 
 		it("returns received without orderId when wishOrderId is absent", async () => {
@@ -208,9 +213,13 @@ describe("store endpoint: webhooks", () => {
 			expect(result1.received).toBe(true);
 			expect(result2.received).toBe(true);
 
-			if ("orderId" in result1 && "orderId" in result2) {
-				expect(result1.orderId).not.toBe(result2.orderId);
+			expect("orderId" in result1 && "orderId" in result2).toBeTruthy();
+			if (!("orderId" in result1 && "orderId" in result2)) {
+				throw new Error(
+					"expected 'orderId' in result1 && 'orderId' in result2",
+				);
 			}
+			expect(result1.orderId).not.toBe(result2.orderId);
 		});
 	});
 });

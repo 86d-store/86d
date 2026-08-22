@@ -20,14 +20,15 @@ export function WishlistButton({
 	const api = useWishlistApi();
 	const [error, setError] = useState("");
 
-	const { data: checkData, isLoading: checking } = customerId
-		? (api.checkWishlist.useQuery({
-				params: { productId },
-			}) as {
-				data: { inWishlist: boolean; itemId: string | null } | undefined;
-				isLoading: boolean;
-			})
-		: { data: undefined, isLoading: false };
+	const { data: checkData, isLoading: checking } = api.checkWishlist.useQuery(
+		{
+			params: { productId },
+		},
+		{ enabled: Boolean(customerId) },
+	) as {
+		data: { inWishlist: boolean; itemId: string | null } | undefined;
+		isLoading: boolean;
+	};
 
 	const inWishlist = checkData?.inWishlist ?? false;
 	const wishlistItemId = checkData?.itemId ?? null;
