@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/invoices",
-	"version": "0.0.41",
-	"description": "Invoices \u2014 invoice lifecycle management with payment terms, partial payments, credit notes, and configurable numbering",
+	"version": "0.0.42",
+	"description": "Invoices — invoice lifecycle management with payment terms, partial payments, credit notes, and configurable numbering",
 	"keywords": [
 		"commerce",
 		"invoices",

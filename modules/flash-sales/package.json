@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/flash-sales",
-	"version": "0.0.41",
-	"description": "Flash sales \u2014 time-limited promotional events with countdown timers, per-product sale pricing, and stock limits",
+	"version": "0.0.42",
+	"description": "Flash sales — time-limited promotional events with countdown timers, per-product sale pricing, and stock limits",
 	"keywords": [
 		"commerce",
 		"flash-sales",

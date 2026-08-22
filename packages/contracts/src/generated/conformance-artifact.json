@@ -1,6 +1,6 @@
 {
-	"version": "0.0.41",
-	"digest": "21661f195517f81e9ec5d22e54b6c93d50e70bcac58b511d35d2185dbb4a818a",
+	"version": "0.0.42",
+	"digest": "18eb4a627f37947566b9bc622c9f92a9f9ee9b1f3e614645780799460c90db11",
 	"compatibilityMatrix": {
 		"semverPolicy": {
 			"major": "May break schemas or meaning.",
@@ -9,23 +9,23 @@
 		},
 		"acceptedPairs": [
 			{
-				"consumer": "0.0.41",
-				"artifact": "0.0.41"
+				"consumer": "0.0.42",
+				"artifact": "0.0.42"
 			},
 			{
-				"consumer": "0.0.41",
+				"consumer": "0.0.42",
 				"artifact": "0.0.0"
 			}
 		],
 		"rejectedPairs": [
 			{
-				"consumer": "0.0.41",
+				"consumer": "0.0.42",
 				"artifact": "1.0.0",
 				"reason": "major_break"
 			},
 			{
 				"consumer": "0.1.0",
-				"artifact": "0.0.41",
+				"artifact": "0.0.42",
 				"reason": "unlisted_pair"
 			}
 		]
@@ -137,7 +137,7 @@
 	},
 	"previousMinorFixtureSuite": {
 		"artifactVersion": "0.0.0",
-		"note": "Bootstrap previous-minor suite; identical to 0.0.41 envelope and transitions.",
+		"note": "Bootstrap previous-minor suite; identical to 0.0.42 envelope and transitions.",
 		"validRequest": {
 			"command": {
 				"name": "control_plane.tracer.write",

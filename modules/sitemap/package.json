@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/sitemap",
-	"version": "0.0.41",
-	"description": "XML sitemap generation \u2014 auto-generate sitemaps from products, collections, pages, and blog posts",
+	"version": "0.0.42",
+	"description": "XML sitemap generation — auto-generate sitemaps from products, collections, pages, and blog posts",
 	"keywords": [
 		"commerce",
 		"sitemap",

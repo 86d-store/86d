@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/delivery-slots",
-	"version": "0.0.41",
-	"description": "Delivery slots \u2014 define delivery time windows by day of week with capacity limits, surcharges, and blackout dates",
+	"version": "0.0.42",
+	"description": "Delivery slots — define delivery time windows by day of week with capacity limits, surcharges, and blackout dates",
 	"keywords": [
 		"commerce",
 		"delivery-slots",

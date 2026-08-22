@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/bulk-pricing",
-	"version": "0.0.41",
-	"description": "Quantity-based tiered pricing \u2014 set volume discounts for products so customers pay less when buying in bulk",
+	"version": "0.0.42",
+	"description": "Quantity-based tiered pricing — set volume discounts for products so customers pay less when buying in bulk",
 	"keywords": [
 		"commerce",
 		"bulk-pricing",

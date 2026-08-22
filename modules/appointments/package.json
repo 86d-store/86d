@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/appointments",
-	"version": "0.0.41",
-	"description": "Appointments \u2014 service-based booking with staff scheduling, time slots, and customer appointment management",
+	"version": "0.0.42",
+	"description": "Appointments — service-based booking with staff scheduling, time slots, and customer appointment management",
 	"keywords": [
 		"commerce",
 		"appointments",

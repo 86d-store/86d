@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/memberships",
-	"version": "0.0.41",
-	"description": "Paid membership plans \u2014 recurring subscriptions with exclusive benefits, gated products, and member pricing",
+	"version": "0.0.42",
+	"description": "Paid membership plans — recurring subscriptions with exclusive benefits, gated products, and member pricing",
 	"keywords": [
 		"commerce",
 		"memberships",

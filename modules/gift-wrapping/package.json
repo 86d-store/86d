@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/gift-wrapping",
-	"version": "0.0.41",
-	"description": "Gift wrapping \u2014 add-on wrapping options for order items with custom messages and recipient names",
+	"version": "0.0.42",
+	"description": "Gift wrapping — add-on wrapping options for order items with custom messages and recipient names",
 	"keywords": [
 		"commerce",
 		"gift-wrapping",

@@ -137,11 +137,11 @@ describe("@86d-app/contracts conformance", () => {
 		expect(() => assertConformancePin(EXPECTED_PIN)).not.toThrow();
 		expect(() =>
 			assertConformancePin({
-				packageVersion: "0.0.41",
+				packageVersion: "0.0.42",
 				digest: "0".repeat(64),
 			}),
 		).toThrow(/does not match/);
-		expect(isCompatiblePackagePair("0.0.41")).toBe(true);
+		expect(isCompatiblePackagePair("0.0.42")).toBe(true);
 		expect(isCompatiblePackagePair("0.1.0")).toBe(false);
 	});
 

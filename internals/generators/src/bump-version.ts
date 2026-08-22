@@ -6,10 +6,10 @@
  * Version policy). Default bump is minor unless the operator names otherwise.
  *
  * Usage:
- *   bun run bump-version          # minor bump (0.0.41 → 0.1.0)
- *   bun run bump-version --patch  # patch bump (0.0.41 → 0.0.42)
+ *   bun run bump-version          # minor bump (0.0.42 → 0.1.0)
+ *   bun run bump-version --patch  # patch bump (0.0.42 → 0.0.43)
  *   bun run bump-version --minor  # minor bump (explicit)
- *   bun run bump-version --major  # major bump (0.0.41 → 1.0.0)
+ *   bun run bump-version --major  # major bump (0.0.42 → 1.0.0)
  *   bun run bump-version 1.2.3    # set explicit version
  */
 

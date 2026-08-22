@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/abandoned-carts",
-	"version": "0.0.41",
+	"version": "0.0.42",
 	"description": "Abandoned cart tracking and recovery for 86d commerce platform",
 	"keywords": [
 		"commerce",

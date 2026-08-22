@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/search",
-	"version": "0.0.41",
+	"version": "0.0.42",
 	"description": "Unified search, autocomplete, and search analytics module for 86d commerce platform",
 	"keywords": [
 		"commerce",
