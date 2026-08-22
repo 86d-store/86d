@@ -66,6 +66,7 @@ ${c.bold("Commands:")}
   ${c.cyan("init")} ${c.dim("[--yes]")}             Configure a local store (env, deps, migrate, seed)
   ${c.cyan("status")}                  Show project health and configuration
   ${c.cyan("doctor")}                  Diagnose project issues with fix suggestions
+  ${c.cyan("module build")} ${c.dim("[dir]")}      Compile a module (tsc + assets)
   ${c.cyan("module create")} <name>    Scaffold a new module
   ${c.cyan("module add")} <specifier>  Add a module from registry, GitHub, or npm
   ${c.cyan("module list")}             List all local modules

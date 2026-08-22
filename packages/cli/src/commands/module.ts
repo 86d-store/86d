@@ -23,9 +23,12 @@ import {
 	warn,
 	writeLine,
 } from "../utils.js";
+import { buildModule } from "./module-build.js";
 
 export function moduleCommand(subcommand: string | undefined, args: string[]) {
 	switch (subcommand) {
+		case "build":
+			return buildModule(args);
 		case "create":
 			return createModule(args[0]);
 		case "add":
@@ -62,6 +65,7 @@ function printHelp() {
 ${c.bold("86d module")} — Manage modules
 
 ${c.dim("Usage:")}
+  86d module build [dir]             Compile TypeScript and copy non-TS assets
   86d module create <name>           Scaffold a new module
   86d module add <specifier>         Add a module from registry, GitHub, or npm
   86d module update [name]           Check for and apply module updates
@@ -654,7 +658,7 @@ function createModule(name: string | undefined) {
 					"./components": "./src/store/components/mdx.tsx",
 				},
 				scripts: {
-					build: "tsc",
+					build: "86d module build",
 					check: "biome check src",
 					"check:fix": "biome check --write src",
 					test: "vitest run",
@@ -665,6 +669,7 @@ function createModule(name: string | undefined) {
 					"@86d-app/core": "workspace:*",
 				},
 				devDependencies: {
+					"86d": "workspace:*",
 					"@biomejs/biome": "catalog:",
 					typescript: "catalog:",
 					vitest: "catalog:vite",

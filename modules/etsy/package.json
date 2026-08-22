@@ -38,7 +38,7 @@
 		"README.md"
 	],
 	"scripts": {
-		"build": "tsc",
+		"build": "86d module build",
 		"check": "biome check src",
 		"check:fix": "biome check --write --unsafe src",
 		"clean": "git clean -xdf .cache .turbo dist node_modules",

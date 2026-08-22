@@ -13,7 +13,8 @@ src/
     init.ts             Configure local store (env, deps, codegen, optional migrate+seed)
     status.ts           Show project health and configuration
     doctor.ts           Diagnose issues with fix suggestions
-    module.ts           Module subcommands (create, list, info, enable, disable)
+    module.ts           Module subcommands (build, create, list, info, enable, disable)
+    module-build.ts     Compile TypeScript and copy non-TS assets into dist/
     template.ts         Template subcommands (create, list, activate)
     generate.ts         Code generation (module imports, API router, component docs)
   __tests__/
@@ -28,6 +29,7 @@ src/
 | `86d init [--yes\|-y]` | Configure a local store (env, deps, migrate, seed) |
 | `86d status` | Show project health and configuration |
 | `86d doctor` | Diagnose project issues with fix suggestions |
+| `86d module build [dir]` | Compile TypeScript and copy non-TS assets |
 | `86d module create <name>` | Scaffold a new module |
 | `86d module list` | List all modules |
 | `86d module info <name>` | Show module details |
