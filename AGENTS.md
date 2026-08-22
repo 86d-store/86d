@@ -157,6 +157,7 @@ Module packages use `"build": "86d module build"` (TypeScript → `dist/` plus n
 - **feature** and **integration** — merchant language; **module** — the technical packaging unit in this repository; **Connection** — a configured provider relationship used by an Integration.
 - Sentence case in merchant copy: store, business, storefront, store admin, module, feature, and integration are ordinary nouns. When one starts a sentence, heading, or nav label, capitalize only the first word: **Store admin**, not **Store Admin**. Keep **Store Runtime**, **86d Console**, and code identifiers as written. (Published docs follow the Capitalization rules in `../docs/AGENTS.md` instead, which capitalize defined 86d concepts.)
 - Name the owner instead of bare "dashboard" or "console": **86d Console** in product copy, `console` for its app, package, and code identifiers.
+- **Supplier invisibility.** Upstream providers (Finix, Railway, Cloudflare, Neon, Resend, EasyPost, Vercel, and peers) **must never** appear in Store Admin, storefront, emails, or other merchant-reachable copy for 86d-managed capabilities. Prefer 86d product vocabulary in merchant-facing strings and UI identifiers. Keep vendor names in Integration Modules the merchant brings as their own Connection, adapter code, required env keys, and tests that assert provider wiring. Canonical rule: [prd/product.md — supplier invisibility](../prd/product.md#the-merchant-sees-86d-never-our-suppliers).
 
 ## Code conventions
 
