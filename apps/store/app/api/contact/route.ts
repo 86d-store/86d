@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
 	const config = await getStoreConfig({
 		templatePath: resolveTemplatePath(),
 	});
-	const storeName = config.name ?? "Our Store";
+	const storeName = config.name;
 
 	// Send confirmation email to the submitter
 	try {
