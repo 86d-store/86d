@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "@86d-app/core/state";
+import { makeAutoObservable } from "mobx";
 
 export type SortField = "name" | "price" | "createdAt";
 export type SortOrder = "asc" | "desc";

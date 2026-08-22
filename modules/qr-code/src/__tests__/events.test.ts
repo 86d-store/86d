@@ -215,7 +215,7 @@ describe("no events without emitter", () => {
 		await ctrl.createBatch([
 			{ label: "B", targetUrl: "https://example.com/b" },
 		]);
-		await ctrl.delete(qr.id);
+		await expect(ctrl.delete(qr.id)).resolves.toBeUndefined();
 
 		// No errors thrown
 	});

@@ -1,6 +1,6 @@
 import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
-import { col } from "@86d-app/core/schema";
-import { z } from "@86d-app/core/zod";
+import { col } from "@86d-app/core/schema/col";
+import { z } from "zod";
 
 export const qrCodeQrCodeShape = z.object({
 	id: z.string().register(col, { pk: true }),

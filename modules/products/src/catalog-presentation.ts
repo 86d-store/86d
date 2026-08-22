@@ -4,7 +4,7 @@ import {
 	type DurableEventEnvelope,
 } from "@86d-app/core/durable-events";
 import type { ModuleDataService } from "@86d-app/core/types/module";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import {
 	catalogRevisionCategorySchema,
 	catalogRevisionProductSchema,

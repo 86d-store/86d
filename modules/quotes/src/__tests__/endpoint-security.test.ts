@@ -172,10 +172,12 @@ describe("quotes endpoint security", () => {
 			const attackerSessionId = "attacker";
 
 			// Endpoint MUST check this before calling submitQuote
-			if (quote?.customerId !== attackerSessionId) {
-				expect(quote?.customerId).toBe("victim");
-				// Endpoint returns 404, does not call submitQuote
+			expect(quote?.customerId !== attackerSessionId).toBeTruthy();
+			if (!(quote?.customerId !== attackerSessionId)) {
+				throw new Error("expected quote?.customerId !== attackerSessionId");
 			}
+			expect(quote?.customerId).toBe("victim");
+			// Endpoint returns 404, does not call submitQuote
 
 			// Verify quote is still in draft (not submitted)
 			const stillDraft = await controller.getQuote(victimQuote.id);
@@ -238,9 +240,10 @@ describe("quotes endpoint security", () => {
 			);
 
 			expect("quote" in response).toBe(true);
-			if ("quote" in response) {
-				expect(response.quote.status).toBe("accepted");
+			if (!("quote" in response)) {
+				throw new Error("expected 'quote' in response");
 			}
+			expect(response.quote.status).toBe("accepted");
 		});
 	});
 
@@ -437,11 +440,12 @@ describe("quotes endpoint security", () => {
 			);
 
 			expect("comment" in response).toBe(true);
-			if ("comment" in response) {
-				expect(response.comment.authorId).toBe("customer_1");
-				expect(response.comment.authorName).toBe("Customer 1");
-				expect(response.comment.quoteId).toBe(quote.id);
+			if (!("comment" in response)) {
+				throw new Error("expected 'comment' in response");
 			}
+			expect(response.comment.authorId).toBe("customer_1");
+			expect(response.comment.authorName).toBe("Customer 1");
+			expect(response.comment.quoteId).toBe(quote.id);
 		});
 	});
 

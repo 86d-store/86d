@@ -3,14 +3,14 @@ import {
 	type AuthoritySnapshot,
 	actorReferenceSchema,
 	authoritySnapshotSchema,
-} from "@86d-app/core/commands";
+} from "@86d-app/contracts/command";
 import {
 	catalogPublishedV1,
 	type LockingModuleDataTransaction,
 	type ModuleDataTransaction,
 } from "@86d-app/core/durable-events";
 import { isSafeUrl, sanitizeText } from "@86d-app/core/sanitize";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 
 const resourceIdentifierSchema = z
 	.string()
@@ -703,14 +703,15 @@ function decisionFor(
 	});
 }
 
-async function appendAudit(
-	transaction: LockingModuleDataTransaction,
-	id: string,
-	revisionId: string,
-	fromState: CatalogRevisionState | undefined,
-	toState: CatalogRevisionState,
-	context: CatalogRevisionOperationContext,
-): Promise<void> {
+async function appendAudit(options: {
+	transaction: LockingModuleDataTransaction;
+	id: string;
+	revisionId: string;
+	fromState: CatalogRevisionState | undefined;
+	toState: CatalogRevisionState;
+	context: CatalogRevisionOperationContext;
+}): Promise<void> {
+	const { transaction, id, revisionId, fromState, toState, context } = options;
 	await transaction.upsert("catalogRevisionAudit", id, {
 		id,
 		revisionId,
@@ -725,13 +726,14 @@ async function appendAudit(
 	});
 }
 
-async function persistSuccess(
-	transaction: LockingModuleDataTransaction,
-	input: CatalogRevisionOperationInput,
-	requestDigest: string,
-	revision: CatalogRevisionRecord,
-	context: CatalogRevisionOperationContext,
-): Promise<CatalogRevisionOperationResult> {
+async function persistSuccess(options: {
+	transaction: LockingModuleDataTransaction;
+	input: CatalogRevisionOperationInput;
+	requestDigest: string;
+	revision: CatalogRevisionRecord;
+	context: CatalogRevisionOperationContext;
+}): Promise<CatalogRevisionOperationResult> {
+	const { transaction, input, requestDigest, revision, context } = options;
 	const decision = decisionFor(input.operationId, revision, false);
 	const stored = storedCatalogRevisionOperationSchema.parse({
 		id: input.operationId,
@@ -771,14 +773,16 @@ async function readRevision(
 	return parsed.success ? parsed.data : "invalid";
 }
 
-async function createDraft(
-	transaction: LockingModuleDataTransaction,
-	input: Extract<CatalogRevisionOperationInput, { action: "create_draft" }>,
-	context: CatalogRevisionOperationContext,
-	head: z.infer<typeof catalogRevisionHeadSchema>,
-	requestDigest: string,
-	contentDigest: string,
-): Promise<CatalogRevisionOperationResult> {
+async function createDraft(options: {
+	transaction: LockingModuleDataTransaction;
+	input: Extract<CatalogRevisionOperationInput, { action: "create_draft" }>;
+	context: CatalogRevisionOperationContext;
+	head: z.infer<typeof catalogRevisionHeadSchema>;
+	requestDigest: string;
+	contentDigest: string;
+}): Promise<CatalogRevisionOperationResult> {
+	const { transaction, input, context, head, requestDigest, contentDigest } =
+		options;
 	const existing = await transaction.getForUpdate(
 		"catalogRevision",
 		input.revisionId,
@@ -854,15 +858,21 @@ async function createDraft(
 			updatedAt: occurredAt,
 		}),
 	);
-	await appendAudit(
+	await appendAudit({
 		transaction,
-		input.operationId,
-		revision.id,
-		undefined,
-		"draft",
+		id: input.operationId,
+		revisionId: revision.id,
+		fromState: undefined,
+		toState: "draft",
 		context,
-	);
-	return persistSuccess(transaction, input, requestDigest, revision, context);
+	});
+	return persistSuccess({
+		transaction,
+		input,
+		requestDigest,
+		revision,
+		context,
+	});
 }
 
 async function transitionExisting(
@@ -909,15 +919,21 @@ async function transitionExisting(
 			reviewedAuthorityId: context.authority.id,
 		});
 		await transaction.upsert("catalogRevision", reviewed.id, reviewed);
-		await appendAudit(
+		await appendAudit({
 			transaction,
-			input.operationId,
-			reviewed.id,
-			"draft",
-			"reviewed",
+			id: input.operationId,
+			revisionId: reviewed.id,
+			fromState: "draft",
+			toState: "reviewed",
 			context,
-		);
-		return persistSuccess(transaction, input, requestDigest, reviewed, context);
+		});
+		return persistSuccess({
+			transaction,
+			input,
+			requestDigest,
+			revision: reviewed,
+			context,
+		});
 	}
 
 	if (revision.state !== "draft" && revision.state !== "reviewed") {
@@ -937,24 +953,31 @@ async function transitionExisting(
 		failureReason: input.reason,
 	});
 	await transaction.upsert("catalogRevision", failed.id, failed);
-	await appendAudit(
+	await appendAudit({
 		transaction,
-		input.operationId,
-		failed.id,
-		failedFromState,
-		"failed",
+		id: input.operationId,
+		revisionId: failed.id,
+		fromState: failedFromState,
+		toState: "failed",
 		context,
-	);
-	return persistSuccess(transaction, input, requestDigest, failed, context);
+	});
+	return persistSuccess({
+		transaction,
+		input,
+		requestDigest,
+		revision: failed,
+		context,
+	});
 }
 
-async function publishRevision(
-	transaction: LockingModuleDataTransaction,
-	input: Extract<CatalogRevisionOperationInput, { action: "publish" }>,
-	context: CatalogRevisionOperationContext,
-	head: z.infer<typeof catalogRevisionHeadSchema>,
-	requestDigest: string,
-): Promise<CatalogRevisionOperationResult> {
+async function publishRevision(options: {
+	transaction: LockingModuleDataTransaction;
+	input: Extract<CatalogRevisionOperationInput, { action: "publish" }>;
+	context: CatalogRevisionOperationContext;
+	head: z.infer<typeof catalogRevisionHeadSchema>;
+	requestDigest: string;
+}): Promise<CatalogRevisionOperationResult> {
+	const { transaction, input, context, head, requestDigest } = options;
 	const revision = await readRevision(transaction, input.revisionId);
 	if (revision === null) {
 		return rejected(
@@ -1008,14 +1031,14 @@ async function publishRevision(
 			supersededByRevisionId: revision.id,
 		});
 		await transaction.upsert("catalogRevision", superseded.id, superseded);
-		await appendAudit(
+		await appendAudit({
 			transaction,
-			`${input.operationId}:supersede`,
-			superseded.id,
-			"published",
-			"superseded",
+			id: `${input.operationId}:supersede`,
+			revisionId: superseded.id,
+			fromState: "published",
+			toState: "superseded",
 			context,
-		);
+		});
 	}
 
 	const published = catalogRevisionRecordSchema.parse({
@@ -1036,14 +1059,14 @@ async function publishRevision(
 			updatedAt: occurredAt,
 		}),
 	);
-	await appendAudit(
+	await appendAudit({
 		transaction,
-		input.operationId,
-		published.id,
-		"reviewed",
-		"published",
+		id: input.operationId,
+		revisionId: published.id,
+		fromState: "reviewed",
+		toState: "published",
 		context,
-	);
+	});
 	await transaction.emit(catalogPublishedV1, {
 		aggregate: { type: "catalog", id: "catalog" },
 		occurredAt: context.occurredAt,
@@ -1064,7 +1087,13 @@ async function publishRevision(
 			authorityId: context.authority.id,
 		},
 	});
-	return persistSuccess(transaction, input, requestDigest, published, context);
+	return persistSuccess({
+		transaction,
+		input,
+		requestDigest,
+		revision: published,
+		context,
+	});
 }
 
 /**
@@ -1167,23 +1196,23 @@ export async function applyCatalogRevisionOperation(
 				"The Catalog content digest could not be created.",
 			);
 		}
-		return createDraft(
+		return createDraft({
 			transaction,
 			input,
 			context,
-			parsedHead.data,
+			head: parsedHead.data,
 			requestDigest,
 			contentDigest,
-		);
+		});
 	}
 	if (input.action === "publish") {
-		return publishRevision(
+		return publishRevision({
 			transaction,
 			input,
 			context,
-			parsedHead.data,
+			head: parsedHead.data,
 			requestDigest,
-		);
+		});
 	}
 	return transitionExisting(transaction, input, context, requestDigest);
 }

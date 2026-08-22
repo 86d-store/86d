@@ -228,11 +228,12 @@ describe("store endpoint: create quote — auth required", () => {
 		);
 
 		expect("quote" in result).toBe(true);
-		if ("quote" in result) {
-			expect(result.quote.status).toBe("draft");
-			expect(result.quote.customerName).toBe("Jane Doe");
-			expect(result.quote.companyName).toBe("Acme Corp");
+		if (!("quote" in result)) {
+			throw new Error("expected 'quote' in result");
 		}
+		expect(result.quote.status).toBe("draft");
+		expect(result.quote.customerName).toBe("Jane Doe");
+		expect(result.quote.companyName).toBe("Acme Corp");
 	});
 });
 
@@ -264,11 +265,12 @@ describe("store endpoint: add item — build quote", () => {
 		);
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.productName).toBe("Widget");
-			expect(result.item.quantity).toBe(10);
-			expect(result.item.unitPrice).toBe(500);
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.productName).toBe("Widget");
+		expect(result.item.quantity).toBe(10);
+		expect(result.item.unitPrice).toBe(500);
 	});
 
 	it("returns 404 when adding to another customer's quote", async () => {
@@ -322,9 +324,10 @@ describe("store endpoint: submit quote — draft to submitted", () => {
 		});
 
 		expect("quote" in result).toBe(true);
-		if ("quote" in result) {
-			expect(result.quote.status).toBe("submitted");
+		if (!("quote" in result)) {
+			throw new Error("expected 'quote' in result");
 		}
+		expect(result.quote.status).toBe("submitted");
 	});
 
 	it("returns 404 when submitting another customer's quote", async () => {
@@ -376,10 +379,11 @@ describe("store endpoint: get my quotes — auth required", () => {
 		});
 
 		expect("quotes" in result).toBe(true);
-		if ("quotes" in result) {
-			expect(result.quotes).toHaveLength(1);
-			expect(result.quotes[0].customerName).toBe("Jane");
+		if (!("quotes" in result)) {
+			throw new Error("expected 'quotes' in result");
 		}
+		expect(result.quotes).toHaveLength(1);
+		expect(result.quotes[0].customerName).toBe("Jane");
 	});
 
 	it("returns empty for customer with no quotes", async () => {
@@ -388,9 +392,10 @@ describe("store endpoint: get my quotes — auth required", () => {
 		});
 
 		expect("quotes" in result).toBe(true);
-		if ("quotes" in result) {
-			expect(result.quotes).toHaveLength(0);
+		if (!("quotes" in result)) {
+			throw new Error("expected 'quotes' in result");
 		}
+		expect(result.quotes).toHaveLength(0);
 	});
 });
 
@@ -427,9 +432,10 @@ describe("store endpoint: accept/decline quote — customer response", () => {
 		});
 
 		expect("quote" in result).toBe(true);
-		if ("quote" in result) {
-			expect(result.quote.status).toBe("accepted");
+		if (!("quote" in result)) {
+			throw new Error("expected 'quote' in result");
 		}
+		expect(result.quote.status).toBe("accepted");
 	});
 
 	it("declines a quote with reason", async () => {
@@ -461,9 +467,10 @@ describe("store endpoint: accept/decline quote — customer response", () => {
 		);
 
 		expect("quote" in result).toBe(true);
-		if ("quote" in result) {
-			expect(result.quote.status).toBe("rejected");
+		if (!("quote" in result)) {
+			throw new Error("expected 'quote' in result");
 		}
+		expect(result.quote.status).toBe("rejected");
 	});
 
 	it("returns 404 when accepting another customer's quote", async () => {
@@ -508,10 +515,11 @@ describe("store endpoint: comments — quote discussion", () => {
 		);
 
 		expect("comment" in result).toBe(true);
-		if ("comment" in result) {
-			expect(result.comment.message).toBe("Can you offer a bulk discount?");
-			expect(result.comment.authorType).toBe("customer");
+		if (!("comment" in result)) {
+			throw new Error("expected 'comment' in result");
 		}
+		expect(result.comment.message).toBe("Can you offer a bulk discount?");
+		expect(result.comment.authorType).toBe("customer");
 	});
 
 	it("returns comment thread for a quote", async () => {
@@ -541,9 +549,10 @@ describe("store endpoint: comments — quote discussion", () => {
 		});
 
 		expect("comments" in result).toBe(true);
-		if ("comments" in result) {
-			expect(result.comments).toHaveLength(2);
+		if (!("comments" in result)) {
+			throw new Error("expected 'comments' in result");
 		}
+		expect(result.comments).toHaveLength(2);
 	});
 
 	it("returns 404 when viewing another customer's comments", async () => {

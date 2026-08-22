@@ -1,5 +1,5 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { Category, Product } from "../../controllers";
 
 export const getCategory = createStoreEndpoint(

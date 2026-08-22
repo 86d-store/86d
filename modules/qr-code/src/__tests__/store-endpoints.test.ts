@@ -71,10 +71,11 @@ describe("store endpoint: get by target — resolve QR code", () => {
 		const result = await simulateGetByTarget(data, "product", "prod_1");
 
 		expect("qrCode" in result).toBe(true);
-		if ("qrCode" in result) {
-			expect(result.qrCode.label).toBe("Product QR");
-			expect(result.qrCode.targetType).toBe("product");
+		if (!("qrCode" in result)) {
+			throw new Error("expected 'qrCode' in result");
 		}
+		expect(result.qrCode.label).toBe("Product QR");
+		expect(result.qrCode.targetType).toBe("product");
 	});
 
 	it("returns 404 for nonexistent target", async () => {
@@ -105,9 +106,10 @@ describe("store endpoint: record scan", () => {
 		});
 
 		expect("scan" in result).toBe(true);
-		if ("scan" in result) {
-			expect(result.scan.qrCodeId).toBe(qr.id);
+		if (!("scan" in result)) {
+			throw new Error("expected 'scan' in result");
 		}
+		expect(result.scan.qrCodeId).toBe(qr.id);
 	});
 
 	it("returns 404 for nonexistent QR code", async () => {

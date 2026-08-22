@@ -1,6 +1,6 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
 import { sanitizeText } from "@86d-app/core/sanitize";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { Collection, Product } from "../../controllers";
 
 /** Quick links shown in store command search (label and href). */
@@ -69,13 +69,13 @@ export const storeSearch = createStoreEndpoint(
 			])) as [Product[], Collection[]];
 
 			for (const p of products) {
-				const image = p.images?.[0];
+				const image = p.images[0];
 				results.push({
 					id: `product-${p.id}`,
 					label: p.name,
 					href: `/products/${p.slug}`,
 					...(image ? { image } : {}),
-					...(p.price != null ? { subtitle: formatCents(p.price) } : {}),
+					subtitle: formatCents(p.price),
 					group: "Products",
 				});
 			}

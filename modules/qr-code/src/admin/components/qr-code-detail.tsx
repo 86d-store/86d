@@ -512,10 +512,10 @@ export function QrCodeDetail(props: {
 					<div className="overflow-x-auto">
 						<table className="w-full text-sm">
 							<tbody className="divide-y divide-border">
-								{Array.from({ length: 5 }, (_, i) => (
-									<tr key={`scan-skeleton-${i}`}>
-										{Array.from({ length: 4 }, (_, j) => (
-											<td key={`scan-skeleton-cell-${j}`} className="px-5 py-3">
+								{Array.from({ length: 5 }, (_, _i) => (
+									<tr key={rowKey}>
+										{Array.from({ length: 4 }, (_, _j) => (
+											<td key={cellKey} className="px-5 py-3">
 												<Skeleton className="h-4 rounded" />
 											</td>
 										))}

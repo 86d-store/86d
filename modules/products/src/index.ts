@@ -5,22 +5,6 @@ import type { Module, ModuleConfig } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { productResolveProvider } from "./capabilities";
 import { catalogPresentationConsumer } from "./catalog-presentation";
-import {
-	applyCatalogRevisionOperation,
-	catalogDraftCommandInputSchema,
-	catalogRevisionCategorySchema,
-	catalogRevisionContentSchema,
-	catalogRevisionOperationDecisionSchema,
-	catalogRevisionOperationFailureCodeSchema,
-	catalogRevisionOperationInputSchema,
-	catalogRevisionProductSchema,
-	catalogRevisionRecordSchema,
-	catalogRevisionStateSchema,
-	catalogRevisionVariantSchema,
-	catalogTransitionCommandInputSchema,
-	catalogTransitionTransportSchema,
-	digestCatalogRevisionContent,
-} from "./catalog-revisions";
 import { controllers } from "./controllers";
 import {
 	toMarkdownCollectionDetail,
@@ -41,22 +25,6 @@ export type {
 	CatalogRevisionRecord,
 	CatalogRevisionState,
 } from "./catalog-revisions";
-export {
-	applyCatalogRevisionOperation,
-	catalogDraftCommandInputSchema,
-	catalogRevisionCategorySchema,
-	catalogRevisionContentSchema,
-	catalogRevisionOperationDecisionSchema,
-	catalogRevisionOperationFailureCodeSchema,
-	catalogRevisionOperationInputSchema,
-	catalogRevisionProductSchema,
-	catalogRevisionRecordSchema,
-	catalogRevisionStateSchema,
-	catalogRevisionVariantSchema,
-	catalogTransitionCommandInputSchema,
-	catalogTransitionTransportSchema,
-	digestCatalogRevisionContent,
-};
 
 export interface ProductsOptions extends ModuleConfig {
 	/**

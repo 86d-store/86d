@@ -46,7 +46,7 @@ export function createQrCodeController(
 				where: { targetType, targetId },
 				take: 1,
 			});
-			return (matches[0] as QrCode) ?? null;
+			return matches[0] as QrCode;
 		},
 
 		async update(id, params) {

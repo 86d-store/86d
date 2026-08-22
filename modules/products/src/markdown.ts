@@ -33,7 +33,7 @@ export async function toMarkdownProductListing(
 			};
 		}
 	).product.list(withQuery(ctx, { limit: "100", status: "active" }));
-	const products = (result?.products ?? []) as ProductWithVariants[];
+	const products = (result.products ?? []) as ProductWithVariants[];
 	let md = `# Products\n\n`;
 	if (products.length === 0) {
 		md += "No products yet.\n";
@@ -78,7 +78,7 @@ export async function toMarkdownProductDetail(
 		md += `${product.description}\n\n`;
 	}
 	md += `## Price\n\n${formatPrice(product.price)}\n\n`;
-	if (product.images?.length > 0) {
+	if (product.images.length > 0) {
 		md += `## Images\n\n`;
 		for (const img of product.images) {
 			md += `![${product.name}](${img})\n`;
@@ -99,7 +99,7 @@ export async function toMarkdownCollectionListing(
 			};
 		}
 	).collection.list(withQuery(ctx, { limit: "100", visible: "true" }));
-	const collections = (result?.collections ?? []) as Collection[];
+	const collections = (result.collections ?? []) as Collection[];
 	let md = `# Collections\n\n`;
 	if (collections.length === 0) {
 		md += "No collections yet.\n";
