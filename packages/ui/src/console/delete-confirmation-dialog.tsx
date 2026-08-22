@@ -10,11 +10,11 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from "~/core/alert-dialog";
-import { Button } from "~/core/button";
-import { Field, FieldLabel } from "~/core/field";
-import { Input } from "~/core/input";
-import { Spinner } from "~/core/spinner";
+} from "~/shadcn/alert-dialog";
+import { Button } from "~/shadcn/button";
+import { Field, FieldLabel } from "~/shadcn/field";
+import { Input } from "~/shadcn/input";
+import { Spinner } from "~/shadcn/spinner";
 
 export interface DeleteConfirmationDialogProps {
 	open: boolean;

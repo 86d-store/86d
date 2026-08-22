@@ -5,8 +5,8 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import type React from "react";
 import { Fragment } from "react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/core/tooltip";
 import { cn } from "~/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/shadcn/tooltip";
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);

@@ -18,7 +18,7 @@ import {
 	ContextMenuSub as ContextMenuSubPrimitive,
 	ContextMenuSubTrigger as ContextMenuSubTriggerPrimitive,
 	ContextMenuTrigger as ContextMenuTriggerPrimitive,
-} from "./core/context-menu";
+} from "./shadcn/context-menu";
 
 export function ContextMenu(
 	props: React.ComponentProps<typeof ContextMenuPrimitive>,

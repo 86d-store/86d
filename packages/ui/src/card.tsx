@@ -8,7 +8,7 @@ import {
 	CardHeader as CardHeaderPrimitive,
 	Card as CardPrimitive,
 	CardTitle as CardTitlePrimitive,
-} from "./core/card";
+} from "./shadcn/card";
 
 export const cardVariants = cva("", {
 	variants: {

@@ -4,8 +4,8 @@ import {
 	DotsThreeIcon,
 } from "@phosphor-icons/react";
 import type * as React from "react";
-import { Button } from "~/core/button";
 import { cn } from "~/lib/utils";
+import { Button } from "~/shadcn/button";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
 	return (

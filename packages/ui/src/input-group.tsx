@@ -2,8 +2,8 @@
 
 import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
-import { Spinner } from "~/core/spinner";
 import { cn } from "~/lib/utils";
+import { Spinner } from "~/shadcn/spinner";
 import {
 	InputGroupAddon as InputGroupAddonPrimitive,
 	InputGroupButton as InputGroupButtonPrimitive,
@@ -11,7 +11,7 @@ import {
 	InputGroup as InputGroupPrimitive,
 	InputGroupTextarea as InputGroupTextareaPrimitive,
 	InputGroupText as InputGroupTextPrimitive,
-} from "./core/input-group";
+} from "./shadcn/input-group";
 
 const inputGroupVariants = cva(
 	"aria-invalid:border-border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:has-[[data-slot=input-group-control]:focus-visible]:border-border-destructive aria-invalid:has-[[data-slot=input-group-control]:focus-visible]:ring-destructive/20 dark:aria-invalid:ring-destructive/40 dark:aria-invalid:has-[[data-slot=input-group-control]:focus-visible]:ring-destructive/40",

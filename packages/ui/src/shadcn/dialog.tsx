@@ -3,8 +3,8 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { XIcon } from "@phosphor-icons/react";
 import type * as React from "react";
-import { Button } from "~/core/button";
 import { cn } from "~/lib/utils";
+import { Button } from "~/shadcn/button";
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
 	return <DialogPrimitive.Root data-slot="dialog" {...props} />;

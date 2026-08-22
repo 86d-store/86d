@@ -5,6 +5,7 @@ import { Subscribe, type SubscribeSource } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 import { Badge } from "~/badge";
 import { Button } from "~/button";
+import { cn } from "~/lib/utils";
 import {
 	Command,
 	CommandEmpty,
@@ -14,10 +15,9 @@ import {
 	CommandList,
 	CommandSeparator,
 	CommandShortcut,
-} from "~/core/command";
-import { Popover, PopoverContent, PopoverTrigger } from "~/core/popover";
-import { Separator } from "~/core/separator";
-import { cn } from "~/lib/utils";
+} from "~/shadcn/command";
+import { Popover, PopoverContent, PopoverTrigger } from "~/shadcn/popover";
+import { Separator } from "~/shadcn/separator";
 import { View } from "~/view";
 
 export type DataTableFacetedFilterOption = {

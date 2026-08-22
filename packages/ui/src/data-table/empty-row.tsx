@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { TableCell, TableRow } from "~/core/table";
+import { TableCell, TableRow } from "~/shadcn/table";
 
 export interface DataTableEmptyRowProps {
 	colSpan: number;

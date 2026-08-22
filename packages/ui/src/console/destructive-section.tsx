@@ -1,12 +1,12 @@
+import { cn } from "~/lib/utils";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
 	BreadcrumbList,
 	BreadcrumbPage,
-} from "~/core/breadcrumb";
-import { Field, FieldContent, FieldDescription } from "~/core/field";
-import { Separator } from "~/core/separator";
-import { cn } from "~/lib/utils";
+} from "~/shadcn/breadcrumb";
+import { Field, FieldContent, FieldDescription } from "~/shadcn/field";
+import { Separator } from "~/shadcn/separator";
 import { View } from "~/view";
 
 export interface DestructiveSectionProps

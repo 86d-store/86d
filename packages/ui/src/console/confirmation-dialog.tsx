@@ -11,8 +11,8 @@ import {
 	AlertDialogHeader,
 	AlertDialogMedia,
 	AlertDialogTitle,
-} from "~/core/alert-dialog";
-import { Spinner } from "~/core/spinner";
+} from "~/shadcn/alert-dialog";
+import { Spinner } from "~/shadcn/spinner";
 import { HoldToConfirmButton } from "./hold-to-confirm-button";
 
 export interface ConfirmationDialogProps

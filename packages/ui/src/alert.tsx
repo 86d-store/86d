@@ -5,7 +5,7 @@ import {
 	AlertDescription as AlertDescriptionPrimitive,
 	Alert as AlertPrimitive,
 	AlertTitle as AlertTitlePrimitive,
-} from "./core/alert";
+} from "./shadcn/alert";
 
 export const alertVariants = cva("", {
 	variants: {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Spinner } from "~/core/spinner";
+import { Spinner } from "~/shadcn/spinner";
 import { Text } from "~/text";
 
 export interface DataTableResultCountProps {

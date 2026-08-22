@@ -1,8 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { TableCell, TableRow } from "~/core/table";
 import { cn } from "~/lib/utils";
+import { TableCell, TableRow } from "~/shadcn/table";
 
 export const DATA_TABLE_SKELETON_ROW_KEYS = ["one", "two", "three"] as const;
 

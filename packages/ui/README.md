@@ -19,7 +19,7 @@
 
 # `@86d-app/ui`
 
-Shared merchant UI for 86d Console, Store Admin, and Modules. Primitives live under `core/`, Console/Admin compositions under `console/`, and TanStack Table chrome under `data-table/`. There is no package-root barrel; import the file you need.
+Shared merchant UI for 86d Console, Store Admin, and Modules. Primitives live under `shadcn/`, Console/Admin compositions under `console/`, and TanStack Table chrome under `data-table/`. There is no package-root barrel; import the file you need.
 
 ## Install
 
@@ -54,8 +54,8 @@ Other common paths:
 | Export | Contents |
 | --- | --- |
 | `@86d-app/ui/button` | Button |
-| `@86d-app/ui/core/table` | Table primitives |
-| `@86d-app/ui/core/sheet` | Sheet |
+| `@86d-app/ui/shadcn/table` | Table primitives |
+| `@86d-app/ui/shadcn/sheet` | Sheet |
 | `@86d-app/ui/console/form-sheet` | Merchant form sheet |
 | `@86d-app/ui/lib/utils` | `cn` |
 

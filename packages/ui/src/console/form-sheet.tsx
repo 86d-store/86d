@@ -3,7 +3,8 @@
 import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr";
 import type * as React from "react";
 import { Alert, AlertTitle } from "~/alert";
-import { ScrollArea } from "~/core/scroll-area";
+import { cn } from "~/lib/utils";
+import { ScrollArea } from "~/shadcn/scroll-area";
 import {
 	SheetClose as SheetClosePrimitive,
 	SheetContent as SheetContentPrimitive,
@@ -13,8 +14,7 @@ import {
 	Sheet as SheetPrimitive,
 	SheetTitle as SheetTitlePrimitive,
 	SheetTrigger as SheetTriggerPrimitive,
-} from "~/core/sheet";
-import { cn } from "~/lib/utils";
+} from "~/shadcn/sheet";
 import { View } from "~/view";
 import { Button } from "../button";
 

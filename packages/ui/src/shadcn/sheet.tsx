@@ -3,8 +3,8 @@
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog";
 import { XIcon } from "@phosphor-icons/react";
 import type * as React from "react";
-import { Button } from "~/core/button";
 import { cn } from "~/lib/utils";
+import { Button } from "~/shadcn/button";
 
 function Sheet({ ...props }: SheetPrimitive.Root.Props) {
 	return <SheetPrimitive.Root data-slot="sheet" {...props} />;

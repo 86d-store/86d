@@ -18,7 +18,7 @@ import {
 	DropdownMenuSub as DropdownMenuSubPrimitive,
 	DropdownMenuSubTrigger as DropdownMenuSubTriggerPrimitive,
 	DropdownMenuTrigger as DropdownMenuTriggerPrimitive,
-} from "./core/dropdown-menu";
+} from "./shadcn/dropdown-menu";
 
 export function DropdownMenu(
 	props: React.ComponentProps<typeof DropdownMenuPrimitive>,

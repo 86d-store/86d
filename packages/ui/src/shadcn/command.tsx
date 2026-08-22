@@ -3,15 +3,15 @@
 import { CheckIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { Command as CommandPrimitive } from "cmdk";
 import type * as React from "react";
+import { cn } from "~/lib/utils";
 import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
-} from "~/core/dialog";
-import { InputGroup, InputGroupAddon } from "~/core/input-group";
-import { cn } from "~/lib/utils";
+} from "~/shadcn/dialog";
+import { InputGroup, InputGroupAddon } from "~/shadcn/input-group";
 
 function Command({
 	className,

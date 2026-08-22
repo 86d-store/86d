@@ -2,8 +2,8 @@
 
 import { observer } from "mobx-react-lite";
 import { cloneElement, isValidElement, type ReactElement } from "react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/core/tooltip";
 import { type AuthorityTarget, useAuthorityForTarget } from "~/hooks/use-user";
+import { Tooltip, TooltipContent, TooltipTrigger } from "~/shadcn/tooltip";
 
 interface PermissionGateProps {
 	permission: Record<string, string[]>;

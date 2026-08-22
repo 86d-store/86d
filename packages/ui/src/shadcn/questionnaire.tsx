@@ -3,8 +3,8 @@
 import { CheckIcon } from "@phosphor-icons/react";
 import { Questionnaire as QuestionnairePrimitive } from "@shadcn/react/questionnaire";
 import type * as React from "react";
-import { type Button, buttonVariants } from "~/core/button";
 import { cn } from "~/lib/utils";
+import { type Button, buttonVariants } from "~/shadcn/button";
 
 function Questionnaire({
 	className,

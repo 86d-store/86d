@@ -7,8 +7,8 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import type { VariantProps } from "class-variance-authority";
 import { useCallback, useEffect, useState } from "react";
-import { Button, type buttonVariants } from "~/core/button";
 import { cn } from "~/lib/utils";
+import { Button, type buttonVariants } from "~/shadcn/button";
 
 export interface CopyButtonProps
 	extends Omit<React.ComponentProps<typeof Button>, "onClick">,

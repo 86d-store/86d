@@ -3,8 +3,8 @@
 import { Skeleton as BoneyardSkeleton } from "boneyard-js/react";
 import { useId } from "react";
 import slugify from "slugify";
-import { Skeleton as SkeletonPrimitive } from "~/core/skeleton";
 import { cn } from "~/lib/utils";
+import { Skeleton as SkeletonPrimitive } from "~/shadcn/skeleton";
 import { View } from "~/view";
 
 interface FixturePulseFallbackProps {

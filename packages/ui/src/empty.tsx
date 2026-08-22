@@ -8,7 +8,7 @@ import {
 	EmptyMedia as EmptyMediaPrimitive,
 	Empty as EmptyPrimitive,
 	EmptyTitle as EmptyTitlePrimitive,
-} from "./core/empty";
+} from "./shadcn/empty";
 
 const emptyMediaEnter =
 	"zoom-in-75 fade-in animate-in fill-mode-both delay-100 duration-300";

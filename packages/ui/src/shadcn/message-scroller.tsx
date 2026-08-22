@@ -8,8 +8,8 @@ import {
 	useMessageScrollerVisibility,
 } from "@shadcn/react/message-scroller";
 import type * as React from "react";
-import { Button } from "~/core/button";
 import { cn } from "~/lib/utils";
+import { Button } from "~/shadcn/button";
 
 function MessageScrollerProvider(
 	props: React.ComponentProps<typeof MessageScrollerPrimitive.Provider>,
