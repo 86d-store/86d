@@ -125,7 +125,7 @@ export function createFacebookShopController(
 				where: { localProductId },
 				take: 1,
 			});
-			return (matches[0] as unknown as Listing) ?? null;
+			return matches[0] as unknown as Listing;
 		},
 
 		async listListings(params) {
@@ -254,7 +254,7 @@ export function createFacebookShopController(
 				orderBy: { createdAt: "desc" },
 				take: 1,
 			});
-			return (all[0] as unknown as CatalogSync) ?? null;
+			return all[0] as unknown as CatalogSync;
 		},
 
 		async listSyncs(params) {
@@ -317,8 +317,10 @@ export function createFacebookShopController(
 				order.externalOrderId
 			) {
 				try {
-					const items =
-						(order.items as { retailer_id: string; quantity: number }[]) ?? [];
+					const items = order.items as {
+						retailer_id: string;
+						quantity: number;
+					}[];
 					await provider.createShipment(order.externalOrderId, {
 						trackingNumber,
 						carrier: "OTHER",
@@ -511,20 +513,20 @@ export function createFacebookShopController(
 						where: { externalProductId: product.id },
 						take: 1,
 					});
-					const existing = (existingMatches[0] as unknown as Listing) ?? null;
+					const existing = existingMatches[0] as unknown as Listing;
 
 					const now = new Date();
 					const listingData: Listing = {
-						id: existing?.id ?? crypto.randomUUID(),
-						localProductId: existing?.localProductId ?? product.retailer_id,
+						id: existing.id(),
+						localProductId: existing.localProductId,
 						externalProductId: product.id,
 						title: product.name,
 						status: product.visibility === "published" ? "active" : "draft",
 						syncStatus: "synced",
 						lastSyncedAt: now,
 						error: undefined,
-						metadata: existing?.metadata ?? {},
-						createdAt: existing?.createdAt ?? now,
+						metadata: existing.metadata,
+						createdAt: existing.createdAt,
 						updatedAt: now,
 					};
 
@@ -555,8 +557,7 @@ export function createFacebookShopController(
 					where: { externalOrderId: metaOrder.id },
 					take: 1,
 				});
-				const existing =
-					(existingMatches[0] as unknown as ChannelOrder) ?? null;
+				const existing = existingMatches[0] as unknown as ChannelOrder;
 
 				const items =
 					metaOrder.items?.data.map((i) => ({
@@ -572,7 +573,7 @@ export function createFacebookShopController(
 				const shippingFee = parseMetaMoney(
 					metaOrder.estimated_payment_details?.shipping?.amount,
 				);
-				const tax = parseMetaMoney(
+				const _tax = parseMetaMoney(
 					metaOrder.estimated_payment_details?.tax?.amount,
 				);
 				const total = parseMetaMoney(
@@ -581,13 +582,13 @@ export function createFacebookShopController(
 
 				const now = new Date();
 				const orderData: ChannelOrder = {
-					id: existing?.id ?? crypto.randomUUID(),
+					id: existing.id(),
 					externalOrderId: metaOrder.id,
 					status: mapMetaOrderStatus(metaOrder.order_status.state),
 					items,
 					subtotal,
 					shippingFee,
-					platformFee: existing?.platformFee ?? tax,
+					platformFee: existing.platformFee,
 					total,
 					customerName: metaOrder.buyer_details?.name,
 					shippingAddress: metaOrder.shipping_address
@@ -600,10 +601,10 @@ export function createFacebookShopController(
 								postalCode: metaOrder.shipping_address.postal_code,
 								country: metaOrder.shipping_address.country,
 							}
-						: (existing?.shippingAddress ?? {}),
-					trackingNumber: existing?.trackingNumber,
-					trackingUrl: existing?.trackingUrl,
-					createdAt: existing?.createdAt ?? now,
+						: existing.shippingAddress,
+					trackingNumber: existing.trackingNumber,
+					trackingUrl: existing.trackingUrl,
+					createdAt: existing.createdAt,
 					updatedAt: now,
 				};
 

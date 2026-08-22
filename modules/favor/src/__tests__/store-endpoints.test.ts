@@ -187,12 +187,13 @@ describe("store endpoint: create-delivery", () => {
 		});
 
 		expect("delivery" in result).toBe(true);
-		if ("delivery" in result) {
-			expect(result.delivery.orderId).toBe("ord_1");
-			expect(result.delivery.status).toBe("pending");
-			expect(result.delivery.fee).toBe(499);
-			expect(result.delivery.tip).toBe(100);
+		if (!("delivery" in result)) {
+			throw new Error("expected 'delivery' in result");
 		}
+		expect(result.delivery.orderId).toBe("ord_1");
+		expect(result.delivery.status).toBe("pending");
+		expect(result.delivery.fee).toBe(499);
+		expect(result.delivery.tip).toBe(100);
 	});
 
 	it("applies default tip of 0 when not specified", async () => {
@@ -204,9 +205,10 @@ describe("store endpoint: create-delivery", () => {
 		});
 
 		expect("delivery" in result).toBe(true);
-		if ("delivery" in result) {
-			expect(result.delivery.tip).toBe(0);
+		if (!("delivery" in result)) {
+			throw new Error("expected 'delivery' in result");
 		}
+		expect(result.delivery.tip).toBe(0);
 	});
 
 	it("stores special instructions when provided", async () => {
@@ -219,12 +221,13 @@ describe("store endpoint: create-delivery", () => {
 		});
 
 		expect("delivery" in result).toBe(true);
-		if ("delivery" in result) {
-			expect(result.delivery).toMatchObject({
-				orderId: "ord_3",
-				specialInstructions: "Leave at the door",
-			});
+		if (!("delivery" in result)) {
+			throw new Error("expected 'delivery' in result");
 		}
+		expect(result.delivery).toMatchObject({
+			orderId: "ord_3",
+			specialInstructions: "Leave at the door",
+		});
 	});
 });
 
@@ -261,12 +264,13 @@ describe("store endpoint: get-delivery", () => {
 		const result = await simulateGetDelivery(data, true, created.id);
 
 		expect("id" in result).toBe(true);
-		if ("id" in result) {
-			expect(result.id).toBe(created.id);
-			expect(result.orderId).toBe("ord_tracking");
-			expect(result.status).toBe("pending");
-			expect(result.fee).toBe(599);
+		if (!("id" in result)) {
+			throw new Error("expected 'id' in result");
 		}
+		expect(result.id).toBe(created.id);
+		expect(result.orderId).toBe("ord_tracking");
+		expect(result.status).toBe("pending");
+		expect(result.fee).toBe(599);
 	});
 
 	it("returns tracking url when set on the delivery", async () => {
@@ -283,8 +287,10 @@ describe("store endpoint: get-delivery", () => {
 
 		const result = await simulateGetDelivery(data, true, created.id);
 
-		if ("trackingUrl" in result) {
-			expect(result.trackingUrl).toBe("https://favor.com/track/abc123");
+		expect("trackingUrl" in result).toBeTruthy();
+		if (!("trackingUrl" in result)) {
+			throw new Error("expected 'trackingUrl' in result");
 		}
+		expect(result.trackingUrl).toBe("https://favor.com/track/abc123");
 	});
 });

@@ -41,36 +41,32 @@ export function FaqAccordion({
 		isLoading: itemLoading,
 		isError: itemError,
 		refetch: itemRefetch,
-	} = categorySlug
-		? (api.getCategory.useQuery({ slug: categorySlug }) as {
-				data:
-					| {
-							category: {
-								id: string;
-								name: string;
-								slug: string;
-								description?: string;
-							};
-							items: Array<{
-								id: string;
-								question: string;
-								answer: string;
-								slug: string;
-								helpfulCount: number;
-								notHelpfulCount: number;
-							}>;
-					  }
-					| undefined;
-				isLoading: boolean;
-				isError: boolean;
-				refetch: () => void;
-			})
-		: {
-				data: undefined,
-				isLoading: false,
-				isError: false,
-				refetch: () => {},
-			};
+	} = api.getCategory.useQuery(
+		{ slug: categorySlug ?? "" },
+		{ enabled: Boolean(categorySlug) },
+	) as {
+		data:
+			| {
+					category: {
+						id: string;
+						name: string;
+						slug: string;
+						description?: string;
+					};
+					items: Array<{
+						id: string;
+						question: string;
+						answer: string;
+						slug: string;
+						helpfulCount: number;
+						notHelpfulCount: number;
+					}>;
+			  }
+			| undefined;
+		isLoading: boolean;
+		isError: boolean;
+		refetch: () => void;
+	};
 
 	const voteMutation = api.vote.useMutation({
 		onSettled: () => {

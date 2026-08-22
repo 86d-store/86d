@@ -16,22 +16,23 @@ export function FaqSearch({
 		typeof setTimeout
 	> | null>(null);
 
-	const { data, isLoading } = debouncedQuery
-		? (api.search.useQuery({ q: debouncedQuery }) as {
-				data:
-					| {
-							items: Array<{
-								id: string;
-								question: string;
-								answer: string;
-								slug: string;
-							}>;
-							query: string;
-					  }
-					| undefined;
-				isLoading: boolean;
-			})
-		: { data: undefined, isLoading: false };
+	const { data, isLoading } = api.search.useQuery(
+		{ q: debouncedQuery },
+		{ enabled: Boolean(debouncedQuery) },
+	) as {
+		data:
+			| {
+					items: Array<{
+						id: string;
+						question: string;
+						answer: string;
+						slug: string;
+					}>;
+					query: string;
+			  }
+			| undefined;
+		isLoading: boolean;
+	};
 
 	const handleChange = (value: string) => {
 		setQuery(value);

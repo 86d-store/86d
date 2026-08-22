@@ -1,7 +1,4 @@
 import { createFacebookShopWebhook } from "./webhook";
-
-export { createFacebookShopWebhook };
-
 export function createStoreEndpoints(appSecret?: string | undefined) {
 	const webhookEndpoint = createFacebookShopWebhook(appSecret);
 	return {

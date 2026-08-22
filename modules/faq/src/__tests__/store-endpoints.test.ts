@@ -157,10 +157,12 @@ describe("store endpoint: get category — slug lookup with items", () => {
 		const result = await simulateGetCategory(data, "shipping");
 
 		expect("category" in result).toBe(true);
-		if ("items" in result) {
-			expect(result.items).toHaveLength(1);
-			expect((result.items[0] as FaqItem).question).toBe("How fast?");
+		expect("items" in result).toBeTruthy();
+		if (!("items" in result)) {
+			throw new Error("expected 'items' in result");
 		}
+		expect(result.items).toHaveLength(1);
+		expect((result.items[0] as FaqItem).question).toBe("How fast?");
 	});
 
 	it("returns 404 for hidden category", async () => {
@@ -201,9 +203,10 @@ describe("store endpoint: get item — slug lookup", () => {
 		const result = await simulateGetItem(data, "return-policy");
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.question).toBe("What is your return policy?");
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.question).toBe("What is your return policy?");
 	});
 
 	it("returns 404 for hidden item", async () => {
@@ -309,10 +312,11 @@ describe("store endpoint: vote on FAQ item", () => {
 		const result = await simulateVote(data, item.id, true);
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.helpfulCount).toBe(1);
-			expect(result.item.notHelpfulCount).toBe(0);
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.helpfulCount).toBe(1);
+		expect(result.item.notHelpfulCount).toBe(0);
 	});
 
 	it("increments not-helpful count on negative vote", async () => {
@@ -328,10 +332,11 @@ describe("store endpoint: vote on FAQ item", () => {
 		const result = await simulateVote(data, item.id, false);
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.helpfulCount).toBe(0);
-			expect(result.item.notHelpfulCount).toBe(1);
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.helpfulCount).toBe(0);
+		expect(result.item.notHelpfulCount).toBe(1);
 	});
 
 	it("accumulates votes over multiple calls", async () => {
@@ -349,10 +354,11 @@ describe("store endpoint: vote on FAQ item", () => {
 		const result = await simulateVote(data, item.id, false);
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.helpfulCount).toBe(2);
-			expect(result.item.notHelpfulCount).toBe(1);
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.helpfulCount).toBe(2);
+		expect(result.item.notHelpfulCount).toBe(1);
 	});
 
 	it("returns 404 for nonexistent item", async () => {

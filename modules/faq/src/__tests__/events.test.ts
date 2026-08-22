@@ -287,7 +287,7 @@ describe("no events without emitter", () => {
 		});
 		await ctrl.updateItem(item.id, { answer: "New A" });
 		await ctrl.deleteItem(item.id);
-		await ctrl.deleteCategory(cat.id);
+		await expect(ctrl.deleteCategory(cat.id)).resolves.toBeUndefined();
 
 		// No errors thrown
 	});

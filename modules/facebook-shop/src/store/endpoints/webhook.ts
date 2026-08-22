@@ -85,11 +85,11 @@ export function createFacebookShopWebhook(appSecret?: string | undefined) {
 				);
 			}
 
-			const controller = ctx.context?.controllers
-				?.facebookShop as FacebookShopController;
+			const controller = ctx.context?.controllers?.facebookShop;
 			if (!controller) {
 				return Response.json({ received: true, handled: false });
 			}
+			const _facebookShop = controller as FacebookShopController;
 
 			const { type, payload } = body;
 
@@ -102,14 +102,13 @@ export function createFacebookShopWebhook(appSecret?: string | undefined) {
 						status:
 							(payload.status as "pending" | "confirmed" | undefined) ??
 							"pending",
-						items: (payload.items as unknown[]) ?? [],
-						subtotal: (payload.subtotal as number) ?? 0,
-						shippingFee: (payload.shippingFee as number) ?? 0,
-						platformFee: (payload.platformFee as number) ?? 0,
-						total: (payload.total as number) ?? 0,
+						items: payload.items as unknown[],
+						subtotal: payload.subtotal as number,
+						shippingFee: payload.shippingFee as number,
+						platformFee: payload.platformFee as number,
+						total: payload.total as number,
 						customerName: payload.customerName as string | undefined,
-						shippingAddress:
-							(payload.shippingAddress as Record<string, unknown>) ?? {},
+						shippingAddress: payload.shippingAddress as Record<string, unknown>,
 					});
 					return Response.json({
 						received: true,

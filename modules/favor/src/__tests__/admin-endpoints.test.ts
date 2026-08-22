@@ -368,7 +368,7 @@ describe("admin GET /favor/settings", () => {
 		});
 		const handler = extractHandler(ep);
 		const result = (await callSettings(handler)) as { apiKeyMasked: string };
-		expect(result.apiKeyMasked?.startsWith("sk_test_")).toBe(true);
+		expect(result.apiKeyMasked.startsWith("sk_test_")).toBe(true);
 		expect(result.apiKeyMasked).toContain("*");
 	});
 

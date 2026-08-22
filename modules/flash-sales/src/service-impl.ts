@@ -63,7 +63,7 @@ export function createFlashSaleController(
 
 		async getFlashSale(id) {
 			const raw = await data.get("flashSale", id);
-			return (raw as unknown as FlashSale) ?? null;
+			return raw as unknown as FlashSale;
 		},
 
 		async getFlashSaleBySlug(slug) {
