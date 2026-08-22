@@ -19,9 +19,10 @@
 	"author": "86d <chat@86d.app>",
 	"type": "module",
 	"bin": {
-		"86d": "./dist/index.js"
+		"86d": "./bin/86d.mjs"
 	},
 	"files": [
+		"bin",
 		"dist",
 		"!dist/**/__tests__",
 		"!dist/**/__tests__/**",
@@ -51,6 +52,9 @@
 		"vitest": "catalog:vite"
 	},
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"bin": {
+			"86d": "./dist/index.js"
+		}
 	}
 }

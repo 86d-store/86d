@@ -112,7 +112,7 @@ Templates live in `templates/<name>/`. The store app resolves them via tsconfig 
 - `template create | activate | list`
 - `generate modules | components`
 
-Module packages use `"build": "86d module build"` (TypeScript → `dist/` plus non-TS asset copy). Add `"86d": "workspace:*"` (or a published CLI version) as a devDependency so the bin resolves and Turbo builds the CLI first via `^build`.
+Module packages use `"build": "86d module build"` (TypeScript → `dist/` plus non-TS asset copy). Add `"86d": "workspace:*"` (or a published CLI version) as a devDependency so the bin resolves. The workspace bin is `packages/cli/bin/86d.mjs` (a file that exists at install time); `dist/index.js` is gitignored and cannot be the workspace `bin` target.
 
 ## Registry
 

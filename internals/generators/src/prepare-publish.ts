@@ -3,8 +3,9 @@
  * prepare-publish.ts
  *
  * Rewrites Bun workspace/catalog protocols in publishable package.json files
- * and swaps workspace `exports` (src) for `publishConfig.exports` (dist) so
- * `changeset publish` / npm can install packages outside this monorepo.
+ * and swaps workspace `exports` (src) for `publishConfig.exports` (dist), and
+ * workspace `bin` for `publishConfig.bin` when present, so `changeset publish`
+ * / npm can install packages outside this monorepo.
  *
  * Backs up each package.json under `.prepare-publish-backup/` and restores it
  * afterward (does not use `git checkout`, so uncommitted packaging edits survive).
@@ -205,9 +206,12 @@ function backupPackageJson(pkgPath: string): void {
 function applyPublishExports(pkg: JsonObject): void {
 	const publishConfig = pkg.publishConfig;
 	if (!publishConfig || typeof publishConfig !== "object") return;
-	const publishedExports = (publishConfig as JsonObject).exports;
-	if (publishedExports) {
-		pkg.exports = publishedExports;
+	const published = publishConfig as JsonObject;
+	if (published.exports) {
+		pkg.exports = published.exports;
+	}
+	if (published.bin) {
+		pkg.bin = published.bin;
 	}
 }
 

@@ -50,7 +50,7 @@ src/
 
 ## Gotchas
 
-- Binary is `86d` (from `package.json` `bin` field), built to `dist/index.js`
+- Workspace `bin` is `bin/86d.mjs` (exists at install time). `publishConfig.bin` is `dist/index.js`.
 - No external CLI framework — uses raw `process.argv` parsing
 - `findProjectRoot` requires both `turbo.json` and `package.json` with name `"86d"`
 - Tests use Vitest — run with `bun run test` or `vitest run`
