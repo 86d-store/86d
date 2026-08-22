@@ -18,7 +18,7 @@ type DataService = ReturnType<typeof createMockDataService>;
 
 async function simulateUseToken(data: DataService, token: string) {
 	const controller = createDigitalDownloadsController(data);
-	const result = await controller.useToken(token);
+	const result = await controller.redeemToken(token);
 	if (!result.ok) {
 		return { error: result.reason ?? "Invalid token", status: 400 };
 	}
@@ -71,21 +71,26 @@ describe("store endpoint: use token — download validation", () => {
 		const result = await simulateUseToken(data, token.token);
 
 		expect("file" in result).toBe(true);
-		if ("file" in result) {
-			expect(result.file?.name).toBe("ebook.pdf");
+		if (!("file" in result)) {
+			throw new Error("expected 'file' in result");
 		}
-		if ("token" in result && result.token) {
-			expect(result.token.downloadCount).toBe(1);
+		expect(result.file?.name).toBe("ebook.pdf");
+
+		expect("token" in result && result.token).toBeTruthy();
+		if (!("token" in result && result.token)) {
+			throw new Error("expected 'token' in result && result.token");
 		}
+		expect(result.token.downloadCount).toBe(1);
 	});
 
 	it("rejects an invalid token", async () => {
 		const result = await simulateUseToken(data, "invalid_token_xyz");
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.status).toBe(400);
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.status).toBe(400);
 	});
 
 	it("rejects a revoked token", async () => {
@@ -121,7 +126,7 @@ describe("store endpoint: use token — download validation", () => {
 		});
 
 		// Use the single allowed download
-		await ctrl.useToken(token.token);
+		await ctrl.redeemToken(token.token);
 
 		// Second attempt should fail
 		const result = await simulateUseToken(data, token.token);
@@ -166,9 +171,11 @@ describe("store endpoint: use token — download validation", () => {
 		const result = await simulateUseToken(data, token.token);
 
 		expect("token" in result).toBe(true);
-		if ("token" in result && result.token) {
-			expect(result.token.downloadCount).toBe(3);
+		expect("token" in result && result.token).toBeTruthy();
+		if (!("token" in result && result.token)) {
+			throw new Error("expected 'token' in result && result.token");
 		}
+		expect(result.token.downloadCount).toBe(3);
 	});
 });
 
@@ -208,9 +215,10 @@ describe("store endpoint: list my downloads — auth required", () => {
 		});
 
 		expect("tokens" in result).toBe(true);
-		if ("tokens" in result) {
-			expect(result.tokens).toHaveLength(1);
+		if (!("tokens" in result)) {
+			throw new Error("expected 'tokens' in result");
 		}
+		expect(result.tokens).toHaveLength(1);
 	});
 
 	it("returns empty for customer with no downloads", async () => {
@@ -219,9 +227,10 @@ describe("store endpoint: list my downloads — auth required", () => {
 		});
 
 		expect("tokens" in result).toBe(true);
-		if ("tokens" in result) {
-			expect(result.tokens).toHaveLength(0);
+		if (!("tokens" in result)) {
+			throw new Error("expected 'tokens' in result");
 		}
+		expect(result.tokens).toHaveLength(0);
 	});
 
 	it("returns multiple tokens for the same email", async () => {
@@ -250,9 +259,10 @@ describe("store endpoint: list my downloads — auth required", () => {
 		});
 
 		expect("tokens" in result).toBe(true);
-		if ("tokens" in result) {
-			expect(result.tokens).toHaveLength(2);
+		if (!("tokens" in result)) {
+			throw new Error("expected 'tokens' in result");
 		}
+		expect(result.tokens).toHaveLength(2);
 	});
 });
 

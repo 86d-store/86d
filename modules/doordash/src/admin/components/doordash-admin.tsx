@@ -270,9 +270,9 @@ export function DoorDashAdmin() {
 		return (
 			<DoorDashAdminTemplate>
 				<div className="space-y-4">
-					{Array.from({ length: 3 }).map((_, i) => (
+					{(["k0", "k1", "k2"] as const).map((key) => (
 						<div
-							key={`skeleton-${i}`}
+							key={key}
 							className="h-32 animate-pulse rounded-lg border border-border bg-muted/30"
 						/>
 					))}
@@ -373,9 +373,9 @@ export function DoorDashAdmin() {
 
 					{zonesLoading ? (
 						<div className="space-y-2">
-							{Array.from({ length: 2 }).map((_, i) => (
+							{(["k0", "k1"] as const).map((key) => (
 								<div
-									key={`zone-skel-${i}`}
+									key={key}
 									className="h-16 animate-pulse rounded-md border border-border bg-muted/30"
 								/>
 							))}
@@ -433,9 +433,9 @@ export function DoorDashAdmin() {
 				<SettingsCard label="Recent deliveries">
 					{deliveriesLoading ? (
 						<div className="space-y-2">
-							{Array.from({ length: 3 }).map((_, i) => (
+							{(["k0", "k1", "k2"] as const).map((key) => (
 								<div
-									key={`del-skel-${i}`}
+									key={key}
 									className="h-14 animate-pulse rounded-md border border-border bg-muted/30"
 								/>
 							))}

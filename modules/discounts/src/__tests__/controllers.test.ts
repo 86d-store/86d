@@ -2130,7 +2130,7 @@ describe("discounts controller", () => {
 		});
 
 		it("handles empty array", async () => {
-			await controller.applyPriceRules([]);
+			await expect(controller.applyPriceRules([])).resolves.toBeUndefined();
 			// Should not throw
 		});
 	});

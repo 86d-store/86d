@@ -106,10 +106,10 @@ export function createDigitalDownloadsController(
 				where: { token: tokenValue },
 				take: 1,
 			});
-			return (matches[0] as DownloadToken) ?? null;
+			return matches[0] as DownloadToken;
 		},
 
-		async useToken(tokenValue) {
+		async redeemToken(tokenValue) {
 			const matches = await data.findMany("downloadToken", {
 				where: { token: tokenValue },
 				take: 1,

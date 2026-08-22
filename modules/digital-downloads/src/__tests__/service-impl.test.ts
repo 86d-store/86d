@@ -334,7 +334,7 @@ describe("createDigitalDownloadsController", () => {
 		});
 	});
 
-	describe("useToken", () => {
+	describe("redeemToken", () => {
 		it("successfully uses token, increments downloadCount and returns file", async () => {
 			const data = createMockDataService();
 			const ctrl = createDigitalDownloadsController(data);
@@ -349,7 +349,7 @@ describe("createDigitalDownloadsController", () => {
 				email: "user@example.com",
 			});
 
-			const result = await ctrl.useToken(token.token);
+			const result = await ctrl.redeemToken(token.token);
 
 			expect(result.ok).toBe(true);
 			expect(result.file).toBeDefined();
@@ -372,8 +372,8 @@ describe("createDigitalDownloadsController", () => {
 				email: "user@example.com",
 			});
 
-			await ctrl.useToken(token.token);
-			const result = await ctrl.useToken(token.token);
+			await ctrl.redeemToken(token.token);
+			const result = await ctrl.redeemToken(token.token);
 
 			expect(result.ok).toBe(true);
 			expect(result.token?.downloadCount).toBe(2);
@@ -394,7 +394,7 @@ describe("createDigitalDownloadsController", () => {
 			});
 			await ctrl.revokeToken(token.token);
 
-			const result = await ctrl.useToken(token.token);
+			const result = await ctrl.redeemToken(token.token);
 
 			expect(result.ok).toBe(false);
 			expect(result.reason).toBe("Token revoked");
@@ -416,7 +416,7 @@ describe("createDigitalDownloadsController", () => {
 				expiresAt: pastDate,
 			});
 
-			const result = await ctrl.useToken(token.token);
+			const result = await ctrl.redeemToken(token.token);
 
 			expect(result.ok).toBe(false);
 			expect(result.reason).toBe("Token expired");
@@ -438,10 +438,10 @@ describe("createDigitalDownloadsController", () => {
 			});
 
 			// Use it once (allowed)
-			await ctrl.useToken(token.token);
+			await ctrl.redeemToken(token.token);
 
 			// Second use should fail
-			const result = await ctrl.useToken(token.token);
+			const result = await ctrl.redeemToken(token.token);
 
 			expect(result.ok).toBe(false);
 			expect(result.reason).toBe("Download limit reached");
@@ -451,7 +451,7 @@ describe("createDigitalDownloadsController", () => {
 			const data = createMockDataService();
 			const ctrl = createDigitalDownloadsController(data);
 
-			const result = await ctrl.useToken("totally-unknown-token");
+			const result = await ctrl.redeemToken("totally-unknown-token");
 
 			expect(result.ok).toBe(false);
 			expect(result.reason).toBe("Token not found");
@@ -473,7 +473,7 @@ describe("createDigitalDownloadsController", () => {
 				expiresAt: futureDate,
 			});
 
-			const result = await ctrl.useToken(token.token);
+			const result = await ctrl.redeemToken(token.token);
 			expect(result.ok).toBe(true);
 		});
 	});

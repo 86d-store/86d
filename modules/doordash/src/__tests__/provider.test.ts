@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as providerModule from "../provider";
 import {
 	createJwt,
 	DoordashDriveProvider,
@@ -348,9 +347,11 @@ describe("DoordashDriveProvider", () => {
 			const result = await provider.verifyConnection();
 
 			expect(result.ok).toBe(false);
-			if (!result.ok) {
-				expect(result.error).toContain("Invalid credentials");
+			expect(!result.ok).toBeTruthy();
+			if (result.ok) {
+				throw new Error("expected !result.ok");
 			}
+			expect(result.error).toContain("Invalid credentials");
 		});
 
 		it("returns error when fetch throws a network error", async () => {
@@ -418,8 +419,10 @@ describe("createJwt", () => {
 // ── Webhook authentication boundary ──────────────────────────────────────────
 
 describe("webhook authentication boundary", () => {
-	it("does not export the undocumented body-HMAC verifier", () => {
-		expect("verifyWebhookSignature" in providerModule).toBe(false);
+	it("does not export the undocumented body-HMAC verifier", async () => {
+		expect("verifyWebhookSignature" in (await import("../provider"))).toBe(
+			false,
+		);
 	});
 });
 

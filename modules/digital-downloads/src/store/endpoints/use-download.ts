@@ -1,5 +1,5 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { DigitalDownloadsController } from "../../service";
 
 export const useDownload = createStoreEndpoint(
@@ -12,7 +12,7 @@ export const useDownload = createStoreEndpoint(
 		const controller = ctx.context.controllers[
 			"digital-downloads"
 		] as DigitalDownloadsController;
-		const result = await controller.useToken(ctx.params.token);
+		const result = await controller.redeemToken(ctx.params.token);
 		if (!result.ok) {
 			return { ok: false, reason: result.reason };
 		}

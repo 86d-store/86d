@@ -43,7 +43,7 @@ export default function digitalDownloads(
 					email: string;
 					items: Array<{ productId?: string | undefined }>;
 				};
-				if (!p?.email || !p.items?.length) return;
+				if (!p.email || !p.items.length) return;
 
 				const expiryDays = options?.defaultTokenExpiryDays ?? 0;
 				const expiresAt =

@@ -188,19 +188,19 @@ export function DiscountAnalytics() {
 					<div className="space-y-3">
 						<TypeDistributionBar
 							label="Percentage"
-							count={analytics.typeDistribution.percentage ?? 0}
+							count={analytics.typeDistribution.percentage}
 							total={analytics.totalDiscounts}
 							color="bg-blue-500"
 						/>
 						<TypeDistributionBar
 							label="Fixed Amount"
-							count={analytics.typeDistribution.fixed_amount ?? 0}
+							count={analytics.typeDistribution.fixed_amount}
 							total={analytics.totalDiscounts}
 							color="bg-emerald-500"
 						/>
 						<TypeDistributionBar
 							label="Free Shipping"
-							count={analytics.typeDistribution.free_shipping ?? 0}
+							count={analytics.typeDistribution.free_shipping}
 							total={analytics.totalDiscounts}
 							color="bg-purple-500"
 						/>

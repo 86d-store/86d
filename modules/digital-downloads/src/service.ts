@@ -71,7 +71,7 @@ export type DigitalDownloadsController = ModuleController & {
 
 	getTokenByValue(token: string): Promise<DownloadToken | null>;
 
-	useToken(token: string): Promise<{
+	redeemToken(token: string): Promise<{
 		ok: boolean;
 		reason?: string | undefined;
 		file?: DownloadableFile | undefined;

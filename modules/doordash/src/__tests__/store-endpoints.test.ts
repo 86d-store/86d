@@ -200,11 +200,12 @@ describe("store endpoint: create-delivery", () => {
 		});
 
 		expect("delivery" in result).toBe(true);
-		if ("delivery" in result) {
-			expect(result.delivery.orderId).toBe("ord_2");
-			expect(result.delivery.status).toBe("pending");
-			expect(result.delivery.fee).toBe(499);
+		if (!("delivery" in result)) {
+			throw new Error("expected 'delivery' in result");
 		}
+		expect(result.delivery.orderId).toBe("ord_2");
+		expect(result.delivery.status).toBe("pending");
+		expect(result.delivery.fee).toBe(499);
 	});
 
 	it("uses default tip of 0 when not provided", async () => {
@@ -216,9 +217,10 @@ describe("store endpoint: create-delivery", () => {
 		});
 
 		expect("delivery" in result).toBe(true);
-		if ("delivery" in result) {
-			expect(result.delivery.tip).toBe(0);
+		if (!("delivery" in result)) {
+			throw new Error("expected 'delivery' in result");
 		}
+		expect(result.delivery.tip).toBe(0);
 	});
 });
 
@@ -255,11 +257,12 @@ describe("store endpoint: get-delivery", () => {
 		const result = await simulateGetDelivery(data, true, created.id);
 
 		expect("id" in result).toBe(true);
-		if ("id" in result) {
-			expect(result.id).toBe(created.id);
-			expect(result.orderId).toBe("ord_tracking");
-			expect(result.status).toBe("pending");
-			expect(result.fee).toBe(599);
+		if (!("id" in result)) {
+			throw new Error("expected 'id' in result");
 		}
+		expect(result.id).toBe(created.id);
+		expect(result.orderId).toBe("ord_tracking");
+		expect(result.status).toBe("pending");
+		expect(result.fee).toBe(599);
 	});
 });

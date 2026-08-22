@@ -69,7 +69,7 @@ describe("revokeTokenById", () => {
 		expect(await ctrl.revokeTokenById(token.id)).toBe(true);
 
 		// Verify the token is revoked by trying to use it
-		const result = await ctrl.useToken(token.token);
+		const result = await ctrl.redeemToken(token.token);
 		expect(result.ok).toBe(false);
 		expect(result.reason).toBe("Token revoked");
 	});
@@ -108,14 +108,14 @@ describe("revokeTokenById", () => {
 		});
 
 		// Use once successfully
-		const first = await ctrl.useToken(token.token);
+		const first = await ctrl.redeemToken(token.token);
 		expect(first.ok).toBe(true);
 
 		// Revoke
 		await ctrl.revokeTokenById(token.id);
 
 		// Try to use again
-		const second = await ctrl.useToken(token.token);
+		const second = await ctrl.redeemToken(token.token);
 		expect(second.ok).toBe(false);
 		expect(second.reason).toBe("Token revoked");
 	});
@@ -266,7 +266,7 @@ describe("createTokenBatch", () => {
 			email: "buyer@example.com",
 		});
 
-		const result = await ctrl.useToken(tokens[0].token);
+		const result = await ctrl.redeemToken(tokens[0].token);
 		expect(result.ok).toBe(true);
 		expect(result.file?.name).toBe("file.pdf");
 	});
@@ -413,8 +413,8 @@ describe("token lifecycle integration", () => {
 		});
 
 		// Use twice
-		await ctrl.useToken(token.token);
-		await ctrl.useToken(token.token);
+		await ctrl.redeemToken(token.token);
+		await ctrl.redeemToken(token.token);
 
 		// Check count via getToken
 		const afterUse = await ctrl.getToken(token.id);
@@ -424,7 +424,7 @@ describe("token lifecycle integration", () => {
 		await ctrl.revokeTokenById(token.id);
 
 		// Cannot use anymore
-		const result = await ctrl.useToken(token.token);
+		const result = await ctrl.redeemToken(token.token);
 		expect(result.ok).toBe(false);
 	});
 
@@ -449,12 +449,12 @@ describe("token lifecycle integration", () => {
 		});
 
 		// Use first token
-		const result1 = await ctrl.useToken(tokens[0].token);
+		const result1 = await ctrl.redeemToken(tokens[0].token);
 		expect(result1.ok).toBe(true);
 		expect(result1.file?.name).toBe("guide.pdf");
 
 		// Use second token
-		const result2 = await ctrl.useToken(tokens[1].token);
+		const result2 = await ctrl.redeemToken(tokens[1].token);
 		expect(result2.ok).toBe(true);
 		expect(result2.file?.name).toBe("bonus.mp4");
 
