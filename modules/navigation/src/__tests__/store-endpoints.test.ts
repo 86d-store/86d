@@ -117,9 +117,10 @@ describe("store endpoint: get menu by slug", () => {
 		const result = await simulateGetMenuBySlug(data, "header-menu");
 
 		expect("menu" in result).toBe(true);
-		if ("menu" in result) {
-			expect(result.menu.name).toBe("Header Menu");
+		if (!("menu" in result)) {
+			throw new Error("expected 'menu' in result");
 		}
+		expect(result.menu.name).toBe("Header Menu");
 	});
 
 	it("returns 404 for inactive menu", async () => {
@@ -176,10 +177,11 @@ describe("store endpoint: get menu with items", () => {
 		const result = await simulateGetMenuWithItems(data, menu.id);
 
 		expect("menu" in result).toBe(true);
-		if ("menu" in result) {
-			expect(result.menu.name).toBe("Main");
-			expect(result.menu.items.length).toBeGreaterThanOrEqual(2);
+		if (!("menu" in result)) {
+			throw new Error("expected 'menu' in result");
 		}
+		expect(result.menu.name).toBe("Main");
+		expect(result.menu.items.length).toBeGreaterThanOrEqual(2);
 	});
 
 	it("returns 404 for nonexistent menu", async () => {
@@ -215,9 +217,10 @@ describe("store endpoint: get menu by location", () => {
 		const result = await simulateGetMenuByLocation(data, "footer");
 
 		expect("menu" in result).toBe(true);
-		if ("menu" in result) {
-			expect(result.menu.name).toBe("Footer Nav");
+		if (!("menu" in result)) {
+			throw new Error("expected 'menu' in result");
 		}
+		expect(result.menu.name).toBe("Footer Nav");
 	});
 
 	it("returns 404 when no menu at location", async () => {

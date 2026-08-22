@@ -1,6 +1,6 @@
 import { createAdminEndpoint } from "@86d-app/core/api";
 import { sanitizeHtml, sanitizeText } from "@86d-app/core/sanitize";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { NewsletterController } from "../../service";
 
 export const updateCampaignEndpoint = createAdminEndpoint(

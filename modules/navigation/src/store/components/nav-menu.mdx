@@ -1,8 +1,8 @@
 {props.isLoading ? (
   <nav className="flex gap-6" aria-label="Navigation">
-    {Array.from({ length: 4 }).map((_, i) => (
+    {(["k0", "k1", "k2", "k3"] as const).map((key) => (
       <div
-        key={`nav-skeleton-${i}`}
+        key={key}
         className="h-4 w-16 animate-pulse rounded bg-muted"
       />
     ))}

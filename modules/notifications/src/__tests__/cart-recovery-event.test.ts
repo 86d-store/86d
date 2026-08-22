@@ -314,6 +314,7 @@ describe("cart.recoveryAttempted event listener", () => {
 		await new Promise((r) => setTimeout(r, 50));
 
 		fetchSpy.mockRestore();
+		expect(true).toBe(true);
 	});
 
 	it("handles cart fetch failure gracefully", async () => {

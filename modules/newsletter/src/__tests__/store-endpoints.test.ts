@@ -107,10 +107,11 @@ describe("unsubscribe (POST /newsletter/unsubscribe)", () => {
 			email: "active@example.com",
 		});
 		expect("subscriber" in result).toBe(true);
-		if ("subscriber" in result) {
-			expect(result.subscriber.status).toBe("unsubscribed");
-			expect(result.subscriber.unsubscribedAt).toBeDefined();
+		if (!("subscriber" in result)) {
+			throw new Error("expected 'subscriber' in result");
 		}
+		expect(result.subscriber.status).toBe("unsubscribed");
+		expect(result.subscriber.unsubscribedAt).toBeDefined();
 	});
 
 	it("returns 404 for non-existent email", async () => {
@@ -134,9 +135,11 @@ describe("cross-endpoint lifecycle", () => {
 		const unsub = await simulateUnsubscribe(controller, {
 			email: "lifecycle@example.com",
 		});
-		if ("subscriber" in unsub) {
-			expect(unsub.subscriber.status).toBe("unsubscribed");
+		expect("subscriber" in unsub).toBeTruthy();
+		if (!("subscriber" in unsub)) {
+			throw new Error("expected 'subscriber' in unsub");
 		}
+		expect(unsub.subscriber.status).toBe("unsubscribed");
 
 		// Resubscribe
 		const resub = await simulateSubscribe(controller, {

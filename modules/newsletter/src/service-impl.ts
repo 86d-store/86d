@@ -133,7 +133,7 @@ export function createNewsletterController(
 				where: { email },
 				take: 1,
 			});
-			return (matches[0] as Subscriber) ?? null;
+			return matches[0] as Subscriber;
 		},
 
 		async updateSubscriber(id, params) {

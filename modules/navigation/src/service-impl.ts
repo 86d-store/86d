@@ -124,7 +124,7 @@ export function createNavigationController(
 				where: { slug },
 				take: 1,
 			});
-			return (matches[0] as unknown as Menu) ?? null;
+			return matches[0] as unknown as Menu;
 		},
 
 		async listMenus(params) {
@@ -249,8 +249,7 @@ export function createNavigationController(
 				orderBy: { createdAt: "asc" },
 				take: 1,
 			});
-			const menu = (menus[0] as unknown as Menu) ?? null;
-			if (!menu) return null;
+			const menu = menus[0] as unknown as Menu;
 
 			const allItems = await data.findMany("menuItem", {
 				where: { menuId: menu.id, isVisible: true },

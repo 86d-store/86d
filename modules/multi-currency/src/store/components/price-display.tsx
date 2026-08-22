@@ -31,16 +31,18 @@ export function PriceDisplay({
 }: PriceDisplayProps) {
 	const api = useCurrencyApi();
 
+	const productPriceMutation = api.productPrice.useMutation() as unknown as {
+		data: ConvertedResult | undefined;
+		isLoading: boolean;
+	};
+	const convertMutation = api.convert.useMutation() as unknown as {
+		data: ConvertedResult | undefined;
+		isLoading: boolean;
+	};
 	const priceQuery = currencyCode
 		? productId
-			? (api.productPrice.useMutation() as unknown as {
-					data: ConvertedResult | undefined;
-					isLoading: boolean;
-				})
-			: (api.convert.useMutation() as unknown as {
-					data: ConvertedResult | undefined;
-					isLoading: boolean;
-				})
+			? productPriceMutation
+			: convertMutation
 		: { data: undefined, isLoading: false };
 
 	// If no currency code, show base price
