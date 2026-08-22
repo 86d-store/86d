@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
+import { getProcessEnv } from "env/process-env";
 import { NextResponse } from "next/server";
 import { getStorage } from "~/lib/storage";
 import {
@@ -17,7 +18,7 @@ const MIME_TYPES: Record<string, string> = {
 	".pdf": "application/pdf",
 };
 
-const UPLOADS_DIR = resolve(process.env.STORAGE_LOCAL_DIR ?? "./uploads");
+const UPLOADS_DIR = resolve(getProcessEnv("STORAGE_LOCAL_DIR") ?? "./uploads");
 
 function buildResponseHeaders(
 	contentType: string,
@@ -62,7 +63,7 @@ export async function GET(
 		return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 	}
 
-	if (process.env.STORAGE_CLIENT === "s3" && isProxyingUploadUrls()) {
+	if (getProcessEnv("STORAGE_CLIENT") === "s3" && isProxyingUploadUrls()) {
 		try {
 			const storage = getStorage();
 			const response = await fetch(storage.getUrl(key));
@@ -96,7 +97,7 @@ export async function GET(
 		}
 	}
 
-	if (process.env.STORAGE_CLIENT !== "local") {
+	if (getProcessEnv("STORAGE_CLIENT") !== "local") {
 		return NextResponse.json({ error: "Not found" }, { status: 404 });
 	}
 

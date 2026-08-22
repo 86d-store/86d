@@ -42,8 +42,9 @@ logs/
 # Registry cache
 .86d/
 
-# Storage
-uploads/
+# Storage (local upload blobs — not the Next.js uploads route handlers)
+/uploads/
+apps/store/uploads/
 
 # Misc
 bak/

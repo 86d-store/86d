@@ -1,6 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { setProcessEnv } from "env/process-env";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -27,15 +28,15 @@ describe("/uploads route", () => {
 	});
 
 	afterEach(() => {
-		delete process.env.STORAGE_CLIENT;
-		delete process.env.STORAGE_LOCAL_DIR;
-		delete process.env.STORAGE_PUBLIC_URL_MODE;
+		setProcessEnv("STORAGE_CLIENT", undefined);
+		setProcessEnv("STORAGE_LOCAL_DIR", undefined);
+		setProcessEnv("STORAGE_PUBLIC_URL_MODE", undefined);
 		rmSync(localUploadsDir, { recursive: true, force: true });
 	});
 
 	it("serves local files when local storage is enabled", async () => {
-		process.env.STORAGE_CLIENT = "local";
-		process.env.STORAGE_LOCAL_DIR = localUploadsDir;
+		setProcessEnv("STORAGE_CLIENT", "local");
+		setProcessEnv("STORAGE_LOCAL_DIR", localUploadsDir);
 
 		const imagePath = join(localUploadsDir, "stores", "store-123", "image.png");
 		mkdirSync(join(localUploadsDir, "stores", "store-123"), {
@@ -58,8 +59,8 @@ describe("/uploads route", () => {
 	});
 
 	it("blocks local path traversal attempts", async () => {
-		process.env.STORAGE_CLIENT = "local";
-		process.env.STORAGE_LOCAL_DIR = localUploadsDir;
+		setProcessEnv("STORAGE_CLIENT", "local");
+		setProcessEnv("STORAGE_LOCAL_DIR", localUploadsDir);
 
 		const { GET } = await import("../route");
 		const response = await GET(new Request("http://localhost/uploads/test"), {
@@ -73,8 +74,8 @@ describe("/uploads route", () => {
 	});
 
 	it("proxies S3-backed SVG uploads with hardened headers", async () => {
-		process.env.STORAGE_CLIENT = "s3";
-		process.env.STORAGE_PUBLIC_URL_MODE = "proxy";
+		setProcessEnv("STORAGE_CLIENT", "s3");
+		setProcessEnv("STORAGE_PUBLIC_URL_MODE", "proxy");
 		mocks.getUrl.mockReturnValue(
 			"http://minio:9000/86d-uploads/stores/store-123/object",
 		);
@@ -108,8 +109,8 @@ describe("/uploads route", () => {
 	});
 
 	it("proxies deeply nested seed asset paths", async () => {
-		process.env.STORAGE_CLIENT = "s3";
-		process.env.STORAGE_PUBLIC_URL_MODE = "proxy";
+		setProcessEnv("STORAGE_CLIENT", "s3");
+		setProcessEnv("STORAGE_PUBLIC_URL_MODE", "proxy");
 		mocks.getUrl.mockReturnValue(
 			"http://minio:9000/86d-uploads/stores/store-123/seed/luxury-house/blog/inside-the-atelier.webp",
 		);
@@ -143,8 +144,8 @@ describe("/uploads route", () => {
 	});
 
 	it("adds attachment headers for proxied PDFs", async () => {
-		process.env.STORAGE_CLIENT = "s3";
-		process.env.STORAGE_PUBLIC_URL_MODE = "proxy";
+		setProcessEnv("STORAGE_CLIENT", "s3");
+		setProcessEnv("STORAGE_PUBLIC_URL_MODE", "proxy");
 		mocks.getUrl.mockReturnValue(
 			"http://minio:9000/86d-uploads/stores/store-123/manual",
 		);
@@ -169,8 +170,8 @@ describe("/uploads route", () => {
 	});
 
 	it("returns 404 when the proxied S3 object is missing", async () => {
-		process.env.STORAGE_CLIENT = "s3";
-		process.env.STORAGE_PUBLIC_URL_MODE = "proxy";
+		setProcessEnv("STORAGE_CLIENT", "s3");
+		setProcessEnv("STORAGE_PUBLIC_URL_MODE", "proxy");
 		mocks.getUrl.mockReturnValue(
 			"http://minio:9000/86d-uploads/stores/store-123/missing",
 		);
