@@ -1,6 +1,6 @@
 import { createAdminEndpoint } from "@86d-app/core/api";
 import { storePresentationResolveCapability } from "@86d-app/core/commerce-capabilities";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import { createOrderController } from "../../service-impl";
 
 export const adminGetInvoice = createAdminEndpoint(

@@ -2,7 +2,7 @@ import { createAdminEndpoint } from "@86d-app/core/api";
 import type { CapabilityInvoker } from "@86d-app/core/capabilities";
 import { customerContactResolveCapability } from "@86d-app/core/commerce-capabilities";
 import { sanitizeText } from "@86d-app/core/sanitize";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { OrderController, OrderWithDetails } from "../../service";
 
 export const adminUpdateOrder = createAdminEndpoint(
@@ -137,7 +137,7 @@ async function resolveContactInfo(
 	const email = order.guestEmail ?? "";
 
 	// Try to derive name from shipping address
-	const shipping = order.addresses?.find((a) => a.type === "shipping");
+	const shipping = order.addresses.find((a) => a.type === "shipping");
 	if (shipping) {
 		const name = [shipping.firstName, shipping.lastName]
 			.filter(Boolean)

@@ -196,10 +196,11 @@ describe("store endpoint: get page by slug — published only", () => {
 		const result = await simulateGetPageBySlug(data, "terms");
 
 		expect("page" in result).toBe(true);
-		if ("page" in result) {
-			expect(result.page.title).toBe("Terms of Service");
-			expect(result.page.content).toBe("Terms and conditions apply.");
+		if (!("page" in result)) {
+			throw new Error("expected 'page' in result");
 		}
+		expect(result.page.title).toBe("Terms of Service");
+		expect(result.page.content).toBe("Terms and conditions apply.");
 	});
 
 	it("returns 404 for draft page", async () => {

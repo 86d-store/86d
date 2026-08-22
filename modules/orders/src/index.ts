@@ -21,7 +21,6 @@ import {
 	orderPurchaseVerifyProvider,
 } from "./capabilities";
 import { ordersStorage } from "./schema";
-import { RETURN_REASONS } from "./service";
 import { createOrderController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -53,8 +52,6 @@ export type {
 	ReturnType,
 	UpdateReturnParams,
 } from "./service";
-
-export { RETURN_REASONS };
 
 export interface OrdersOptions extends ModuleConfig {
 	/**

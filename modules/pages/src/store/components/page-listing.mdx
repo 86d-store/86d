@@ -2,9 +2,9 @@ import Link from "next/link";
 
 {props.isLoading ? (
   <div className="space-y-6">
-    {Array.from({ length: 3 }).map((_, i) => (
+    {(["k0", "k1", "k2"] as const).map((key) => (
       <div
-        key={`page-skeleton-${i}`}
+        key={key}
         className="animate-pulse space-y-3 rounded-xl border border-border/60 p-6"
       >
         <div className="h-5 w-48 rounded bg-muted" />

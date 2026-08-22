@@ -14,14 +14,6 @@ import {
 } from "@86d-app/core/commerce-capabilities";
 import { createOrderController } from "./service-impl";
 
-export {
-	orderCreateCapability,
-	orderCustomerAuthorizeCapability,
-	orderGuestProofAuthorizeCapability,
-	orderLineQuantityValidateCapability,
-	orderPurchaseVerifyCapability,
-};
-
 type OrderLineValidationDecision = CapabilityDecision<
 	typeof orderLineQuantityValidateCapability
 >;
