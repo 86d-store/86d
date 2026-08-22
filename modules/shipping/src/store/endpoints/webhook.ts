@@ -234,13 +234,13 @@ export function createShippingWebhook(opts: {
 
 			if (
 				event.object !== "Event" ||
-				!event.description?.startsWith("tracker.")
+				!event.description.startsWith("tracker.")
 			) {
 				return Response.json({ received: true, handled: false });
 			}
 
 			const tracker = event.result;
-			if (tracker?.object !== "Tracker" || !tracker.tracking_code) {
+			if (tracker.object !== "Tracker" || !tracker.tracking_code) {
 				return Response.json({ received: true, handled: false });
 			}
 			if (!event.id) {

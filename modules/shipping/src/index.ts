@@ -10,29 +10,7 @@ import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
 import { createShippingQuoteProvider } from "./capabilities";
 import {
 	createEasyPostShippingConnectionProvider,
-	createShippingConnectionInputSchema,
 	createShippingFoundationController,
-	createShippingQuoteInputSchema,
-	isUspsPriorityMailRate,
-	recordShippingLabelInputSchema,
-	recordShippingLabelRefundInputSchema,
-	recordShippingPostageAdjustmentInputSchema,
-	recordShippingTrackingInputSchema,
-	shippingAddressSchema,
-	shippingConnectionCapabilitySchema,
-	shippingConnectionHealthSchema,
-	shippingConnectionLifecycleSchema,
-	shippingConnectionModeSchema,
-	shippingConnectionSchema,
-	shippingLabelRefundSchema,
-	shippingLabelSchema,
-	shippingOptionSchema,
-	shippingParcelPlanSchema,
-	shippingParcelSchema,
-	shippingPostageAdjustmentSchema,
-	shippingQuoteSchema,
-	shippingTrackingSchema,
-	USPS_PRIORITY_MAIL_SERVICE,
 } from "./foundation-v2";
 import { shippingStorage } from "./schema";
 import { createShippingController } from "./service-impl";
@@ -74,32 +52,6 @@ export type {
 	ShippingRate,
 	ShippingZone,
 } from "./service";
-export {
-	createEasyPostShippingConnectionProvider,
-	createShippingConnectionInputSchema,
-	createShippingFoundationController,
-	createShippingQuoteInputSchema,
-	isUspsPriorityMailRate,
-	recordShippingLabelInputSchema,
-	recordShippingLabelRefundInputSchema,
-	recordShippingPostageAdjustmentInputSchema,
-	recordShippingTrackingInputSchema,
-	shippingAddressSchema,
-	shippingConnectionCapabilitySchema,
-	shippingConnectionHealthSchema,
-	shippingConnectionLifecycleSchema,
-	shippingConnectionModeSchema,
-	shippingConnectionSchema,
-	shippingLabelRefundSchema,
-	shippingLabelSchema,
-	shippingOptionSchema,
-	shippingParcelPlanSchema,
-	shippingParcelSchema,
-	shippingPostageAdjustmentSchema,
-	shippingQuoteSchema,
-	shippingTrackingSchema,
-	USPS_PRIORITY_MAIL_SERVICE,
-};
 
 export interface ShippingOptions extends ModuleConfig {
 	/** Default currency for shipping prices */

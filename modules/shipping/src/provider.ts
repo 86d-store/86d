@@ -163,7 +163,7 @@ export class EasyPostProvider {
 		if (!res.ok) {
 			const err = json as EasyPostErrorResponse;
 			throw new Error(
-				`EasyPost API error: ${err.error?.message ?? `HTTP ${res.status}`} (${err.error?.code ?? "unknown"})`,
+				`EasyPost API error: ${err.error.message} (${err.error.code})`,
 			);
 		}
 		return json as T;

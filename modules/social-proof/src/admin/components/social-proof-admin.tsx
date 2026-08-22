@@ -169,10 +169,10 @@ export function SocialProofAdmin() {
 			<div className="hidden md:block">
 				<table className="w-full text-left text-sm">
 					<tbody className="divide-y divide-border">
-						{Array.from({ length: 5 }, (_, i) => (
-							<tr key={`skeleton-${i}`}>
-								{Array.from({ length: 4 }, (_, j) => (
-									<td key={`skeleton-cell-${j}`} className="px-5 py-3">
+						{Array.from({ length: 5 }, (_, _i) => (
+							<tr key={rowKey}>
+								{Array.from({ length: 4 }, (_, _j) => (
+									<td key={cellKey} className="px-5 py-3">
 										<Skeleton className="h-4 rounded" />
 									</td>
 								))}
@@ -182,8 +182,8 @@ export function SocialProofAdmin() {
 				</table>
 			</div>
 			<div className="space-y-3 p-4 md:hidden">
-				{Array.from({ length: 3 }, (_, i) => (
-					<Skeleton key={`mobile-skeleton-${i}`} className="h-16 rounded-lg" />
+				{Array.from({ length: 3 }, (_, _i) => (
+					<Skeleton key={key} className="h-16 rounded-lg" />
 				))}
 			</div>
 		</div>
@@ -308,11 +308,8 @@ export function SocialProofAdmin() {
 
 	const badgesContent = loading ? (
 		<div className="divide-y divide-border">
-			{Array.from({ length: 4 }, (_, i) => (
-				<div
-					key={`badge-skeleton-${i}`}
-					className="flex items-center gap-3 px-5 py-3"
-				>
+			{Array.from({ length: 4 }, (_, _i) => (
+				<div key={key} className="flex items-center gap-3 px-5 py-3">
 					<Skeleton className="h-8 w-8 rounded" />
 					<div className="flex-1 space-y-1.5">
 						<Skeleton className="h-3.5 w-32 rounded" />

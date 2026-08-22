@@ -5,7 +5,6 @@ import type {
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { sitemapStorage } from "./schema";
-import { MAX_ENTRIES_PER_SITEMAP } from "./service";
 import { createSitemapController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -16,7 +15,6 @@ export type {
 	SitemapEntry,
 	SitemapStats,
 } from "./service";
-export { MAX_ENTRIES_PER_SITEMAP };
 
 export interface SitemapOptions extends ModuleConfig {
 	/** Base URL for the store. Default: https://example.com */
