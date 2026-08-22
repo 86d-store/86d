@@ -1,3 +1,4 @@
+import { getProcessEnv } from "env/process-env";
 import { Suspense } from "react";
 import { SignInForm } from "~/components/auth/signin-form";
 
@@ -6,8 +7,8 @@ export const metadata = {
 };
 
 const show86dSso = Boolean(
-	process.env["86D_ADMIN_OAUTH_CLIENT_ID"] &&
-		process.env["86D_ADMIN_OAUTH_CLIENT_SECRET"],
+	getProcessEnv("86D_ADMIN_OAUTH_CLIENT_ID") &&
+		getProcessEnv("86D_ADMIN_OAUTH_CLIENT_SECRET"),
 );
 
 export default function SignInPage() {

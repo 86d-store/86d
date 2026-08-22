@@ -1,9 +1,10 @@
 "use client";
 
-import { z } from "@86d-app/core/zod";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { buttonVariants } from "~/components/ui/button";
+import { z } from "zod";
+import { buttonVariants } from "~/components/ui/button-variants";
 import { Skeleton } from "~/components/ui/skeleton";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -249,15 +250,15 @@ function ConfirmationContent() {
 						</h2>
 					</div>
 					<ul className="divide-y divide-border">
-						{summary.items.map((item, i) => (
-							<li
-								key={`${item.name}-${i}`}
-								className="flex items-center gap-4 px-6 py-4"
-							>
+						{summary.items.map((item) => (
+							<li key={item.id} className="flex items-center gap-4 px-6 py-4">
 								{item.image ? (
-									<img
+									<Image
 										src={item.image}
 										alt={item.name}
+										width={48}
+										height={48}
+										unoptimized
 										className="size-12 rounded-lg border border-border object-cover"
 									/>
 								) : (

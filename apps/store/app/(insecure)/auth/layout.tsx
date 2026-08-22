@@ -1,4 +1,5 @@
 import { getSession } from "auth/actions";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 
 interface AuthLayoutProps {
@@ -14,14 +15,20 @@ export default async function AuthLayout({ children }: AuthLayoutProps) {
 			<div className="flex w-full max-w-sm flex-col gap-4">
 				<div className="text-center">
 					<a href="/" className="inline-block">
-						<img
+						<Image
 							src="/assets/logo/light.svg"
 							alt="Store"
+							width={120}
+							height={32}
+							unoptimized
 							className="mx-auto h-8 w-auto dark:hidden"
 						/>
-						<img
+						<Image
 							src="/assets/logo/dark.svg"
 							alt="Store"
+							width={120}
+							height={32}
+							unoptimized
 							className="mx-auto hidden h-8 w-auto dark:block"
 						/>
 					</a>

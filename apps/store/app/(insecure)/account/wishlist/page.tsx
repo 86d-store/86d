@@ -2,8 +2,9 @@
 
 import { useModuleClient } from "@86d-app/core/client/provider";
 import { HeartIcon } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
-import { buttonVariants } from "~/components/ui/button";
+import { buttonVariants } from "~/components/ui/button-variants";
 import {
 	Empty,
 	EmptyContent,
@@ -148,9 +149,12 @@ export default function WishlistPage() {
 							{/* Product image */}
 							<a href={`/products/${item.productId}`} className="block">
 								{item.productImage ? (
-									<img
+									<Image
 										src={item.productImage}
 										alt={item.productName}
+										width={400}
+										height={400}
+										unoptimized
 										className="aspect-square w-full object-cover transition-transform group-hover:scale-105"
 									/>
 								) : (

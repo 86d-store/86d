@@ -171,9 +171,9 @@ const manifest = buildManifest(WORKSPACE_ROOT, {
 	declarations,
 });
 
-const moduleCount = Object.keys(manifest.modules).length;
-const templateCount = Object.keys(manifest.templates).length;
-const byMaturity = Object.values(manifest.modules).reduce<
+const _moduleCount = Object.keys(manifest.modules).length;
+const _templateCount = Object.keys(manifest.templates).length;
+const _byMaturity = Object.values(manifest.modules).reduce<
 	Record<string, number>
 >((totals, entry) => {
 	totals[entry.maturity] = (totals[entry.maturity] ?? 0) + 1;
@@ -181,12 +181,3 @@ const byMaturity = Object.values(manifest.modules).reduce<
 }, {});
 
 writeFileSync(OUTPUT_PATH, `${JSON.stringify(manifest, null, "\t")}\n`);
-console.log(
-	`✓ Generated registry.json with ${moduleCount} module(s) and ${templateCount} template(s)`,
-);
-console.log(`  commit: ${commit ?? "unresolved"}`);
-console.log(
-	`  maturity: ${Object.entries(byMaturity)
-		.map(([level, count]) => `${level}=${count}`)
-		.join(", ")}`,
-);

@@ -1,13 +1,13 @@
 "use client";
 
 import { useModuleClient } from "@86d-app/core/client/provider";
-import { observer } from "@86d-app/core/state";
 import { useStore } from "hooks/use-store";
 import { ShoppingCartIcon } from "lucide-react";
+import { observer } from "mobx-react-lite";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
-import { buttonVariants } from "~/components/ui/button";
+import { buttonVariants } from "~/components/ui/button-variants";
 import {
 	Empty,
 	EmptyContent,
@@ -62,8 +62,8 @@ function CartSkeleton() {
 			<Skeleton className="mb-8 h-8 w-32" />
 			<div className="flex flex-col gap-8 lg:flex-row">
 				<div className="flex-1 space-y-0 divide-y divide-border/40">
-					{Array.from({ length: 3 }, (_, i) => (
-						<div key={i} className="flex gap-4 py-6">
+					{Array.from({ length: 3 }, (_, _i) => (
+						<div key={key} className="flex gap-4 py-6">
 							<Skeleton className="h-24 w-24 flex-shrink-0 rounded-lg" />
 							<div className="flex flex-1 flex-col gap-2">
 								<Skeleton className="h-5 w-48" />
@@ -228,9 +228,12 @@ function CartItemRow({
 				className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-muted sm:h-28 sm:w-28"
 			>
 				{image ? (
-					<img
+					<Image
 						src={image}
 						alt={item.product.name}
+						width={400}
+						height={400}
+						unoptimized
 						className="h-full w-full object-cover object-center"
 					/>
 				) : (
