@@ -302,8 +302,8 @@ export function TikTokShopAdmin() {
 				<Skeleton className="h-6 w-48" />
 				<Skeleton className="h-28 w-full rounded-lg" />
 				<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-					{Array.from({ length: 4 }, (_, i) => (
-						<Skeleton key={i} className="h-24 rounded-lg" />
+					{Array.from({ length: 4 }, (_, _i) => (
+						<Skeleton key={key} className="h-24 rounded-lg" />
 					))}
 				</div>
 				<Skeleton className="h-64 w-full rounded-lg" />
@@ -325,8 +325,8 @@ export function TikTokShopAdmin() {
 
 			{statsLoading ? (
 				<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-					{Array.from({ length: 4 }, (_, i) => (
-						<Skeleton key={i} className="h-24 rounded-lg" />
+					{Array.from({ length: 4 }, (_, _i) => (
+						<Skeleton key={key} className="h-24 rounded-lg" />
 					))}
 				</div>
 			) : stats ? (
@@ -419,13 +419,10 @@ export function TikTokShopAdmin() {
 							<div className="hidden md:block">
 								<table className="w-full text-left text-sm">
 									<tbody className="divide-y divide-border">
-										{Array.from({ length: 5 }, (_, i) => (
-											<tr key={`listing-skeleton-${i}`}>
-												{Array.from({ length: 4 }, (_, j) => (
-													<td
-														key={`listing-skeleton-cell-${j}`}
-														className="px-5 py-3"
-													>
+										{Array.from({ length: 5 }, (_, _i) => (
+											<tr key={rowKey}>
+												{Array.from({ length: 4 }, (_, _j) => (
+													<td key={cellKey} className="px-5 py-3">
 														<Skeleton className="h-4 rounded" />
 													</td>
 												))}
@@ -435,11 +432,8 @@ export function TikTokShopAdmin() {
 								</table>
 							</div>
 							<div className="space-y-3 p-4 md:hidden">
-								{Array.from({ length: 3 }, (_, i) => (
-									<Skeleton
-										key={`listing-mobile-skeleton-${i}`}
-										className="h-16 rounded-lg"
-									/>
+								{Array.from({ length: 3 }, (_, _i) => (
+									<Skeleton key={key} className="h-16 rounded-lg" />
 								))}
 							</div>
 						</div>
@@ -597,13 +591,10 @@ export function TikTokShopAdmin() {
 							<div className="hidden md:block">
 								<table className="w-full text-left text-sm">
 									<tbody className="divide-y divide-border">
-										{Array.from({ length: 5 }, (_, i) => (
-											<tr key={`order-skeleton-${i}`}>
-												{Array.from({ length: 4 }, (_, j) => (
-													<td
-														key={`order-skeleton-cell-${j}`}
-														className="px-5 py-3"
-													>
+										{Array.from({ length: 5 }, (_, _i) => (
+											<tr key={rowKey}>
+												{Array.from({ length: 4 }, (_, _j) => (
+													<td key={cellKey} className="px-5 py-3">
 														<Skeleton className="h-4 rounded" />
 													</td>
 												))}
@@ -613,11 +604,8 @@ export function TikTokShopAdmin() {
 								</table>
 							</div>
 							<div className="space-y-3 p-4 md:hidden">
-								{Array.from({ length: 3 }, (_, i) => (
-									<Skeleton
-										key={`order-mobile-skeleton-${i}`}
-										className="h-16 rounded-lg"
-									/>
+								{Array.from({ length: 3 }, (_, _i) => (
+									<Skeleton key={key} className="h-16 rounded-lg" />
 								))}
 							</div>
 						</div>

@@ -90,11 +90,11 @@ export function createTikTokShopWebhook(appSecret?: string | undefined) {
 				);
 			}
 
-			const controller = ctx.context?.controllers
-				?.tiktokShop as TikTokShopController;
+			const controller = ctx.context?.controllers?.tiktokShop;
 			if (!controller) {
 				return Response.json({ received: true, handled: false });
 			}
+			const _tiktokShop = controller as TikTokShopController;
 
 			const { type, payload } = body;
 
@@ -107,14 +107,13 @@ export function createTikTokShopWebhook(appSecret?: string | undefined) {
 						status:
 							(payload.status as "pending" | "confirmed" | undefined) ??
 							"pending",
-						items: (payload.items as unknown[]) ?? [],
-						subtotal: (payload.subtotal as number) ?? 0,
-						shippingFee: (payload.shippingFee as number) ?? 0,
-						platformFee: (payload.platformFee as number) ?? 0,
-						total: (payload.total as number) ?? 0,
+						items: payload.items as unknown[],
+						subtotal: payload.subtotal as number,
+						shippingFee: payload.shippingFee as number,
+						platformFee: payload.platformFee as number,
+						total: payload.total as number,
 						customerName: payload.customerName as string | undefined,
-						shippingAddress:
-							(payload.shippingAddress as Record<string, unknown>) ?? {},
+						shippingAddress: payload.shippingAddress as Record<string, unknown>,
 					});
 					return Response.json({
 						received: true,

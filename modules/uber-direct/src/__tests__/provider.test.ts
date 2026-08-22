@@ -403,9 +403,11 @@ describe("UberDirectProvider", () => {
 			const result = await provider.verifyConnection();
 
 			expect(result.ok).toBe(false);
-			if (!result.ok) {
-				expect(result.error).toContain("Uber OAuth error");
+			expect(!result.ok).toBeTruthy();
+			if (result.ok) {
+				throw new Error("expected !result.ok");
 			}
+			expect(result.error).toContain("Uber OAuth error");
 		});
 
 		it("returns error on network failure", async () => {

@@ -1,7 +1,4 @@
 import { createTikTokShopWebhook } from "./webhook";
-
-export { createTikTokShopWebhook };
-
 export function createStoreEndpoints(appSecret?: string | undefined) {
 	const webhookEndpoint = createTikTokShopWebhook(appSecret);
 	return {

@@ -149,7 +149,7 @@ export class ToastPosProvider {
 			let message = `HTTP ${res.status}`;
 			try {
 				const err = (await res.json()) as ToastApiErrorResponse;
-				message = err.message ?? message;
+				message = err.message;
 			} catch {
 				// body may not be JSON
 			}

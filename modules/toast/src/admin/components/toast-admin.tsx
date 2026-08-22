@@ -260,9 +260,9 @@ export function ToastAdmin() {
 			<ToastAdminTemplate
 				content={
 					<div className="space-y-4">
-						{Array.from({ length: 4 }).map((_, i) => (
+						{(["k0", "k1", "k2", "k3"] as const).map((key) => (
 							<div
-								key={`skeleton-${i}`}
+								key={key}
 								className="h-32 animate-pulse rounded-lg border border-border bg-muted/30"
 							/>
 						))}
@@ -381,9 +381,9 @@ export function ToastAdmin() {
 					<SettingsCard label="Sync overview">
 						{statsLoading ? (
 							<div className="grid grid-cols-4 gap-3">
-								{Array.from({ length: 4 }).map((_, i) => (
+								{(["k0", "k1", "k2", "k3"] as const).map((key) => (
 									<div
-										key={`stat-skel-${i}`}
+										key={key}
 										className="h-20 animate-pulse rounded-lg border border-border bg-muted/30"
 									/>
 								))}
@@ -450,9 +450,9 @@ export function ToastAdmin() {
 
 						{mappingsLoading ? (
 							<div className="space-y-2">
-								{Array.from({ length: 3 }).map((_, i) => (
+								{(["k0", "k1", "k2"] as const).map((key) => (
 									<div
-										key={`map-skel-${i}`}
+										key={key}
 										className="h-12 animate-pulse rounded-md border border-border bg-muted/30"
 									/>
 								))}
@@ -504,9 +504,9 @@ export function ToastAdmin() {
 					<SettingsCard label="Recent sync records">
 						{recordsLoading ? (
 							<div className="space-y-2">
-								{Array.from({ length: 3 }).map((_, i) => (
+								{(["k0", "k1", "k2"] as const).map((key) => (
 									<div
-										key={`rec-skel-${i}`}
+										key={key}
 										className="h-12 animate-pulse rounded-md border border-border bg-muted/30"
 									/>
 								))}

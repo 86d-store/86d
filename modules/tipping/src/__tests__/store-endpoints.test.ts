@@ -127,10 +127,11 @@ describe("store endpoint: add tip — tip an order", () => {
 		});
 
 		expect("tip" in result).toBe(true);
-		if ("tip" in result) {
-			expect(result.tip.amount).toBe(500);
-			expect(result.tip.orderId).toBe("order_1");
+		if (!("tip" in result)) {
+			throw new Error("expected 'tip' in result");
 		}
+		expect(result.tip.amount).toBe(500);
+		expect(result.tip.orderId).toBe("order_1");
 	});
 
 	it("adds a preset tip", async () => {
@@ -142,10 +143,11 @@ describe("store endpoint: add tip — tip an order", () => {
 		});
 
 		expect("tip" in result).toBe(true);
-		if ("tip" in result) {
-			expect(result.tip.amount).toBe(300);
-			expect(result.tip.type).toBe("preset");
+		if (!("tip" in result)) {
+			throw new Error("expected 'tip' in result");
 		}
+		expect(result.tip.amount).toBe(300);
+		expect(result.tip.type).toBe("preset");
 	});
 });
 
@@ -203,9 +205,10 @@ describe("store endpoint: update tip — modify existing tip", () => {
 		);
 
 		expect("tip" in result).toBe(true);
-		if ("tip" in result) {
-			expect(result.tip.amount).toBe(600);
+		if (!("tip" in result)) {
+			throw new Error("expected 'tip' in result");
 		}
+		expect(result.tip.amount).toBe(600);
 	});
 
 	it("returns 404 for nonexistent tip", async () => {

@@ -654,7 +654,9 @@ describe("toast service-impl without provider", () => {
 
 	it("does not emit events when emitter is not provided", async () => {
 		// No events emitter passed — should not throw
-		await controller.syncMenu({ entityId: "m1", externalId: "e1" });
+		await expect(
+			controller.syncMenu({ entityId: "m1", externalId: "e1" }),
+		).resolves.toBeUndefined();
 		// If we got here without throwing, events are safely skipped
 	});
 });

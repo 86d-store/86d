@@ -22,7 +22,6 @@ export type {
 	SyncStats,
 	ToastController,
 } from "./service";
-export { ToastPosProvider };
 
 export interface ToastOptions extends ModuleConfig {
 	/** Toast API access token */

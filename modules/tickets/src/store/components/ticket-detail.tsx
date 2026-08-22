@@ -168,7 +168,7 @@ export function TicketDetail(props: {
 	}
 
 	const ticket = data.ticket;
-	const messages = (data.messages ?? []).filter((m) => !m.isInternal);
+	const messages = data.messages.filter((m) => !m.isInternal);
 	const isClosed = ticket.status === "closed" || ticket.status === "resolved";
 
 	const statusBadge = (

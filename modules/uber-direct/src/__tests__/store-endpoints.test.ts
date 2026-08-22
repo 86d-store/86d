@@ -173,11 +173,12 @@ describe("store endpoint: request-quote", () => {
 		);
 
 		expect("quote" in result).toBe(true);
-		if ("quote" in result) {
-			expect(result.quote.fee).toBe(799);
-			expect(result.quote.estimatedMinutes).toBe(28);
-			expect(result.quote.status).toBe("active");
+		if (!("quote" in result)) {
+			throw new Error("expected 'quote' in result");
 		}
+		expect(result.quote.fee).toBe(799);
+		expect(result.quote.estimatedMinutes).toBe(28);
+		expect(result.quote.status).toBe("active");
 	});
 });
 
@@ -224,11 +225,13 @@ describe("store endpoint: create-delivery", () => {
 		});
 
 		expect("delivery" in result).toBe(true);
-		if ("delivery" in result && result.delivery) {
-			expect(result.delivery.orderId).toBe("ord_create");
-			expect(result.delivery.status).toBe("pending");
-			expect(result.delivery.tip).toBe(150);
+		expect("delivery" in result && result.delivery).toBeTruthy();
+		if (!("delivery" in result && result.delivery)) {
+			throw new Error("expected 'delivery' in result && result.delivery");
 		}
+		expect(result.delivery.orderId).toBe("ord_create");
+		expect(result.delivery.status).toBe("pending");
+		expect(result.delivery.tip).toBe(150);
 	});
 
 	it("uses default tip of 0 when not provided", async () => {
@@ -247,9 +250,11 @@ describe("store endpoint: create-delivery", () => {
 		});
 
 		expect("delivery" in result).toBe(true);
-		if ("delivery" in result && result.delivery) {
-			expect(result.delivery.tip).toBe(0);
+		expect("delivery" in result && result.delivery).toBeTruthy();
+		if (!("delivery" in result && result.delivery)) {
+			throw new Error("expected 'delivery' in result && result.delivery");
 		}
+		expect(result.delivery.tip).toBe(0);
 	});
 });
 
@@ -407,10 +412,11 @@ describe("store endpoint: get-delivery", () => {
 		const result = await simulateGetDelivery(data, true, created.id);
 
 		expect("id" in result).toBe(true);
-		if ("id" in result) {
-			expect(result.id).toBe(created.id);
-			expect(result.orderId).toBe("ord_status");
-			expect(result.status).toBe("pending");
+		if (!("id" in result)) {
+			throw new Error("expected 'id' in result");
 		}
+		expect(result.id).toBe(created.id);
+		expect(result.orderId).toBe("ord_status");
+		expect(result.status).toBe("pending");
 	});
 });

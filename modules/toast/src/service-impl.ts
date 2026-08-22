@@ -10,18 +10,19 @@ import type {
 	ToastController,
 } from "./service";
 
-async function createSyncRecord(
-	data: ModuleDataService,
-	events: ScopedEventEmitter | undefined,
-	provider: ToastPosProvider | undefined,
-	entityType: SyncEntityType,
-	eventName: string,
+async function createSyncRecord(options: {
+	data: ModuleDataService;
+	events: ScopedEventEmitter | undefined;
+	provider: ToastPosProvider | undefined;
+	entityType: SyncEntityType;
+	eventName: string;
 	params: {
 		entityId: string;
 		externalId: string;
 		direction?: SyncDirection | undefined;
-	},
-): Promise<SyncRecord> {
+	};
+}): Promise<SyncRecord> {
+	const { data, events, provider, entityType, eventName, params } = options;
 	const now = new Date();
 	const id = crypto.randomUUID();
 	const direction = params.direction ?? "outbound";
@@ -73,36 +74,36 @@ export function createToastController(
 ): ToastController {
 	return {
 		async syncMenu(params) {
-			return createSyncRecord(
+			return createSyncRecord({
 				data,
 				events,
 				provider,
-				"menu-item",
-				"toast.menu.synced",
+				entityType: "menu-item",
+				eventName: "toast.menu.synced",
 				params,
-			);
+			});
 		},
 
 		async syncOrder(params) {
-			return createSyncRecord(
+			return createSyncRecord({
 				data,
 				events,
 				provider,
-				"order",
-				"toast.order.synced",
+				entityType: "order",
+				eventName: "toast.order.synced",
 				params,
-			);
+			});
 		},
 
 		async syncInventory(params) {
-			return createSyncRecord(
+			return createSyncRecord({
 				data,
 				events,
 				provider,
-				"inventory",
-				"toast.inventory.updated",
+				entityType: "inventory",
+				eventName: "toast.inventory.updated",
 				params,
-			);
+			});
 		},
 
 		async getSyncRecord(id) {

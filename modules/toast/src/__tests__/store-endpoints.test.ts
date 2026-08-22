@@ -65,12 +65,13 @@ describe("store endpoint: sync-menu", () => {
 		});
 
 		expect("record" in result).toBe(true);
-		if ("record" in result) {
-			expect(result.record.entityId).toBe("menu_local_1");
-			expect(result.record.externalId).toBe("toast_menu_abc");
-			expect(result.record.entityType).toBe("menu-item");
-			expect(result.record.status).toMatch(/pending|synced|success/);
+		if (!("record" in result)) {
+			throw new Error("expected 'record' in result");
 		}
+		expect(result.record.entityId).toBe("menu_local_1");
+		expect(result.record.externalId).toBe("toast_menu_abc");
+		expect(result.record.entityType).toBe("menu-item");
+		expect(result.record.status).toMatch(/pending|synced|success/);
 	});
 
 	it("records the sync direction when provided", async () => {
@@ -81,9 +82,10 @@ describe("store endpoint: sync-menu", () => {
 		});
 
 		expect("record" in result).toBe(true);
-		if ("record" in result) {
-			expect(result.record.direction).toBe("inbound");
+		if (!("record" in result)) {
+			throw new Error("expected 'record' in result");
 		}
+		expect(result.record.direction).toBe("inbound");
 	});
 
 	it("records multiple menu sync operations independently", async () => {
@@ -118,11 +120,12 @@ describe("store endpoint: sync-order", () => {
 		});
 
 		expect("record" in result).toBe(true);
-		if ("record" in result) {
-			expect(result.record.entityId).toBe("order_local_1");
-			expect(result.record.externalId).toBe("toast_order_abc");
-			expect(result.record.entityType).toBe("order");
+		if (!("record" in result)) {
+			throw new Error("expected 'record' in result");
 		}
+		expect(result.record.entityId).toBe("order_local_1");
+		expect(result.record.externalId).toBe("toast_order_abc");
+		expect(result.record.entityType).toBe("order");
 	});
 
 	it("records the sync direction when provided", async () => {
@@ -133,8 +136,9 @@ describe("store endpoint: sync-order", () => {
 		});
 
 		expect("record" in result).toBe(true);
-		if ("record" in result) {
-			expect(result.record.direction).toBe("outbound");
+		if (!("record" in result)) {
+			throw new Error("expected 'record' in result");
 		}
+		expect(result.record.direction).toBe("outbound");
 	});
 });

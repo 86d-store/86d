@@ -74,7 +74,9 @@ describe("no events without emitter", () => {
 
 		await ctrl.syncMenu({ entityId: "p-1", externalId: "t-1" });
 		await ctrl.syncOrder({ entityId: "o-1", externalId: "to-1" });
-		await ctrl.syncInventory({ entityId: "i-1", externalId: "ti-1" });
+		await expect(
+			ctrl.syncInventory({ entityId: "i-1", externalId: "ti-1" }),
+		).resolves.toBeUndefined();
 	});
 });
 
