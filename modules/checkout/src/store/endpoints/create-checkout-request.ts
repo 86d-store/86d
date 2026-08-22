@@ -1,6 +1,6 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
 import { cartSnapshotCapability } from "@86d-app/core/commerce-capabilities";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import {
 	checkoutRequestContactSchema,
 	checkoutRequestReasonSchema,

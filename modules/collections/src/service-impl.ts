@@ -65,7 +65,7 @@ export function createCollectionController(
 
 		async getCollection(id) {
 			const raw = await data.get("collection", id);
-			return (raw as unknown as Collection) ?? null;
+			return raw as unknown as Collection;
 		},
 
 		async getCollectionBySlug(slug) {

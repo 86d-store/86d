@@ -1,4 +1,5 @@
 import type { ModuleContext } from "@86d-app/core/types/module";
+import { getProcessEnv } from "env/process-env";
 import type { CheckoutRequest } from "../../checkout-request";
 
 const COOKIE_PREFIX = "checkout_request_guest_";
@@ -60,7 +61,7 @@ export function setCheckoutRequestProofCookie(
 	context.setCookie(cookieName(request.id), proof, {
 		httpOnly: true,
 		sameSite: "lax",
-		secure: process.env.NODE_ENV === "production",
+		secure: getProcessEnv("NODE_ENV") === "production",
 		path: "/api/checkout/requests",
 		maxAge,
 	});

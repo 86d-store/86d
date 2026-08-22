@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "@86d-app/core/state";
+import { makeAutoObservable } from "mobx";
 
 export type CheckoutStep = "information" | "shipping" | "payment" | "review";
 

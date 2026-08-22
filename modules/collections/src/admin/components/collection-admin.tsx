@@ -185,10 +185,10 @@ function CollectionForm({
 	const [description, setDescription] = useState(collection?.description ?? "");
 	const [image, setImage] = useState(collection?.image ?? "");
 	const [type, setType] = useState<CollectionType>(
-		(collection?.type as CollectionType) ?? "manual",
+		collection?.type as CollectionType,
 	);
 	const [sortOrder, setSortOrder] = useState<SortOrder>(
-		(collection?.sortOrder as SortOrder) ?? "manual",
+		collection?.sortOrder as SortOrder,
 	);
 	const [isActive, setIsActive] = useState(collection?.isActive ?? true);
 	const [isFeatured, setIsFeatured] = useState(collection?.isFeatured ?? false);
@@ -205,7 +205,7 @@ function CollectionForm({
 			void api.stats.invalidate();
 			onSaved();
 		},
-		onError: (err: Error) => setError(err.message ?? "Failed to create"),
+		onError: (err: Error) => setError(err.message),
 	});
 
 	const updateMutation = api.update.useMutation({
@@ -214,7 +214,7 @@ function CollectionForm({
 			void api.stats.invalidate();
 			onSaved();
 		},
-		onError: (err: Error) => setError(err.message ?? "Failed to update"),
+		onError: (err: Error) => setError(err.message),
 	});
 
 	const isPending = createMutation.isPending || updateMutation.isPending;
@@ -603,10 +603,10 @@ export function CollectionAdmin() {
 
 	// ── Table body
 	const tableBody = listLoading ? (
-		Array.from({ length: 5 }, (_, i) => (
-			<tr key={`skeleton-${i}`}>
-				{Array.from({ length: 6 }, (_, j) => (
-					<td key={`cell-${j}`} className="px-4 py-3">
+		Array.from({ length: 5 }, (_, _i) => (
+			<tr key={rowKey}>
+				{Array.from({ length: 6 }, (_, _j) => (
+					<td key={cellKey} className="px-4 py-3">
 						<div className="h-4 w-24 animate-pulse rounded bg-muted" />
 					</td>
 				))}

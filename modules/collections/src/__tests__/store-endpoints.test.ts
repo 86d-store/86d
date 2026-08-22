@@ -231,11 +231,12 @@ describe("get-collection (GET /collections/:slug)", () => {
 
 		const result = await simulateGetCollection(controller, "summer-sale");
 		expect("collection" in result).toBe(true);
-		if ("collection" in result) {
-			expect(result.collection.title).toBe("Summer Sale");
-			expect(result.collection.description).toBe("Hot deals");
-			expect(result.productCount).toBe(2);
+		if (!("collection" in result)) {
+			throw new Error("expected 'collection' in result");
 		}
+		expect(result.collection.title).toBe("Summer Sale");
+		expect(result.collection.description).toBe("Hot deals");
+		expect(result.productCount).toBe(2);
 	});
 
 	it("returns 404 for non-existent slug", async () => {
@@ -272,10 +273,11 @@ describe("get-collection-products (GET /collections/:slug/products)", () => {
 
 		const result = await simulateGetCollectionProducts(controller, "tops");
 		expect("products" in result).toBe(true);
-		if ("products" in result) {
-			expect(result.products).toHaveLength(3);
-			expect(result.totalCount).toBe(3);
+		if (!("products" in result)) {
+			throw new Error("expected 'products' in result");
 		}
+		expect(result.products).toHaveLength(3);
+		expect(result.totalCount).toBe(3);
 	});
 
 	it("paginates products", async () => {
@@ -291,18 +293,22 @@ describe("get-collection-products (GET /collections/:slug/products)", () => {
 			take: 2,
 			skip: 0,
 		});
-		if ("products" in page1) {
-			expect(page1.products).toHaveLength(2);
-			expect(page1.totalCount).toBe(5);
+		expect("products" in page1).toBeTruthy();
+		if (!("products" in page1)) {
+			throw new Error("expected 'products' in page1");
 		}
+		expect(page1.products).toHaveLength(2);
+		expect(page1.totalCount).toBe(5);
 
 		const page3 = await simulateGetCollectionProducts(controller, "big", {
 			take: 2,
 			skip: 4,
 		});
-		if ("products" in page3) {
-			expect(page3.products).toHaveLength(1);
+		expect("products" in page3).toBeTruthy();
+		if (!("products" in page3)) {
+			throw new Error("expected 'products' in page3");
 		}
+		expect(page3.products).toHaveLength(1);
 	});
 
 	it("returns 404 for inactive collection", async () => {
@@ -319,10 +325,12 @@ describe("get-collection-products (GET /collections/:slug/products)", () => {
 		await seedCollection(controller, { slug: "empty" });
 
 		const result = await simulateGetCollectionProducts(controller, "empty");
-		if ("products" in result) {
-			expect(result.products).toHaveLength(0);
-			expect(result.totalCount).toBe(0);
+		expect("products" in result).toBeTruthy();
+		if (!("products" in result)) {
+			throw new Error("expected 'products' in result");
 		}
+		expect(result.products).toHaveLength(0);
+		expect(result.totalCount).toBe(0);
 	});
 });
 
@@ -444,9 +452,10 @@ describe("cross-endpoint consistency", () => {
 		// Appears in detail
 		const detail = await simulateGetCollection(controller, "best-sellers");
 		expect("collection" in detail).toBe(true);
-		if ("collection" in detail) {
-			expect(detail.productCount).toBe(1);
+		if (!("collection" in detail)) {
+			throw new Error("expected 'collection' in detail");
 		}
+		expect(detail.productCount).toBe(1);
 
 		// Appears in featured
 		const featured = await simulateGetFeatured(controller);

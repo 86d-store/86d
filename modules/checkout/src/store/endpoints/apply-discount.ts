@@ -1,7 +1,7 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
 import { discountCodeCapability } from "@86d-app/core/commerce-capabilities";
 import { sanitizeText } from "@86d-app/core/sanitize";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import { checkoutRevisionSchema, runCheckoutMutation } from "../../concurrency";
 import type { CheckoutController } from "../../service";
 import { canAccessCheckout } from "./guest-proof";

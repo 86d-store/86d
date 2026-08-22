@@ -1,6 +1,6 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
 import { inventoryCheckoutCapability } from "@86d-app/core/commerce-capabilities";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { CheckoutController } from "../../service";
 
 export const confirmSession = createStoreEndpoint(

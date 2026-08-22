@@ -576,7 +576,7 @@ describe("createCollectionController", () => {
 			const products = await controller.getCollectionProducts({
 				collectionId: col.id,
 			});
-			const positions = products.map((p) => p.position).sort();
+			const positions = products.map((p) => p.position).sort((a, b) => a - b);
 			expect(positions).toEqual([1, 2]);
 		});
 	});

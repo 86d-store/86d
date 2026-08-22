@@ -1,5 +1,5 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type {
 	CheckoutAddress,
 	CheckoutController,
@@ -98,7 +98,6 @@ export const getShippingRates = createStoreEndpoint(
 		if (
 			existingQuoteId &&
 			existingOptionId &&
-			session.shippingAmount !== undefined &&
 			session.shippingMethodName === USPS_PRIORITY_MAIL_NAME &&
 			metadata.shippingQuoteStatus === "CALCULATED"
 		) {

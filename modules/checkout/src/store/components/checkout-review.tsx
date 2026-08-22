@@ -1,6 +1,6 @@
 "use client";
 
-import { observer } from "@86d-app/core/state";
+import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import type { CheckoutAddress, CheckoutLineItem } from "../../service";
 import { checkoutState } from "../../state";

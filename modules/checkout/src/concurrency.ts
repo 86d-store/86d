@@ -1,4 +1,4 @@
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 
 export const checkoutRevisionSchema = z
 	.number()

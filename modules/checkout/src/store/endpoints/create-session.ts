@@ -6,7 +6,7 @@ import {
 	productResolveCapability,
 } from "@86d-app/core/commerce-capabilities";
 import { sanitizeText } from "@86d-app/core/sanitize";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import { isCapabilityUnavailable } from "../../capability-failures";
 import type { CheckoutController, CheckoutLineItem } from "../../service";
 import { createGuestProofMetadata, setGuestProofCookie } from "./guest-proof";

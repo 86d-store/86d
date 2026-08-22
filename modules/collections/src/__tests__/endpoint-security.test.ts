@@ -72,7 +72,9 @@ describe("collections endpoint security", () => {
 				collectionId: colB.id,
 			});
 			expect(colBProducts).toHaveLength(2);
-			expect(colBProducts.map((p) => p.productId).sort()).toEqual(["p1", "p3"]);
+			expect(
+				colBProducts.map((p) => p.productId).sort((a, b) => a.localeCompare(b)),
+			).toEqual(["p1", "p3"]);
 		});
 	});
 

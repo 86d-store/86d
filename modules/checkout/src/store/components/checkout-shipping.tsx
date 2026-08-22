@@ -1,7 +1,7 @@
 "use client";
 
 import { ModuleClientError } from "@86d-app/core/client/hooks";
-import { observer } from "@86d-app/core/state";
+import { observer } from "mobx-react-lite";
 import { type FormEvent, useEffect, useState } from "react";
 import type { CheckoutAddress } from "../../service";
 import { checkoutState } from "../../state";

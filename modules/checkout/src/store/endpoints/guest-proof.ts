@@ -1,4 +1,5 @@
 import type { ModuleContext } from "@86d-app/core/types/module";
+import { getProcessEnv } from "env/process-env";
 import type { CheckoutSession } from "../../service";
 import { resolveStoreCustomer } from "./store-customer";
 
@@ -61,7 +62,7 @@ export function setGuestProofCookie(
 	ctx.setCookie(cookieName(session.id), proof, {
 		httpOnly: true,
 		sameSite: "lax",
-		secure: process.env.NODE_ENV === "production",
+		secure: getProcessEnv("NODE_ENV") === "production",
 		path: "/api",
 		maxAge,
 	});

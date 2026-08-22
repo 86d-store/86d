@@ -1,4 +1,4 @@
-import type { z } from "@86d-app/core/zod";
+import type { z } from "zod";
 import type {
 	CheckoutFinalization,
 	CheckoutFinalizationStore,

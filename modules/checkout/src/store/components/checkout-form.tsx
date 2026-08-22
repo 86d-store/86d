@@ -1,6 +1,6 @@
 "use client";
 
-import { observer } from "@86d-app/core/state";
+import { observer } from "mobx-react-lite";
 import { checkoutState } from "../../state";
 import CheckoutFormTemplate from "./checkout-form.mdx";
 import { CheckoutInformation } from "./checkout-information";

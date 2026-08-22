@@ -10,6 +10,7 @@ import type {
 	PaymentAggregateReaderPort,
 	PaymentConnectionPort,
 } from "@86d-app/core/payment-checkout-ports";
+import { getProcessEnv } from "env/process-env";
 import type {
 	CheckoutFinalization,
 	CheckoutFinalizationStore,
@@ -86,7 +87,7 @@ export function isThirdPartyPaymentProvider(provider: string): boolean {
 export function isPaymentLiveActivated(
 	connection: PaymentConnectionPort,
 ): boolean {
-	if (process.env["86D_PAYMENTS_LIVE_ACTIVATION"] === "true") {
+	if (getProcessEnv("86D_PAYMENTS_LIVE_ACTIVATION") === "true") {
 		return true;
 	}
 	return connection.lifecycle === "enabled" && connection.health === "healthy";

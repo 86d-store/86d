@@ -22,45 +22,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import {
-	checkoutRequestAuditActorSchema,
-	checkoutRequestCartSnapshotSchema,
-	checkoutRequestContactSchema,
-	checkoutRequestCreateInputSchema,
-	checkoutRequestReasonSchema,
-	createCheckoutRequestStore,
-} from "./checkout-request";
-import {
-	admitCheckoutFinalizationInputSchema,
-	CheckoutFinalizationError,
-	checkoutFinalizationAcceptedInputSchema,
-	checkoutFinalizationAttemptOutcomeSchema,
-	checkoutFinalizationAttentionSchema,
-	checkoutFinalizationCompensationActionSchema,
-	checkoutFinalizationCompensationOutcomeSchema,
-	checkoutFinalizationCompensationTargetSchema,
-	checkoutFinalizationLifecycleV1,
-	checkoutFinalizationResultSchema,
-	checkoutFinalizationStateSchema,
-	checkoutFinalizationStepSchema,
-	createCheckoutFinalizationStore,
-	recordCheckoutFinalizationAttemptInputSchema,
-	recordCheckoutFinalizationCompensationInputSchema,
-	storedCheckoutFinalizationAttemptSchema,
-	storedCheckoutFinalizationCompensationSchema,
-	storedCheckoutFinalizationSchema,
-} from "./finalization";
-import { createCheckoutFinalizer } from "./finalizer";
-import {
-	createCheckoutFinalizationHandlers,
-	createCheckoutFinalizationTransport,
-	handlePaymentConnection,
-	handlePaymentOutcome,
-	handlePaymentSettlement,
-	isManagedPaymentProvider,
-	isPaymentLiveActivated,
-	isThirdPartyPaymentProvider,
-} from "./finalizer-handlers";
+import { checkoutFinalizationLifecycleV1 } from "./finalization";
 import { checkoutStorage } from "./schema";
 import { createCheckoutController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
@@ -105,41 +67,6 @@ export type {
 	PaymentProcessController,
 	ShippingRateController,
 } from "./service";
-export {
-	admitCheckoutFinalizationInputSchema,
-	CheckoutFinalizationError,
-	checkoutFinalizationAcceptedInputSchema,
-	checkoutFinalizationAttemptOutcomeSchema,
-	checkoutFinalizationAttentionSchema,
-	checkoutFinalizationCompensationActionSchema,
-	checkoutFinalizationCompensationOutcomeSchema,
-	checkoutFinalizationCompensationTargetSchema,
-	checkoutFinalizationLifecycleV1,
-	checkoutFinalizationResultSchema,
-	checkoutFinalizationStateSchema,
-	checkoutFinalizationStepSchema,
-	checkoutRequestAuditActorSchema,
-	checkoutRequestCartSnapshotSchema,
-	checkoutRequestContactSchema,
-	checkoutRequestCreateInputSchema,
-	checkoutRequestReasonSchema,
-	createCheckoutFinalizationHandlers,
-	createCheckoutFinalizationStore,
-	createCheckoutFinalizationTransport,
-	createCheckoutFinalizer,
-	createCheckoutRequestStore,
-	handlePaymentConnection,
-	handlePaymentOutcome,
-	handlePaymentSettlement,
-	isManagedPaymentProvider,
-	isPaymentLiveActivated,
-	isThirdPartyPaymentProvider,
-	recordCheckoutFinalizationAttemptInputSchema,
-	recordCheckoutFinalizationCompensationInputSchema,
-	storedCheckoutFinalizationAttemptSchema,
-	storedCheckoutFinalizationCompensationSchema,
-	storedCheckoutFinalizationSchema,
-};
 
 export interface CheckoutOptions extends ModuleConfig {
 	/**
