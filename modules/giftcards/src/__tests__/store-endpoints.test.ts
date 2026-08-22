@@ -261,16 +261,13 @@ async function seedGiftCard(
 			string,
 			unknown
 		>;
-		if (raw) {
-			if (overrides.status) raw.status = overrides.status;
-			if (overrides.currentBalance !== undefined)
-				raw.currentBalance = overrides.currentBalance;
-			if (overrides.delivered !== undefined)
-				raw.delivered = overrides.delivered;
-			if (overrides.recipientEmail !== undefined)
-				raw.recipientEmail = overrides.recipientEmail;
-			await data.upsert("giftCard", card.id, raw);
-		}
+		if (overrides.status) raw.status = overrides.status;
+		if (overrides.currentBalance !== undefined)
+			raw.currentBalance = overrides.currentBalance;
+		if (overrides.delivered !== undefined) raw.delivered = overrides.delivered;
+		if (overrides.recipientEmail !== undefined)
+			raw.recipientEmail = overrides.recipientEmail;
+		await data.upsert("giftCard", card.id, raw);
 	}
 
 	// Re-read to get final state
@@ -533,9 +530,10 @@ describe("store endpoint: redeem — authentication and balance", () => {
 		);
 
 		expect("amountApplied" in result).toBe(true);
-		if ("amountApplied" in result) {
-			expect(result.amountApplied).toBe(1000);
+		if (!("amountApplied" in result)) {
+			throw new Error("expected 'amountApplied' in result");
 		}
+		expect(result.amountApplied).toBe(1000);
 	});
 });
 
@@ -562,11 +560,12 @@ describe("store endpoint: purchase — session identity", () => {
 		);
 
 		expect("id" in result).toBe(true);
-		if ("id" in result) {
-			expect(result.balance).toBe(5000);
-			expect(result.currency).toBe("EUR");
-			expect(result.code).toMatch(/^GIFT-/);
+		if (!("id" in result)) {
+			throw new Error("expected 'id' in result");
 		}
+		expect(result.balance).toBe(5000);
+		expect(result.currency).toBe("EUR");
+		expect(result.code).toMatch(/^GIFT-/);
 	});
 
 	it("defaults to USD when no currency specified", async () => {
@@ -577,9 +576,10 @@ describe("store endpoint: purchase — session identity", () => {
 		);
 
 		expect("currency" in result).toBe(true);
-		if ("currency" in result) {
-			expect(result.currency).toBe("USD");
+		if (!("currency" in result)) {
+			throw new Error("expected 'currency' in result");
 		}
+		expect(result.currency).toBe("USD");
 	});
 
 	it("sets recipientEmail when buying as a gift", async () => {
@@ -596,9 +596,10 @@ describe("store endpoint: purchase — session identity", () => {
 		);
 
 		expect("recipientEmail" in result).toBe(true);
-		if ("recipientEmail" in result) {
-			expect(result.recipientEmail).toBe("friend@example.com");
+		if (!("recipientEmail" in result)) {
+			throw new Error("expected 'recipientEmail' in result");
 		}
+		expect(result.recipientEmail).toBe("friend@example.com");
 	});
 
 	it("assigns card to purchaser when no recipient specified", async () => {
@@ -610,13 +611,15 @@ describe("store endpoint: purchase — session identity", () => {
 
 		// Card should be in my-cards for cust_1
 		expect("id" in result).toBe(true);
-		if ("id" in result) {
-			const myCards = await simulateMyCards(data, {}, { userId: "cust_1" });
-			expect("cards" in myCards).toBe(true);
-			if ("cards" in myCards) {
-				expect(myCards.cards.some((c) => c.id === result.id)).toBe(true);
-			}
+		if (!("id" in result)) {
+			throw new Error("expected 'id' in result");
 		}
+		const myCards = await simulateMyCards(data, {}, { userId: "cust_1" });
+		expect("cards" in myCards).toBe(true);
+		if (!("cards" in myCards)) {
+			throw new Error("expected 'cards' in myCards");
+		}
+		expect(myCards.cards.some((c) => c.id === result.id)).toBe(true);
 	});
 
 	it("each purchase generates a unique code", async () => {
@@ -625,9 +628,10 @@ describe("store endpoint: purchase — session identity", () => {
 		const result2 = await simulatePurchase(data, { amount: 1000 }, session);
 
 		expect("code" in result1 && "code" in result2).toBe(true);
-		if ("code" in result1 && "code" in result2) {
-			expect(result1.code).not.toBe(result2.code);
+		if (!("code" in result1 && "code" in result2)) {
+			throw new Error("expected 'code' in result1 && 'code' in result2");
 		}
+		expect(result1.code).not.toBe(result2.code);
 	});
 });
 
@@ -666,10 +670,11 @@ describe("store endpoint: send — ownership verification", () => {
 		);
 
 		expect("delivered" in result).toBe(true);
-		if ("delivered" in result) {
-			expect(result.delivered).toBe(true);
-			expect(result.recipientEmail).toBe("friend@example.com");
+		if (!("delivered" in result)) {
+			throw new Error("expected 'delivered' in result");
 		}
+		expect(result.delivered).toBe(true);
+		expect(result.recipientEmail).toBe("friend@example.com");
 	});
 
 	it("allows the purchaser to send a card they bought for someone", async () => {
@@ -687,9 +692,10 @@ describe("store endpoint: send — ownership verification", () => {
 		);
 
 		expect("delivered" in result).toBe(true);
-		if ("delivered" in result) {
-			expect(result.delivered).toBe(true);
+		if (!("delivered" in result)) {
+			throw new Error("expected 'delivered' in result");
 		}
+		expect(result.delivered).toBe(true);
 	});
 
 	it("returns 400 when a non-owner tries to send someone else's card", async () => {
@@ -910,9 +916,10 @@ describe("store endpoint: top-up — ownership enforcement", () => {
 		// Card should be active again
 		const balance = await simulateCheckBalance(data, card.code);
 		expect("status" in balance).toBe(true);
-		if ("status" in balance) {
-			expect(balance.status).toBe("active");
+		if (!("status" in balance)) {
+			throw new Error("expected 'status' in balance");
 		}
+		expect(balance.status).toBe("active");
 	});
 });
 
@@ -939,15 +946,16 @@ describe("store endpoint: my-cards — customer scoping", () => {
 		const result = await simulateMyCards(data, {}, { userId: "cust_1" });
 
 		expect("cards" in result).toBe(true);
-		if ("cards" in result) {
-			expect(result.cards).toHaveLength(2);
-			expect(result.total).toBe(2);
-			expect(
-				result.cards.every(
-					(c) => c.currentBalance === 3000 || c.currentBalance === 5000,
-				),
-			).toBe(true);
+		if (!("cards" in result)) {
+			throw new Error("expected 'cards' in result");
 		}
+		expect(result.cards).toHaveLength(2);
+		expect(result.total).toBe(2);
+		expect(
+			result.cards.every(
+				(c) => c.currentBalance === 3000 || c.currentBalance === 5000,
+			),
+		).toBe(true);
 	});
 
 	it("returns empty list for a customer with no cards", async () => {
@@ -956,10 +964,11 @@ describe("store endpoint: my-cards — customer scoping", () => {
 		const result = await simulateMyCards(data, {}, { userId: "cust_1" });
 
 		expect("cards" in result).toBe(true);
-		if ("cards" in result) {
-			expect(result.cards).toHaveLength(0);
-			expect(result.total).toBe(0);
+		if (!("cards" in result)) {
+			throw new Error("expected 'cards' in result");
 		}
+		expect(result.cards).toHaveLength(0);
+		expect(result.total).toBe(0);
 	});
 
 	it("shapes response with the correct fields", async () => {
@@ -972,20 +981,21 @@ describe("store endpoint: my-cards — customer scoping", () => {
 		const result = await simulateMyCards(data, {}, { userId: "cust_1" });
 
 		expect("cards" in result).toBe(true);
-		if ("cards" in result) {
-			const card = result.cards[0];
-			expect(card).toHaveProperty("id");
-			expect(card).toHaveProperty("code");
-			expect(card).toHaveProperty("currentBalance");
-			expect(card).toHaveProperty("initialBalance");
-			expect(card).toHaveProperty("currency");
-			expect(card).toHaveProperty("status");
-			expect(card).toHaveProperty("createdAt");
-			expect(card.currentBalance).toBe(5000);
-			expect(card.initialBalance).toBe(5000);
-			expect(card.currency).toBe("USD");
-			expect(card.status).toBe("active");
+		if (!("cards" in result)) {
+			throw new Error("expected 'cards' in result");
 		}
+		const card = result.cards[0];
+		expect(card).toHaveProperty("id");
+		expect(card).toHaveProperty("code");
+		expect(card).toHaveProperty("currentBalance");
+		expect(card).toHaveProperty("initialBalance");
+		expect(card).toHaveProperty("currency");
+		expect(card).toHaveProperty("status");
+		expect(card).toHaveProperty("createdAt");
+		expect(card.currentBalance).toBe(5000);
+		expect(card.initialBalance).toBe(5000);
+		expect(card.currency).toBe("USD");
+		expect(card.status).toBe("active");
 	});
 
 	it("does not expose cards from other customers", async () => {
@@ -997,9 +1007,10 @@ describe("store endpoint: my-cards — customer scoping", () => {
 		const result = await simulateMyCards(data, {}, { userId: "cust_1" });
 
 		expect("cards" in result).toBe(true);
-		if ("cards" in result) {
-			expect(result.cards.some((c) => c.id === otherCard.id)).toBe(false);
+		if (!("cards" in result)) {
+			throw new Error("expected 'cards' in result");
 		}
+		expect(result.cards.some((c) => c.id === otherCard.id)).toBe(false);
 	});
 });
 
@@ -1032,26 +1043,27 @@ describe("store endpoint: redeem then check — cross-endpoint consistency", () 
 		const purchased = await simulatePurchase(data, { amount: 2500 }, session);
 
 		expect("code" in purchased).toBe(true);
-		if ("code" in purchased) {
-			const redeemed = await simulateRedeem(
-				data,
-				{ code: purchased.code, amount: 2500 },
-				{ userId: "cust_1" },
-			);
-
-			expect(redeemed).toEqual({
-				amountApplied: 2500,
-				remainingBalance: 0,
-				currency: "USD",
-			});
-
-			const balance = await simulateCheckBalance(data, purchased.code);
-			expect(balance).toEqual({
-				balance: 0,
-				currency: "USD",
-				status: "depleted",
-			});
+		if (!("code" in purchased)) {
+			throw new Error("expected 'code' in purchased");
 		}
+		const redeemed = await simulateRedeem(
+			data,
+			{ code: purchased.code, amount: 2500 },
+			{ userId: "cust_1" },
+		);
+
+		expect(redeemed).toEqual({
+			amountApplied: 2500,
+			remainingBalance: 0,
+			currency: "USD",
+		});
+
+		const balance = await simulateCheckBalance(data, purchased.code);
+		expect(balance).toEqual({
+			balance: 0,
+			currency: "USD",
+			status: "depleted",
+		});
 	});
 
 	it("top-up restores balance after partial redeem", async () => {

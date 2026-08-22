@@ -84,10 +84,12 @@ describe("gift-registry endpoint security", () => {
 			const registry = await controller.getRegistry(victimRegistry.id);
 			const attackerSessionId = "attacker";
 
-			if (registry?.customerId !== attackerSessionId) {
-				expect(registry?.customerId).toBe("victim");
-				// Endpoint returns 404 and does NOT call updateRegistry
+			expect(registry?.customerId !== attackerSessionId).toBeTruthy();
+			if (!(registry?.customerId !== attackerSessionId)) {
+				throw new Error("expected registry?.customerId !== attackerSessionId");
 			}
+			expect(registry?.customerId).toBe("victim");
+			// Endpoint returns 404 and does NOT call updateRegistry
 
 			// Registry unchanged
 			const unchanged = await controller.getRegistry(victimRegistry.id);
@@ -103,10 +105,12 @@ describe("gift-registry endpoint security", () => {
 			const registry = await controller.getRegistry(victimRegistry.id);
 			const attackerSessionId = "attacker";
 
-			if (registry?.customerId !== attackerSessionId) {
-				// Endpoint returns 404
-				expect(registry?.customerId).toBe("victim");
+			expect(registry?.customerId !== attackerSessionId).toBeTruthy();
+			if (!(registry?.customerId !== attackerSessionId)) {
+				throw new Error("expected registry?.customerId !== attackerSessionId");
 			}
+			// Endpoint returns 404
+			expect(registry?.customerId).toBe("victim");
 
 			// Registry still exists
 			const stillExists = await controller.getRegistry(victimRegistry.id);
@@ -122,9 +126,11 @@ describe("gift-registry endpoint security", () => {
 			const registry = await controller.getRegistry(victimRegistry.id);
 			const attackerSessionId = "attacker";
 
-			if (registry?.customerId !== attackerSessionId) {
-				expect(registry?.customerId).toBe("victim");
+			expect(registry?.customerId !== attackerSessionId).toBeTruthy();
+			if (!(registry?.customerId !== attackerSessionId)) {
+				throw new Error("expected registry?.customerId !== attackerSessionId");
 			}
+			expect(registry?.customerId).toBe("victim");
 
 			// Items should be empty since attacker was blocked at endpoint layer
 			const items = await controller.listItems(victimRegistry.id);

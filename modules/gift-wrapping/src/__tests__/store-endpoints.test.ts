@@ -148,11 +148,12 @@ describe("store endpoint: select wrapping — add to order item", () => {
 		});
 
 		expect("selection" in result).toBe(true);
-		if ("selection" in result) {
-			expect(result.selection.recipientName).toBe("John");
-			expect(result.selection.giftMessage).toBe("Happy Holidays!");
-			expect(result.selection.priceInCents).toBe(500);
+		if (!("selection" in result)) {
+			throw new Error("expected 'selection' in result");
 		}
+		expect(result.selection.recipientName).toBe("John");
+		expect(result.selection.giftMessage).toBe("Happy Holidays!");
+		expect(result.selection.priceInCents).toBe(500);
 	});
 
 	it("returns 404 for inactive wrapping option", async () => {

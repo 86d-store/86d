@@ -121,9 +121,10 @@ describe("store endpoint: get registry — slug lookup", () => {
 		const result = await simulateGetRegistry(data, "wedding-2026");
 
 		expect("registry" in result).toBe(true);
-		if ("registry" in result) {
-			expect(result.registry.title).toBe("Wedding Registry");
+		if (!("registry" in result)) {
+			throw new Error("expected 'registry' in result");
 		}
+		expect(result.registry.title).toBe("Wedding Registry");
 	});
 
 	it("returns 404 for private registry", async () => {
@@ -195,9 +196,10 @@ describe("store endpoint: list items — registry items", () => {
 		const result = await simulateListItems(data, reg.id);
 
 		expect("items" in result).toBe(true);
-		if ("items" in result) {
-			expect(result.items).toHaveLength(2);
+		if (!("items" in result)) {
+			throw new Error("expected 'items' in result");
 		}
+		expect(result.items).toHaveLength(2);
 	});
 
 	it("returns 404 for private registry items", async () => {
@@ -227,9 +229,10 @@ describe("store endpoint: list items — registry items", () => {
 		const result = await simulateListItems(data, reg.id);
 
 		expect("items" in result).toBe(true);
-		if ("items" in result) {
-			expect(result.items).toHaveLength(0);
+		if (!("items" in result)) {
+			throw new Error("expected 'items' in result");
 		}
+		expect(result.items).toHaveLength(0);
 	});
 });
 
@@ -266,10 +269,11 @@ describe("store endpoint: purchase item — gift purchase", () => {
 		});
 
 		expect("purchase" in result).toBe(true);
-		if ("purchase" in result) {
-			expect(result.purchase.purchaserName).toBe("Jane");
-			expect(result.purchase.quantity).toBe(1);
+		if (!("purchase" in result)) {
+			throw new Error("expected 'purchase' in result");
 		}
+		expect(result.purchase.purchaserName).toBe("Jane");
+		expect(result.purchase.quantity).toBe(1);
 	});
 
 	it("returns 404 for nonexistent item", async () => {
@@ -309,9 +313,10 @@ describe("store endpoint: purchase item — gift purchase", () => {
 		});
 
 		expect("purchase" in result).toBe(true);
-		if ("purchase" in result) {
-			expect(result.purchase.giftMessage).toBe("Congratulations!");
+		if (!("purchase" in result)) {
+			throw new Error("expected 'purchase' in result");
 		}
+		expect(result.purchase.giftMessage).toBe("Congratulations!");
 	});
 });
 
@@ -355,10 +360,11 @@ describe("store endpoint: my registries — auth required", () => {
 		});
 
 		expect("registries" in result).toBe(true);
-		if ("registries" in result) {
-			expect(result.registries).toHaveLength(1);
-			expect(result.registries[0].title).toBe("Wedding");
+		if (!("registries" in result)) {
+			throw new Error("expected 'registries' in result");
 		}
+		expect(result.registries).toHaveLength(1);
+		expect(result.registries[0].title).toBe("Wedding");
 	});
 
 	it("returns empty for customer with no registries", async () => {
@@ -367,8 +373,9 @@ describe("store endpoint: my registries — auth required", () => {
 		});
 
 		expect("registries" in result).toBe(true);
-		if ("registries" in result) {
-			expect(result.registries).toHaveLength(0);
+		if (!("registries" in result)) {
+			throw new Error("expected 'registries' in result");
 		}
+		expect(result.registries).toHaveLength(0);
 	});
 });

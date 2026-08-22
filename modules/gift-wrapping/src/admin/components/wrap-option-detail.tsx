@@ -1,6 +1,7 @@
 "use client";
 
 import { useModuleClient } from "@86d-app/core/client/provider";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import WrapOptionDetailTemplate from "./wrap-option-detail.mdx";
 
@@ -323,9 +324,12 @@ export function WrapOptionDetail({ id }: { id: string }) {
 				</div>
 				{option.imageUrl ? (
 					<div className="mt-4 overflow-hidden rounded-lg border border-border">
-						<img
+						<Image
 							src={option.imageUrl}
 							alt={option.name}
+							width={400}
+							height={192}
+							unoptimized
 							className="h-48 w-full object-cover"
 						/>
 					</div>
