@@ -38,7 +38,7 @@ src/
 - **downloadableFile**: id, productId, name, url (storage URL), fileSize?, mimeType?, isActive, createdAt, updatedAt
 - **downloadToken**: id, token (UUID), fileId, orderId?, email, maxDownloads?, downloadCount, expiresAt?, revokedAt?, createdAt, updatedAt
 
-## Token validation (useToken)
+## Token validation (redeemToken)
 
 Checks in order:
 1. Token not found → `{ ok: false, reason: "Token not found" }`

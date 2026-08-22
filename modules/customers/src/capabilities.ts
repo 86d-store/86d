@@ -6,8 +6,6 @@ import {
 import { createStoreCustomerIdentityService } from "./identity-binding";
 import { createCustomerController } from "./service-impl";
 
-export { customerContactResolveCapability, customerIdentityResolveCapability };
-
 function contactLookupFailure(code: "customer_not_found" | "lookup_failed"): {
 	ok: false;
 	failure: { code: "customer_not_found" | "lookup_failed" };

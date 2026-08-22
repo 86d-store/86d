@@ -4,7 +4,7 @@ import type {
 	ModuleTransactionRunner,
 } from "@86d-app/core/durable-events";
 import { sanitizeText } from "@86d-app/core/sanitize";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
 
@@ -344,7 +344,6 @@ async function resolveLocked(
 		transaction,
 		input.identity.email,
 	);
-	if (!foundCustomer.ok) return foundCustomer;
 
 	let customer = foundCustomer.customer;
 	let createdCustomer = false;

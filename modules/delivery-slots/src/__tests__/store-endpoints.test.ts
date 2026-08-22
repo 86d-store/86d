@@ -161,11 +161,12 @@ describe("store endpoint: book slot", () => {
 		});
 
 		expect("booking" in result).toBe(true);
-		if ("booking" in result) {
-			expect(result.booking.orderId).toBe("order_1");
-			expect(result.booking.status).toBe("confirmed");
-			expect(result.booking.instructions).toBe("Leave at door");
+		if (!("booking" in result)) {
+			throw new Error("expected 'booking' in result");
 		}
+		expect(result.booking.orderId).toBe("order_1");
+		expect(result.booking.status).toBe("confirmed");
+		expect(result.booking.instructions).toBe("Leave at door");
 	});
 
 	it("includes surcharge in booking", async () => {
@@ -186,9 +187,10 @@ describe("store endpoint: book slot", () => {
 		});
 
 		expect("booking" in result).toBe(true);
-		if ("booking" in result) {
-			expect(result.booking.surchargeInCents).toBe(999);
+		if (!("booking" in result)) {
+			throw new Error("expected 'booking' in result");
 		}
+		expect(result.booking.surchargeInCents).toBe(999);
 	});
 });
 
@@ -218,9 +220,10 @@ describe("store endpoint: cancel booking", () => {
 		const result = await simulateCancelBooking(data, booking.id);
 
 		expect("booking" in result).toBe(true);
-		if ("booking" in result) {
-			expect(result.booking.status).toBe("cancelled");
+		if (!("booking" in result)) {
+			throw new Error("expected 'booking' in result");
 		}
+		expect(result.booking.status).toBe("cancelled");
 	});
 
 	it("returns 404 for nonexistent booking", async () => {

@@ -305,9 +305,11 @@ describe("checkout.completed event listener — digital downloads", () => {
 		const mod = digitalDownloads();
 		const data = createMockDataService();
 		const init = mod.init;
-		if (init) {
-			const ctx = createMockModuleContext({ data });
-			await expect(init({ ...ctx, events: undefined })).resolves.not.toThrow();
+		expect(init).toBeTruthy();
+		if (!init) {
+			throw new Error("expected init");
 		}
+		const ctx = createMockModuleContext({ data });
+		await expect(init({ ...ctx, events: undefined })).resolves.not.toThrow();
 	});
 });

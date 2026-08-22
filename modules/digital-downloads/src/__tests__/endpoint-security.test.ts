@@ -40,7 +40,7 @@ describe("digital-downloads endpoint security", () => {
 
 			await controller.revokeToken(token.token);
 
-			const result = await controller.useToken(token.token);
+			const result = await controller.redeemToken(token.token);
 			expect(result.ok).toBe(false);
 			expect(result.reason).toBe("Token revoked");
 		});
@@ -58,7 +58,7 @@ describe("digital-downloads endpoint security", () => {
 				expiresAt: new Date("2020-01-01"),
 			});
 
-			const result = await controller.useToken(token.token);
+			const result = await controller.redeemToken(token.token);
 			expect(result.ok).toBe(false);
 			expect(result.reason).toBe("Token expired");
 		});
@@ -76,17 +76,17 @@ describe("digital-downloads endpoint security", () => {
 			});
 
 			// Use twice
-			await controller.useToken(token.token);
-			await controller.useToken(token.token);
+			await controller.redeemToken(token.token);
+			await controller.redeemToken(token.token);
 
 			// Third attempt should fail
-			const result = await controller.useToken(token.token);
+			const result = await controller.redeemToken(token.token);
 			expect(result.ok).toBe(false);
 			expect(result.reason).toBe("Download limit reached");
 		});
 
 		it("non-existent token is rejected", async () => {
-			const result = await controller.useToken("fake-token-uuid");
+			const result = await controller.redeemToken("fake-token-uuid");
 			expect(result.ok).toBe(false);
 			expect(result.reason).toBe("Token not found");
 		});
@@ -148,16 +148,16 @@ describe("digital-downloads endpoint security", () => {
 			});
 
 			// Use token1 three times (exhaust)
-			await controller.useToken(token1.token);
-			await controller.useToken(token1.token);
-			await controller.useToken(token1.token);
+			await controller.redeemToken(token1.token);
+			await controller.redeemToken(token1.token);
+			await controller.redeemToken(token1.token);
 
 			// Token1 exhausted
-			const result1 = await controller.useToken(token1.token);
+			const result1 = await controller.redeemToken(token1.token);
 			expect(result1.ok).toBe(false);
 
 			// Token2 still has full allowance
-			const result2 = await controller.useToken(token2.token);
+			const result2 = await controller.redeemToken(token2.token);
 			expect(result2.ok).toBe(true);
 		});
 	});
@@ -165,7 +165,7 @@ describe("digital-downloads endpoint security", () => {
 	// ── File Deletion ──────────────────────────────────────────────
 
 	describe("file deletion behavior", () => {
-		it("deleting file makes useToken return undefined file", async () => {
+		it("deleting file makes redeemToken return undefined file", async () => {
 			const file = await controller.createFile({
 				productId: "prod_1",
 				name: "eBook",
@@ -178,7 +178,7 @@ describe("digital-downloads endpoint security", () => {
 
 			await controller.deleteFile(file.id);
 
-			const result = await controller.useToken(token.token);
+			const result = await controller.redeemToken(token.token);
 			// Token still validates but file is gone
 			expect(result.ok).toBe(true);
 			expect(result.file).toBeUndefined();
@@ -219,14 +219,14 @@ describe("digital-downloads endpoint security", () => {
 			});
 
 			// Use once successfully
-			const first = await controller.useToken(token.token);
+			const first = await controller.redeemToken(token.token);
 			expect(first.ok).toBe(true);
 
 			// Revoke
 			await controller.revokeToken(token.token);
 
 			// Can't use anymore
-			const after = await controller.useToken(token.token);
+			const after = await controller.redeemToken(token.token);
 			expect(after.ok).toBe(false);
 			expect(after.reason).toBe("Token revoked");
 		});
@@ -266,7 +266,7 @@ describe("digital-downloads endpoint security", () => {
 			});
 
 			// Use once
-			await controller.useToken(token.token);
+			await controller.redeemToken(token.token);
 			const afterUse = await controller.getTokenByValue(token.token);
 			expect(afterUse?.downloadCount).toBe(1);
 
@@ -274,7 +274,7 @@ describe("digital-downloads endpoint security", () => {
 			await controller.revokeToken(token.token);
 
 			// Try to use again (should fail)
-			await controller.useToken(token.token);
+			await controller.redeemToken(token.token);
 
 			// Count should not have increased
 			const afterRevoked = await controller.getTokenByValue(token.token);
@@ -298,7 +298,7 @@ describe("digital-downloads endpoint security", () => {
 
 			// Use many times
 			for (let i = 0; i < 20; i++) {
-				const result = await controller.useToken(token.token);
+				const result = await controller.redeemToken(token.token);
 				expect(result.ok).toBe(true);
 			}
 		});
@@ -315,7 +315,7 @@ describe("digital-downloads endpoint security", () => {
 			});
 
 			// Should succeed (no expiry set)
-			const result = await controller.useToken(token.token);
+			const result = await controller.redeemToken(token.token);
 			expect(result.ok).toBe(true);
 		});
 	});

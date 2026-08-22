@@ -63,7 +63,7 @@ function makeController(
 		createToken: vi.fn().mockResolvedValue(makeToken()),
 		getToken: vi.fn().mockResolvedValue(null),
 		getTokenByValue: vi.fn().mockResolvedValue(null),
-		useToken: vi.fn().mockResolvedValue({ ok: false }),
+		redeemToken: vi.fn().mockResolvedValue({ ok: false }),
 		revokeToken: vi.fn().mockResolvedValue(false),
 		revokeTokenById: vi.fn().mockResolvedValue(false),
 		listTokensByEmail: vi.fn().mockResolvedValue([]),

@@ -1,6 +1,6 @@
 import { createAdminEndpoint } from "@86d-app/core/api";
 import { sanitizeText } from "@86d-app/core/sanitize";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { CustomerController } from "../../service";
 
 export const adminImportCustomers = createAdminEndpoint(

@@ -201,19 +201,19 @@ describe("digital-downloads controllers — edge cases", () => {
 				maxDownloads: 1,
 			});
 
-			const r1 = await ctrl.useToken(t1.token);
+			const r1 = await ctrl.redeemToken(t1.token);
 			expect(r1.ok).toBe(true);
 
 			// t1 exhausted, but t2 still works
-			const r1b = await ctrl.useToken(t1.token);
+			const r1b = await ctrl.redeemToken(t1.token);
 			expect(r1b.ok).toBe(false);
 
-			const r2 = await ctrl.useToken(t2.token);
+			const r2 = await ctrl.redeemToken(t2.token);
 			expect(r2.ok).toBe(true);
 		});
 	});
 
-	describe("useToken — multiple uses until limit", () => {
+	describe("redeemToken — multiple uses until limit", () => {
 		it("allows exactly maxDownloads uses then rejects", async () => {
 			const file = await ctrl.createFile({
 				productId: "p1",
@@ -227,12 +227,12 @@ describe("digital-downloads controllers — edge cases", () => {
 			});
 
 			for (let i = 1; i <= 3; i++) {
-				const result = await ctrl.useToken(token.token);
+				const result = await ctrl.redeemToken(token.token);
 				expect(result.ok).toBe(true);
 				expect(result.token?.downloadCount).toBe(i);
 			}
 
-			const rejected = await ctrl.useToken(token.token);
+			const rejected = await ctrl.redeemToken(token.token);
 			expect(rejected.ok).toBe(false);
 			expect(rejected.reason).toBe("Download limit reached");
 		});
@@ -249,17 +249,17 @@ describe("digital-downloads controllers — edge cases", () => {
 			});
 
 			for (let i = 0; i < 10; i++) {
-				const result = await ctrl.useToken(token.token);
+				const result = await ctrl.redeemToken(token.token);
 				expect(result.ok).toBe(true);
 			}
 
-			const last = await ctrl.useToken(token.token);
+			const last = await ctrl.redeemToken(token.token);
 			expect(last.ok).toBe(true);
 			expect(last.token?.downloadCount).toBe(11);
 		});
 	});
 
-	describe("useToken — expired token", () => {
+	describe("redeemToken — expired token", () => {
 		it("rejects a token that expired just now", async () => {
 			const file = await ctrl.createFile({
 				productId: "p1",
@@ -272,13 +272,13 @@ describe("digital-downloads controllers — edge cases", () => {
 				expiresAt: new Date(Date.now() - 1),
 			});
 
-			const result = await ctrl.useToken(token.token);
+			const result = await ctrl.redeemToken(token.token);
 			expect(result.ok).toBe(false);
 			expect(result.reason).toBe("Token expired");
 		});
 	});
 
-	describe("useToken — revoked then re-checked", () => {
+	describe("redeemToken — revoked then re-checked", () => {
 		it("remains revoked after re-fetching the token", async () => {
 			const file = await ctrl.createFile({
 				productId: "p1",
@@ -297,7 +297,7 @@ describe("digital-downloads controllers — edge cases", () => {
 			expect(fetched?.revokedAt).toBeInstanceOf(Date);
 
 			// Attempt to use still fails
-			const result = await ctrl.useToken(token.token);
+			const result = await ctrl.redeemToken(token.token);
 			expect(result.ok).toBe(false);
 			expect(result.reason).toBe("Token revoked");
 		});
@@ -316,7 +316,7 @@ describe("digital-downloads controllers — edge cases", () => {
 				maxDownloads: 0,
 			});
 
-			const result = await ctrl.useToken(token.token);
+			const result = await ctrl.redeemToken(token.token);
 			expect(result.ok).toBe(false);
 			expect(result.reason).toBe("Download limit reached");
 		});
@@ -336,7 +336,7 @@ describe("digital-downloads controllers — edge cases", () => {
 				expiresAt: farFuture,
 			});
 
-			const result = await ctrl.useToken(token.token);
+			const result = await ctrl.redeemToken(token.token);
 			expect(result.ok).toBe(true);
 			expect(result.file?.id).toBe(file.id);
 		});
@@ -362,13 +362,13 @@ describe("digital-downloads controllers — edge cases", () => {
 			});
 
 			// Use it twice
-			const use1 = await ctrl.useToken(token.token);
+			const use1 = await ctrl.redeemToken(token.token);
 			expect(use1.ok).toBe(true);
 			expect(use1.file?.name).toBe("course.zip");
 			expect(use1.file?.mimeType).toBe("application/zip");
 			expect(use1.token?.downloadCount).toBe(1);
 
-			const use2 = await ctrl.useToken(token.token);
+			const use2 = await ctrl.redeemToken(token.token);
 			expect(use2.ok).toBe(true);
 			expect(use2.token?.downloadCount).toBe(2);
 
@@ -377,14 +377,14 @@ describe("digital-downloads controllers — edge cases", () => {
 			expect(revoked).toBe(true);
 
 			// Can no longer use
-			const use3 = await ctrl.useToken(token.token);
+			const use3 = await ctrl.redeemToken(token.token);
 			expect(use3.ok).toBe(false);
 			expect(use3.reason).toBe("Token revoked");
 		});
 	});
 
 	describe("deleteFile — with existing tokens", () => {
-		it("tokens still exist after file deletion but useToken returns undefined file", async () => {
+		it("tokens still exist after file deletion but redeemToken returns undefined file", async () => {
 			const file = await ctrl.createFile({
 				productId: "p1",
 				name: "ephemeral.pdf",
@@ -403,7 +403,7 @@ describe("digital-downloads controllers — edge cases", () => {
 			expect(fetched?.fileId).toBe(file.id);
 
 			// Using the token succeeds at the token level but file is undefined
-			const result = await ctrl.useToken(token.token);
+			const result = await ctrl.redeemToken(token.token);
 			expect(result.ok).toBe(true);
 			expect(result.file).toBeUndefined();
 		});
@@ -492,7 +492,7 @@ describe("digital-downloads controllers — edge cases", () => {
 
 	// ── Additional edge cases ─────────────────────────────────────────────
 
-	describe("useToken — returns correct file data", () => {
+	describe("redeemToken — returns correct file data", () => {
 		it("returns the file matching the token fileId", async () => {
 			const fileA = await ctrl.createFile({
 				productId: "p1",
@@ -518,13 +518,13 @@ describe("digital-downloads controllers — edge cases", () => {
 				email: "user@test.com",
 			});
 
-			const resultA = await ctrl.useToken(tokenA.token);
+			const resultA = await ctrl.redeemToken(tokenA.token);
 			expect(resultA.ok).toBe(true);
 			expect(resultA.file?.id).toBe(fileA.id);
 			expect(resultA.file?.name).toBe("alpha.pdf");
 			expect(resultA.file?.fileSize).toBe(1024);
 
-			const resultB = await ctrl.useToken(tokenB.token);
+			const resultB = await ctrl.redeemToken(tokenB.token);
 			expect(resultB.ok).toBe(true);
 			expect(resultB.file?.id).toBe(fileB.id);
 			expect(resultB.file?.name).toBe("beta.mp4");
@@ -549,10 +549,10 @@ describe("digital-downloads controllers — edge cases", () => {
 				email: "b@test.com",
 			});
 
-			await ctrl.useToken(t1.token);
-			await ctrl.useToken(t1.token);
-			await ctrl.useToken(t1.token);
-			await ctrl.useToken(t2.token);
+			await ctrl.redeemToken(t1.token);
+			await ctrl.redeemToken(t1.token);
+			await ctrl.redeemToken(t1.token);
+			await ctrl.redeemToken(t2.token);
 
 			const fetched1 = await ctrl.getTokenByValue(t1.token);
 			const fetched2 = await ctrl.getTokenByValue(t2.token);
@@ -690,7 +690,7 @@ describe("digital-downloads controllers — edge cases", () => {
 		});
 	});
 
-	describe("useToken — revoked token does not increment downloadCount", () => {
+	describe("redeemToken — revoked token does not increment downloadCount", () => {
 		it("downloadCount stays at pre-revoke value", async () => {
 			const file = await ctrl.createFile({
 				productId: "p1",
@@ -702,11 +702,11 @@ describe("digital-downloads controllers — edge cases", () => {
 				email: "user@test.com",
 			});
 
-			await ctrl.useToken(token.token);
-			await ctrl.useToken(token.token);
+			await ctrl.redeemToken(token.token);
+			await ctrl.redeemToken(token.token);
 			await ctrl.revokeToken(token.token);
 
-			const rejected = await ctrl.useToken(token.token);
+			const rejected = await ctrl.redeemToken(token.token);
 			expect(rejected.ok).toBe(false);
 
 			const fetched = await ctrl.getTokenByValue(token.token);
@@ -714,7 +714,7 @@ describe("digital-downloads controllers — edge cases", () => {
 		});
 	});
 
-	describe("useToken — check order after revoke vs expire priority", () => {
+	describe("redeemToken — check order after revoke vs expire priority", () => {
 		it("revoked takes precedence when both revoked and expired", async () => {
 			const file = await ctrl.createFile({
 				productId: "p1",
@@ -729,7 +729,7 @@ describe("digital-downloads controllers — edge cases", () => {
 
 			await ctrl.revokeToken(token.token);
 
-			const result = await ctrl.useToken(token.token);
+			const result = await ctrl.redeemToken(token.token);
 			expect(result.ok).toBe(false);
 			// Implementation checks revoked before expired
 			expect(result.reason).toBe("Token revoked");

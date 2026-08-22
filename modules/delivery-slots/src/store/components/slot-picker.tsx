@@ -62,7 +62,7 @@ export function SlotPicker() {
 			void refetch();
 		},
 		onError: (err: Error) => {
-			setBookError(err.message ?? "Failed to book slot.");
+			setBookError(err.message);
 		},
 	});
 

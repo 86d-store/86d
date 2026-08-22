@@ -164,11 +164,8 @@ export function CustomerTags() {
 					<h2 className="font-semibold text-foreground text-sm">All Tags</h2>
 					{tagsLoading ? (
 						<div className="space-y-2">
-							{Array.from({ length: 5 }).map((_, i) => (
-								<div
-									key={`skel-${i}`}
-									className="h-8 animate-pulse rounded bg-muted"
-								/>
+							{(["k0", "k1", "k2", "k3", "k4"] as const).map((key) => (
+								<div key={key} className="h-8 animate-pulse rounded bg-muted" />
 							))}
 						</div>
 					) : tags.length === 0 ? (
@@ -302,8 +299,8 @@ export function CustomerTags() {
 							</thead>
 							<tbody className="divide-y divide-border">
 								{customersLoading ? (
-									Array.from({ length: 5 }).map((_, i) => (
-										<tr key={`skel-${i}`}>
+									(["k0", "k1", "k2", "k3", "k4"] as const).map((_key) => (
+										<tr key={rowKey}>
 											<td className="px-4 py-3" colSpan={4}>
 												<div className="h-4 w-full animate-pulse rounded bg-muted" />
 											</td>

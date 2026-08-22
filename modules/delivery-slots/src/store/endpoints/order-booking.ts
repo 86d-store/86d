@@ -1,5 +1,5 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { DeliverySlotsController } from "../../service";
 
 export const orderBooking = createStoreEndpoint(

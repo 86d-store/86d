@@ -58,7 +58,7 @@ const client = createModuleClient([
 1. Admin creates a file record linked to a product
 2. After order payment, create download token(s) for the customer
 3. Customer accesses GET /downloads/:token
-4. useToken validates and increments the download count
+4. redeemToken validates and increments the download count
 5. Returns the file URL on success
 ```
 
@@ -141,7 +141,7 @@ controller.createTokenBatch(params: {
 
 controller.getToken(id: string): Promise<DownloadToken | null>
 controller.getTokenByValue(token: string): Promise<DownloadToken | null>
-controller.useToken(token: string): Promise<{ ok, reason?, file?, token? }>
+controller.redeemToken(token: string): Promise<{ ok, reason?, file?, token? }>
 controller.revokeToken(token: string): Promise<boolean>      // by token value
 controller.revokeTokenById(id: string): Promise<boolean>     // by record ID
 controller.listTokensByEmail(params: { email; take?; skip? }): Promise<DownloadToken[]>

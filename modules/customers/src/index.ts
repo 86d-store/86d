@@ -6,17 +6,9 @@ import type {
 import { adminEndpoints } from "./admin/endpoints/routes";
 import {
 	customerContactResolveProvider,
-	customerIdentityResolveCapability,
 	customerIdentityResolveProvider,
 } from "./capabilities";
-import {
-	createStoreCustomerIdentityService,
-	storeCustomerAuditBindingSchema,
-	storeCustomerAuthBindingSchema,
-	storeCustomerIdentityInputSchema,
-} from "./identity-binding";
 import { customersStorage } from "./schema";
-import { DEFAULT_LOYALTY_RULES } from "./service";
 import { createCustomerController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
@@ -40,14 +32,6 @@ export type {
 	LoyaltyStats,
 	LoyaltyTransaction,
 } from "./service";
-export {
-	createStoreCustomerIdentityService,
-	customerIdentityResolveCapability,
-	DEFAULT_LOYALTY_RULES,
-	storeCustomerAuditBindingSchema,
-	storeCustomerAuthBindingSchema,
-	storeCustomerIdentityInputSchema,
-};
 
 export interface CustomersOptions extends ModuleConfig {
 	/**
