@@ -18,9 +18,6 @@ import {
 	permissionSchema,
 	versionSchema,
 } from "./json-value";
-
-export type { JsonValue };
-
 export const baseRevisionSchema = z
 	.object({
 		target: targetReferenceSchema,
@@ -272,3 +269,5 @@ export function computeChangeSetReviewHash(
 		canonical,
 	);
 }
+
+export type { JsonValue } from "./json-value";

@@ -147,10 +147,9 @@ describe("provider webhooks fail closed without verification configuration", () 
 		const pinned = providerWebhooks.filter((entry) =>
 			["/paypal/webhook", "/braintree/webhook"].includes(entry.path),
 		);
-		expect(pinned.map((entry) => entry.path).sort()).toEqual([
-			"/braintree/webhook",
-			"/paypal/webhook",
-		]);
+		expect(
+			pinned.map((entry) => entry.path).sort((a, b) => a.localeCompare(b)),
+		).toEqual(["/braintree/webhook", "/paypal/webhook"]);
 
 		for (const entry of pinned) {
 			await expect(invokeWithoutVerification(entry)).resolves.toEqual({

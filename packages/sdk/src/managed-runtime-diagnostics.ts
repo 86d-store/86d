@@ -1,3 +1,4 @@
+import { readProcessEnv } from "env/process-env";
 import { z } from "zod";
 import {
 	createWorkloadTokenClient,
@@ -80,7 +81,7 @@ export function createManagedRuntimeDiagnosticsClient(
 		fetch?: typeof globalThis.fetch | undefined;
 	} = {},
 ): ManagedRuntimeDiagnosticsClient {
-	const environment = input.environment ?? process.env;
+	const environment = input.environment ?? readProcessEnv();
 	const enabled =
 		environment["86D_TELEMETRY"] === MANAGED_RUNTIME_DIAGNOSTICS_TELEMETRY;
 	let client: ReturnType<typeof createWorkloadTokenClient> | undefined;

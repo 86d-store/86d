@@ -1,6 +1,12 @@
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+	readProcessEnv,
+	restoreProcessEnv,
+	setProcessEnv,
+	snapshotProcessEnv,
+} from "env/process-env";
+import {
 	afterAll,
 	afterEach,
 	beforeAll,
@@ -28,7 +34,7 @@ afterAll(() => {
 
 describe("getStoreConfig", () => {
 	const originalFetch = globalThis.fetch;
-	const originalEnv = { ...process.env };
+	const originalEnv = snapshotProcessEnv();
 
 	beforeEach(() => {
 		for (const key of [
@@ -36,13 +42,13 @@ describe("getStoreConfig", () => {
 			"86D_STORE_ID",
 			"86D_WORKLOAD_CREDENTIAL",
 		] as const) {
-			Reflect.deleteProperty(process.env, key);
+			Reflect.deleteProperty(readProcessEnv(), key);
 		}
 	});
 
 	afterEach(() => {
 		globalThis.fetch = originalFetch;
-		process.env = { ...originalEnv };
+		restoreProcessEnv(originalEnv);
 	});
 
 	it("loads from template when no managed workload is configured", async () => {
@@ -73,10 +79,12 @@ describe("getStoreConfig", () => {
 	it("uses managed workload exchange for a newly provisioned Store", async () => {
 		const credentialId = "86d_wc_abcdefghijklmnopqrstuvwx";
 		const credentialSecret = "s".repeat(43);
-		process.env["86D_STORE_ID"] = VALID_UUID;
-		process.env["86D_API_URL"] = "https://api.86d.app";
-		process.env["86D_WORKLOAD_CREDENTIAL"] =
-			`${credentialId}.${credentialSecret}`;
+		setProcessEnv("86D_STORE_ID", VALID_UUID);
+		setProcessEnv("86D_API_URL", "https://api.86d.app");
+		setProcessEnv(
+			"86D_WORKLOAD_CREDENTIAL",
+			`${credentialId}.${credentialSecret}`,
+		);
 		globalThis.fetch = vi
 			.fn()
 			.mockResolvedValueOnce(
@@ -123,10 +131,12 @@ describe("getStoreConfig", () => {
 
 	it("fails closed on a compromised managed Control Plane config response", async () => {
 		const secretCanary = "managed-provider-secret-must-not-escape";
-		process.env["86D_STORE_ID"] = VALID_UUID;
-		process.env["86D_API_URL"] = "https://api.86d.app";
-		process.env["86D_WORKLOAD_CREDENTIAL"] =
-			`86d_wc_compromisedconfigclient1.${"c".repeat(43)}`;
+		setProcessEnv("86D_STORE_ID", VALID_UUID);
+		setProcessEnv("86D_API_URL", "https://api.86d.app");
+		setProcessEnv(
+			"86D_WORKLOAD_CREDENTIAL",
+			`86d_wc_compromisedconfigclient1.${"c".repeat(43)}`,
+		);
 		globalThis.fetch = vi
 			.fn()
 			.mockResolvedValueOnce(
@@ -165,10 +175,12 @@ describe("getStoreConfig", () => {
 	});
 
 	it("reuses one managed access token across sequential config reads", async () => {
-		process.env["86D_STORE_ID"] = VALID_UUID;
-		process.env["86D_API_URL"] = "https://api.86d.app";
-		process.env["86D_WORKLOAD_CREDENTIAL"] =
-			`86d_wc_sequentialcacheclient001.${"q".repeat(43)}`;
+		setProcessEnv("86D_STORE_ID", VALID_UUID);
+		setProcessEnv("86D_API_URL", "https://api.86d.app");
+		setProcessEnv(
+			"86D_WORKLOAD_CREDENTIAL",
+			`86d_wc_sequentialcacheclient001.${"q".repeat(43)}`,
+		);
 		globalThis.fetch = vi.fn(async (input: string | URL | Request) => {
 			const url = input instanceof Request ? input.url : input.toString();
 			if (url.endsWith("/api/oauth/token")) {
@@ -225,10 +237,12 @@ describe("getStoreConfig", () => {
 					variables: DEFAULT_CONFIG.variables,
 				}),
 			);
-			process.env["86D_STORE_ID"] = VALID_UUID;
-			process.env["86D_API_URL"] = "https://api.86d.app";
-			process.env["86D_WORKLOAD_CREDENTIAL"] =
-				`86d_wc_abcdefghijklmnopqrstuvwx.${"s".repeat(43)}`;
+			setProcessEnv("86D_STORE_ID", VALID_UUID);
+			setProcessEnv("86D_API_URL", "https://api.86d.app");
+			setProcessEnv(
+				"86D_WORKLOAD_CREDENTIAL",
+				`86d_wc_abcdefghijklmnopqrstuvwx.${"s".repeat(43)}`,
+			);
 			globalThis.fetch = vi.fn(exchangeResult);
 
 			await expect(

@@ -30,6 +30,7 @@ import {
 } from "@86d-app/core/curated-modules";
 import { createStorageFromEnv } from "@86d-app/storage/factory";
 import type { StorageProvider } from "@86d-app/storage/types";
+import { getProcessEnv } from "env/process-env";
 import pg from "pg";
 import { workspaceRootFromImportMeta } from "../../../internals/lib/workspace-root.ts";
 import {
@@ -59,15 +60,16 @@ import {
 	taxRates,
 } from "../seed/catalog/luxury-house.ts";
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const DATABASE_URL = getProcessEnv("DATABASE_URL");
 if (!DATABASE_URL) {
 	console.error("DATABASE_URL environment variable is required");
 	process.exit(1);
 }
 
-const STORE_ID = process.env.STORE_ID || "de005b9d-c517-4c65-896e-8edef5cf5a94";
-const ADMIN_EMAIL = process.env.APP_ADMIN_EMAIL || "admin@86d.app";
-const ADMIN_PASSWORD = process.env.APP_ADMIN_PASSWORD || "password123";
+const STORE_ID =
+	getProcessEnv("STORE_ID") || "de005b9d-c517-4c65-896e-8edef5cf5a94";
+const ADMIN_EMAIL = getProcessEnv("APP_ADMIN_EMAIL") || "admin@86d.app";
+const ADMIN_PASSWORD = getProcessEnv("APP_ADMIN_PASSWORD") || "password123";
 const DB_ROOT = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = workspaceRootFromImportMeta(import.meta.url);
 const now = new Date().toISOString();
@@ -153,7 +155,7 @@ type AssetResolver = {
 };
 
 function shouldProxyUploadUrls(): boolean {
-	return (process.env.STORAGE_PUBLIC_URL_MODE ?? "direct") === "proxy";
+	return (getProcessEnv("STORAGE_PUBLIC_URL_MODE") ?? "direct") === "proxy";
 }
 
 function buildPublicUploadUrl(key: string): string {
@@ -259,13 +261,16 @@ async function ensureStoreRecord(client: pg.PoolClient) {
 	);
 }
 
-async function insertModuleData(
-	client: pg.PoolClient,
-	moduleName: string,
-	entityType: string,
-	entityId: string,
-	data: Record<string, unknown>,
-) {
+type InsertModuleDataOptions = {
+	client: pg.PoolClient;
+	moduleName: string;
+	entityType: string;
+	entityId: string;
+	data: Record<string, unknown>;
+};
+
+async function insertModuleData(options: InsertModuleDataOptions) {
+	const { client, moduleName, entityType, entityId, data } = options;
 	if (!moduleIds[moduleName]) {
 		throw new Error(
 			`Seed attempted to write ${moduleName}.${entityType} but Module "${moduleName}" is not enabled.`,
@@ -468,12 +473,12 @@ async function resolveProducts(
 async function seedProducts(client: pg.PoolClient, assets: AssetResolver) {
 	for (const category of categories) {
 		const image = await assets.resolveUrl(category.imagePath);
-		await insertModuleData(
-			client,
-			"products",
-			"category",
-			categoryIds[category.key],
-			{
+		await insertModuleData({
+			client: client,
+			moduleName: "products",
+			entityType: "category",
+			entityId: categoryIds[category.key],
+			data: {
 				id: categoryIds[category.key],
 				name: category.name,
 				slug: category.slug,
@@ -485,58 +490,70 @@ async function seedProducts(client: pg.PoolClient, assets: AssetResolver) {
 				createdAt: now,
 				updatedAt: now,
 			},
-		);
+		});
 	}
 	const resolvedProducts = await resolveProducts(assets);
 	for (const product of resolvedProducts) {
-		await insertModuleData(client, "products", "product", product.id, {
-			id: product.id,
-			name: product.name,
-			slug: product.slug,
-			description: product.description,
-			shortDescription: product.shortDescription,
-			price: product.price,
-			...(product.compareAtPrice != null && {
-				compareAtPrice: product.compareAtPrice,
-			}),
-			...(product.costPrice != null && { costPrice: product.costPrice }),
-			sku: product.sku,
-			inventory: product.inventory,
-			trackInventory: product.trackInventory,
-			allowBackorder: product.allowBackorder,
-			status: product.status,
-			categoryId: product.categoryId,
-			images: product.images,
-			tags: product.tags,
-			metadata: product.metadata,
-			weight: product.weight,
-			weightUnit: product.weightUnit,
-			isFeatured: product.isFeatured,
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "products",
+			entityType: "product",
+			entityId: product.id,
+			data: {
+				id: product.id,
+				name: product.name,
+				slug: product.slug,
+				description: product.description,
+				shortDescription: product.shortDescription,
+				price: product.price,
+				...(product.compareAtPrice != null && {
+					compareAtPrice: product.compareAtPrice,
+				}),
+				...(product.costPrice != null && { costPrice: product.costPrice }),
+				sku: product.sku,
+				inventory: product.inventory,
+				trackInventory: product.trackInventory,
+				allowBackorder: product.allowBackorder,
+				status: product.status,
+				categoryId: product.categoryId,
+				images: product.images,
+				tags: product.tags,
+				metadata: product.metadata,
+				weight: product.weight,
+				weightUnit: product.weightUnit,
+				isFeatured: product.isFeatured,
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 
 		for (const variant of product.variantRecords) {
-			await insertModuleData(client, "products", "productVariant", variant.id, {
-				id: variant.id,
-				productId: variant.productId,
-				name: variant.name,
-				sku: variant.sku,
-				price: variant.price,
-				...(variant.compareAtPrice != null && {
-					compareAtPrice: variant.compareAtPrice,
-				}),
-				...(variant.costPrice != null && { costPrice: variant.costPrice }),
-				inventory: variant.inventory,
-				options: variant.options,
-				images: product.images,
-				weight: variant.weight,
-				weightUnit: variant.weightUnit ?? "kg",
-				position: product.variantRecords.findIndex(
-					(item) => item.id === variant.id,
-				),
-				createdAt: now,
-				updatedAt: now,
+			await insertModuleData({
+				client: client,
+				moduleName: "products",
+				entityType: "productVariant",
+				entityId: variant.id,
+				data: {
+					id: variant.id,
+					productId: variant.productId,
+					name: variant.name,
+					sku: variant.sku,
+					price: variant.price,
+					...(variant.compareAtPrice != null && {
+						compareAtPrice: variant.compareAtPrice,
+					}),
+					...(variant.costPrice != null && { costPrice: variant.costPrice }),
+					inventory: variant.inventory,
+					options: variant.options,
+					images: product.images,
+					weight: variant.weight,
+					weightUnit: variant.weightUnit ?? "kg",
+					position: product.variantRecords.findIndex(
+						(item) => item.id === variant.id,
+					),
+					createdAt: now,
+					updatedAt: now,
+				},
 			});
 		}
 	}
@@ -553,12 +570,12 @@ function inventoryItemId(
 async function seedCollections(client: pg.PoolClient, assets: AssetResolver) {
 	for (const collection of collections) {
 		const image = await assets.resolveUrl(collection.imagePath);
-		await insertModuleData(
-			client,
-			"products",
-			"collection",
-			collectionIds[collection.key],
-			{
+		await insertModuleData({
+			client: client,
+			moduleName: "products",
+			entityType: "collection",
+			entityId: collectionIds[collection.key],
+			data: {
 				id: collectionIds[collection.key],
 				name: collection.name,
 				slug: collection.slug,
@@ -571,17 +588,23 @@ async function seedCollections(client: pg.PoolClient, assets: AssetResolver) {
 				createdAt: now,
 				updatedAt: now,
 			},
-		);
+		});
 		for (const [position, productKey] of collection.productKeys.entries()) {
 			const linkId = uuid(
 				`products-collection-link:${collection.key}:${productKey}`,
 			);
-			await insertModuleData(client, "products", "collectionProduct", linkId, {
-				id: linkId,
-				collectionId: collectionIds[collection.key],
-				productId: productIds[productKey],
-				position,
-				createdAt: now,
+			await insertModuleData({
+				client: client,
+				moduleName: "products",
+				entityType: "collectionProduct",
+				entityId: linkId,
+				data: {
+					id: linkId,
+					collectionId: collectionIds[collection.key],
+					productId: productIds[productKey],
+					position,
+					createdAt: now,
+				},
 			});
 		}
 	}
@@ -593,12 +616,12 @@ async function seedCollectionsModule(
 ) {
 	for (const collection of collections) {
 		const image = await assets.resolveUrl(collection.imagePath);
-		await insertModuleData(
-			client,
-			"collections",
-			"collection",
-			collectionIds[collection.key],
-			{
+		await insertModuleData({
+			client: client,
+			moduleName: "collections",
+			entityType: "collection",
+			entityId: collectionIds[collection.key],
+			data: {
 				id: collectionIds[collection.key],
 				title: collection.name,
 				slug: collection.slug,
@@ -618,37 +641,37 @@ async function seedCollectionsModule(
 				createdAt: now,
 				updatedAt: now,
 			},
-		);
+		});
 
 		for (const [position, productKey] of collection.productKeys.entries()) {
 			const linkId = uuid(
 				`collections-module-link:${collection.key}:${productKey}`,
 			);
-			await insertModuleData(
-				client,
-				"collections",
-				"collectionProduct",
-				linkId,
-				{
+			await insertModuleData({
+				client: client,
+				moduleName: "collections",
+				entityType: "collectionProduct",
+				entityId: linkId,
+				data: {
 					id: linkId,
 					collectionId: collectionIds[collection.key],
 					productId: productIds[productKey],
 					position,
 					addedAt: now,
 				},
-			);
+			});
 		}
 	}
 }
 
 async function seedCustomers(client: pg.PoolClient) {
 	for (const customer of customers) {
-		await insertModuleData(
-			client,
-			"customers",
-			"customer",
-			customerIds[customer.key],
-			{
+		await insertModuleData({
+			client: client,
+			moduleName: "customers",
+			entityType: "customer",
+			entityId: customerIds[customer.key],
+			data: {
 				id: customerIds[customer.key],
 				email: customer.email,
 				firstName: customer.firstName,
@@ -658,26 +681,32 @@ async function seedCustomers(client: pg.PoolClient) {
 				createdAt: now,
 				updatedAt: now,
 			},
-		);
+		});
 	}
 
 	for (const [index, address] of customerAddresses.entries()) {
 		const addressId = uuid(`customer-address:${address.customerKey}:${index}`);
-		await insertModuleData(client, "customers", "customerAddress", addressId, {
-			id: addressId,
-			customerId: customerIds[address.customerKey],
-			type: address.type,
-			firstName: address.firstName,
-			lastName: address.lastName,
-			line1: address.line1,
-			...(address.line2 != null && { line2: address.line2 }),
-			city: address.city,
-			state: address.state,
-			postalCode: address.postalCode,
-			country: address.country,
-			isDefault: address.isDefault,
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "customers",
+			entityType: "customerAddress",
+			entityId: addressId,
+			data: {
+				id: addressId,
+				customerId: customerIds[address.customerKey],
+				type: address.type,
+				firstName: address.firstName,
+				lastName: address.lastName,
+				line1: address.line1,
+				...(address.line2 != null && { line2: address.line2 }),
+				city: address.city,
+				state: address.state,
+				postalCode: address.postalCode,
+				country: address.country,
+				isDefault: address.isDefault,
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 	}
 }
@@ -685,12 +714,18 @@ async function seedCustomers(client: pg.PoolClient) {
 async function seedSettings(client: pg.PoolClient) {
 	for (const setting of storeSettings) {
 		const settingId = uuid(`setting:${setting.key}`);
-		await insertModuleData(client, "settings", "storeSetting", settingId, {
-			id: settingId,
-			key: setting.key,
-			value: setting.value,
-			group: setting.group,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "settings",
+			entityType: "storeSetting",
+			entityId: settingId,
+			data: {
+				id: settingId,
+				key: setting.key,
+				value: setting.value,
+				group: setting.group,
+				updatedAt: now,
+			},
 		});
 	}
 }
@@ -703,26 +738,32 @@ async function seedInventory(client: pg.PoolClient) {
 			0,
 		);
 		const inventoryId = inventoryItemId(productId);
-		await insertModuleData(client, "inventory", "inventoryItem", inventoryId, {
-			id: inventoryId,
-			productId,
-			quantity,
-			reserved: 0,
-			allowBackorder: product.allowBackorder,
-			lowStockThreshold: 4,
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "inventory",
+			entityType: "inventoryItem",
+			entityId: inventoryId,
+			data: {
+				id: inventoryId,
+				productId,
+				quantity,
+				reserved: 0,
+				allowBackorder: product.allowBackorder,
+				lowStockThreshold: 4,
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 
 		for (const variant of product.variants) {
 			const variantId = variantIdByKey[variant.key];
 			const variantInventoryId = inventoryItemId(productId, variantId);
-			await insertModuleData(
-				client,
-				"inventory",
-				"inventoryItem",
-				variantInventoryId,
-				{
+			await insertModuleData({
+				client: client,
+				moduleName: "inventory",
+				entityType: "inventoryItem",
+				entityId: variantInventoryId,
+				data: {
 					id: variantInventoryId,
 					productId,
 					variantId,
@@ -733,38 +774,50 @@ async function seedInventory(client: pg.PoolClient) {
 					createdAt: now,
 					updatedAt: now,
 				},
-			);
+			});
 		}
 	}
 }
 
 async function seedNavigation(client: pg.PoolClient) {
 	const menuId = uuid("menu:main");
-	await insertModuleData(client, "navigation", "menu", menuId, {
-		id: menuId,
-		name: "Main Navigation",
-		slug: "main",
-		location: "header",
-		isActive: true,
-		metadata: { theme: summary.house },
-		createdAt: now,
-		updatedAt: now,
+	await insertModuleData({
+		client: client,
+		moduleName: "navigation",
+		entityType: "menu",
+		entityId: menuId,
+		data: {
+			id: menuId,
+			name: "Main Navigation",
+			slug: "main",
+			location: "header",
+			isActive: true,
+			metadata: { theme: summary.house },
+			createdAt: now,
+			updatedAt: now,
+		},
 	});
 
 	for (const item of navigationItems) {
 		const itemId = uuid(`menu-item:${menuId}:${item.label}`);
-		await insertModuleData(client, "navigation", "menuItem", itemId, {
-			id: itemId,
-			menuId,
-			label: item.label,
-			type: "link",
-			url: item.url,
-			position: item.position,
-			isVisible: true,
-			openInNewTab: false,
-			metadata: {},
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "navigation",
+			entityType: "menuItem",
+			entityId: itemId,
+			data: {
+				id: itemId,
+				menuId,
+				label: item.label,
+				type: "link",
+				url: item.url,
+				position: item.position,
+				isVisible: true,
+				openInNewTab: false,
+				metadata: {},
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 	}
 }
@@ -794,34 +847,52 @@ async function seedDemoOrder(client: pg.PoolClient) {
 		demoOrder.shippingAmount -
 		demoOrder.discountAmount;
 
-	await insertModuleData(client, "orders", "order", orderId, {
-		id: orderId,
-		orderNumber: demoOrder.orderNumber,
-		customerId: customerIds[demoOrder.customerKey],
-		subtotal,
-		taxAmount: demoOrder.taxAmount,
-		shippingAmount: demoOrder.shippingAmount,
-		discountAmount: demoOrder.discountAmount,
-		giftCardAmount: 0,
-		total,
-		currency: demoOrder.currency,
-		status: demoOrder.status,
-		paymentStatus: demoOrder.paymentStatus,
-		metadata: { theme: summary.house },
-		createdAt: now,
-		updatedAt: now,
+	await insertModuleData({
+		client: client,
+		moduleName: "orders",
+		entityType: "order",
+		entityId: orderId,
+		data: {
+			id: orderId,
+			orderNumber: demoOrder.orderNumber,
+			customerId: customerIds[demoOrder.customerKey],
+			subtotal,
+			taxAmount: demoOrder.taxAmount,
+			shippingAmount: demoOrder.shippingAmount,
+			discountAmount: demoOrder.discountAmount,
+			giftCardAmount: 0,
+			total,
+			currency: demoOrder.currency,
+			status: demoOrder.status,
+			paymentStatus: demoOrder.paymentStatus,
+			metadata: { theme: summary.house },
+			createdAt: now,
+			updatedAt: now,
+		},
 	});
 
 	for (const item of orderItems) {
-		await insertModuleData(client, "orders", "orderItem", item.id, item);
+		await insertModuleData({
+			client: client,
+			moduleName: "orders",
+			entityType: "orderItem",
+			entityId: item.id,
+			data: item,
+		});
 	}
 
 	const addressId = uuid("order-address:demo");
-	await insertModuleData(client, "orders", "orderAddress", addressId, {
-		id: addressId,
-		orderId,
-		type: "shipping",
-		...demoOrder.shippingAddress,
+	await insertModuleData({
+		client: client,
+		moduleName: "orders",
+		entityType: "orderAddress",
+		entityId: addressId,
+		data: {
+			id: addressId,
+			orderId,
+			type: "shipping",
+			...demoOrder.shippingAddress,
+		},
 	});
 
 	const partyId = uuid("core-party:demo-customer");
@@ -856,60 +927,72 @@ async function seedDemoOrder(client: pg.PoolClient) {
 async function seedReviews(client: pg.PoolClient) {
 	for (const review of reviews) {
 		const reviewId = uuid(`review:${review.productKey}:${review.authorEmail}`);
-		await insertModuleData(client, "reviews", "review", reviewId, {
-			id: reviewId,
-			productId: productIds[review.productKey],
-			...(review.customerKey != null && {
-				customerId: customerIds[review.customerKey],
-			}),
-			authorName: review.authorName,
-			authorEmail: review.authorEmail,
-			rating: review.rating,
-			title: review.title,
-			body: review.body,
-			status: review.status,
-			isVerifiedPurchase: review.isVerifiedPurchase,
-			helpfulCount: 0,
-			images: [],
-			...(review.merchantResponse != null && {
-				merchantResponse: review.merchantResponse,
-				merchantResponseAt: now,
-			}),
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "reviews",
+			entityType: "review",
+			entityId: reviewId,
+			data: {
+				id: reviewId,
+				productId: productIds[review.productKey],
+				...(review.customerKey != null && {
+					customerId: customerIds[review.customerKey],
+				}),
+				authorName: review.authorName,
+				authorEmail: review.authorEmail,
+				rating: review.rating,
+				title: review.title,
+				body: review.body,
+				status: review.status,
+				isVerifiedPurchase: review.isVerifiedPurchase,
+				helpfulCount: 0,
+				images: [],
+				...(review.merchantResponse != null && {
+					merchantResponse: review.merchantResponse,
+					merchantResponseAt: now,
+				}),
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 	}
 }
 
 async function seedPages(client: pg.PoolClient, assets: AssetResolver) {
 	for (const page of pages) {
-		await insertModuleData(client, "pages", "page", pageIds[page.key], {
-			id: pageIds[page.key],
-			title: page.title,
-			slug: page.slug,
-			content: page.content,
-			excerpt: page.excerpt,
-			status: page.status,
-			metaTitle: page.metaTitle,
-			metaDescription: page.metaDescription,
-			featuredImage: await assets.resolveUrl(page.featuredImagePath),
-			position: page.position,
-			showInNavigation: page.showInNavigation,
-			publishedAt: now,
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "pages",
+			entityType: "page",
+			entityId: pageIds[page.key],
+			data: {
+				id: pageIds[page.key],
+				title: page.title,
+				slug: page.slug,
+				content: page.content,
+				excerpt: page.excerpt,
+				status: page.status,
+				metaTitle: page.metaTitle,
+				metaDescription: page.metaDescription,
+				featuredImage: await assets.resolveUrl(page.featuredImagePath),
+				position: page.position,
+				showInNavigation: page.showInNavigation,
+				publishedAt: now,
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 	}
 }
 
 async function seedShipping(client: pg.PoolClient) {
 	for (const zone of shippingZones) {
-		await insertModuleData(
-			client,
-			"shipping",
-			"shippingZone",
-			shippingZoneIds[zone.key],
-			{
+		await insertModuleData({
+			client: client,
+			moduleName: "shipping",
+			entityType: "shippingZone",
+			entityId: shippingZoneIds[zone.key],
+			data: {
 				id: shippingZoneIds[zone.key],
 				name: zone.name,
 				countries: zone.countries,
@@ -917,32 +1000,38 @@ async function seedShipping(client: pg.PoolClient) {
 				createdAt: now,
 				updatedAt: now,
 			},
-		);
+		});
 	}
 
 	for (const rate of shippingRates) {
 		const rateId = uuid(`shipping-rate:${rate.key}`);
-		await insertModuleData(client, "shipping", "shippingRate", rateId, {
-			id: rateId,
-			zoneId: shippingZoneIds[rate.zoneKey],
-			name: rate.name,
-			price: rate.price,
-			minOrderAmount: rate.minOrderAmount,
-			isActive: rate.isActive,
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "shipping",
+			entityType: "shippingRate",
+			entityId: rateId,
+			data: {
+				id: rateId,
+				zoneId: shippingZoneIds[rate.zoneKey],
+				name: rate.name,
+				price: rate.price,
+				minOrderAmount: rate.minOrderAmount,
+				isActive: rate.isActive,
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 	}
 }
 
 async function seedTax(client: pg.PoolClient) {
 	for (const rate of taxRates) {
-		await insertModuleData(
-			client,
-			"tax",
-			"taxRate",
-			uuid(`tax-rate:${rate.key}`),
-			{
+		await insertModuleData({
+			client: client,
+			moduleName: "tax",
+			entityType: "taxRate",
+			entityId: uuid(`tax-rate:${rate.key}`),
+			data: {
 				id: uuid(`tax-rate:${rate.key}`),
 				name: rate.name,
 				country: rate.country,
@@ -959,46 +1048,64 @@ async function seedTax(client: pg.PoolClient) {
 				createdAt: now,
 				updatedAt: now,
 			},
-		);
+		});
 	}
 
-	await insertModuleData(client, "tax", "taxCategory", taxCategory.key, {
-		id: taxCategory.key,
-		name: taxCategory.name,
-		description: taxCategory.description,
-		createdAt: now,
-		updatedAt: now,
+	await insertModuleData({
+		client: client,
+		moduleName: "tax",
+		entityType: "taxCategory",
+		entityId: taxCategory.key,
+		data: {
+			id: taxCategory.key,
+			name: taxCategory.name,
+			description: taxCategory.description,
+			createdAt: now,
+			updatedAt: now,
+		},
 	});
 }
 
 async function seedDiscounts(client: pg.PoolClient) {
 	for (const discount of discounts) {
 		const discountId = uuid(`discount:${discount.key}`);
-		await insertModuleData(client, "discounts", "discount", discountId, {
-			id: discountId,
-			name: discount.name,
-			description: discount.description,
-			type: discount.type,
-			value: discount.value,
-			minimumAmount: discount.minimumAmount,
-			appliesTo: discount.appliesTo,
-			stackable: discount.stackable,
-			usedCount: 0,
-			isActive: discount.isActive,
-			metadata: { theme: summary.house },
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "discounts",
+			entityType: "discount",
+			entityId: discountId,
+			data: {
+				id: discountId,
+				name: discount.name,
+				description: discount.description,
+				type: discount.type,
+				value: discount.value,
+				minimumAmount: discount.minimumAmount,
+				appliesTo: discount.appliesTo,
+				stackable: discount.stackable,
+				usedCount: 0,
+				isActive: discount.isActive,
+				metadata: { theme: summary.house },
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 
 		const codeId = uuid(`discount-code:${discount.key}`);
-		await insertModuleData(client, "discounts", "discountCode", codeId, {
-			id: codeId,
-			discountId,
-			code: discount.code,
-			usedCount: 0,
-			isActive: discount.isActive,
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "discounts",
+			entityType: "discountCode",
+			entityId: codeId,
+			data: {
+				id: codeId,
+				discountId,
+				code: discount.code,
+				usedCount: 0,
+				isActive: discount.isActive,
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 	}
 }
@@ -1006,13 +1113,19 @@ async function seedDiscounts(client: pg.PoolClient) {
 async function seedSeo(client: pg.PoolClient) {
 	for (const meta of seoMeta) {
 		const metaId = uuid(`seo:${meta.path}`);
-		await insertModuleData(client, "seo", "metaTag", metaId, {
-			id: metaId,
-			...meta,
-			noIndex: "false",
-			noFollow: "false",
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "seo",
+			entityType: "metaTag",
+			entityId: metaId,
+			data: {
+				id: metaId,
+				...meta,
+				noIndex: "false",
+				noFollow: "false",
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 	}
 }
@@ -1021,32 +1134,44 @@ async function seedSearch(client: pg.PoolClient, assets: AssetResolver) {
 	const resolvedProducts = await resolveProducts(assets);
 	for (const product of resolvedProducts) {
 		const indexId = uuid(`search-index:${product.key}`);
-		await insertModuleData(client, "search", "searchIndex", indexId, {
-			id: indexId,
-			entityType: "product",
-			entityId: product.id,
-			title: product.name,
-			body: product.description,
-			tags: product.tags,
-			url: `/products/${product.slug}`,
-			image: product.images[0],
-			metadata: {
-				price: product.price,
-				sku: product.sku,
-				category: product.categoryKey,
-				brand: houseBrand.name,
+		await insertModuleData({
+			client: client,
+			moduleName: "search",
+			entityType: "searchIndex",
+			entityId: indexId,
+			data: {
+				id: indexId,
+				entityType: "product",
+				entityId: product.id,
+				title: product.name,
+				body: product.description,
+				tags: product.tags,
+				url: `/products/${product.slug}`,
+				image: product.images[0],
+				metadata: {
+					price: product.price,
+					sku: product.sku,
+					category: product.categoryKey,
+					brand: houseBrand.name,
+				},
+				indexedAt: now,
 			},
-			indexedAt: now,
 		});
 	}
 
 	for (const synonym of searchSynonyms) {
 		const synonymId = uuid(`search-synonym:${synonym.term}`);
-		await insertModuleData(client, "search", "searchSynonym", synonymId, {
-			id: synonymId,
-			term: synonym.term,
-			synonyms: synonym.synonyms,
-			createdAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "search",
+			entityType: "searchSynonym",
+			entityId: synonymId,
+			data: {
+				id: synonymId,
+				term: synonym.term,
+				synonyms: synonym.synonyms,
+				createdAt: now,
+			},
 		});
 	}
 }
@@ -1054,26 +1179,38 @@ async function seedSearch(client: pg.PoolClient, assets: AssetResolver) {
 async function seedNewsletter(client: pg.PoolClient) {
 	for (const subscriber of newsletterSubscribers) {
 		const subscriberId = uuid(`newsletter:${subscriber.email}`);
-		await insertModuleData(client, "newsletter", "subscriber", subscriberId, {
-			id: subscriberId,
-			...subscriber,
-			tags: ["atelier"],
-			metadata: {},
-			subscribedAt: now,
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "newsletter",
+			entityType: "subscriber",
+			entityId: subscriberId,
+			data: {
+				id: subscriberId,
+				...subscriber,
+				tags: ["atelier"],
+				metadata: {},
+				subscribedAt: now,
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 	}
 }
 
 async function seedSitemap(client: pg.PoolClient) {
 	const configId = uuid("sitemap-config");
-	await insertModuleData(client, "sitemap", "sitemapConfig", configId, {
-		id: configId,
-		...sitemapConfig,
-		lastGenerated: now,
-		createdAt: now,
-		updatedAt: now,
+	await insertModuleData({
+		client: client,
+		moduleName: "sitemap",
+		entityType: "sitemapConfig",
+		entityId: configId,
+		data: {
+			id: configId,
+			...sitemapConfig,
+			lastGenerated: now,
+			createdAt: now,
+			updatedAt: now,
+		},
 	});
 }
 
@@ -1082,52 +1219,76 @@ async function seedCart(client: pg.PoolClient) {
 
 	// Marcus: active cart with Observatory Chronograph
 	const marcusCartId = uuid("cart:marcus-chen:active");
-	await insertModuleData(client, "cart", "cart", marcusCartId, {
-		id: marcusCartId,
-		customerId: customerIds["marcus-chen"],
-		status: "active",
-		expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-		createdAt: now,
-		updatedAt: now,
+	await insertModuleData({
+		client: client,
+		moduleName: "cart",
+		entityType: "cart",
+		entityId: marcusCartId,
+		data: {
+			id: marcusCartId,
+			customerId: customerIds["marcus-chen"],
+			status: "active",
+			expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+			createdAt: now,
+			updatedAt: now,
+		},
 	});
 	const marcusCartItemId = uuid(
 		"cart-item:marcus-chen:observatory-chronograph",
 	);
-	await insertModuleData(client, "cart", "cartItem", marcusCartItemId, {
-		id: marcusCartItemId,
-		cartId: marcusCartId,
-		productId: productIds["observatory-chronograph"],
-		variantId: uuid("variant:observatory-chronograph:rose-cocoa"),
-		quantity: 1,
-		price: 345000,
-		productName: "Observatory Chronograph",
-		productSlug: "observatory-chronograph",
-		createdAt: now,
-		updatedAt: now,
+	await insertModuleData({
+		client: client,
+		moduleName: "cart",
+		entityType: "cartItem",
+		entityId: marcusCartItemId,
+		data: {
+			id: marcusCartItemId,
+			cartId: marcusCartId,
+			productId: productIds["observatory-chronograph"],
+			variantId: uuid("variant:observatory-chronograph:rose-cocoa"),
+			quantity: 1,
+			price: 345000,
+			productName: "Observatory Chronograph",
+			productSlug: "observatory-chronograph",
+			createdAt: now,
+			updatedAt: now,
+		},
 	});
 
 	// Sofia: abandoned cart with Cashmere Fringe Scarf
 	const sofiaCartId = uuid("cart:sofia-alvarez:abandoned");
-	await insertModuleData(client, "cart", "cart", sofiaCartId, {
-		id: sofiaCartId,
-		customerId: customerIds["sofia-alvarez"],
-		status: "abandoned",
-		expiresAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-		createdAt: now,
-		updatedAt: now,
+	await insertModuleData({
+		client: client,
+		moduleName: "cart",
+		entityType: "cart",
+		entityId: sofiaCartId,
+		data: {
+			id: sofiaCartId,
+			customerId: customerIds["sofia-alvarez"],
+			status: "abandoned",
+			expiresAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+			createdAt: now,
+			updatedAt: now,
+		},
 	});
 	const sofiaCartItemId = uuid("cart-item:sofia-alvarez:cashmere-fringe-scarf");
-	await insertModuleData(client, "cart", "cartItem", sofiaCartItemId, {
-		id: sofiaCartItemId,
-		cartId: sofiaCartId,
-		productId: productIds["cashmere-fringe-scarf"],
-		variantId: uuid("variant:cashmere-fringe-scarf:ivory"),
-		quantity: 1,
-		price: 49500,
-		productName: "Cashmere Fringe Scarf",
-		productSlug: "cashmere-fringe-scarf",
-		createdAt: now,
-		updatedAt: now,
+	await insertModuleData({
+		client: client,
+		moduleName: "cart",
+		entityType: "cartItem",
+		entityId: sofiaCartItemId,
+		data: {
+			id: sofiaCartItemId,
+			cartId: sofiaCartId,
+			productId: productIds["cashmere-fringe-scarf"],
+			variantId: uuid("variant:cashmere-fringe-scarf:ivory"),
+			quantity: 1,
+			price: 49500,
+			productName: "Cashmere Fringe Scarf",
+			productSlug: "cashmere-fringe-scarf",
+			createdAt: now,
+			updatedAt: now,
+		},
 	});
 }
 
@@ -1136,25 +1297,31 @@ async function seedCheckout(client: pg.PoolClient) {
 	const orderId = uuid("order:demo");
 	const sessionId = uuid("checkout:demo-order");
 
-	await insertModuleData(client, "checkout", "checkoutSession", sessionId, {
-		id: sessionId,
-		revision: 1,
-		cartId: uuid("cart:eleanor-vale:completed"),
-		customerId: customerIds["eleanor-vale"],
-		orderId,
-		status: "completed",
-		subtotal: 89500,
-		taxAmount: 7697,
-		shippingAmount: 0,
-		discountAmount: 0,
-		giftCardAmount: 0,
-		storeCreditAmount: 0,
-		total: 97197,
-		currency: "USD",
-		expiresAt: now,
-		completedAt: now,
-		createdAt: now,
-		updatedAt: now,
+	await insertModuleData({
+		client: client,
+		moduleName: "checkout",
+		entityType: "checkoutSession",
+		entityId: sessionId,
+		data: {
+			id: sessionId,
+			revision: 1,
+			cartId: uuid("cart:eleanor-vale:completed"),
+			customerId: customerIds["eleanor-vale"],
+			orderId,
+			status: "completed",
+			subtotal: 89500,
+			taxAmount: 7697,
+			shippingAmount: 0,
+			discountAmount: 0,
+			giftCardAmount: 0,
+			storeCreditAmount: 0,
+			total: 97197,
+			currency: "USD",
+			expiresAt: now,
+			completedAt: now,
+			createdAt: now,
+			updatedAt: now,
+		},
 	});
 
 	const lineItems = [
@@ -1173,14 +1340,20 @@ async function seedCheckout(client: pg.PoolClient) {
 	];
 	for (const item of lineItems) {
 		const lineItemId = uuid(`checkout-line:demo-order:${item.productId}`);
-		await insertModuleData(client, "checkout", "checkoutLineItem", lineItemId, {
-			id: lineItemId,
-			sessionId,
-			productId: item.productId,
-			name: item.productName,
-			quantity: item.quantity,
-			price: item.price,
-			createdAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "checkout",
+			entityType: "checkoutLineItem",
+			entityId: lineItemId,
+			data: {
+				id: lineItemId,
+				sessionId,
+				productId: item.productId,
+				name: item.productName,
+				quantity: item.quantity,
+				price: item.price,
+				createdAt: now,
+			},
 		});
 	}
 }
@@ -1218,11 +1391,17 @@ async function seedNotifications(client: pg.PoolClient) {
 		},
 	];
 	for (const tpl of templates) {
-		await insertModuleData(client, "notifications", "template", tpl.id, {
-			...tpl,
-			isActive: true,
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "notifications",
+			entityType: "template",
+			entityId: tpl.id,
+			data: {
+				...tpl,
+				isActive: true,
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 	}
 
@@ -1233,14 +1412,20 @@ async function seedNotifications(client: pg.PoolClient) {
 		["sofia-alvarez", "sms"],
 	] as const) {
 		const prefId = uuid(`notif-pref:${key}`);
-		await insertModuleData(client, "notifications", "preference", prefId, {
-			id: prefId,
-			customerId: customerIds[key],
-			channel,
-			orderUpdates: true,
-			promotions: key !== "marcus-chen",
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "notifications",
+			entityType: "preference",
+			entityId: prefId,
+			data: {
+				id: prefId,
+				customerId: customerIds[key],
+				channel,
+				orderUpdates: true,
+				promotions: key !== "marcus-chen",
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 	}
 
@@ -1279,17 +1464,23 @@ async function seedNotifications(client: pg.PoolClient) {
 	];
 	for (const n of notifications) {
 		const notifId = uuid(`notification:${n.key}`);
-		await insertModuleData(client, "notifications", "notification", notifId, {
-			id: notifId,
-			customerId: customerIds[n.customerId as keyof typeof customerIds],
-			type: n.type,
-			channel: n.channel,
-			priority: n.priority,
-			title: n.title,
-			body: n.body,
-			read: n.read,
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "notifications",
+			entityType: "notification",
+			entityId: notifId,
+			data: {
+				id: notifId,
+				customerId: customerIds[n.customerId as keyof typeof customerIds],
+				type: n.type,
+				channel: n.channel,
+				priority: n.priority,
+				title: n.title,
+				body: n.body,
+				read: n.read,
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 	}
 }
@@ -1298,12 +1489,18 @@ async function seedMedia(client: pg.PoolClient) {
 	const now = new Date().toISOString();
 
 	const folderId = uuid("media-folder:products");
-	await insertModuleData(client, "media", "folder", folderId, {
-		id: folderId,
-		name: "Products",
-		parentId: null,
-		createdAt: now,
-		updatedAt: now,
+	await insertModuleData({
+		client: client,
+		moduleName: "media",
+		entityType: "folder",
+		entityId: folderId,
+		data: {
+			id: folderId,
+			name: "Products",
+			parentId: null,
+			createdAt: now,
+			updatedAt: now,
+		},
 	});
 
 	const assets = [
@@ -1357,19 +1554,25 @@ async function seedMedia(client: pg.PoolClient) {
 	for (const asset of assets) {
 		const assetId = uuid(`media-asset:${asset.key}`);
 		const product = productByKey[asset.productKey];
-		await insertModuleData(client, "media", "asset", assetId, {
-			id: assetId,
-			name: asset.name,
-			altText: product?.name ?? asset.name,
-			url: product?.imagePaths?.[0] ?? "",
-			mimeType: asset.mimeType,
-			size: asset.size,
-			width: asset.width,
-			height: asset.height,
-			folder: folderId,
-			tags: ["product", "hero"],
-			createdAt: now,
-			updatedAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "media",
+			entityType: "asset",
+			entityId: assetId,
+			data: {
+				id: assetId,
+				name: asset.name,
+				altText: product?.name ?? asset.name,
+				url: product?.imagePaths?.[0] ?? "",
+				mimeType: asset.mimeType,
+				size: asset.size,
+				width: asset.width,
+				height: asset.height,
+				folder: folderId,
+				tags: ["product", "hero"],
+				createdAt: now,
+				updatedAt: now,
+			},
 		});
 	}
 }
@@ -1379,33 +1582,45 @@ async function seedPayments(client: pg.PoolClient) {
 	const orderId = uuid("order:demo");
 
 	const paymentMethodId = uuid("payment-method:eleanor-vale:visa");
-	await insertModuleData(client, "payments", "paymentMethod", paymentMethodId, {
-		id: paymentMethodId,
-		customerId: customerIds["eleanor-vale"],
-		providerMethodId: "pm_1234abcd",
-		type: "card",
-		last4: "4242",
-		brand: "Visa",
-		expiryMonth: 12,
-		expiryYear: 2027,
-		isDefault: true,
-		createdAt: now,
-		updatedAt: now,
+	await insertModuleData({
+		client: client,
+		moduleName: "payments",
+		entityType: "paymentMethod",
+		entityId: paymentMethodId,
+		data: {
+			id: paymentMethodId,
+			customerId: customerIds["eleanor-vale"],
+			providerMethodId: "pm_1234abcd",
+			type: "card",
+			last4: "4242",
+			brand: "Visa",
+			expiryMonth: 12,
+			expiryYear: 2027,
+			isDefault: true,
+			createdAt: now,
+			updatedAt: now,
+		},
 	});
 
 	const paymentIntentId = uuid("payment-intent:demo-order");
-	await insertModuleData(client, "payments", "paymentIntent", paymentIntentId, {
-		id: paymentIntentId,
-		providerIntentId: "pi_3OxLm2Kg1234abcd",
-		customerId: customerIds["eleanor-vale"],
-		orderId,
-		amount: 97197,
-		currency: "USD",
-		status: "succeeded",
-		paymentMethodId,
-		capturedAt: now,
-		createdAt: now,
-		updatedAt: now,
+	await insertModuleData({
+		client: client,
+		moduleName: "payments",
+		entityType: "paymentIntent",
+		entityId: paymentIntentId,
+		data: {
+			id: paymentIntentId,
+			providerIntentId: "pi_3OxLm2Kg1234abcd",
+			customerId: customerIds["eleanor-vale"],
+			orderId,
+			amount: 97197,
+			currency: "USD",
+			status: "succeeded",
+			paymentMethodId,
+			capturedAt: now,
+			createdAt: now,
+			updatedAt: now,
+		},
 	});
 }
 
@@ -1453,15 +1668,21 @@ async function seedAnalytics(client: pg.PoolClient) {
 
 	for (const event of events) {
 		const eventId = uuid(`analytics-event:${event.key}`);
-		await insertModuleData(client, "analytics", "event", eventId, {
-			id: eventId,
-			type: event.type,
-			sessionId: event.sessionId,
-			productId: event.productId,
-			orderId: event.orderId,
-			value: event.value,
-			data: event.data,
-			createdAt: now,
+		await insertModuleData({
+			client: client,
+			moduleName: "analytics",
+			entityType: "event",
+			entityId: eventId,
+			data: {
+				id: eventId,
+				type: event.type,
+				sessionId: event.sessionId,
+				productId: event.productId,
+				orderId: event.orderId,
+				value: event.value,
+				data: event.data,
+				createdAt: now,
+			},
 		});
 	}
 }

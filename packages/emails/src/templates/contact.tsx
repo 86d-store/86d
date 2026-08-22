@@ -1,5 +1,5 @@
 import { BaseEmail } from "./base";
-import * as s from "./styles";
+import { colors, heading, mutedText, paragraph, tableHeader } from "./styles";
 
 interface ContactProps {
 	name: string;
@@ -15,15 +15,15 @@ export default function ContactEmail(props: ContactProps): React.ReactElement {
 			preview={`We received your message: ${props.subject}`}
 			storeName={props.storeName}
 		>
-			<h1 style={s.heading}>Message Received</h1>
-			<p style={s.paragraph}>
+			<h1 style={heading}>Message Received</h1>
+			<p style={paragraph}>
 				Hi {props.name}, thank you for reaching out. We&apos;ve received your
 				message and will get back to you as soon as possible.
 			</p>
 
 			<div
 				style={{
-					backgroundColor: s.colors.bgMuted,
+					backgroundColor: colors.bgMuted,
 					padding: "20px 24px",
 					borderRadius: 6,
 					marginBottom: 24,
@@ -31,7 +31,7 @@ export default function ContactEmail(props: ContactProps): React.ReactElement {
 			>
 				<p
 					style={{
-						...s.tableHeader,
+						...tableHeader,
 						margin: "0 0 8px",
 						padding: 0,
 					}}
@@ -40,7 +40,7 @@ export default function ContactEmail(props: ContactProps): React.ReactElement {
 				</p>
 				<p
 					style={{
-						...s.paragraph,
+						...paragraph,
 						margin: "0 0 12px",
 						fontWeight: 600,
 					}}
@@ -49,7 +49,7 @@ export default function ContactEmail(props: ContactProps): React.ReactElement {
 				</p>
 				<p
 					style={{
-						...s.paragraph,
+						...paragraph,
 						margin: 0,
 						fontSize: 14,
 						whiteSpace: "pre-wrap",
@@ -59,7 +59,7 @@ export default function ContactEmail(props: ContactProps): React.ReactElement {
 				</p>
 			</div>
 
-			<p style={s.mutedText}>
+			<p style={mutedText}>
 				This is an automated confirmation. Please do not reply to this email — a
 				team member will follow up shortly.
 			</p>

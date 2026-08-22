@@ -36,5 +36,5 @@ export function getModuleOptions(
 	config: StoreConfig,
 	packageName: string,
 ): Record<string, unknown> {
-	return (config.moduleOptions?.[packageName] as Record<string, unknown>) ?? {};
+	return config.moduleOptions?.[packageName] as Record<string, unknown>;
 }

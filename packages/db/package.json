@@ -13,6 +13,18 @@
 			"types": "./src/schema/index.ts",
 			"default": "./src/schema/index.ts"
 		},
+		"./schema/tables": {
+			"types": "./src/schema/tables.ts",
+			"default": "./src/schema/tables.ts"
+		},
+		"./schema/relations": {
+			"types": "./src/schema/relations.ts",
+			"default": "./src/schema/relations.ts"
+		},
+		"./core-money": {
+			"types": "./src/core-money.ts",
+			"default": "./src/core-money.ts"
+		},
 		"./schema/apply-disposable-ddl": {
 			"types": "./src/schema/apply-disposable-ddl.ts",
 			"default": "./src/schema/apply-disposable-ddl.ts"
@@ -37,6 +49,7 @@
 		"@86d-app/core": "workspace:*",
 		"@86d-app/storage": "workspace:*",
 		"drizzle-orm": "0.45.2",
+		"env": "workspace:*",
 		"pg": "8.23.0"
 	},
 	"devDependencies": {

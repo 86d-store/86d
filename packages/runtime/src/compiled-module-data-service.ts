@@ -6,7 +6,10 @@ import type {
 	ModuleDataTransaction,
 } from "@86d-app/core/durable-events";
 import type { CompiledTable, CompileModuleResult } from "@86d-app/core/schema";
-import { parseStorageRead, parseStorageWrite } from "@86d-app/core/schema";
+import {
+	parseStorageRead,
+	parseStorageWrite,
+} from "@86d-app/core/schema/compile/storage-parse";
 import type {
 	ModuleDataService,
 	ModuleEntityMap,
@@ -449,7 +452,7 @@ export class CompiledModuleDataService<
 					) => Promise<{ rows: Array<{ result?: unknown }> }>;
 				}
 			).execute(sql`SELECT core.${sql.raw(prefix)}_get(${key}) AS result`);
-			const value = result.rows?.[0]?.result;
+			const value = result.rows[0]?.result;
 			return value === null ? undefined : value;
 		}
 		const result = await (
@@ -459,7 +462,7 @@ export class CompiledModuleDataService<
 		).execute(
 			sql`SELECT value FROM core.module_config WHERE module_id = ${this.#moduleId} AND key = ${key} LIMIT 1`,
 		);
-		const value = result.rows?.[0]?.value;
+		const value = result.rows[0]?.value;
 		return value === undefined || value === null ? undefined : value;
 	}
 
@@ -645,7 +648,7 @@ export class CompiledModuleDataService<
 			RETURNING "lastSequence" AS "sequence"`,
 		);
 
-		const sequence = sequenceResult.rows?.[0]?.sequence;
+		const sequence = sequenceResult.rows[0]?.sequence;
 		const sequenceNumber =
 			typeof sequence === "bigint" ? Number(sequence) : Number(sequence);
 		if (

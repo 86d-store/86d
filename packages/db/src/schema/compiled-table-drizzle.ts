@@ -3,7 +3,10 @@ import type {
 	CompiledTable,
 	CompileModuleResult,
 } from "@86d-app/core/schema";
-import { parseStorageRead, parseStorageWrite } from "@86d-app/core/schema";
+import {
+	parseStorageRead,
+	parseStorageWrite,
+} from "@86d-app/core/schema/compile/storage-parse";
 import { sql } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import type { PgColumn } from "drizzle-orm/pg-core";

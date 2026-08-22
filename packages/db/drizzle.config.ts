@@ -1,4 +1,5 @@
 import { defineConfig } from "drizzle-kit";
+import { getProcessEnv } from "env/process-env";
 
 export default defineConfig({
 	dialect: "postgresql",
@@ -6,7 +7,7 @@ export default defineConfig({
 	out: "./drizzle",
 	dbCredentials: {
 		url:
-			process.env.DATABASE_URL ??
+			getProcessEnv("DATABASE_URL") ??
 			"postgresql://postgres:postgres@localhost:5434/postgres",
 	},
 });

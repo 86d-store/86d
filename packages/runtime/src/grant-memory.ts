@@ -1,25 +1,27 @@
 import { randomUUID, timingSafeEqual } from "node:crypto";
 import {
+	type ChangeSet,
+	changeSetSchema,
+	computeChangeSetReviewHash,
+	normalizeBaseRevisions,
+} from "@86d-app/contracts/change-set";
+import {
 	type Approval,
 	approvalSchema,
-	type ChangeSet,
 	type CommandFailure,
 	type Confirmation,
-	changeSetSchema,
+	computeConfirmationNonceDigest,
 	confirmationSchema,
 	type StandingPermission,
 	type StandingPermissionUseReservation,
 	standingPermissionSchema,
 	standingPermissionUseReservationSchema,
 	type TargetReference,
-} from "@86d-app/core/commands";
+} from "@86d-app/contracts/command";
 import type { MemoryCommandTransaction } from "./command";
-import {
-	type CommandGrantAdapter,
-	type CommandGrantAdmissionRequest,
-	computeChangeSetReviewHash,
-	computeConfirmationNonceDigest,
-	normalizeBaseRevisions,
+import type {
+	CommandGrantAdapter,
+	CommandGrantAdmissionRequest,
 } from "./grants";
 
 const INITIALIZED_KEY = "command:grants:initialized";
@@ -258,13 +260,14 @@ async function admitApproval(
 	};
 }
 
-async function admitFreshConfirmation(
-	transaction: MemoryCommandTransaction,
-	request: CommandGrantAdmissionRequest<MemoryCommandTransaction>,
-	proof: { id: string; nonce: string },
-	nonceDigestKey: string,
-	now: Date,
-) {
+async function admitFreshConfirmation(options: {
+	transaction: MemoryCommandTransaction;
+	request: CommandGrantAdmissionRequest<MemoryCommandTransaction>;
+	proof: { id: string; nonce: string };
+	nonceDigestKey: string;
+	now: Date;
+}) {
+	const { transaction, request, proof, nonceDigestKey, now } = options;
 	if (
 		request.principal.type !== "session" ||
 		request.actor.type !== "account"
@@ -347,13 +350,15 @@ function standingScopeMatches(
 	return permission.businessId === businessId && permission.storeId === storeId;
 }
 
-async function admitStandingPermission(
-	transaction: MemoryCommandTransaction,
-	request: CommandGrantAdmissionRequest<MemoryCommandTransaction>,
-	permissions: readonly StandingPermission[],
-	now: Date,
-	createReservationId: () => string,
-) {
+async function admitStandingPermission(options: {
+	transaction: MemoryCommandTransaction;
+	request: CommandGrantAdmissionRequest<MemoryCommandTransaction>;
+	permissions: readonly StandingPermission[];
+	now: Date;
+	createReservationId: () => string;
+}) {
+	const { transaction, request, permissions, now, createReservationId } =
+		options;
 	const facts = await request.resolveFacts(transaction);
 	if (facts.bindingHashVersion !== 1) {
 		return denied("confirmation_invalid", "The grant hash version is invalid.");
@@ -523,13 +528,13 @@ export function createInMemoryCommandGrantAdapter(
 			}
 			const proof = parseConfirmationProof(request.confirmationReference);
 			if (proof) {
-				return admitFreshConfirmation(
+				return admitFreshConfirmation({
 					transaction,
 					request,
 					proof,
-					options.nonceDigestKey,
-					clock(),
-				);
+					nonceDigestKey: options.nonceDigestKey,
+					now: clock(),
+				});
 			}
 			if (
 				request.confirmationReference ||
@@ -543,13 +548,13 @@ export function createInMemoryCommandGrantAdapter(
 					"This Command requires a fresh confirmation.",
 				);
 			}
-			return admitStandingPermission(
+			return admitStandingPermission({
 				transaction,
 				request,
 				permissions,
-				clock(),
+				now: clock(),
 				createReservationId,
-			);
+			});
 		},
 
 		async settle(transaction, executionId, outcome) {

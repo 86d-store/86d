@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { getProcessEnv } from "env/process-env";
 
 /**
  * Find the 86d project root by walking up from cwd looking for turbo.json.
@@ -64,9 +65,9 @@ export function getVersion(): string {
 
 // ANSI color helpers (no external deps)
 const isColorSupported =
-	process.env.FORCE_COLOR !== "0" &&
-	process.env.NO_COLOR === undefined &&
-	(process.stdout.isTTY || process.env.FORCE_COLOR === "1");
+	getProcessEnv("FORCE_COLOR") !== "0" &&
+	getProcessEnv("NO_COLOR") === undefined &&
+	(process.stdout.isTTY || getProcessEnv("FORCE_COLOR") === "1");
 
 function ansi(code: string, text: string): string {
 	return isColorSupported ? `\x1b[${code}m${text}\x1b[0m` : text;

@@ -8,9 +8,9 @@ import {
 	commandReferenceSchema,
 	commandStatusSchema,
 	grantUseSchema,
-	jsonValueSchema,
 	targetReferenceSchema,
-} from "@86d-app/core/commands";
+} from "@86d-app/contracts/command";
+import { jsonValueSchema } from "@86d-app/contracts/json-value";
 import type {
 	CommandExecutionClaim,
 	CommandPersistence,

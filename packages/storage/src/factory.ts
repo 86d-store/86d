@@ -1,3 +1,4 @@
+import { getProcessEnv } from "env/process-env";
 import { LocalStorageProvider } from "./local.ts";
 import { S3StorageProvider } from "./s3.ts";
 import type { StorageConfig, StorageProvider } from "./types.ts";
@@ -40,22 +41,22 @@ export function createStorage(config: StorageConfig): StorageProvider {
 
 /** Create a storage provider from environment variables. */
 export function createStorageFromEnv(): StorageProvider {
-	const provider = (process.env.STORAGE_CLIENT ?? "local") as
+	const provider = (getProcessEnv("STORAGE_CLIENT") ?? "local") as
 		| "local"
 		| "vercel"
 		| "s3";
 
 	return createStorage({
 		provider,
-		localDir: process.env.STORAGE_LOCAL_DIR ?? "./uploads",
-		localBaseUrl: process.env.STORAGE_LOCAL_BASE_URL ?? "/uploads",
-		s3Endpoint: process.env.S3_ENDPOINT,
-		s3Bucket: process.env.S3_BUCKET,
-		s3Region: process.env.S3_REGION ?? "us-east-1",
-		s3AccessKey: process.env.S3_ACCESS_KEY,
-		s3SecretKey: process.env.S3_SECRET_KEY,
+		localDir: getProcessEnv("STORAGE_LOCAL_DIR") ?? "./uploads",
+		localBaseUrl: getProcessEnv("STORAGE_LOCAL_BASE_URL") ?? "/uploads",
+		s3Endpoint: getProcessEnv("S3_ENDPOINT"),
+		s3Bucket: getProcessEnv("S3_BUCKET"),
+		s3Region: getProcessEnv("S3_REGION") ?? "us-east-1",
+		s3AccessKey: getProcessEnv("S3_ACCESS_KEY"),
+		s3SecretKey: getProcessEnv("S3_SECRET_KEY"),
 		s3VirtualHosted:
-			process.env.S3_VIRTUAL_HOSTED_STYLE === "1" ||
-			process.env.S3_VIRTUAL_HOSTED_STYLE === "true",
+			getProcessEnv("S3_VIRTUAL_HOSTED_STYLE") === "1" ||
+			getProcessEnv("S3_VIRTUAL_HOSTED_STYLE") === "true",
 	});
 }

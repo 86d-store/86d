@@ -3,6 +3,7 @@ import { copyFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createConnection } from "node:net";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
+import { readProcessEnv } from "env/process-env";
 import {
 	c,
 	error,
@@ -79,7 +80,7 @@ export async function init(args: string[]) {
 
 	// 5. Optional database setup (migrate + seed)
 	const envVars = existsSync(envPath) ? parseEnvFile(envPath) : {};
-	const dbUrl = envVars.DATABASE_URL ?? process.env.DATABASE_URL ?? "";
+	const dbUrl = envVars.DATABASE_URL;
 
 	if (dbUrl.trim()) {
 		const reachable = await checkDbReachable(dbUrl);
@@ -127,7 +128,7 @@ export async function init(args: string[]) {
 							cwd: root,
 							stdio: "inherit",
 							env: {
-								...process.env,
+								...readProcessEnv(),
 								DATABASE_URL: dbUrl,
 								APP_ADMIN_EMAIL: adminEmail,
 								APP_ADMIN_PASSWORD: adminPassword,

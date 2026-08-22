@@ -1,5 +1,14 @@
 import { BaseEmail } from "./base";
-import * as s from "./styles";
+import {
+	colors,
+	formatCurrency,
+	heading,
+	mutedText,
+	paragraph,
+	tableCell,
+	tableHeader,
+	tableRow,
+} from "./styles";
 
 interface OrderConfirmationProps {
 	orderNumber: string;
@@ -29,15 +38,15 @@ interface OrderConfirmationProps {
 export default function OrderConfirmationEmail(
 	props: OrderConfirmationProps,
 ): React.ReactElement {
-	const fmt = (amount: number) => s.formatCurrency(amount, props.currency);
+	const fmt = (amount: number) => formatCurrency(amount, props.currency);
 
 	return (
 		<BaseEmail
 			preview={`Order confirmed — #${props.orderNumber} (${fmt(props.total)})`}
 			storeName={props.storeName}
 		>
-			<h1 style={s.heading}>Order Confirmed</h1>
-			<p style={s.paragraph}>
+			<h1 style={heading}>Order Confirmed</h1>
+			<p style={paragraph}>
 				Hi {props.customerName}, thank you for your order! We've received your
 				order <strong>#{props.orderNumber}</strong> and it's being processed.
 			</p>
@@ -45,7 +54,7 @@ export default function OrderConfirmationEmail(
 			{/* Items table */}
 			<p
 				style={{
-					...s.tableHeader,
+					...tableHeader,
 					margin: "0 0 8px",
 					padding: 0,
 				}}
@@ -63,14 +72,14 @@ export default function OrderConfirmationEmail(
 			>
 				<tbody>
 					{props.items.map((item) => (
-						<tr key={item.name} style={s.tableRow}>
-							<td style={s.tableCell}>
+						<tr key={item.name} style={tableRow}>
+							<td style={tableCell}>
 								{item.name}{" "}
-								<span style={{ color: s.colors.muted }}>x{item.quantity}</span>
+								<span style={{ color: colors.muted }}>x{item.quantity}</span>
 							</td>
 							<td
 								style={{
-									...s.tableCell,
+									...tableCell,
 									textAlign: "right",
 								}}
 							>
@@ -84,7 +93,7 @@ export default function OrderConfirmationEmail(
 			{/* Order summary */}
 			<div
 				style={{
-					backgroundColor: s.colors.bgMuted,
+					backgroundColor: colors.bgMuted,
 					padding: "16px 20px",
 					borderRadius: 6,
 					marginBottom: 24,
@@ -97,10 +106,10 @@ export default function OrderConfirmationEmail(
 				>
 					<tbody>
 						<tr>
-							<td style={{ ...s.tableCell, padding: "4px 0" }}>Subtotal</td>
+							<td style={{ ...tableCell, padding: "4px 0" }}>Subtotal</td>
 							<td
 								style={{
-									...s.tableCell,
+									...tableCell,
 									padding: "4px 0",
 									textAlign: "right",
 								}}
@@ -110,10 +119,10 @@ export default function OrderConfirmationEmail(
 						</tr>
 						{props.shippingAmount > 0 && (
 							<tr>
-								<td style={{ ...s.tableCell, padding: "4px 0" }}>Shipping</td>
+								<td style={{ ...tableCell, padding: "4px 0" }}>Shipping</td>
 								<td
 									style={{
-										...s.tableCell,
+										...tableCell,
 										padding: "4px 0",
 										textAlign: "right",
 									}}
@@ -124,10 +133,10 @@ export default function OrderConfirmationEmail(
 						)}
 						{props.taxAmount > 0 && (
 							<tr>
-								<td style={{ ...s.tableCell, padding: "4px 0" }}>Tax</td>
+								<td style={{ ...tableCell, padding: "4px 0" }}>Tax</td>
 								<td
 									style={{
-										...s.tableCell,
+										...tableCell,
 										padding: "4px 0",
 										textAlign: "right",
 									}}
@@ -140,19 +149,19 @@ export default function OrderConfirmationEmail(
 							<tr>
 								<td
 									style={{
-										...s.tableCell,
+										...tableCell,
 										padding: "4px 0",
-										color: s.colors.success,
+										color: colors.success,
 									}}
 								>
 									Discount
 								</td>
 								<td
 									style={{
-										...s.tableCell,
+										...tableCell,
 										padding: "4px 0",
 										textAlign: "right",
-										color: s.colors.success,
+										color: colors.success,
 									}}
 								>
 									-{fmt(props.discountAmount)}
@@ -161,12 +170,12 @@ export default function OrderConfirmationEmail(
 						)}
 						<tr
 							style={{
-								borderTop: `1px solid ${s.colors.border}`,
+								borderTop: `1px solid ${colors.border}`,
 							}}
 						>
 							<td
 								style={{
-									...s.tableCell,
+									...tableCell,
 									padding: "8px 0 4px",
 									fontWeight: 700,
 								}}
@@ -175,7 +184,7 @@ export default function OrderConfirmationEmail(
 							</td>
 							<td
 								style={{
-									...s.tableCell,
+									...tableCell,
 									padding: "8px 0 4px",
 									textAlign: "right",
 									fontWeight: 700,
@@ -193,14 +202,14 @@ export default function OrderConfirmationEmail(
 				<div style={{ marginBottom: 24 }}>
 					<p
 						style={{
-							...s.tableHeader,
+							...tableHeader,
 							margin: "0 0 8px",
 							padding: 0,
 						}}
 					>
 						Shipping To
 					</p>
-					<p style={{ ...s.paragraph, margin: 0 }}>
+					<p style={{ ...paragraph, margin: 0 }}>
 						{props.shippingAddress.firstName} {props.shippingAddress.lastName}
 						<br />
 						{props.shippingAddress.line1}
@@ -219,7 +228,7 @@ export default function OrderConfirmationEmail(
 				</div>
 			)}
 
-			<p style={s.mutedText}>
+			<p style={mutedText}>
 				We'll send you a shipping confirmation when your order is on its way.
 			</p>
 		</BaseEmail>

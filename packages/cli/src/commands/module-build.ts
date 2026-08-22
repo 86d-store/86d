@@ -7,6 +7,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { readProcessEnv } from "env/process-env";
 import { copyPackageAssets } from "../copy-package-assets.js";
 import { c, error, info, success } from "../utils.js";
 
@@ -30,7 +31,7 @@ export function buildModule(args: string[]): void {
 		cwd: pkgDir,
 		stdio: "inherit",
 		shell: process.platform === "win32",
-		env: process.env,
+		env: readProcessEnv(),
 	});
 
 	if (tsc.error) {

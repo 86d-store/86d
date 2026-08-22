@@ -1,3 +1,8 @@
+import {
+	restoreProcessEnv,
+	setProcessEnv,
+	snapshotProcessEnv,
+} from "env/process-env";
 import { afterEach, describe, expect, it } from "vitest";
 import { createStorage, createStorageFromEnv } from "../factory.ts";
 import { LocalStorageProvider } from "../local.ts";
@@ -64,39 +69,39 @@ describe("createStorage", () => {
 });
 
 describe("createStorageFromEnv", () => {
-	const originalEnv = process.env;
+	const originalEnv = snapshotProcessEnv();
 
 	afterEach(() => {
-		process.env = originalEnv;
+		restoreProcessEnv(originalEnv);
 	});
 
 	it("defaults to local provider when STORAGE_CLIENT is not set", () => {
-		process.env = { ...originalEnv };
-		delete process.env.STORAGE_CLIENT;
+		restoreProcessEnv(originalEnv);
+		setProcessEnv("STORAGE_CLIENT", undefined);
 		const storage = createStorageFromEnv();
 		expect(storage).toBeInstanceOf(LocalStorageProvider);
 	});
 
 	it("creates local provider from env", () => {
-		process.env = {
+		restoreProcessEnv({
 			...originalEnv,
 			STORAGE_CLIENT: "local",
 			STORAGE_LOCAL_DIR: "/tmp/test-env",
 			STORAGE_LOCAL_BASE_URL: "/files",
-		};
+		});
 		const storage = createStorageFromEnv();
 		expect(storage).toBeInstanceOf(LocalStorageProvider);
 		expect(storage.getUrl("test.txt")).toBe("/files/test.txt");
 	});
 
 	it("creates vercel provider from env", () => {
-		process.env = { ...originalEnv, STORAGE_CLIENT: "vercel" };
+		restoreProcessEnv({ ...originalEnv, STORAGE_CLIENT: "vercel" });
 		const storage = createStorageFromEnv();
 		expect(storage).toBeInstanceOf(VercelBlobProvider);
 	});
 
 	it("creates S3 provider from env", () => {
-		process.env = {
+		restoreProcessEnv({
 			...originalEnv,
 			STORAGE_CLIENT: "s3",
 			S3_ENDPOINT: "https://minio.local:9000",
@@ -104,13 +109,13 @@ describe("createStorageFromEnv", () => {
 			S3_REGION: "us-west-2",
 			S3_ACCESS_KEY: "minioadmin",
 			S3_SECRET_KEY: "minioadmin",
-		};
+		});
 		const storage = createStorageFromEnv();
 		expect(storage).toBeInstanceOf(S3StorageProvider);
 	});
 
 	it("throws when S3 env vars are missing", () => {
-		process.env = { ...originalEnv, STORAGE_CLIENT: "s3" };
+		restoreProcessEnv({ ...originalEnv, STORAGE_CLIENT: "s3" });
 		expect(() => createStorageFromEnv()).toThrow("S3 storage requires");
 	});
 });

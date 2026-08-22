@@ -1,5 +1,13 @@
 import { BaseEmail } from "./base";
-import * as s from "./styles";
+import {
+	button,
+	colors,
+	heading,
+	paragraph,
+	tableCell,
+	tableHeader,
+	tableRow,
+} from "./styles";
 
 interface LowStockAlertProps {
 	items: Array<{
@@ -24,10 +32,10 @@ export default function LowStockAlertEmail(
 			preview={`${hasOutOfStock ? "Out of stock" : "Low stock"} alert — ${props.items.length} product${props.items.length === 1 ? "" : "s"}`}
 			storeName={props.storeName}
 		>
-			<h1 style={s.heading}>
+			<h1 style={heading}>
 				{hasOutOfStock ? "Stock Alert" : "Low Stock Alert"}
 			</h1>
-			<p style={s.paragraph}>
+			<p style={paragraph}>
 				The following product{props.items.length === 1 ? " is" : "s are"}{" "}
 				running low on inventory and may need restocking.
 			</p>
@@ -38,31 +46,30 @@ export default function LowStockAlertEmail(
 				cellSpacing={0}
 			>
 				<thead>
-					<tr style={s.tableRow}>
-						<th style={s.tableHeader}>Product</th>
-						<th style={{ ...s.tableHeader, textAlign: "center" }}>Available</th>
-						<th style={{ ...s.tableHeader, textAlign: "center" }}>Reserved</th>
-						<th style={{ ...s.tableHeader, textAlign: "center" }}>Threshold</th>
+					<tr style={tableRow}>
+						<th style={tableHeader}>Product</th>
+						<th style={{ ...tableHeader, textAlign: "center" }}>Available</th>
+						<th style={{ ...tableHeader, textAlign: "center" }}>Reserved</th>
+						<th style={{ ...tableHeader, textAlign: "center" }}>Threshold</th>
 					</tr>
 				</thead>
 				<tbody>
 					{props.items.map((item) => (
-						<tr key={item.productId} style={s.tableRow}>
-							<td style={s.tableCell}>{item.productName}</td>
+						<tr key={item.productId} style={tableRow}>
+							<td style={tableCell}>{item.productName}</td>
 							<td
 								style={{
-									...s.tableCell,
+									...tableCell,
 									textAlign: "center",
 									fontWeight: 600,
-									color:
-										item.available === 0 ? s.colors.error : s.colors.warning,
+									color: item.available === 0 ? colors.error : colors.warning,
 								}}
 							>
 								{item.available}
 							</td>
 							<td
 								style={{
-									...s.tableCell,
+									...tableCell,
 									textAlign: "center",
 								}}
 							>
@@ -70,9 +77,9 @@ export default function LowStockAlertEmail(
 							</td>
 							<td
 								style={{
-									...s.tableCell,
+									...tableCell,
 									textAlign: "center",
-									color: s.colors.muted,
+									color: colors.muted,
 								}}
 							>
 								{item.lowStockThreshold}
@@ -84,7 +91,7 @@ export default function LowStockAlertEmail(
 
 			{props.adminUrl && (
 				<div style={{ marginTop: 24 }}>
-					<a href={props.adminUrl} style={s.button}>
+					<a href={props.adminUrl} style={button}>
 						Manage Inventory
 					</a>
 				</div>

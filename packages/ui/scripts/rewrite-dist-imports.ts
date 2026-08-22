@@ -56,17 +56,15 @@ function main(): void {
 		throw new Error(`Missing dist/ at ${distDir}; run tsc first`);
 	}
 
-	let rewritten = 0;
+	let _rewritten = 0;
 	for (const file of walk(distDir)) {
 		if (!file.endsWith(".js") && !file.endsWith(".d.ts")) continue;
 		const source = readFileSync(file, "utf8");
 		const next = rewriteFileContents(file, source);
 		if (next === source) continue;
 		writeFileSync(file, next);
-		rewritten += 1;
+		_rewritten += 1;
 	}
-
-	console.log(`Rewrote ~/ imports in ${rewritten} dist file(s).`);
 }
 
 main();

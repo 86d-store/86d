@@ -488,8 +488,8 @@ function skipElement(input: string, from: number, name: string): number {
 	const token = new RegExp(`<(/?)${name}(?![a-zA-Z0-9])[^>]*>`, "gi");
 	token.lastIndex = from;
 	let depth = 1;
-	let found = token.exec(input);
-	while (found) {
+	let found: RegExpExecArray | null = token.exec(input);
+	while (found !== null) {
 		depth += found[1] === "/" ? -1 : 1;
 		if (depth === 0) return token.lastIndex;
 		found = token.exec(input);
@@ -501,8 +501,11 @@ function skipElement(input: string, from: number, name: string): number {
 function skipRawText(input: string, from: number, name: string): number {
 	const close = new RegExp(`</${name}\\s*>`, "i");
 	const rest = input.slice(from);
-	const found = close.exec(rest);
-	return found ? from + found.index + found[0].length : input.length;
+	const found: RegExpExecArray | null = close.exec(rest);
+	if (!found) {
+		return input.length;
+	}
+	return from + found.index + found[0].length;
 }
 
 /**

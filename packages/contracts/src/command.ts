@@ -12,28 +12,8 @@ import {
 	permissionSchema,
 	versionSchema,
 } from "./json-value";
-import {
-	assertCanonicalJson,
-	canonicalJson,
-	parseCanonicalJson,
-	toJsonValue,
-} from "./serialize";
 
-export type { JsonValue };
-export {
-	assertCanonicalJson,
-	canonicalJson,
-	currencySchema,
-	dateTimeSchema,
-	digestSchema,
-	identifierSchema,
-	jsonValueSchema,
-	minorAmountSchema,
-	parseCanonicalJson,
-	permissionSchema,
-	toJsonValue,
-	versionSchema,
-};
+export type { JsonValue } from "./json-value";
 export const authoritativePlaneSchema = z.enum([
 	"control_plane",
 	"store_runtime",

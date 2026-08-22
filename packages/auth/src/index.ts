@@ -11,7 +11,7 @@ import {
 	session,
 	user,
 	verification,
-} from "db/schema";
+} from "db/schema/tables";
 import env from "env";
 
 const apiUrl = env["86D_API_URL"];

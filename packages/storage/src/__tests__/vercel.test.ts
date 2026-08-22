@@ -1,3 +1,4 @@
+import { setProcessEnv } from "env/process-env";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { VercelBlobProvider } from "../vercel.ts";
 
@@ -16,8 +17,8 @@ describe("VercelBlobProvider", () => {
 
 	afterEach(() => {
 		vi.restoreAllMocks();
-		delete process.env.VERCEL_BLOB_STORAGE_HOSTNAME;
-		delete process.env.BLOB_READ_WRITE_TOKEN;
+		setProcessEnv("VERCEL_BLOB_STORAGE_HOSTNAME", undefined);
+		setProcessEnv("BLOB_READ_WRITE_TOKEN", undefined);
 	});
 
 	describe("upload", () => {
@@ -85,8 +86,10 @@ describe("VercelBlobProvider", () => {
 
 	describe("getUrl", () => {
 		it("returns hostname-based URL when VERCEL_BLOB_STORAGE_HOSTNAME is set", () => {
-			process.env.VERCEL_BLOB_STORAGE_HOSTNAME =
-				"myblob.public.blob.vercel-storage.com";
+			setProcessEnv(
+				"VERCEL_BLOB_STORAGE_HOSTNAME",
+				"myblob.public.blob.vercel-storage.com",
+			);
 			expect(provider.getUrl("uploads/photo.png")).toBe(
 				"https://myblob.public.blob.vercel-storage.com/uploads/photo.png",
 			);
@@ -99,7 +102,7 @@ describe("VercelBlobProvider", () => {
 
 	describe("healthCheck", () => {
 		it("returns true when BLOB_READ_WRITE_TOKEN is set", async () => {
-			process.env.BLOB_READ_WRITE_TOKEN = "vercel_blob_rw_xxx";
+			setProcessEnv("BLOB_READ_WRITE_TOKEN", "vercel_blob_rw_xxx");
 			expect(await provider.healthCheck()).toBe(true);
 		});
 

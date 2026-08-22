@@ -1,12 +1,7 @@
 "use client";
 
 import { ArrowDownIcon } from "@phosphor-icons/react";
-import {
-	MessageScroller as MessageScrollerPrimitive,
-	useMessageScroller,
-	useMessageScrollerScrollable,
-	useMessageScrollerVisibility,
-} from "@shadcn/react/message-scroller";
+import { MessageScroller as MessageScrollerPrimitive } from "@shadcn/react/message-scroller";
 import type * as React from "react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/shadcn/button";
@@ -117,13 +112,15 @@ function MessageScrollerButton({
 }
 
 export {
+	useMessageScroller,
+	useMessageScrollerScrollable,
+	useMessageScrollerVisibility,
+} from "@shadcn/react/message-scroller";
+export {
 	MessageScroller,
 	MessageScrollerButton,
 	MessageScrollerContent,
 	MessageScrollerItem,
 	MessageScrollerProvider,
 	MessageScrollerViewport,
-	useMessageScroller,
-	useMessageScrollerScrollable,
-	useMessageScrollerVisibility,
 };

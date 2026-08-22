@@ -1,5 +1,5 @@
 import { BaseEmail } from "./base";
-import * as s from "./styles";
+import { colors, heading, mutedText, paragraph, tableHeader } from "./styles";
 
 interface OrderCancelledProps {
 	orderNumber: string;
@@ -16,8 +16,8 @@ export default function OrderCancelledEmail(
 			preview={`Order #${props.orderNumber} has been cancelled`}
 			storeName={props.storeName}
 		>
-			<h1 style={s.heading}>Order Cancelled</h1>
-			<p style={s.paragraph}>
+			<h1 style={heading}>Order Cancelled</h1>
+			<p style={paragraph}>
 				Hi {props.customerName}, your order{" "}
 				<strong>#{props.orderNumber}</strong> has been cancelled.
 			</p>
@@ -25,7 +25,7 @@ export default function OrderCancelledEmail(
 			{props.reason && (
 				<div
 					style={{
-						backgroundColor: s.colors.bgMuted,
+						backgroundColor: colors.bgMuted,
 						padding: "16px 20px",
 						borderRadius: 6,
 						marginBottom: 24,
@@ -33,23 +33,23 @@ export default function OrderCancelledEmail(
 				>
 					<p
 						style={{
-							...s.tableHeader,
+							...tableHeader,
 							margin: "0 0 4px",
 							padding: 0,
 						}}
 					>
 						Reason
 					</p>
-					<p style={{ ...s.paragraph, margin: 0 }}>{props.reason}</p>
+					<p style={{ ...paragraph, margin: 0 }}>{props.reason}</p>
 				</div>
 			)}
 
-			<p style={s.paragraph}>
+			<p style={paragraph}>
 				If a payment was captured, a refund will be issued to your original
 				payment method within 5-10 business days.
 			</p>
 
-			<p style={s.mutedText}>
+			<p style={mutedText}>
 				Questions about this cancellation? Reply to this email.
 			</p>
 		</BaseEmail>

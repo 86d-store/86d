@@ -1,17 +1,130 @@
 import { drizzle } from "drizzle-orm/node-postgres";
+import { getProcessEnv } from "env/process-env";
 import { Pool } from "pg";
-import type {
+import {
+	coreSchema,
+	coreTables,
+	moduleConfig,
+	party,
+	subject,
+	transaction,
+} from "./schema/core";
+import {
+	accountRelations,
+	approvalRelations,
+	auditEventRelations,
+	changeSetRelations,
+	commandExecutionRelations,
+	confirmationRelations,
+	fileRelations,
+	invitationRelations,
+	logRelations,
+	moduleEventConsumptionRelations,
+	moduleEventDeliveryRelations,
+	moduleEventSequenceRelations,
+	moduleOutboxEventRelations,
+	moduleRelations,
+	passkeyRelations,
+	sessionRelations,
+	standingPermissionRelations,
+	standingPermissionUseReservationRelations,
+	userRelations,
+	webhookDeliveryRelations,
+	webhookRelations,
+	workflowAttemptRelations,
+	workflowRelations,
+	workflowStepRelations,
+} from "./schema/relations";
+import {
+	account,
+	approval,
+	auditEvent,
+	changeSet,
+	commandExecution,
+	confirmation,
+	file,
+	invitation,
+	log,
+	module,
+	moduleEventConsumption,
+	moduleEventDelivery,
+	moduleEventSequence,
+	moduleOutboxEvent,
+	passkey,
+	session,
+	standingPermission,
+	standingPermissionUseReservation,
+	user,
+	verification,
+	webhook,
+	webhookDelivery,
+	workflow,
+	workflowAttempt,
+	workflowStep,
+} from "./schema/tables";
+
+export type {
 	CorePartyInput,
 	CoreSubjectInput,
 	CoreTransactionInput,
 } from "./core-money";
-import { writeCoreMoney } from "./core-money";
-import * as frameworkSchema from "./schema";
-import * as coreSchema from "./schema/core";
 
 const schema = {
-	...frameworkSchema,
-	...coreSchema,
+	account,
+	accountRelations,
+	approval,
+	approvalRelations,
+	auditEvent,
+	auditEventRelations,
+	changeSet,
+	changeSetRelations,
+	commandExecution,
+	commandExecutionRelations,
+	confirmation,
+	confirmationRelations,
+	file,
+	fileRelations,
+	invitation,
+	invitationRelations,
+	log,
+	logRelations,
+	module,
+	moduleEventConsumption,
+	moduleEventConsumptionRelations,
+	moduleEventDelivery,
+	moduleEventDeliveryRelations,
+	moduleEventSequence,
+	moduleEventSequenceRelations,
+	moduleOutboxEvent,
+	moduleOutboxEventRelations,
+	moduleRelations,
+	passkey,
+	passkeyRelations,
+	session,
+	sessionRelations,
+	standingPermission,
+	standingPermissionRelations,
+	standingPermissionUseReservation,
+	standingPermissionUseReservationRelations,
+	user,
+	userRelations,
+	verification,
+	webhook,
+	webhookDelivery,
+	webhookDeliveryRelations,
+	webhookRelations,
+	workflow,
+	workflowAttempt,
+	workflowAttemptRelations,
+	workflowRelations,
+	workflowStep,
+	workflowStepRelations,
+	coreSchema,
+	party,
+	subject,
+	transaction,
+	moduleConfig,
+	coreTables,
 };
 
 export type Database = ReturnType<typeof drizzle<typeof schema>>;
@@ -22,7 +135,7 @@ const globalForDb = globalThis as unknown as {
 };
 
 function createPool(): Pool {
-	const connectionString = process.env.DATABASE_URL;
+	const connectionString = getProcessEnv("DATABASE_URL");
 	if (!connectionString) {
 		throw new Error("DATABASE_URL environment variable is required");
 	}
@@ -63,5 +176,4 @@ export const db: Database = new Proxy({} as Database, {
 	},
 });
 
-export type { CorePartyInput, CoreSubjectInput, CoreTransactionInput };
-export { getPool, writeCoreMoney };
+export { getPool };

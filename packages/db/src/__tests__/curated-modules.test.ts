@@ -8,9 +8,9 @@ import { loadCuratedModules } from "../load-curated-modules";
 describe("curated modules pin", () => {
 	it("loads every curated module id", async () => {
 		const modules = await loadCuratedModules();
-		expect(modules.map((module) => module.id).sort()).toEqual(
-			[...CURATED_STORE_MODULES].sort(),
-		);
+		expect(
+			modules.map((module) => module.id).sort((a, b) => a.localeCompare(b)),
+		).toEqual([...CURATED_STORE_MODULES].sort((a, b) => a.localeCompare(b)));
 	}, 30_000);
 
 	it("matches relational storage count excluding none modules", async () => {

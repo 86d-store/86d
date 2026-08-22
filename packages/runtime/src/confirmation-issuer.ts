@@ -7,7 +7,7 @@ import {
 	commandReferenceSchema,
 	confirmationSchema,
 	targetReferenceSchema,
-} from "@86d-app/core/commands";
+} from "@86d-app/contracts/command";
 import { z } from "zod";
 import type { CommandPrincipal } from "./command";
 import {

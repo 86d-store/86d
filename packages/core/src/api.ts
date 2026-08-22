@@ -1,7 +1,6 @@
 import {
 	createEndpoint,
 	createMiddleware,
-	createRouter,
 	type EndpointContext,
 	type EndpointOptions,
 	type Middleware,
@@ -14,7 +13,6 @@ import type {
 	ModuleEntityMap,
 	Session,
 } from "./types/module";
-import { z } from "./zod";
 
 type AdminContext = ModuleContext & {
 	session: NonNullable<ModuleContext["session"]>;
@@ -221,8 +219,3 @@ export type {
 // Re-exported from ./zod so that a Module's schema.ts can import `z` without
 // pulling better-call and the endpoint factories into its module graph.
 export type { ZodInfer, ZodSchema, ZodType } from "./zod";
-export {
-	// createEndpoint,
-	createRouter,
-	z,
-};

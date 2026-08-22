@@ -59,7 +59,7 @@ export function endpointExposure(endpoint: Endpoint): EndpointExposure {
 	const declared = (endpoint as EndpointWithExposure).options?.exposure;
 	if (!isEndpointExposure(declared)) {
 		throw new Error(
-			`Endpoint "${endpoint.path ?? "<unknown>"}" does not declare a valid exposure.`,
+			`Endpoint "${endpoint.path}" does not declare a valid exposure.`,
 		);
 	}
 	return declared;

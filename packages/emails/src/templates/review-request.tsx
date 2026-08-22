@@ -1,5 +1,5 @@
 import { BaseEmail } from "./base";
-import * as s from "./styles";
+import { button, colors, heading, mutedText, paragraph } from "./styles";
 
 interface ReviewRequestProps {
 	orderNumber: string;
@@ -20,8 +20,8 @@ export default function ReviewRequestEmail(
 			preview={`How was your order ${props.orderNumber}?`}
 			storeName={props.storeName}
 		>
-			<h1 style={s.heading}>How Was Your Order?</h1>
-			<p style={s.paragraph}>
+			<h1 style={heading}>How Was Your Order?</h1>
+			<p style={paragraph}>
 				Hi {props.customerName}, we hope you&apos;re enjoying your recent
 				purchase from order <strong>#{props.orderNumber}</strong>. We&apos;d
 				love to hear what you think!
@@ -34,7 +34,7 @@ export default function ReviewRequestEmail(
 							key={item.name}
 							style={{
 								padding: "12px 0",
-								borderBottom: `1px solid ${s.colors.border}`,
+								borderBottom: `1px solid ${colors.border}`,
 								display: "flex",
 								justifyContent: "space-between",
 								alignItems: "center",
@@ -45,7 +45,7 @@ export default function ReviewRequestEmail(
 								<a
 									href={item.reviewUrl}
 									style={{
-										...s.button,
+										...button,
 										fontSize: 12,
 										padding: "6px 14px",
 									}}
@@ -58,12 +58,12 @@ export default function ReviewRequestEmail(
 				</div>
 			)}
 
-			<p style={s.paragraph}>
+			<p style={paragraph}>
 				Your honest feedback helps other shoppers make better decisions and
 				helps us improve our products.
 			</p>
 
-			<p style={s.mutedText}>
+			<p style={mutedText}>
 				Thank you for shopping with {props.storeName ?? "us"}.
 			</p>
 		</BaseEmail>

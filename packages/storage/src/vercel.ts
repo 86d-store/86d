@@ -1,3 +1,4 @@
+import { getProcessEnv } from "env/process-env";
 import type {
 	StorageDeleteOptions,
 	StorageProvider,
@@ -29,7 +30,7 @@ export class VercelBlobProvider implements StorageProvider {
 
 	getUrl(key: string): string {
 		// Vercel Blob URLs are returned from upload — this is a fallback
-		const hostname = process.env.VERCEL_BLOB_STORAGE_HOSTNAME;
+		const hostname = getProcessEnv("VERCEL_BLOB_STORAGE_HOSTNAME");
 		if (hostname) {
 			return `https://${hostname}/${key}`;
 		}
@@ -37,6 +38,6 @@ export class VercelBlobProvider implements StorageProvider {
 	}
 
 	async healthCheck(): Promise<boolean> {
-		return !!process.env.BLOB_READ_WRITE_TOKEN;
+		return !!getProcessEnv("BLOB_READ_WRITE_TOKEN");
 	}
 }

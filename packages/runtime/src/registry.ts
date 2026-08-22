@@ -29,13 +29,11 @@ import {
 	type EventBus,
 	type EventBusOptions,
 } from "@86d-app/core/events";
-import {
-	type CompiledExecutionGraph,
-	compareSemVer,
-	compileExecutionGraph,
-	GraphCompileError,
-	matchesContractRanges,
-} from "@86d-app/core/graph";
+import type { CompiledExecutionGraph } from "@86d-app/core/graph";
+import { compileExecutionGraph } from "@86d-app/core/graph/compile";
+import { matchesContractRanges } from "@86d-app/core/graph/contract-range";
+import { GraphCompileError } from "@86d-app/core/graph/diagnostics";
+import { compareSemVer } from "@86d-app/core/graph/semver";
 import { formatPathConflicts, validateUniquePaths } from "@86d-app/core/paths";
 import type { Primitive } from "@86d-app/core/types/helper";
 import type {
@@ -263,8 +261,8 @@ export class ModuleRegistry {
 	private endpointExposures: EndpointExposureEntry[] = [];
 	private eventBus: EventBus | undefined;
 	private bootedAt: number | undefined;
-	private booted = false;
-	private shuttingDown = false;
+	private booted = false as boolean;
+	private shuttingDown = false as boolean;
 
 	constructor(
 		modules: Module[],

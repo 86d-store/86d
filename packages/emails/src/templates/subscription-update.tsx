@@ -1,5 +1,5 @@
 import { BaseEmail } from "./base";
-import * as s from "./styles";
+import { heading, mutedText, paragraph } from "./styles";
 
 interface SubscriptionUpdateProps {
 	storeName?: string | undefined;
@@ -13,16 +13,16 @@ export default function SubscriptionUpdateEmail(
 			preview="Your subscription has been renewed"
 			storeName={props.storeName}
 		>
-			<h1 style={s.heading}>Subscription Renewed</h1>
-			<p style={s.paragraph}>
+			<h1 style={heading}>Subscription Renewed</h1>
+			<p style={paragraph}>
 				Your subscription has been successfully renewed. Your access continues
 				without interruption.
 			</p>
-			<p style={s.paragraph}>
+			<p style={paragraph}>
 				You can view your billing history and manage your subscription from your
 				account settings.
 			</p>
-			<p style={s.mutedText}>Thank you for your continued support.</p>
+			<p style={mutedText}>Thank you for your continued support.</p>
 		</BaseEmail>
 	);
 }

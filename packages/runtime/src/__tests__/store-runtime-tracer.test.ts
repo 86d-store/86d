@@ -5,7 +5,7 @@ import {
 	createCommandExecutor,
 	createInMemoryCommandPersistence,
 } from "../command";
-import { storeRuntimeTracerCommand } from "../commands";
+import { storeRuntimeTracerCommand } from "../commands/store-runtime-tracer";
 
 const context: CommandExecutionContext = {
 	principal: {

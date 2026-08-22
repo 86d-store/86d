@@ -38,6 +38,7 @@ describe("compiler feature manifest", () => {
 			}),
 		).toThrow(SchemaCompileError);
 
+		let caught: unknown;
 		try {
 			compileTableShape({
 				moduleId: "cart",
@@ -46,22 +47,23 @@ describe("compiler feature manifest", () => {
 			});
 			expect.unreachable("expected SchemaCompileError");
 		} catch (error) {
-			expect(error).toBeInstanceOf(SchemaCompileError);
-			const compileError = error as SchemaCompileError;
-			expect(compileError.provenance).toEqual({
-				moduleId: "cart",
-				tableName: "cart",
-				fieldName: "weird",
-			});
-			expect(compileError.message).toContain("cart.cart.weird");
+			caught = error;
 		}
+		expect(caught).toBeInstanceOf(SchemaCompileError);
+		const compileError = caught as SchemaCompileError;
+		expect(compileError.provenance).toEqual({
+			moduleId: "cart",
+			tableName: "cart",
+			fieldName: "weird",
+		});
+		expect(compileError.message).toContain("cart.cart.weird");
 	});
 });
 
 describe("fidelity fixtures", () => {
 	for (const fixture of FIDELITY_FIXTURES) {
 		it(`${fixture.id}: ${fixture.description}`, () => {
-			runFidelityFixture(fixture);
+			expect(() => runFidelityFixture(fixture)).not.toThrow();
 		});
 	}
 

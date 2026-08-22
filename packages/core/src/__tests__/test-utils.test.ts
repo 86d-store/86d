@@ -210,7 +210,9 @@ describe("createMockDataService", () => {
 
 			const products = data.all("product");
 			expect(products).toHaveLength(2);
-			expect(products.map((p) => p.name).sort()).toEqual(["A", "B"]);
+			expect(
+				products.map((p) => p.name).sort((a, b) => a.localeCompare(b)),
+			).toEqual(["A", "B"]);
 		});
 
 		it("returns empty array for unknown type", () => {

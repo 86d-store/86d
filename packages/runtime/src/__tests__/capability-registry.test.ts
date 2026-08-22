@@ -8,8 +8,8 @@ import type {
 	ModuleTransactionRunner,
 } from "@86d-app/core/durable-events";
 import type { Module, ModuleDataService } from "@86d-app/core/types/module";
-import { z } from "@86d-app/core/zod";
 import { describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 import { ModuleRegistry, type ModuleRegistryConfig } from "../registry";
 
 const availabilityV1 = defineCapability({

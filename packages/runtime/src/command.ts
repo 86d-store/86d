@@ -1,9 +1,5 @@
 import { createHmac, randomUUID } from "node:crypto";
 import {
-	assertConformancePin,
-	EXPECTED_PIN,
-} from "@86d-app/contracts/conformance";
-import {
 	type ActionLevel,
 	type ActorReference,
 	type AuditEvent,
@@ -15,17 +11,20 @@ import {
 	type CommandFailure,
 	type CommandReference,
 	type CommandRequest,
-	canonicalJson,
 	commandFailureSchema,
 	commandReferenceSchema,
 	commandRequestSchema,
 	computeCommandInputDigest,
 	type GrantUse,
-	type JsonValue,
-	jsonValueSchema,
 	type TargetReference,
 	targetReferenceSchema,
-} from "@86d-app/core/commands";
+} from "@86d-app/contracts/command";
+import {
+	assertConformancePin,
+	EXPECTED_PIN,
+} from "@86d-app/contracts/conformance";
+import { type JsonValue, jsonValueSchema } from "@86d-app/contracts/json-value";
+import { canonicalJson } from "@86d-app/contracts/serialize";
 import {
 	type CommandAdmissionPolicy,
 	type CommandGrantAdapter,
@@ -34,8 +33,6 @@ import {
 	computeCommandBindingHash,
 	validateCommandGrantFacts,
 } from "./grants";
-
-export { computeCommandInputDigest };
 
 type ParseResult<T> =
 	| { success: true; data: T }
@@ -915,7 +912,7 @@ export function createCommandExecutor<TTransaction>(options: {
 				),
 			};
 		}
-		if (!isCommandPrincipal(context?.principal)) {
+		if (!isCommandPrincipal(context.principal)) {
 			return {
 				ok: false,
 				failure: commandFailure(
@@ -1202,7 +1199,7 @@ export function createCommandExecutor<TTransaction>(options: {
 		executionId: string,
 		context: CommandExecutionContext,
 	): Promise<GetCommandExecutionResponse> {
-		if (!isCommandPrincipal(context?.principal)) {
+		if (!isCommandPrincipal(context.principal)) {
 			return {
 				ok: false,
 				failure: commandFailure(

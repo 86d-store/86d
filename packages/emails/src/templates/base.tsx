@@ -1,4 +1,4 @@
-import * as s from "./styles";
+import { body, container, footer, footerText, header } from "./styles";
 
 interface BaseEmailProps {
 	children: React.ReactNode;
@@ -31,15 +31,15 @@ export function BaseEmail({ children, preview, storeName }: BaseEmailProps) {
 					{"\u00A0".repeat(80)}
 				</div>
 			)}
-			<div style={s.container}>
+			<div style={container}>
 				{storeName && (
-					<div style={s.header}>
-						<p style={s.storeName}>{storeName}</p>
+					<div style={header}>
+						<p style={storeName}>{storeName}</p>
 					</div>
 				)}
-				<div style={s.body}>{children}</div>
-				<div style={s.footer}>
-					<p style={s.footerText}>
+				<div style={body}>{children}</div>
+				<div style={footer}>
+					<p style={footerText}>
 						{storeName ? `${storeName} — Powered by 86d` : "Powered by 86d"}
 					</p>
 				</div>

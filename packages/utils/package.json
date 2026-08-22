@@ -31,6 +31,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
+		"env": "workspace:*",
 		"winston": "3.19.0"
 	},
 	"devDependencies": {

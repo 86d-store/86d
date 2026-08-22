@@ -1,5 +1,5 @@
 import { BaseEmail } from "./base";
-import * as s from "./styles";
+import { heading, mutedText, paragraph } from "./styles";
 
 interface OrderCompletedProps {
 	orderNumber: string;
@@ -15,18 +15,18 @@ export default function OrderCompletedEmail(
 			preview={`Order #${props.orderNumber} is complete`}
 			storeName={props.storeName}
 		>
-			<h1 style={s.heading}>Order Complete</h1>
-			<p style={s.paragraph}>
+			<h1 style={heading}>Order Complete</h1>
+			<p style={paragraph}>
 				Hi {props.customerName}, your order{" "}
 				<strong>#{props.orderNumber}</strong> has been fulfilled and is
 				complete.
 			</p>
 
-			<p style={s.paragraph}>
+			<p style={paragraph}>
 				Thank you for shopping with us. We hope you enjoy your purchase!
 			</p>
 
-			<p style={s.mutedText}>
+			<p style={mutedText}>
 				Have a question about your order? Reply to this email.
 			</p>
 		</BaseEmail>

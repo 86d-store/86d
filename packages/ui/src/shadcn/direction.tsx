@@ -1,8 +1,6 @@
 "use client";
 
-import {
+export {
 	DirectionProvider,
 	useDirection,
 } from "@base-ui/react/direction-provider";
-
-export { DirectionProvider, useDirection };

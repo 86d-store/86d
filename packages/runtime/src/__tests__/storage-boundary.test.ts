@@ -1,9 +1,9 @@
+import { col } from "@86d-app/core/schema/col";
 import {
-	col,
 	compileModuleDeclarations,
 	emitSql,
-	ModuleStorageParseError,
-} from "@86d-app/core/schema";
+} from "@86d-app/core/schema/compile/index";
+import { ModuleStorageParseError } from "@86d-app/core/schema/compile/storage-parse";
 import type { Module } from "@86d-app/core/types/module";
 import { PGlite } from "@electric-sql/pglite";
 import { splitModuleDdlStatements } from "db/schema/apply-disposable-ddl";
@@ -49,6 +49,7 @@ describe("storage-boundary Zod parse", () => {
 			compiled: report.transcoded,
 		});
 
+		let caught: unknown;
 		try {
 			await data.upsert("product", "prod_bad", {
 				id: "prod_bad",
@@ -58,12 +59,13 @@ describe("storage-boundary Zod parse", () => {
 			} as never);
 			expect.unreachable("expected ModuleStorageParseError");
 		} catch (error) {
-			expect(error).toBeInstanceOf(ModuleStorageParseError);
-			const parseError = error as ModuleStorageParseError;
-			expect(parseError.issues[0]?.moduleId).toBe("products");
-			expect(parseError.issues[0]?.tableName).toBe("product");
-			expect(parseError.issues[0]?.fieldName).toBe("name");
+			caught = error;
 		}
+		expect(caught).toBeInstanceOf(ModuleStorageParseError);
+		const parseError = caught as ModuleStorageParseError;
+		expect(parseError.issues[0]?.moduleId).toBe("products");
+		expect(parseError.issues[0]?.tableName).toBe("product");
+		expect(parseError.issues[0]?.fieldName).toBe("name");
 	});
 
 	it("parses valid writes and reads through the table shape", async () => {
@@ -131,15 +133,17 @@ describe("storage-boundary Zod parse", () => {
 			compiled: report.transcoded,
 		});
 
+		let caught: unknown;
 		try {
 			await data.get("product", "prod_bad_read");
 			expect.unreachable("expected ModuleStorageParseError");
 		} catch (error) {
-			expect(error).toBeInstanceOf(ModuleStorageParseError);
-			const parseError = error as ModuleStorageParseError;
-			expect(parseError.issues[0]?.moduleId).toBe("products_read");
-			expect(parseError.issues[0]?.tableName).toBe("product");
-			expect(parseError.issues[0]?.fieldName).toBe("name");
+			caught = error;
 		}
+		expect(caught).toBeInstanceOf(ModuleStorageParseError);
+		const parseError = caught as ModuleStorageParseError;
+		expect(parseError.issues[0]?.moduleId).toBe("products_read");
+		expect(parseError.issues[0]?.tableName).toBe("product");
+		expect(parseError.issues[0]?.fieldName).toBe("name");
 	});
 });

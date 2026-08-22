@@ -1,4 +1,5 @@
 import { Buffer } from "node:buffer";
+import { readProcessEnv } from "env/process-env";
 
 export interface ManagedWorkloadConfig {
 	storeId: string;
@@ -53,7 +54,7 @@ function validateManagedWorkloadConfig(
 }
 
 export function readManagedWorkloadConfig(
-	environment: Record<string, string | undefined> = process.env,
+	environment: Record<string, string | undefined> = readProcessEnv(),
 ): ManagedWorkloadConfig | undefined {
 	const storeId = environment["86D_STORE_ID"];
 	const apiBaseUrl = environment["86D_API_URL"];

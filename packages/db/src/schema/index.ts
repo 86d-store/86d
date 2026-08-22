@@ -4,6 +4,7 @@
  * Drizzle owns the schema from here; `packages/db` is its only owner.
  * Framework tables live in `tables.ts`; cross-Module money tables in `core.ts`.
  */
+
 import {
 	accountRelations,
 	approvalRelations,
@@ -30,6 +31,7 @@ import {
 	workflowRelations,
 	workflowStepRelations,
 } from "./relations";
+
 import {
 	account,
 	approval,
@@ -58,54 +60,56 @@ import {
 	workflowStep,
 } from "./tables";
 
-export {
-	account,
+export const schema = {
 	accountRelations,
-	approval,
 	approvalRelations,
-	auditEvent,
 	auditEventRelations,
-	changeSet,
 	changeSetRelations,
-	commandExecution,
 	commandExecutionRelations,
-	confirmation,
 	confirmationRelations,
-	file,
 	fileRelations,
-	invitation,
 	invitationRelations,
-	log,
 	logRelations,
-	module,
-	moduleEventConsumption,
 	moduleEventConsumptionRelations,
-	moduleEventDelivery,
 	moduleEventDeliveryRelations,
-	moduleEventSequence,
 	moduleEventSequenceRelations,
-	moduleOutboxEvent,
 	moduleOutboxEventRelations,
 	moduleRelations,
-	passkey,
 	passkeyRelations,
-	session,
 	sessionRelations,
-	standingPermission,
 	standingPermissionRelations,
-	standingPermissionUseReservation,
 	standingPermissionUseReservationRelations,
-	user,
 	userRelations,
+	webhookDeliveryRelations,
+	webhookRelations,
+	workflowAttemptRelations,
+	workflowRelations,
+	workflowStepRelations,
+	account,
+	approval,
+	auditEvent,
+	changeSet,
+	commandExecution,
+	confirmation,
+	file,
+	invitation,
+	log,
+	module,
+	moduleEventConsumption,
+	moduleEventDelivery,
+	moduleEventSequence,
+	moduleOutboxEvent,
+	passkey,
+	session,
+	standingPermission,
+	standingPermissionUseReservation,
+	user,
 	verification,
 	webhook,
 	webhookDelivery,
-	webhookDeliveryRelations,
-	webhookRelations,
 	workflow,
 	workflowAttempt,
-	workflowAttemptRelations,
-	workflowRelations,
 	workflowStep,
-	workflowStepRelations,
-};
+} as const;
+
+export type StoreRuntimeSchema = typeof schema;

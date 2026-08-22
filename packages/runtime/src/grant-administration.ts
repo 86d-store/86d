@@ -1,5 +1,15 @@
 import { randomUUID } from "node:crypto";
 import {
+	baseRevisionSchema,
+	type ChangeSet,
+	type ChangeSetReviewContent,
+	changeSetProposalSchema,
+	changeSetSchema,
+	computeChangeSetReviewHash,
+	estimatedChargeSchema,
+	normalizeBaseRevisions,
+} from "@86d-app/contracts/change-set";
+import {
 	type ActorReference,
 	type Approval,
 	type AuditEvent,
@@ -8,25 +18,15 @@ import {
 	approvalSchema,
 	auditEventSchema,
 	authoritySnapshotSchema,
-	baseRevisionSchema,
-	type ChangeSet,
-	changeSetProposalSchema,
-	changeSetSchema,
-	estimatedChargeSchema,
-	jsonValueSchema,
 	type StandingPermission,
 	standingPermissionSchema,
 	type TargetReference,
 	targetReferenceSchema,
-} from "@86d-app/core/commands";
+} from "@86d-app/contracts/command";
+import { jsonValueSchema } from "@86d-app/contracts/json-value";
 import { z } from "zod";
 import type { CommandPrincipal } from "./command";
-import {
-	type ChangeSetReviewContent,
-	type CommandAdmissionPolicy,
-	computeChangeSetReviewHash,
-	normalizeBaseRevisions,
-} from "./grants";
+import type { CommandAdmissionPolicy } from "./grants";
 
 export interface DrizzleGrantAdministrationTransaction {
 	changeSet: {

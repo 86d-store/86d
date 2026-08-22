@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { getProcessEnv } from "env/process-env";
 import {
 	computeSubtreeIntegrity,
 	verifySubtreeIntegrity,
@@ -191,9 +192,9 @@ async function fetchFromGitHub(
 			headers: {
 				Accept: "application/vnd.github+json",
 				"User-Agent": "86d-registry",
-				...(process.env.GITHUB_TOKEN
+				...(getProcessEnv("GITHUB_TOKEN")
 					? {
-							Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+							Authorization: `Bearer ${getProcessEnv("GITHUB_TOKEN")}`,
 						}
 					: {}),
 			},

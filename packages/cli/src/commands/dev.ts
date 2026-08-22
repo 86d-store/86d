@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { createConnection } from "node:net";
 import { join } from "node:path";
+import { readProcessEnv } from "env/process-env";
 import {
 	c,
 	error,
@@ -32,11 +33,11 @@ export async function dev(args: string[]) {
 		port = args[portIdx + 1];
 	}
 
-	// Load .env files into process.env
+	// Load .env files into readProcessEnv()
 	const envVars = loadEnvFiles(root);
 
 	// Pre-flight: check DATABASE_URL is set and reachable
-	const mergedEnv = { ...envVars, ...process.env };
+	const mergedEnv = { ...envVars, ...readProcessEnv() };
 	const dbUrl = mergedEnv.DATABASE_URL;
 	if (!dbUrl) {
 		warn(
@@ -90,7 +91,7 @@ export async function dev(args: string[]) {
 	const child = spawn(cmd, cmdArgs, {
 		cwd: root,
 		stdio: "inherit",
-		env: { ...envVars, ...process.env },
+		env: { ...envVars, ...readProcessEnv() },
 	});
 
 	// Forward signals for clean shutdown

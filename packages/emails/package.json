@@ -36,6 +36,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
+		"env": "workspace:*",
 		"resend": "6.21.0"
 	},
 	"devDependencies": {

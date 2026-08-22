@@ -690,7 +690,7 @@ export default function ${toCamelCase(moduleName)}(
 	// Schema
 	writeFileSync(
 		join(moduleDir, "src/schema.ts"),
-		`import { z } from "@86d-app/core/zod";
+		`import { z } from "zod";
 
 export const schema = z.object({
 	// Define your module's data schema here

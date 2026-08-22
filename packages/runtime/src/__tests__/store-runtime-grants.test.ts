@@ -1,9 +1,10 @@
+import type { ChangeSet } from "@86d-app/contracts/change-set";
+import { computeChangeSetReviewHash } from "@86d-app/contracts/change-set";
 import type {
 	Approval,
-	ChangeSet,
 	Confirmation,
 	StandingPermission,
-} from "@86d-app/core/commands";
+} from "@86d-app/contracts/command";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import {
@@ -19,13 +20,12 @@ import {
 	storeRuntimeFreshConfirmationTracerCommand,
 	storeRuntimeStandingPermissionTracerCommand,
 	storeRuntimeTracerCommand,
-} from "../commands";
+} from "../commands/store-runtime-tracer";
 import {
 	createInMemoryCommandGrantAdapter,
 	type InMemoryCommandGrantSeed,
 } from "../grant-memory";
 import {
-	computeChangeSetReviewHash,
 	computeCommandBindingHash,
 	computeConfirmationNonceDigest,
 	createConfirmationProof,

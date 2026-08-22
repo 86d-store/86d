@@ -38,13 +38,14 @@ function addConstruct(
 	bucket.set(id, list);
 }
 
-function inventoryField(
-	bucket: Map<string, ConstructProvenance[]>,
-	moduleId: string,
-	tableName: string,
-	fieldName: string,
-	fieldSchema: z.ZodType,
-): void {
+function inventoryField(options: {
+	bucket: Map<string, ConstructProvenance[]>;
+	moduleId: string;
+	tableName: string;
+	fieldName: string;
+	fieldSchema: z.ZodType;
+}): void {
+	const { bucket, moduleId, tableName, fieldName, fieldSchema } = options;
 	const provenance = { moduleId, tableName, fieldName };
 	const wrappers = unwrapFieldWrappers(fieldSchema);
 

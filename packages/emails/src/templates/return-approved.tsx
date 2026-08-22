@@ -1,5 +1,5 @@
 import { BaseEmail } from "./base";
-import * as s from "./styles";
+import { colors, heading, mutedText, paragraph, tableHeader } from "./styles";
 
 interface ReturnApprovedProps {
 	orderNumber: string;
@@ -18,23 +18,23 @@ export default function ReturnApprovedEmail(
 			preview={`Return approved for order ${props.orderNumber}`}
 			storeName={props.storeName}
 		>
-			<h1 style={s.heading}>Return Approved</h1>
-			<p style={s.paragraph}>
+			<h1 style={heading}>Return Approved</h1>
+			<p style={paragraph}>
 				Hi {props.customerName}, your return request for order{" "}
 				<strong>#{props.orderNumber}</strong> has been approved.
 			</p>
 
 			<div
 				style={{
-					backgroundColor: s.colors.bgMuted,
+					backgroundColor: colors.bgMuted,
 					padding: "16px 20px",
 					borderRadius: 6,
 					marginBottom: 24,
 				}}
 			>
-				<p style={{ ...s.mutedText, margin: "0 0 4px" }}>
+				<p style={{ ...mutedText, margin: "0 0 4px" }}>
 					Return ID:{" "}
-					<strong style={{ color: s.colors.text }}>{props.returnId}</strong>
+					<strong style={{ color: colors.text }}>{props.returnId}</strong>
 				</p>
 			</div>
 
@@ -42,7 +42,7 @@ export default function ReturnApprovedEmail(
 				<>
 					<p
 						style={{
-							...s.tableHeader,
+							...tableHeader,
 							margin: "0 0 8px",
 							padding: 0,
 						}}
@@ -68,7 +68,7 @@ export default function ReturnApprovedEmail(
 				<>
 					<p
 						style={{
-							...s.tableHeader,
+							...tableHeader,
 							margin: "0 0 8px",
 							padding: 0,
 						}}
@@ -77,7 +77,7 @@ export default function ReturnApprovedEmail(
 					</p>
 					<p
 						style={{
-							...s.paragraph,
+							...paragraph,
 							fontSize: 14,
 							whiteSpace: "pre-wrap",
 						}}
@@ -87,7 +87,7 @@ export default function ReturnApprovedEmail(
 				</>
 			)}
 
-			<p style={s.mutedText}>
+			<p style={mutedText}>
 				Once we receive your return, we&apos;ll process your refund within 5-10
 				business days.
 			</p>

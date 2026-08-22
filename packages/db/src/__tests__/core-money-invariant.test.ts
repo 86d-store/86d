@@ -3,11 +3,27 @@ import { drizzle } from "drizzle-orm/pglite";
 import { afterAll, describe, expect, it } from "vitest";
 import { writeCoreMoney } from "../core-money";
 import { loadCoreMigration } from "../schema/apply-disposable-ddl";
-import * as coreSchema from "../schema/core";
+import {
+	coreSchema,
+	coreTables,
+	moduleConfig,
+	party,
+	subject,
+	transaction,
+} from "../schema/core";
 
 describe("core money invariant", () => {
 	const client = new PGlite();
-	const db = drizzle(client, { schema: coreSchema });
+	const db = drizzle(client, {
+		schema: {
+			coreSchema,
+			party,
+			subject,
+			transaction,
+			moduleConfig,
+			coreTables,
+		},
+	});
 
 	afterAll(async () => {
 		await client.close();

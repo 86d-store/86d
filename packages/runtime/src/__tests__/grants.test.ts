@@ -1,7 +1,7 @@
+import { computeChangeSetReviewHash } from "@86d-app/contracts/change-set";
+import { computeCommandInputDigest } from "@86d-app/contracts/command";
 import { describe, expect, it } from "vitest";
-import { computeCommandInputDigest } from "../command";
 import {
-	computeChangeSetReviewHash,
 	computeCommandBindingHash,
 	computeConfirmationNonceDigest,
 } from "../grants";

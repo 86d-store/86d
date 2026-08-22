@@ -10,7 +10,4 @@
  * split out to keep `mobx-react-lite` off the server.
  */
 
-import { z } from "zod";
-
 export type { infer as ZodInfer, ZodSchema, ZodType } from "zod";
-export { z };

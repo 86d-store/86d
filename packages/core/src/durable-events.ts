@@ -1,5 +1,5 @@
+import { actorReferenceSchema } from "@86d-app/contracts/command";
 import { z } from "zod";
-import { actorReferenceSchema } from "./commands";
 import type { ModuleDataService } from "./types/module";
 
 export type DurableEventDefinition<

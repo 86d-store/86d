@@ -1,7 +1,7 @@
 {
 	"name": "86d",
 	"version": "0.0.42",
-	"description": "CLI for 86d — modular, open-source commerce platform",
+	"description": "CLI for 86d \u2014 modular, open-source commerce platform",
 	"keywords": [
 		"86d",
 		"commerce",
@@ -42,7 +42,8 @@
 	},
 	"dependencies": {
 		"@86d-app/core": "workspace:*",
-		"@86d-app/registry": "workspace:*"
+		"@86d-app/registry": "workspace:*",
+		"env": "workspace:*"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "catalog:",

@@ -1,17 +1,19 @@
 import { randomUUID } from "node:crypto";
 import {
+	changeSetSchema,
+	computeChangeSetReviewHash,
+	normalizeBaseRevisions,
+} from "@86d-app/contracts/change-set";
+import {
 	type ActorReference,
 	type AuthoritySnapshot,
 	type CommandFailure,
-	changeSetSchema,
-	type TargetReference,
-} from "@86d-app/core/commands";
-import {
-	type CommandGrantAdapter,
-	type CommandGrantAdmissionRequest,
-	computeChangeSetReviewHash,
 	computeConfirmationNonceDigest,
-	normalizeBaseRevisions,
+	type TargetReference,
+} from "@86d-app/contracts/command";
+import type {
+	CommandGrantAdapter,
+	CommandGrantAdmissionRequest,
 } from "./grants";
 
 export interface DrizzleCommandGrantTransaction {

@@ -20,6 +20,14 @@
 			"types": "./src/change-set.ts",
 			"default": "./src/change-set.ts"
 		},
+		"./json-value": {
+			"types": "./src/json-value.ts",
+			"default": "./src/json-value.ts"
+		},
+		"./serialize": {
+			"types": "./src/serialize.ts",
+			"default": "./src/serialize.ts"
+		},
 		"./conformance": {
 			"types": "./src/conformance.ts",
 			"default": "./src/conformance.ts"
@@ -64,6 +72,14 @@
 			"./change-set": {
 				"types": "./dist/change-set.d.ts",
 				"default": "./dist/change-set.js"
+			},
+			"./json-value": {
+				"types": "./dist/json-value.d.ts",
+				"default": "./dist/json-value.js"
+			},
+			"./serialize": {
+				"types": "./dist/serialize.d.ts",
+				"default": "./dist/serialize.js"
 			},
 			"./conformance": {
 				"types": "./dist/conformance.d.ts",

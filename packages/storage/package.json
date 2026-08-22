@@ -46,6 +46,7 @@
 		"test": "vitest run"
 	},
 	"dependencies": {
+		"env": "workspace:*",
 		"zod": "catalog:"
 	},
 	"devDependencies": {

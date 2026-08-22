@@ -136,6 +136,8 @@
 			"types": "./src/schema/index.ts",
 			"default": "./src/schema/index.ts"
 		},
+		"./schema/*": "./src/schema/*",
+		"./graph/*": "./src/graph/*",
 		"./curated-modules": {
 			"types": "./src/curated-modules.ts",
 			"default": "./src/curated-modules.ts"
@@ -318,6 +320,8 @@
 				"types": "./dist/schema/index.d.ts",
 				"default": "./dist/schema/index.js"
 			},
+			"./schema/*": "./dist/schema/*",
+			"./graph/*": "./dist/graph/*",
 			"./curated-modules": {
 				"types": "./dist/curated-modules.d.ts",
 				"default": "./dist/curated-modules.js"

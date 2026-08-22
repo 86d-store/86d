@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import { createConnection } from "node:net";
 import { join } from "node:path";
+import { getProcessEnv } from "env/process-env";
 import {
 	c,
 	detectActiveTemplate,
@@ -267,7 +268,7 @@ export async function doctor(options: DoctorOptions = {}) {
 	// 8. Database connectivity
 	const dbUrlVal = existsSync(join(root, ".env"))
 		? parseEnvFile(join(root, ".env")).DATABASE_URL
-		: process.env.DATABASE_URL;
+		: getProcessEnv("DATABASE_URL");
 	if (dbUrlVal) {
 		try {
 			const url = new URL(dbUrlVal);

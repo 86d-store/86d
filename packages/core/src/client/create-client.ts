@@ -29,14 +29,15 @@ function isQueryEndpoint(endpoint: Endpoint): boolean {
 /**
  * Create hooks for all endpoints in a record
  */
-function createEndpointHooks(
-	endpoints: Record<string, Endpoint>,
-	moduleId: string,
-	namespace: "store" | "admin",
-	config: ClientConfig,
-	queryClient: QueryClient,
+function createEndpointHooks(options: {
+	endpoints: Record<string, Endpoint>;
+	moduleId: string;
+	namespace: "store" | "admin";
+	config: ClientConfig;
+	queryClient: QueryClient;
 	// biome-ignore lint/suspicious/noExplicitAny: hook factory creates hooks for generic endpoint types
-): Record<string, QueryHook<any, any> | MutationHook<any, any>> {
+}): Record<string, QueryHook<any, any> | MutationHook<any, any>> {
+	const { endpoints, moduleId, namespace, config, queryClient } = options;
 	// biome-ignore lint/suspicious/noExplicitAny: hook factory creates hooks for generic endpoint types
 	const hooks: Record<string, QueryHook<any, any> | MutationHook<any, any>> =
 		{};
@@ -120,23 +121,23 @@ export function createModuleClient<TModules extends Module[]>(
 			}
 
 			const storeHooks = module.endpoints?.store
-				? createEndpointHooks(
-						module.endpoints.store,
+				? createEndpointHooks({
+						endpoints: module.endpoints.store,
 						moduleId,
-						"store",
+						namespace: "store",
 						config,
 						queryClient,
-					)
+					})
 				: {};
 
 			const adminHooks = module.endpoints?.admin
-				? createEndpointHooks(
-						module.endpoints.admin,
+				? createEndpointHooks({
+						endpoints: module.endpoints.admin,
 						moduleId,
-						"admin",
+						namespace: "admin",
 						config,
 						queryClient,
-					)
+					})
 				: {};
 
 			cached = { store: storeHooks, admin: adminHooks };

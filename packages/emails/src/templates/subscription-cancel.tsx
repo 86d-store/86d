@@ -1,5 +1,5 @@
 import { BaseEmail } from "./base";
-import * as s from "./styles";
+import { heading, mutedText, paragraph } from "./styles";
 
 interface SubscriptionCancelProps {
 	storeName?: string | undefined;
@@ -13,16 +13,16 @@ export default function SubscriptionCancelEmail(
 			preview="Your subscription has been cancelled"
 			storeName={props.storeName}
 		>
-			<h1 style={s.heading}>Subscription Cancelled</h1>
-			<p style={s.paragraph}>
+			<h1 style={heading}>Subscription Cancelled</h1>
+			<p style={paragraph}>
 				Your subscription has been cancelled. You will continue to have access
 				until the end of your current billing period.
 			</p>
-			<p style={s.paragraph}>
+			<p style={paragraph}>
 				If you change your mind, you can resubscribe at any time from your
 				account settings.
 			</p>
-			<p style={s.mutedText}>
+			<p style={mutedText}>
 				We&apos;re sorry to see you go. If there&apos;s anything we could have
 				done better, we&apos;d love to hear your feedback.
 			</p>

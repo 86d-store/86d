@@ -48,7 +48,7 @@ describe("init", () => {
 					destroy: vi.fn(),
 				};
 				setTimeout(
-					() => (reachable ? handlers.connect?.() : handlers.error?.()),
+					() => (reachable ? handlers.connect() : handlers.error()),
 					0,
 				);
 				return emitter;
@@ -119,7 +119,7 @@ describe("init", () => {
 			"DATABASE_URL=\nSTORE_ID=test\nBETTER_AUTH_SECRET=already-set\n",
 		);
 		// Does not throw — no readline.question calls expected
-		await runInit(["--yes"]);
+		await expect(runInit(["--yes"])).resolves.toBeUndefined();
 	});
 
 	it("accepts -y short flag without prompting", async () => {
@@ -127,7 +127,7 @@ describe("init", () => {
 			join(tempDir, ".env"),
 			"DATABASE_URL=\nSTORE_ID=test\nBETTER_AUTH_SECRET=already-set\n",
 		);
-		await runInit(["-y"]);
+		await expect(runInit(["-y"])).resolves.toBeUndefined();
 	});
 
 	it("skips DB setup when DATABASE_URL is not set", async () => {
@@ -163,7 +163,7 @@ describe("init", () => {
 					}),
 					destroy: vi.fn(),
 				};
-				setTimeout(() => handlers.connect?.(), 0);
+				setTimeout(() => handlers.connect(), 0);
 				return emitter;
 			}),
 		}));
@@ -195,7 +195,10 @@ describe("init", () => {
 			(c: unknown[]) =>
 				typeof c[0] === "string" && c[0].includes("--filter db seed"),
 		);
-		const seedEnv = (seedCall?.[1] as { env?: Record<string, string> })?.env;
+		expect(seedCall).toBeDefined();
+		const seedEnv = (
+			seedCall?.[1] as { env?: Record<string, string> } | undefined
+		)?.env;
 		expect(seedEnv?.APP_ADMIN_EMAIL).toBe("admin@86d.app");
 		expect(seedEnv?.APP_ADMIN_PASSWORD).toBe("password123");
 	});
