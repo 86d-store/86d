@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductForm } from "./product-form";
+import { ProductCreateForm } from "./product-create-form";
 
 export function ProductNew() {
 	return (
@@ -28,7 +28,7 @@ export function ProductNew() {
 				</a>
 				<h1 className="font-semibold text-foreground text-lg">New product</h1>
 			</div>
-			<ProductForm
+			<ProductCreateForm
 				onNavigate={(path) => {
 					window.location.href = path;
 				}}

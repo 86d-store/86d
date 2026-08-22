@@ -1,8 +1,8 @@
 "use client";
 
 import { useModuleClient } from "@86d-app/core/client/provider";
-import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ProductDataTable } from "./product-data-table";
 import ProductListTemplate from "./product-list.mdx";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -75,31 +75,6 @@ function useProductsAdminApi() {
 		bulkAction: client.module("products").admin["/admin/products/bulk"],
 	};
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatPrice(cents: number): string {
-	return new Intl.NumberFormat("en-US", {
-		style: "currency",
-		currency: "USD",
-	}).format(cents / 100);
-}
-
-function formatDate(iso: string): string {
-	return new Intl.DateTimeFormat("en-US", {
-		month: "short",
-		day: "numeric",
-		year: "numeric",
-	}).format(new Date(iso));
-}
-
-const statusStyles: Record<string, string> = {
-	draft: "bg-muted text-muted-foreground",
-	active:
-		"bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
-	archived:
-		"bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300",
-};
 
 // ─── CSV Utilities ───────────────────────────────────────────────────────────
 
@@ -595,9 +570,9 @@ export function ProductList() {
 	const api = useProductsAdminApi();
 
 	const [page, setPage] = useState(1);
-	const [search, setSearch] = useState("");
+	const search = "";
 	const [status, setStatus] = useState("");
-	const [category, setCategory] = useState("");
+	const category = "";
 	const [deleting, setDeleting] = useState<string | null>(null);
 	const [exporting, setExporting] = useState(false);
 	const [showImport, setShowImport] = useState(false);
@@ -651,36 +626,6 @@ export function ProductList() {
 	const total = productsData?.total ?? 0;
 	const categories = categoriesData?.categories ?? [];
 	const totalPages = Math.ceil(total / limit);
-	const allOnPageSelected =
-		products.length > 0 && products.every((p) => selected.has(p.id));
-
-	const toggleSelect = (id: string) => {
-		setSelected((prev) => {
-			const next = new Set(prev);
-			if (next.has(id)) {
-				next.delete(id);
-			} else {
-				next.add(id);
-			}
-			return next;
-		});
-	};
-
-	const toggleSelectAll = () => {
-		if (allOnPageSelected) {
-			setSelected((prev) => {
-				const next = new Set(prev);
-				for (const p of products) next.delete(p.id);
-				return next;
-			});
-		} else {
-			setSelected((prev) => {
-				const next = new Set(prev);
-				for (const p of products) next.add(p.id);
-				return next;
-			});
-		}
-	};
 
 	const handleBulkStatus = (newStatus: "draft" | "active" | "archived") => {
 		if (selected.size === 0) return;
@@ -763,7 +708,7 @@ export function ProductList() {
 		} finally {
 			setExporting(false);
 		}
-	}, [api.listProducts, search, status, category, categoryNameById]);
+	}, [api.listProducts, status, categoryNameById]);
 
 	const handleImport = useCallback(
 		async (rows: Record<string, unknown>[]): Promise<ImportResult> => {
@@ -868,340 +813,76 @@ export function ProductList() {
 				</div>
 			</div>
 
-			{/* Filters */}
-			<div className="mb-4 flex flex-wrap items-center gap-3">
-				<input
-					type="search"
-					value={search}
-					onChange={(e) => {
-						setSearch(e.target.value);
-						setPage(1);
-					}}
-					placeholder="Search products..."
-					aria-label="Search products"
-					className="min-w-[200px] flex-1 rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-				/>
+			{/* Merchant UI contract table (plan 009) */}
+			<ProductDataTable
+				data={products}
+				isLoading={loading}
+				deleting={deleting}
+				onDelete={handleDelete}
+				statusFilter={status}
+				onStatusFilterChange={(value) => {
+					setStatus(value);
+					setPage(1);
+				}}
+			/>
 
-				<select
-					value={status}
-					onChange={(e) => {
-						setStatus(e.target.value);
-						setPage(1);
-					}}
-					className="rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-					aria-label="Filter by status"
-				>
-					<option value="">All statuses</option>
-					<option value="draft">Draft</option>
-					<option value="active">Active</option>
-					<option value="archived">Archived</option>
-				</select>
-
-				{categories.length > 0 && (
-					<select
-						value={category}
-						onChange={(e) => {
-							setCategory(e.target.value);
-							setPage(1);
-						}}
-						aria-label="Filter by category"
-						className="rounded-md border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-					>
-						<option value="">All categories</option>
-						{categories.map((c) => (
-							<option key={c.id} value={c.id}>
-								{c.name}
-							</option>
-						))}
-					</select>
-				)}
-			</div>
-
-			{/* Bulk Action Bar */}
+			{/* Legacy bulk selection toolbar kept for import/export workflows */}
 			{selected.size > 0 && (
-				<div className="mb-4 flex items-center gap-3 rounded-lg border border-border bg-muted/50 px-4 py-3">
-					<span className="font-medium text-foreground text-sm">
-						{selected.size} {selected.size === 1 ? "product" : "products"}{" "}
-						selected
-					</span>
-					<div className="ml-auto flex items-center gap-2">
+				<div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2">
+					<span className="text-sm">{selected.size} selected</span>
+					<button
+						type="button"
+						disabled={bulkProcessing}
+						onClick={() => handleBulkStatus("active")}
+						className="rounded-md border border-border px-2 py-1 text-xs"
+					>
+						Mark active
+					</button>
+					<button
+						type="button"
+						disabled={bulkProcessing}
+						onClick={handleBulkDelete}
+						className="rounded-md border border-border px-2 py-1 text-destructive text-xs"
+					>
+						Delete
+					</button>
+					<button
+						type="button"
+						onClick={() => setSelected(new Set())}
+						className="rounded-md px-2 py-1 text-muted-foreground text-xs"
+					>
+						Cancel
+					</button>
+				</div>
+			)}
+
+			{/* Pagination */}
+			{totalPages > 1 && (
+				<div className="mt-4 flex items-center justify-between">
+					<p className="text-muted-foreground text-sm">
+						Page {page} of {totalPages}
+					</p>
+					<div className="flex items-center gap-2">
 						<button
 							type="button"
-							disabled={bulkProcessing}
-							onClick={() => handleBulkStatus("active")}
-							className="rounded-md bg-emerald-600 px-3 py-1.5 font-medium text-sm text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+							disabled={page <= 1}
+							onClick={() => setPage((p) => Math.max(1, p - 1))}
+							className="rounded-md border border-border px-3 py-1.5 text-sm disabled:opacity-50"
 						>
-							Set Active
+							Previous
 						</button>
 						<button
 							type="button"
-							disabled={bulkProcessing}
-							onClick={() => handleBulkStatus("draft")}
-							className="rounded-md border border-border px-3 py-1.5 font-medium text-foreground text-sm transition-colors hover:bg-muted disabled:opacity-50"
+							disabled={page >= totalPages}
+							onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+							className="rounded-md border border-border px-3 py-1.5 text-sm disabled:opacity-50"
 						>
-							Set Draft
-						</button>
-						<button
-							type="button"
-							disabled={bulkProcessing}
-							onClick={() => handleBulkStatus("archived")}
-							className="rounded-md border border-border px-3 py-1.5 font-medium text-foreground text-sm transition-colors hover:bg-muted disabled:opacity-50"
-						>
-							Archive
-						</button>
-						<button
-							type="button"
-							disabled={bulkProcessing}
-							onClick={handleBulkDelete}
-							className="rounded-md bg-destructive px-3 py-1.5 font-medium text-destructive-foreground text-sm transition-opacity hover:opacity-90 disabled:opacity-50"
-						>
-							{bulkProcessing ? "Processing..." : "Delete"}
-						</button>
-						<button
-							type="button"
-							onClick={() => setSelected(new Set())}
-							className="rounded-md px-3 py-1.5 text-muted-foreground text-sm transition-colors hover:bg-muted hover:text-foreground"
-						>
-							Cancel
+							Next
 						</button>
 					</div>
 				</div>
 			)}
 
-			{/* Table */}
-			<div className="overflow-hidden rounded-lg border border-border bg-card">
-				<div className="overflow-x-auto">
-					<table className="w-full text-sm">
-						<thead>
-							<tr className="border-border border-b bg-muted/50">
-								<th scope="col" className="w-10 px-4 py-3">
-									<input
-										type="checkbox"
-										checked={allOnPageSelected}
-										onChange={toggleSelectAll}
-										disabled={products.length === 0}
-										className="h-4 w-4 rounded border-border text-foreground"
-										aria-label="Select all products on this page"
-									/>
-								</th>
-								<th
-									scope="col"
-									className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider"
-								>
-									Image
-								</th>
-								<th
-									scope="col"
-									className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider"
-								>
-									Name
-								</th>
-								<th
-									scope="col"
-									className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider"
-								>
-									Status
-								</th>
-								<th
-									scope="col"
-									className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider"
-								>
-									Price
-								</th>
-								<th
-									scope="col"
-									className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider"
-								>
-									Inventory
-								</th>
-								<th
-									scope="col"
-									className="px-4 py-3 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider"
-								>
-									Created
-								</th>
-								<th
-									scope="col"
-									className="px-4 py-3 text-right font-medium text-muted-foreground text-xs uppercase tracking-wider"
-								>
-									Actions
-								</th>
-							</tr>
-						</thead>
-						<tbody className="divide-y divide-border">
-							{loading ? (
-								Array.from(
-									{ length: 5 },
-									(_, i) => `product-list-skel-${i}`,
-								).map((id) => (
-									<tr key={id}>
-										<td className="px-4 py-3">
-											<div className="h-4 w-4 animate-pulse rounded bg-muted" />
-										</td>
-										<td className="px-4 py-3">
-											<div className="h-10 w-10 animate-pulse rounded-md bg-muted" />
-										</td>
-										<td className="px-4 py-3">
-											<div className="h-4 w-32 animate-pulse rounded bg-muted" />
-										</td>
-										<td className="px-4 py-3">
-											<div className="h-5 w-16 animate-pulse rounded-full bg-muted" />
-										</td>
-										<td className="px-4 py-3">
-											<div className="h-4 w-16 animate-pulse rounded bg-muted" />
-										</td>
-										<td className="px-4 py-3">
-											<div className="h-4 w-10 animate-pulse rounded bg-muted" />
-										</td>
-										<td className="px-4 py-3">
-											<div className="h-4 w-20 animate-pulse rounded bg-muted" />
-										</td>
-										<td className="px-4 py-3">
-											<div className="h-4 w-16 animate-pulse rounded bg-muted" />
-										</td>
-									</tr>
-								))
-							) : products.length === 0 ? (
-								<tr>
-									<td
-										colSpan={8}
-										className="px-4 py-12 text-center text-muted-foreground"
-									>
-										<p className="font-medium text-foreground">
-											No products found
-										</p>
-										<p className="mt-1 text-sm">
-											Try adjusting your filters or create a new product.
-										</p>
-									</td>
-								</tr>
-							) : (
-								products.map((product) => (
-									<tr
-										key={product.id}
-										className={`transition-colors hover:bg-muted/30 ${selected.has(product.id) ? "bg-muted/20" : ""}`}
-									>
-										<td className="px-4 py-3">
-											<input
-												type="checkbox"
-												checked={selected.has(product.id)}
-												onChange={() => toggleSelect(product.id)}
-												className="h-4 w-4 rounded border-border text-foreground"
-												aria-label={`Select ${product.name}`}
-											/>
-										</td>
-										<td className="px-4 py-3">
-											<div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-md border border-border bg-muted">
-												{product.images[0] ? (
-													<Image
-														src={product.images[0]}
-														alt={product.name}
-														width={40}
-														height={40}
-														unoptimized
-														className="h-full w-full object-cover object-center"
-													/>
-												) : (
-													<div className="flex h-full w-full items-center justify-center text-muted-foreground">
-														<svg
-															xmlns="http://www.w3.org/2000/svg"
-															width="16"
-															height="16"
-															viewBox="0 0 24 24"
-															fill="none"
-															stroke="currentColor"
-															strokeWidth="1.5"
-															strokeLinecap="round"
-															strokeLinejoin="round"
-															aria-hidden="true"
-														>
-															<rect width="18" height="18" x="3" y="3" rx="2" />
-															<circle cx="9" cy="9" r="2" />
-															<path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-														</svg>
-													</div>
-												)}
-											</div>
-										</td>
-										<td className="px-4 py-3">
-											<a
-												href={`/admin/products/${product.id}`}
-												className="font-medium text-foreground hover:underline"
-											>
-												{product.name}
-											</a>
-										</td>
-										<td className="px-4 py-3">
-											<span
-												className={`inline-flex rounded-full px-2 py-0.5 font-medium text-xs capitalize ${
-													statusStyles[product.status] ?? statusStyles.draft
-												}`}
-											>
-												{product.status}
-											</span>
-										</td>
-										<td className="px-4 py-3 text-foreground">
-											{formatPrice(product.price)}
-										</td>
-										<td className="px-4 py-3 text-foreground">
-											{product.inventory}
-										</td>
-										<td className="px-4 py-3 text-muted-foreground">
-											{formatDate(product.createdAt)}
-										</td>
-										<td className="px-4 py-3 text-right">
-											<div className="flex items-center justify-end gap-2">
-												<a
-													href={`/admin/products/${product.id}/edit`}
-													className="rounded-md px-2 py-1 text-muted-foreground text-xs transition-colors hover:bg-muted hover:text-foreground"
-													title="Edit product"
-												>
-													Edit
-												</a>
-												<button
-													type="button"
-													onClick={() => handleDelete(product.id)}
-													disabled={deleting === product.id}
-													className="rounded-md px-2 py-1 text-destructive text-xs transition-colors hover:bg-destructive/10 disabled:opacity-50"
-												>
-													{deleting === product.id ? "Deleting..." : "Delete"}
-												</button>
-											</div>
-										</td>
-									</tr>
-								))
-							)}
-						</tbody>
-					</table>
-				</div>
-			</div>
-
-			{/* Pagination */}
-			{totalPages > 1 && (
-				<div className="mt-4 flex items-center justify-center gap-2">
-					<button
-						type="button"
-						onClick={() => setPage((p) => Math.max(1, p - 1))}
-						disabled={page === 1}
-						className="rounded-md border border-border px-3 py-1.5 text-foreground text-sm hover:bg-muted disabled:opacity-50"
-					>
-						Previous
-					</button>
-					<span className="text-muted-foreground text-sm">
-						Page {page} of {totalPages}
-					</span>
-					<button
-						type="button"
-						onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-						disabled={page === totalPages}
-						className="rounded-md border border-border px-3 py-1.5 text-foreground text-sm hover:bg-muted disabled:opacity-50"
-					>
-						Next
-					</button>
-				</div>
-			)}
-
-			{/* Import Dialog */}
 			{showImport && (
 				<ImportDialog
 					onClose={() => setShowImport(false)}

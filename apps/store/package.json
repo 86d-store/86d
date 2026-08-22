@@ -131,6 +131,8 @@
 		"@sentry/nextjs": "10.70.0",
 		"@stripe/react-stripe-js": "6.8.1",
 		"@stripe/stripe-js": "9.13.0",
+		"@tanstack/react-form": "1.33.5",
+		"@tanstack/react-table": "9.1.2",
 		"@vercel/analytics": "catalog:vercel",
 		"@vercel/blob": "2.8.0",
 		"auth": "workspace:*",

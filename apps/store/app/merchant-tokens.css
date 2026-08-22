@@ -1,0 +1,529 @@
+/* Public-owned merchant token parity with 86d Console.
+ * Source values copied from private packages/ui/src/globals.css (plan 009).
+ * Do not import private packages. Update only via experience.md decisions.
+ */
+
+:root {
+	--neutral-25: oklch(99.23% 0 247.73);
+	--neutral-50: oklch(98.46% 0 247.73);
+	--neutral-100: oklch(96.89% 0 228.43);
+	--neutral-200: oklch(92.96% 0.01 247.84);
+	--neutral-300: oklch(87.57% 0.01 236.51);
+	--neutral-400: oklch(72.26% 0.02 238.07);
+	--neutral-500: oklch(59.98% 0.02 240.18);
+	--neutral-600: oklch(45.86% 0.02 232.96);
+	--neutral-700: oklch(38.85% 0.02 234.58);
+	--neutral-800: oklch(29.21% 0.02 233.69);
+	--neutral-900: oklch(22.47% 0.02 243.77);
+	--neutral-950: oklch(14.44% 0.02 240.15);
+	--neutral-1000: oklch(7.00% 0.015 240);
+
+	--primary-25: oklch(98.00% 0.01 241.73);
+	--primary-50: oklch(97.10% 0.02 241.73);
+	--primary-100: oklch(94.08% 0.03 239.34);
+	--primary-200: oklch(87.57% 0.07 236.46);
+	--primary-300: oklch(78.39% 0.13 237.28);
+	--primary-400: oklch(70.54% 0.17 242.75);
+	--primary-500: oklch(59.74% 0.15 244.04);
+	--primary-600: oklch(53.32% 0.14 246.76);
+	--primary-700: oklch(44.43% 0.12 246.98);
+	--primary-800: oklch(38.97% 0.1 246.22);
+	--primary-900: oklch(34.47% 0.08 245.66);
+	--primary-950: oklch(25.79% 0.07 248.03);
+	--primary-1000: oklch(14.00% 0.04 250);
+
+	--caution-25: oklch(98.50% 0.01 83);
+	--caution-50: oklch(97.56% 0.02 83.4);
+	--caution-100: oklch(93.76% 0.07 86.14);
+	--caution-200: oklch(87.66% 0.13 84.57);
+	--caution-300: oklch(80.92% 0.17 74.52);
+	--caution-400: oklch(70.51% 0.16 65.46);
+	--caution-500: oklch(60.10% 0.15 54.75);
+	--caution-600: oklch(52.77% 0.15 46.01);
+	--caution-700: oklch(45.22% 0.14 39.37);
+	--caution-800: oklch(37.84% 0.12 37.37);
+	--caution-900: oklch(33.32% 0.1 36.61);
+	--caution-950: oklch(23.00% 0.07 40.4);
+	--caution-1000: oklch(13.00% 0.03 43);
+
+	--constructive-25: oklch(98.50% 0.005 142);
+	--constructive-50: oklch(97.66% 0.01 142.1);
+	--constructive-100: oklch(95.09% 0.03 139.96);
+	--constructive-200: oklch(90.08% 0.07 140.4);
+	--constructive-300: oklch(82.12% 0.12 140.8);
+	--constructive-400: oklch(71.69% 0.16 140.83);
+	--constructive-500: oklch(59.92% 0.15 140.94);
+	--constructive-600: oklch(55.93% 0.14 140.84);
+	--constructive-700: oklch(44.17% 0.11 140.81);
+	--constructive-800: oklch(38.24% 0.09 141.14);
+	--constructive-900: oklch(33.36% 0.07 141.5);
+	--constructive-950: oklch(23.07% 0.05 142.08);
+	--constructive-1000: oklch(13.00% 0.02 142);
+
+	--destructive-25: oklch(98.00% 0.005 18);
+	--destructive-50: oklch(97.34% 0.01 17.51);
+	--destructive-100: oklch(94.43% 0.02 21.66);
+	--destructive-200: oklch(89.86% 0.03 20.07);
+	--destructive-300: oklch(82.67% 0.06 21.01);
+	--destructive-400: oklch(72.69% 0.1 22.11);
+	--destructive-500: oklch(59.91% 0.15 24.64);
+	--destructive-600: oklch(56.08% 0.15 24.98);
+	--destructive-700: oklch(48.85% 0.13 24.86);
+	--destructive-800: oklch(43.48% 0.11 24.79);
+	--destructive-900: oklch(39.40% 0.09 23.74);
+	--destructive-950: oklch(25.49% 0.06 23.6);
+	--destructive-1000: oklch(13.00% 0.03 25);
+
+	--neutral-step-25: var(--neutral-25);
+	--neutral-step-50: var(--neutral-50);
+	--neutral-step-100: var(--neutral-100);
+	--neutral-step-200: var(--neutral-200);
+	--neutral-step-300: var(--neutral-300);
+	--neutral-step-400: var(--neutral-400);
+	--neutral-step-500: var(--neutral-500);
+	--neutral-step-600: var(--neutral-600);
+	--neutral-step-700: var(--neutral-700);
+	--neutral-step-800: var(--neutral-800);
+	--neutral-step-900: var(--neutral-900);
+	--neutral-step-950: var(--neutral-950);
+	--neutral-step-1000: var(--neutral-1000);
+
+	--neutral: var(--neutral-step-500);
+	--neutral-foreground: var(--neutral-step-950);
+
+	--primary-step-25: var(--primary-25);
+	--primary-step-50: var(--primary-50);
+	--primary-step-100: var(--primary-100);
+	--primary-step-200: var(--primary-200);
+	--primary-step-300: var(--primary-300);
+	--primary-step-400: var(--primary-400);
+	--primary-step-500: var(--primary-500);
+	--primary-step-600: var(--primary-600);
+	--primary-step-700: var(--primary-700);
+	--primary-step-800: var(--primary-800);
+	--primary-step-900: var(--primary-900);
+	--primary-step-950: var(--primary-950);
+	--primary-step-1000: var(--primary-1000);
+
+	--primary: var(--primary-step-500);
+	--primary-foreground: var(--primary-25);
+
+	--caution-step-25: var(--caution-25);
+	--caution-step-50: var(--caution-50);
+	--caution-step-100: var(--caution-100);
+	--caution-step-200: var(--caution-200);
+	--caution-step-300: var(--caution-300);
+	--caution-step-400: var(--caution-400);
+	--caution-step-500: var(--caution-500);
+	--caution-step-600: var(--caution-600);
+	--caution-step-700: var(--caution-700);
+	--caution-step-800: var(--caution-800);
+	--caution-step-900: var(--caution-900);
+	--caution-step-950: var(--caution-950);
+	--caution-step-1000: var(--caution-1000);
+
+	--caution: var(--caution-step-500);
+	--caution-foreground: var(--caution-step-700);
+
+	--constructive-step-25: var(--constructive-25);
+	--constructive-step-50: var(--constructive-50);
+	--constructive-step-100: var(--constructive-100);
+	--constructive-step-200: var(--constructive-200);
+	--constructive-step-300: var(--constructive-300);
+	--constructive-step-400: var(--constructive-400);
+	--constructive-step-500: var(--constructive-500);
+	--constructive-step-600: var(--constructive-600);
+	--constructive-step-700: var(--constructive-700);
+	--constructive-step-800: var(--constructive-800);
+	--constructive-step-900: var(--constructive-900);
+	--constructive-step-950: var(--constructive-950);
+	--constructive-step-1000: var(--constructive-1000);
+
+	--constructive: var(--constructive-step-500);
+	--constructive-foreground: var(--constructive-step-700);
+
+	--destructive-step-25: var(--destructive-25);
+	--destructive-step-50: var(--destructive-50);
+	--destructive-step-100: var(--destructive-100);
+	--destructive-step-200: var(--destructive-200);
+	--destructive-step-300: var(--destructive-300);
+	--destructive-step-400: var(--destructive-400);
+	--destructive-step-500: var(--destructive-500);
+	--destructive-step-600: var(--destructive-600);
+	--destructive-step-700: var(--destructive-700);
+	--destructive-step-800: var(--destructive-800);
+	--destructive-step-900: var(--destructive-900);
+	--destructive-step-950: var(--destructive-950);
+	--destructive-step-1000: var(--destructive-1000);
+
+	--destructive: var(--destructive-step-500);
+	--destructive-foreground: var(--destructive-step-700);
+
+	--background: var(--neutral-step-25);
+	--foreground: var(--neutral-step-1000);
+	--card: oklch(100% 0 0);
+	--card-foreground: var(--neutral-step-950);
+	--popover: oklch(100% 0 0);
+	--popover-foreground: var(--neutral-step-950);
+	--secondary: var(--neutral-step-100);
+	--secondary-foreground: var(--neutral-step-900);
+	--muted: var(--neutral-step-100);
+	--muted-foreground: var(--neutral-step-500);
+	--accent: var(--neutral-step-200);
+	--accent-foreground: var(--neutral-step-900);
+	--border: var(--neutral-step-200);
+	--border-primary: var(--primary-step-200);
+	--border-caution: var(--caution-step-200);
+	--border-constructive: var(--constructive-step-200);
+	--border-destructive: var(--destructive-step-200);
+	--input: var(--neutral-step-200);
+	--ring: var(--primary-step-500);
+	--chart-1: oklch(0.646 0.222 41.116);
+	--chart-2: oklch(0.6 0.118 184.704);
+	--chart-3: oklch(0.398 0.07 227.392);
+	--chart-4: oklch(0.828 0.189 84.429);
+	--chart-5: oklch(0.769 0.188 70.08);
+	--radius: 0.625rem;
+	--sidebar: var(--card);
+	--sidebar-foreground: var(--card-foreground);
+	--sidebar-primary: var(--primary-step-600);
+	--sidebar-primary-foreground: var(--primary-step-50);
+	--sidebar-accent: var(--neutral-step-200);
+	--sidebar-accent-foreground: var(--neutral-step-900);
+	--sidebar-border: var(--neutral-step-200);
+	--sidebar-ring: var(--primary-step-500);
+}
+
+.dark {
+	--neutral-step-25: var(--neutral-1000);
+	--neutral-step-50: var(--neutral-950);
+	--neutral-step-100: var(--neutral-900);
+	--neutral-step-200: var(--neutral-800);
+	--neutral-step-300: var(--neutral-700);
+	--neutral-step-400: var(--neutral-600);
+	--neutral-step-500: var(--neutral-500);
+	--neutral-step-600: var(--neutral-400);
+	--neutral-step-700: var(--neutral-300);
+	--neutral-step-800: var(--neutral-200);
+	--neutral-step-900: var(--neutral-100);
+	--neutral-step-950: var(--neutral-50);
+	--neutral-step-1000: var(--neutral-25);
+
+	--primary-step-25: var(--primary-1000);
+	--primary-step-50: var(--primary-950);
+	--primary-step-100: var(--primary-900);
+	--primary-step-200: var(--primary-800);
+	--primary-step-300: var(--primary-700);
+	--primary-step-400: var(--primary-600);
+	--primary-step-500: var(--primary-500);
+	--primary-step-600: var(--primary-400);
+	--primary-step-700: var(--primary-300);
+	--primary-step-800: var(--primary-200);
+	--primary-step-900: var(--primary-100);
+	--primary-step-950: var(--primary-50);
+	--primary-step-1000: var(--primary-25);
+
+	--caution-step-25: var(--caution-1000);
+	--caution-step-50: var(--caution-950);
+	--caution-step-100: var(--caution-900);
+	--caution-step-200: var(--caution-800);
+	--caution-step-300: var(--caution-700);
+	--caution-step-400: var(--caution-600);
+	--caution-step-500: var(--caution-500);
+	--caution-step-600: var(--caution-400);
+	--caution-step-700: var(--caution-300);
+	--caution-step-800: var(--caution-200);
+	--caution-step-900: var(--caution-100);
+	--caution-step-950: var(--caution-50);
+	--caution-step-1000: var(--caution-25);
+
+	--constructive-step-25: var(--constructive-1000);
+	--constructive-step-50: var(--constructive-950);
+	--constructive-step-100: var(--constructive-900);
+	--constructive-step-200: var(--constructive-800);
+	--constructive-step-300: var(--constructive-700);
+	--constructive-step-400: var(--constructive-600);
+	--constructive-step-500: var(--constructive-500);
+	--constructive-step-600: var(--constructive-400);
+	--constructive-step-700: var(--constructive-300);
+	--constructive-step-800: var(--constructive-200);
+	--constructive-step-900: var(--constructive-100);
+	--constructive-step-950: var(--constructive-50);
+	--constructive-step-1000: var(--constructive-25);
+
+	--destructive-step-25: var(--destructive-1000);
+	--destructive-step-50: var(--destructive-950);
+	--destructive-step-100: var(--destructive-900);
+	--destructive-step-200: var(--destructive-800);
+	--destructive-step-300: var(--destructive-700);
+	--destructive-step-400: var(--destructive-600);
+	--destructive-step-500: var(--destructive-500);
+	--destructive-step-600: var(--destructive-400);
+	--destructive-step-700: var(--destructive-300);
+	--destructive-step-800: var(--destructive-200);
+	--destructive-step-900: var(--destructive-100);
+	--destructive-step-950: var(--destructive-50);
+	--destructive-step-1000: var(--destructive-25);
+
+	--card: var(--neutral-step-50);
+	--popover: var(--neutral-step-50);
+	--secondary: var(--neutral-step-100);
+	--secondary-foreground: var(--neutral-step-900);
+	/* --muted: var(--neutral-step-100);
+	--muted-foreground: var(--neutral-step-500);
+	--accent: var(--neutral-step-100);
+	--accent-foreground: var(--neutral-step-900);
+	--border: var(--neutral-step-200);
+	--border-primary: var(--primary-step-200);
+	--border-caution: var(--caution-step-200);
+	--border-constructive: var(--constructive-step-200);
+	--border-destructive: var(--destructive-step-200); */
+	--input: var(--neutral-step-100);
+	--ring: var(--neutral-step-500);
+	--sidebar-ring: var(--neutral-step-500);
+}
+
+@theme inline {
+	--color-neutral-50: var(--neutral-step-50);
+	--color-neutral-100: var(--neutral-step-100);
+	--color-neutral-200: var(--neutral-step-200);
+	--color-neutral-300: var(--neutral-step-300);
+	--color-neutral-400: var(--neutral-step-400);
+	--color-neutral-500: var(--neutral-step-500);
+	--color-neutral-600: var(--neutral-step-600);
+	--color-neutral-700: var(--neutral-step-700);
+	--color-neutral-800: var(--neutral-step-800);
+	--color-neutral-900: var(--neutral-step-900);
+	--color-neutral-950: var(--neutral-step-950);
+	--color-neutral-1000: var(--neutral-step-1000);
+
+	--color-neutral: var(--neutral);
+	--color-neutral-foreground: var(--neutral-foreground);
+
+	--color-primary-25: var(--primary-step-25);
+	--color-primary-50: var(--primary-step-50);
+	--color-primary-100: var(--primary-step-100);
+	--color-primary-200: var(--primary-step-200);
+	--color-primary-300: var(--primary-step-300);
+	--color-primary-400: var(--primary-step-400);
+	--color-primary-500: var(--primary-step-500);
+	--color-primary-600: var(--primary-step-600);
+	--color-primary-700: var(--primary-step-700);
+	--color-primary-800: var(--primary-step-800);
+	--color-primary-900: var(--primary-step-900);
+	--color-primary-950: var(--primary-step-950);
+	--color-primary-1000: var(--primary-step-1000);
+
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+
+	--color-caution-25: var(--caution-step-25);
+	--color-caution-50: var(--caution-step-50);
+	--color-caution-100: var(--caution-step-100);
+	--color-caution-200: var(--caution-step-200);
+	--color-caution-300: var(--caution-step-300);
+	--color-caution-400: var(--caution-step-400);
+	--color-caution-500: var(--caution-step-500);
+	--color-caution-600: var(--caution-step-600);
+	--color-caution-700: var(--caution-step-700);
+	--color-caution-800: var(--caution-step-800);
+	--color-caution-900: var(--caution-step-900);
+	--color-caution-950: var(--caution-step-950);
+	--color-caution-1000: var(--caution-step-1000);
+
+	--color-caution: var(--caution);
+	--color-caution-foreground: var(--caution-foreground);
+
+	--color-constructive-25: var(--constructive-step-25);
+	--color-constructive-50: var(--constructive-step-50);
+	--color-constructive-100: var(--constructive-step-100);
+	--color-constructive-200: var(--constructive-step-200);
+	--color-constructive-300: var(--constructive-step-300);
+	--color-constructive-400: var(--constructive-step-400);
+	--color-constructive-500: var(--constructive-step-500);
+	--color-constructive-600: var(--constructive-step-600);
+	--color-constructive-700: var(--constructive-step-700);
+	--color-constructive-800: var(--constructive-step-800);
+	--color-constructive-900: var(--constructive-step-900);
+	--color-constructive-950: var(--constructive-step-950);
+	--color-constructive-1000: var(--constructive-step-1000);
+
+	--color-constructive: var(--constructive);
+	--color-constructive-foreground: var(--constructive-foreground);
+
+	--color-destructive-25: var(--destructive-step-25);
+	--color-destructive-50: var(--destructive-step-50);
+	--color-destructive-100: var(--destructive-step-100);
+	--color-destructive-200: var(--destructive-step-200);
+	--color-destructive-300: var(--destructive-step-300);
+	--color-destructive-400: var(--destructive-step-400);
+	--color-destructive-500: var(--destructive-step-500);
+	--color-destructive-600: var(--destructive-step-600);
+	--color-destructive-700: var(--destructive-step-700);
+	--color-destructive-800: var(--destructive-step-800);
+	--color-destructive-900: var(--destructive-step-900);
+	--color-destructive-950: var(--destructive-step-950);
+	--color-destructive-1000: var(--destructive-step-1000);
+
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+
+	--container-8xl: 96rem;
+	--breakpoint-3xl: 1600px;
+	--breakpoint-4xl: 2000px;
+	--font-sans: var(--font-sans);
+	--font-heading: var(--font-heading);
+	--font-serif: var(--font-serif);
+	--font-mono: var(--font-mono);
+	--radius-sm: calc(var(--radius) * 0.6);
+	--radius-md: calc(var(--radius) * 0.8);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) * 1.4);
+	--radius-2xl: calc(var(--radius) * 1.8);
+	--radius-3xl: calc(var(--radius) * 2.2);
+	--radius-4xl: calc(var(--radius) * 2.6);
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-neutral: var(--neutral);
+	--color-neutral-foreground: var(--neutral-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-border: var(--border);
+	--color-border-primary: var(--border-primary);
+	--color-border-caution: var(--border-caution);
+	--color-border-constructive: var(--border-constructive);
+	--color-border-destructive: var(--border-destructive);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
+	--color-surface: var(--surface);
+	--color-surface-foreground: var(--surface-foreground);
+	--color-code: var(--code);
+	--color-code-foreground: var(--code-foreground);
+	--color-code-highlight: var(--code-highlight);
+	--color-code-number: var(--code-number);
+	--color-selection: var(--selection);
+	--color-selection-foreground: var(--selection-foreground);
+
+	--ease-hover: ease; /* hover / color feedback */
+	--ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1); /* entrances & exits */
+	--ease-in-out-strong: cubic-bezier(
+		0.77,
+		0,
+		0.175,
+		1
+	); /* on-screen movement */
+
+	--animate-shiny-text: shiny-text 8s infinite;
+
+	@keyframes shiny-text {
+		0%,
+		90%,
+		100% {
+			background-position: calc(-100% - var(--shiny-width)) 0;
+		}
+		30%,
+		60% {
+			background-position: calc(100% + var(--shiny-width)) 0;
+		}
+	}
+
+	--animate-gradient: gradient 8s linear infinite;
+
+	@keyframes gradient {
+		to {
+			background-position: var(--bg-size, 300%) 0;
+		}
+	}
+
+	--animate-aurora: aurora 8s ease-in-out infinite alternate;
+
+	@keyframes aurora {
+		0% {
+			background-position: 0% 50%;
+			transform: rotate(-5deg) scale(0.9);
+		}
+		25% {
+			background-position: 50% 100%;
+			transform: rotate(5deg) scale(1.1);
+		}
+		50% {
+			background-position: 100% 50%;
+			transform: rotate(-3deg) scale(0.95);
+		}
+		75% {
+			background-position: 50% 0%;
+			transform: rotate(3deg) scale(1.05);
+		}
+		100% {
+			background-position: 0% 50%;
+			transform: rotate(-5deg) scale(0.9);
+		}
+	}
+
+	--animate-shine: shine var(--duration) infinite linear;
+
+	@keyframes shine {
+		0% {
+			background-position: 0% 0%;
+		}
+		50% {
+			background-position: 100% 100%;
+		}
+		to {
+			background-position: 0% 0%;
+		}
+	}
+}
+
+/* Store Admin status aliases (public-only convenience; map to semantic ramps) */
+:root {
+	--status-success: var(--constructive-step-600);
+	--status-success-bg: var(--constructive-step-50);
+	--status-warning: var(--caution-step-600);
+	--status-warning-bg: var(--caution-step-50);
+	--status-danger: var(--destructive-step-600);
+	--status-danger-bg: var(--destructive-step-50);
+	--status-info: var(--primary-step-600);
+	--status-info-bg: var(--primary-step-50);
+}
+.dark {
+	--status-success: var(--constructive-step-400);
+	--status-success-bg: var(--constructive-step-900);
+	--status-warning: var(--caution-step-400);
+	--status-warning-bg: var(--caution-step-900);
+	--status-danger: var(--destructive-step-400);
+	--status-danger-bg: var(--destructive-step-900);
+	--status-info: var(--primary-step-400);
+	--status-info-bg: var(--primary-step-900);
+}
+@theme inline {
+	--color-status-success: var(--status-success);
+	--color-status-success-bg: var(--status-success-bg);
+	--color-status-warning: var(--status-warning);
+	--color-status-warning-bg: var(--status-warning-bg);
+	--color-status-danger: var(--status-danger);
+	--color-status-danger-bg: var(--status-danger-bg);
+	--color-status-info: var(--status-info);
+	--color-status-info-bg: var(--status-info-bg);
+}

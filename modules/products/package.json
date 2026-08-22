@@ -78,7 +78,9 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-app/core": "workspace:*",
+		"@tanstack/react-form": "1.33.5",
+		"@tanstack/react-table": "9.1.2"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

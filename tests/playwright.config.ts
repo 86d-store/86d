@@ -60,6 +60,7 @@ export default defineConfig({
 				"dashboard.spec.ts",
 				"accessibility.spec.ts",
 				"performance.spec.ts",
+				"merchant-ui-fixtures.spec.ts",
 			],
 			use: {
 				...devices["Desktop Chrome"],
