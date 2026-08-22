@@ -72,10 +72,11 @@ describe("store endpoint: create import", () => {
 		});
 
 		expect("job" in result).toBe(true);
-		if ("job" in result) {
-			expect(result.job.status).toBe("pending");
-			expect(result.job.type).toBe("products");
+		if (!("job" in result)) {
+			throw new Error("expected 'job' in result");
 		}
+		expect(result.job.status).toBe("pending");
+		expect(result.job.type).toBe("products");
 	});
 });
 
@@ -97,9 +98,10 @@ describe("store endpoint: get import", () => {
 		const result = await simulateGetImport(data, job.id);
 
 		expect("job" in result).toBe(true);
-		if ("job" in result) {
-			expect(result.job.type).toBe("orders");
+		if (!("job" in result)) {
+			throw new Error("expected 'job' in result");
 		}
+		expect(result.job.type).toBe("orders");
 	});
 
 	it("returns 404 for nonexistent import", async () => {
@@ -123,10 +125,11 @@ describe("store endpoint: create export", () => {
 		});
 
 		expect("job" in result).toBe(true);
-		if ("job" in result) {
-			expect(result.job.status).toBe("pending");
-			expect(result.job.format).toBe("csv");
+		if (!("job" in result)) {
+			throw new Error("expected 'job' in result");
 		}
+		expect(result.job.status).toBe("pending");
+		expect(result.job.format).toBe("csv");
 	});
 });
 
@@ -147,9 +150,10 @@ describe("store endpoint: get export", () => {
 		const result = await simulateGetExport(data, job.id);
 
 		expect("job" in result).toBe(true);
-		if ("job" in result) {
-			expect(result.job.type).toBe("customers");
+		if (!("job" in result)) {
+			throw new Error("expected 'job' in result");
 		}
+		expect(result.job.type).toBe("customers");
 	});
 
 	it("returns 404 for nonexistent export", async () => {

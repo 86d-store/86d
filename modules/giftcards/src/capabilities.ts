@@ -1,10 +1,8 @@
 import { provideCapability } from "@86d-app/core/capabilities";
 import { giftCardCheckoutCapability } from "@86d-app/core/commerce-capabilities";
-import type { z } from "@86d-app/core/zod";
+import type { z } from "zod";
 import type { GiftCardController } from "./service";
 import { createGiftCardController } from "./service-impl";
-
-export { giftCardCheckoutCapability };
 
 type GiftCardCheckoutRequest = z.infer<
 	typeof giftCardCheckoutCapability.request

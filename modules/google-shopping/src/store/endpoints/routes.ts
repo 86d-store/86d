@@ -1,7 +1,4 @@
 import { createGoogleShoppingWebhook } from "./webhooks";
-
-export { createGoogleShoppingWebhook };
-
 export function createStoreEndpoints(webhookSecret?: string | undefined) {
 	const webhookEndpoint = createGoogleShoppingWebhook(webhookSecret);
 	return {

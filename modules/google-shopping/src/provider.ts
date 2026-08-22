@@ -105,9 +105,7 @@ export class GoogleShoppingProvider {
 		const json = (await res.json()) as T | GoogleApiErrorResponse;
 		if (!res.ok) {
 			const err = json as GoogleApiErrorResponse;
-			throw new Error(
-				`Google Shopping API error: ${err.error?.message ?? `HTTP ${res.status}`}`,
-			);
+			throw new Error(`Google Shopping API error: ${err.error.message}`);
 		}
 		return json as T;
 	}

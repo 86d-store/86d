@@ -213,8 +213,8 @@ export function ImportDetail({
 					</h3>
 				</div>
 				<div className="max-h-80 divide-y divide-border overflow-y-auto">
-					{job.errors.map((err, i) => (
-						<div key={`${err.row}-${i}`} className="px-5 py-3">
+					{job.errors.map((err, _i) => (
+						<div key={err.id} className="px-5 py-3">
 							<div className="flex items-start justify-between">
 								<div>
 									<span className="font-medium text-foreground text-sm">

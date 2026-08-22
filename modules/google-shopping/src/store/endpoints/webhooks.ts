@@ -87,27 +87,25 @@ export function createGoogleShoppingWebhook(
 				);
 			}
 
-			const controller = ctx.context?.controllers?.[
-				"google-shopping"
-			] as GoogleShoppingController;
+			const controller = ctx.context?.controllers?.["google-shopping"];
 			if (!controller) {
 				return Response.json({ received: true, handled: false });
 			}
+			const googleShopping = controller as GoogleShoppingController;
 
 			const { type, payload } = body;
 
 			switch (type) {
 				case "order.created": {
 					if (!payload.googleOrderId) return Response.json({ received: true });
-					const order = await controller.receiveOrder({
+					const order = await googleShopping.receiveOrder({
 						googleOrderId: payload.googleOrderId as string,
-						items: (payload.items as unknown[]) ?? [],
-						subtotal: (payload.subtotal as number) ?? 0,
-						shippingCost: (payload.shippingCost as number) ?? 0,
-						tax: (payload.tax as number) ?? 0,
-						total: (payload.total as number) ?? 0,
-						shippingAddress:
-							(payload.shippingAddress as Record<string, unknown>) ?? {},
+						items: payload.items as unknown[],
+						subtotal: payload.subtotal as number,
+						shippingCost: payload.shippingCost as number,
+						tax: payload.tax as number,
+						total: payload.total as number,
+						shippingAddress: payload.shippingAddress as Record<string, unknown>,
 					});
 					return Response.json({
 						received: true,

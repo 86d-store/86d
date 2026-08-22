@@ -30,7 +30,7 @@ export function GiftCardBalance() {
 		try {
 			const res = await api.check.fetch({ code: code.trim().toUpperCase() });
 			const data = res as Record<string, unknown>;
-			if (data?.error) {
+			if (data.error) {
 				setError(String(data.error));
 			} else {
 				setResult({

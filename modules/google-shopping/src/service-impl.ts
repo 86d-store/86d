@@ -140,7 +140,7 @@ export function createGoogleShoppingController(
 				where: { localProductId },
 				take: 1,
 			});
-			return (matches[0] as unknown as ProductFeedItem) ?? null;
+			return matches[0] as unknown as ProductFeedItem;
 		},
 
 		async listFeedItems(params) {
@@ -277,7 +277,7 @@ export function createGoogleShoppingController(
 				orderBy: { createdAt: "desc" },
 				take: 1,
 			});
-			return (all[0] as unknown as FeedSubmission) ?? null;
+			return all[0] as unknown as FeedSubmission;
 		},
 
 		async listSubmissions(params) {
@@ -483,7 +483,7 @@ export function createGoogleShoppingController(
 
 			for (const item of items) {
 				statusMap.set(item.status, (statusMap.get(item.status) ?? 0) + 1);
-				for (const reason of item.disapprovalReasons ?? []) {
+				for (const reason of item.disapprovalReasons) {
 					reasonMap.set(reason, (reasonMap.get(reason) ?? 0) + 1);
 				}
 			}
