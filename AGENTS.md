@@ -8,6 +8,18 @@ Bun monorepo orchestrated by Turborepo. TypeScript everywhere, strict mode.
 
 In the full workspace, read `../prd/README.md` before changing product behavior, ownership, payments, Checkout, Fulfillment, managed credentials, Modules, or agent surfaces. It defines target behavior. This file and the code describe current implementation. When they differ, implement an explicit migration and preserve standalone operation.
 
+## Required gates (every slice)
+
+GitHub Setup, Release, and e2e all run `bun install`, which runs `postinstall` → `bun run generate:modules -- --frozen`. If `apps/registry/registry.lock.json` does not match the current Module trees, **every** workflow dies in Setup. This is a gate for all work in this repo, not a CI-only afterthought.
+
+- The lock hashes each Module's source subtree (including `__tests__`). Editing a webhook test, fixture, or `package.json` invalidates that Module's integrity.
+- After any change under `modules/`, run `bun run generate:modules` and **commit** the updated `apps/registry/registry.lock.json` in the same slice.
+- Before claiming the slice done, prove `bun run generate:modules -- --frozen` exits 0.
+- Lint-staged regenerates the lock when staged paths match `modules/**/*.{ts,tsx,json,md,mdx}`. Do not skip hooks. If you change modules outside that glob, regenerate the lock yourself.
+- `bun run bump-version` regenerates `apps/registry/registry.json` **and** the lock. Commit both.
+
+Do not treat local `bun run test` / `typecheck` as sufficient. A green local tree with a stale lock still fails GitHub.
+
 ## Get started
 
 ```bash
@@ -51,6 +63,7 @@ packages/
   cli/               CLI tool (dev, init, module, template, generate, status, doctor)
   registry/          Git-based module registry (resolve, fetch, cache)
   storage/           Storage abstraction (local FS, Vercel Blob, S3-compatible)
+  ui/                Shared merchant UI primitives, Console compositions, and data tables
   db/                Drizzle client singleton (lazy Pool; framework + core schema)
   auth/              Better Auth (sessions, admin role, 86d.app SSO)
   emails/            Email templates: React components sent via the Resend SDK
@@ -116,7 +129,9 @@ Module packages use `"build": "86d module build"` (TypeScript → `dist/` plus n
 
 ## Registry
 
-`apps/registry/registry.json` carries per-Module metadata: description, version, category, `requires`, `hasStoreComponents`, `hasAdminComponents`, `hasStorePages`, `maturity`, `maturityEvidence`, `commit`, `subtreeIntegrity`, and integrity hash. The resolver loads the manifest locally or from `https://raw.githubusercontent.com/86d-app/86d/main/apps/registry/registry.json`, which is the canonical source. Never assume a local copy is authoritative. The fetcher retries with exponential backoff (maximum 3 attempts, 500 to 2,000 milliseconds). A wildcard includes all registry Modules plus local workspace Modules. `apps/registry/registry.lock.json` caches resolved versions and integrity hashes.
+`apps/registry/registry.json` carries per-Module metadata: description, version, category, `requires`, `hasStoreComponents`, `hasAdminComponents`, `hasStorePages`, `maturity`, `maturityEvidence`, `commit`, `subtreeIntegrity`, and integrity hash. The resolver loads the manifest locally or from `https://raw.githubusercontent.com/86d-app/86d/main/apps/registry/registry.json`, which is the canonical source. Never assume a local copy is authoritative. The fetcher retries with exponential backoff (maximum 3 attempts, 500 to 2,000 milliseconds). A wildcard includes all registry Modules plus local workspace Modules.
+
+`apps/registry/registry.lock.json` is the committed integrity snapshot for those resolutions. It is a **required work gate**: regenerate it with `bun run generate:modules` whenever Module source changes, commit it, then verify `bun run generate:modules -- --frozen`. See [Required gates](#required-gates-every-slice).
 
 ## Deployment modes
 
@@ -192,7 +207,7 @@ Every commit follows [Conventional Commits](https://www.conventionalcommits.org/
 
 **Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
 
-**Scopes:** `store`, `cli`, `core`, `runtime`, `sdk`, `registry`, `db`, `emails`, `env`, `lib`, `storage`, `utils`, `modules`, `ci`, `deps`, `config`, `docs`, `repo`. Scope is the directory you changed (`packages/core/` → `core`, `apps/store/` → `store`, `modules/*` → `modules`); non-obvious mappings: `apps/registry/` and `packages/registry/` → `registry`, `.github/workflows/` → `ci`, lockfiles and dependency bumps → `deps`, `biome.json`/`turbo.json`/tsconfig → `config`, cross-cutting repo or hook changes → `repo`.
+**Scopes:** `store`, `cli`, `core`, `runtime`, `sdk`, `registry`, `db`, `emails`, `env`, `lib`, `storage`, `ui`, `utils`, `modules`, `ci`, `deps`, `config`, `docs`, `repo`. Scope is the directory you changed (`packages/core/` → `core`, `packages/ui/` → `ui`, `apps/store/` → `store`, `modules/*` → `modules`); non-obvious mappings: `apps/registry/` and `packages/registry/` → `registry`, `.github/workflows/` → `ci`, lockfiles and dependency bumps → `deps`, `biome.json`/`turbo.json`/tsconfig → `config`, cross-cutting repo or hook changes → `repo`.
 
 **Agent rules:**
 
@@ -205,13 +220,13 @@ Every commit follows [Conventional Commits](https://www.conventionalcommits.org/
 
 One shared version line covers the root `package.json`, the `86d` CLI, every publishable package and module, and every other workspace `package.json` that carries a version on that line (including private packages such as `db` and `auth`). `@86d-app/contracts` stays on that same line: its `package.json`, `CONTRACTS_PACKAGE_VERSION`, `generate:conformance` artifact version, and the private `vendor/` pin move together.
 
-**Default bump is minor.** After the work that warrants a release is committed, run `bun run bump-version` (minor). Use patch or major only when the operator names that kind. The script updates the shared line, regenerates `apps/registry/registry.json`, and self-skips if it already bumped within 24 hours (`--force` to override). Commit the result as `chore(repo): bump version to X.Y.Z`, then regenerate contracts and refresh the private vendor pin when contracts changed.
+**Default bump is minor.** After the work that warrants a release is committed, run `bun run bump-version` (minor). Use patch or major only when the operator names that kind. The script updates the shared line, regenerates `apps/registry/registry.json` and `apps/registry/registry.lock.json`, and self-skips if it already bumped within 24 hours (`--force` to override). Commit the result as `chore(repo): bump version to X.Y.Z`, then regenerate contracts and refresh the private vendor pin when contracts changed.
 
 A new package joins the current shared version on creation. Run `bun run bump-version` for every version change; do not hand-edit `version` fields or invent a second line for one package.
 
 **Release CI** (`.github/workflows/release.yml`) publishes on push to `main` when no pending `.changeset/` files remain and package versions are ahead of npm. The release script builds packages/modules, runs `bun run prepare-publish` (rewrites `workspace:*` / `catalog:` to semver and swaps `exports` to `publishConfig.exports` under `dist/`), gates with `prepare-publish --check` + `verify-publish-packs`, then `changeset publish`, then restores package.json backups. Auth is npm trusted publishing (OIDC): the job uses the `npm-publish` GitHub Environment, `id-token: write`, and matching trusted-publisher entries (org, repo, workflow `release.yml`, environment `npm-publish`). Do not restore long-lived publish tokens. Packages should require 2FA and disallow token publish.
 
-**Published tarball contract:** every publishable package ships compiled `dist/` (`.js` + `.d.ts`, plus copied non-TS assets such as `.mdx`). Workspace `exports` may still point at `./src` for local DX; npm consumers must resolve `./dist` only. Do not publish `src`, `__tests__`, `.turbo`, `vitest.config.ts`, `AGENTS.md`, or `tsconfig.json`. `@86d-app/contracts`, `@86d-app/registry`, and `@86d-app/storage` stay on the shared version line and publish whenever that version is ahead of npm (including first publish of a new package name).
+**Published tarball contract:** every publishable package ships compiled `dist/` (`.js` + `.d.ts`, plus copied non-TS assets such as `.mdx`). Workspace `exports` may still point at `./src` for local DX; npm consumers must resolve `./dist` only. Do not publish `src`, `__tests__`, `.turbo`, `vitest.config.ts`, `AGENTS.md`, or `tsconfig.json`. `@86d-app/contracts`, `@86d-app/registry`, `@86d-app/storage`, and `@86d-app/ui` stay on the shared version line and publish whenever that version is ahead of npm (including first publish of a new package name).
 
 ## Detailed docs
 
