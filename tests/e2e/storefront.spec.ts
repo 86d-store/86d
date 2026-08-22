@@ -251,7 +251,7 @@ test.describe("Storefront — Cart", () => {
 			.filter({ hasText: "Add to cart" });
 		const isInStock = await addButton.isVisible().catch(() => false);
 		if (!isInStock) {
-			test.skip(true, "First product is out of stock");
+			test(true, "First product is out of stock");
 			return;
 		}
 		/* Add to cart — capture the POST response */
@@ -290,7 +290,7 @@ test.describe("Storefront — Cart", () => {
 			.filter({ hasText: "Add to cart" });
 		const isInStock = await addButton.isVisible().catch(() => false);
 		if (!isInStock) {
-			test.skip(true, "First product is out of stock");
+			test(true, "First product is out of stock");
 			return;
 		}
 		await addButton.click();

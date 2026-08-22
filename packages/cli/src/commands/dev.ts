@@ -32,8 +32,6 @@ export async function dev(args: string[]) {
 		port = args[portIdx + 1];
 	}
 
-	console.log(`\n${c.bold("86d")} ${c.dim("dev")}\n`);
-
 	// Load .env files into process.env
 	const envVars = loadEnvFiles(root);
 
@@ -88,7 +86,6 @@ export async function dev(args: string[]) {
 	}
 
 	info(`Starting store on ${c.cyan(`http://localhost:${port || "3000"}`)}`);
-	console.log();
 
 	const child = spawn(cmd, cmdArgs, {
 		cwd: root,

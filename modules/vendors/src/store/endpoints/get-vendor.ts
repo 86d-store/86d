@@ -14,7 +14,7 @@ export const getVendor = createStoreEndpoint(
 		const controller = ctx.context.controllers.vendors as VendorController;
 
 		const vendor = await controller.getVendorBySlug(ctx.params.slug);
-		if (!vendor || vendor.status !== "active") {
+		if (vendor?.status !== "active") {
 			return { error: "Vendor not found", status: 404 };
 		}
 

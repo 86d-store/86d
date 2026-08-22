@@ -97,7 +97,7 @@ export function createQuoteController(
 
 		async submitQuote(id) {
 			const quote = (await data.get("quote", id)) as Quote | null;
-			if (!quote || quote.status !== "draft") return null;
+			if (quote?.status !== "draft") return null;
 
 			const items = (await data.findMany("quoteItem", {
 				where: { quoteId: id },
@@ -127,7 +127,7 @@ export function createQuoteController(
 
 		async acceptQuote(id) {
 			const quote = (await data.get("quote", id)) as Quote | null;
-			if (!quote || quote.status !== "countered") return null;
+			if (quote?.status !== "countered") return null;
 
 			if (quote.expiresAt && new Date() > new Date(quote.expiresAt)) {
 				return null;
@@ -156,7 +156,7 @@ export function createQuoteController(
 
 		async declineQuote(id, reason) {
 			const quote = (await data.get("quote", id)) as Quote | null;
-			if (!quote || quote.status !== "countered") return null;
+			if (quote?.status !== "countered") return null;
 
 			const now = new Date();
 			const updated = {
@@ -184,7 +184,7 @@ export function createQuoteController(
 
 		async addItem(params) {
 			const quote = (await data.get("quote", params.quoteId)) as Quote | null;
-			if (!quote || quote.status !== "draft") return null;
+			if (quote?.status !== "draft") return null;
 
 			const itemId = crypto.randomUUID();
 			const now = new Date();
@@ -222,7 +222,7 @@ export function createQuoteController(
 
 		async updateItem(quoteId, itemId, params) {
 			const quote = (await data.get("quote", quoteId)) as Quote | null;
-			if (!quote || quote.status !== "draft") return null;
+			if (quote?.status !== "draft") return null;
 
 			const item = (await data.get("quoteItem", itemId)) as QuoteItem | null;
 			if (!item || item.quoteId !== quoteId) return null;
@@ -256,7 +256,7 @@ export function createQuoteController(
 
 		async removeItem(quoteId, itemId) {
 			const quote = (await data.get("quote", quoteId)) as Quote | null;
-			if (!quote || quote.status !== "draft") return false;
+			if (quote?.status !== "draft") return false;
 
 			const item = (await data.get("quoteItem", itemId)) as QuoteItem | null;
 			if (!item || item.quoteId !== quoteId) return false;
@@ -331,7 +331,7 @@ export function createQuoteController(
 
 		async reviewQuote(id) {
 			const quote = (await data.get("quote", id)) as Quote | null;
-			if (!quote || quote.status !== "submitted") return null;
+			if (quote?.status !== "submitted") return null;
 
 			const now = new Date();
 			const updated = {
@@ -469,7 +469,7 @@ export function createQuoteController(
 
 		async convertToOrder(id, orderId) {
 			const quote = (await data.get("quote", id)) as Quote | null;
-			if (!quote || quote.status !== "accepted") return null;
+			if (quote?.status !== "accepted") return null;
 
 			const now = new Date();
 			const updated = {
@@ -489,7 +489,7 @@ export function createQuoteController(
 
 		async expireQuote(id) {
 			const quote = (await data.get("quote", id)) as Quote | null;
-			if (!quote || quote.status !== "countered") return null;
+			if (quote?.status !== "countered") return null;
 
 			const now = new Date();
 			const updated = {

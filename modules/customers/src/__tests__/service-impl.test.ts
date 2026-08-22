@@ -1303,7 +1303,7 @@ describe("createCustomerController", () => {
 
 	// --- Loyalty Points ---
 
-	describe.skip("getLoyaltyBalance", () => {
+	describe("getLoyaltyBalance", () => {
 		it("returns zero balance when no transactions exist", async () => {
 			const balance = await controller.getLoyaltyBalance("cust-1");
 			expect(balance.customerId).toBe("cust-1");
@@ -1357,7 +1357,7 @@ describe("createCustomerController", () => {
 		});
 	});
 
-	describe.skip("earnPoints", () => {
+	describe("earnPoints", () => {
 		it("creates an earn transaction with correct balance", async () => {
 			const tx = await controller.earnPoints({
 				customerId: "cust-earn",
@@ -1415,7 +1415,7 @@ describe("createCustomerController", () => {
 		});
 	});
 
-	describe.skip("redeemPoints", () => {
+	describe("redeemPoints", () => {
 		it("creates a redeem transaction with negative points", async () => {
 			await controller.earnPoints({
 				customerId: "cust-redeem",
@@ -1458,7 +1458,7 @@ describe("createCustomerController", () => {
 		});
 	});
 
-	describe.skip("adjustPoints", () => {
+	describe("adjustPoints", () => {
 		it("adjusts balance up with positive points", async () => {
 			const tx = await controller.adjustPoints({
 				customerId: "cust-adj",
@@ -1511,7 +1511,7 @@ describe("createCustomerController", () => {
 		});
 	});
 
-	describe.skip("getLoyaltyHistory", () => {
+	describe("getLoyaltyHistory", () => {
 		it("returns all transactions for customer", async () => {
 			await controller.earnPoints({
 				customerId: "cust-hist",
@@ -1572,7 +1572,7 @@ describe("createCustomerController", () => {
 		});
 	});
 
-	describe.skip("getLoyaltyStats", () => {
+	describe("getLoyaltyStats", () => {
 		it("returns zero stats when no transactions", async () => {
 			const stats = await controller.getLoyaltyStats();
 			expect(stats.totalCustomersWithPoints).toBe(0);

@@ -26,7 +26,7 @@ test.describe("Checkout — Full flow", () => {
 			.filter({ hasText: "Add to cart" });
 		const isInStock = await addButton.isVisible().catch(() => false);
 		if (!isInStock) {
-			test.skip(true, "First product is out of stock");
+			test(true, "First product is out of stock");
 			return;
 		}
 
@@ -83,7 +83,7 @@ test.describe("Checkout — Full flow", () => {
 			.filter({ hasText: "Add to cart" });
 		const isInStock = await addButton.isVisible().catch(() => false);
 		if (!isInStock) {
-			test.skip(true, "First product is out of stock");
+			test(true, "First product is out of stock");
 			return;
 		}
 		await addButton.click();
@@ -116,7 +116,7 @@ test.describe("Checkout — Full flow", () => {
 			.filter({ hasText: "Add to cart" });
 		const isInStock = await addButton.isVisible().catch(() => false);
 		if (!isInStock) {
-			test.skip(true, "First product is out of stock");
+			test(true, "First product is out of stock");
 			return;
 		}
 		await addButton.click();
@@ -169,7 +169,7 @@ test.describe("Checkout — Edge cases", () => {
 			.filter({ hasText: "Add to cart" });
 		const isInStock = await addButton.isVisible().catch(() => false);
 		if (!isInStock) {
-			test.skip(true, "First product is out of stock");
+			test(true, "First product is out of stock");
 			return;
 		}
 		await addButton.click();

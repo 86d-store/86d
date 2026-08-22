@@ -15,7 +15,7 @@ export const getPriceList = createStoreEndpoint(
 			.priceLists as PriceListController;
 
 		const priceList = await controller.getPriceListBySlug(ctx.params.slug);
-		if (!priceList || priceList.status !== "active") {
+		if (priceList?.status !== "active") {
 			return { error: "Price list not found", status: 404 };
 		}
 

@@ -66,7 +66,7 @@ async function simulateListPosts(
 async function simulateGetPost(data: DataService, slug: string) {
 	const controller = createBlogController(data);
 	const post = await controller.getPostBySlug(slug);
-	if (!post || post.status !== "published") return null;
+	if (post?.status !== "published") return null;
 	return post;
 }
 
@@ -106,7 +106,7 @@ async function simulateRelatedPosts(
 ) {
 	const controller = createBlogController(data);
 	const post = await controller.getPostBySlug(slug);
-	if (!post || post.status !== "published") return { posts: [] };
+	if (post?.status !== "published") return { posts: [] };
 	const related = await controller.getRelatedPosts(post.id, query.limit ?? 5);
 	return { posts: related };
 }
@@ -114,7 +114,7 @@ async function simulateRelatedPosts(
 async function simulateTrackView(data: DataService, slug: string) {
 	const controller = createBlogController(data);
 	const post = await controller.getPostBySlug(slug);
-	if (!post || post.status !== "published") return { success: false };
+	if (post?.status !== "published") return { success: false };
 	await controller.incrementViews(post.id);
 	return { success: true };
 }

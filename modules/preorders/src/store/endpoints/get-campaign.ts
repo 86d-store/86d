@@ -13,7 +13,7 @@ export const getCampaign = createStoreEndpoint(
 	async (ctx) => {
 		const controller = ctx.context.controllers.preorders as PreordersController;
 		const campaign = await controller.getCampaign(ctx.params.id);
-		if (!campaign || campaign.status !== "active") {
+		if (campaign?.status !== "active") {
 			return { campaign: null };
 		}
 		return { campaign };

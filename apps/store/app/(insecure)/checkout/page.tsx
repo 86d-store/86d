@@ -976,6 +976,7 @@ const CheckoutPage = observer(function CheckoutPage() {
 		createSessionMut,
 		updateSessionMut,
 		calcShippingMut,
+		track,
 	]);
 
 	// ── Select shipping and move to payment
@@ -1087,10 +1088,7 @@ const CheckoutPage = observer(function CheckoutPage() {
 		} finally {
 			co.setProcessing(false);
 		}
-	}, [
-		co,
-		client.module("checkout").store["/checkout/sessions/:id/payment/status"],
-	]);
+	}, [co, client.module]);
 
 	// ── PayPal approved → capture on server and advance
 	const handlePayPalCapture = useCallback(async () => {
@@ -1118,10 +1116,7 @@ const CheckoutPage = observer(function CheckoutPage() {
 			setError("Payment capture failed. Please try again.");
 			co.setProcessing(false);
 		}
-	}, [
-		co,
-		client.module("checkout").store["/checkout/sessions/:id/payment/capture"],
-	]);
+	}, [co, client.module]);
 
 	// ── Braintree nonce received → create transaction with the nonce
 	const handleBraintreeNonce = useCallback(

@@ -150,7 +150,7 @@ test.describe("Store Admin — Product Management", () => {
 		   networkidle is not sufficient here because the admin module chunk
 		   is fetched inside a useEffect — networkidle can fire before the
 		   chunk fetch starts. Wait for the table (or an error banner) instead. */
-		await admin.page.waitForSelector("table, .text-destructive", {
+		await admin.page.locator("table, .text-destructive").waitFor({
 			timeout: 20_000,
 		});
 		/* Should show at least one product from seed data or empty state */

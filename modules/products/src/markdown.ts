@@ -57,7 +57,7 @@ export async function toMarkdownProductDetail(
 			product: { getBySlug: (ctx: unknown) => Promise<Product | null> };
 		}
 	).product.getBySlug(withQuery(ctx, { slug }))) as Product | null;
-	if (!bySlug || bySlug.status !== "active") return null;
+	if (bySlug?.status !== "active") return null;
 
 	const product = (await (
 		ctx.controllers as {

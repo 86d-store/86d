@@ -46,7 +46,7 @@ export async function toMarkdownBlogPost(
 	if (!controller?.getPostBySlug) return null;
 
 	const post = await controller.getPostBySlug(slug);
-	if (!post || post.status !== "published") return null;
+	if (post?.status !== "published") return null;
 
 	let md = `# ${post.title}\n\n`;
 	if (post.author) md += `By ${post.author}\n\n`;

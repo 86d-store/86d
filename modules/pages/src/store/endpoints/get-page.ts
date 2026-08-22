@@ -11,7 +11,7 @@ export const getPageEndpoint = createStoreEndpoint(
 	async (ctx) => {
 		const controller = ctx.context.controllers.pages as PagesController;
 		const page = await controller.getPageBySlug(ctx.params.slug);
-		if (!page || page.status !== "published") {
+		if (page?.status !== "published") {
 			return { page: null };
 		}
 		return { page };

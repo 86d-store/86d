@@ -11,7 +11,7 @@ import { createCustomerController } from "../service-impl";
  * balance retrieval, history pagination, and isolation between customers.
  */
 
-describe.skip("store loyalty endpoints (controller layer)", () => {
+describe("store loyalty endpoints (controller layer)", () => {
 	let mockData: ReturnType<typeof createMockDataService>;
 	let controller: ReturnType<typeof createCustomerController>;
 

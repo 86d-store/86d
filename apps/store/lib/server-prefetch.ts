@@ -197,7 +197,7 @@ export const prefetchProductBySlug = cache(
 			take: 1,
 		});
 		const row = rows[0] as JsonData | undefined;
-		if (!row || row.status !== "active") return null;
+		if (row?.status !== "active") return null;
 
 		const product = toProduct(row);
 		const variantRows = await data.findMany("productVariant", {

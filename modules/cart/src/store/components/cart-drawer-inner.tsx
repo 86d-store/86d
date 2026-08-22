@@ -89,7 +89,7 @@ export const CartDrawerInner = observer(() => {
 		if (cartState.isDrawerOpen && awaitingCartSync) {
 			void cartRefetch();
 		}
-	}, [cartState.isDrawerOpen, awaitingCartSync, cartRefetch]);
+	}, [awaitingCartSync, cartRefetch]);
 
 	const handleRemove = (itemId: string) => {
 		const item = displayCart?.items.find((i) => i.id === itemId);

@@ -15,7 +15,7 @@ export const getSale = createStoreEndpoint(
 			.flashSales as FlashSaleController;
 
 		const sale = await controller.getFlashSaleBySlug(ctx.params.slug);
-		if (!sale || sale.status !== "active") {
+		if (sale?.status !== "active") {
 			return { error: "Flash sale not found", status: 404 };
 		}
 

@@ -90,7 +90,13 @@ export const CheckoutPayment = observer(() => {
 				},
 			},
 		);
-	}, [sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [
+		session?.paymentStatus,
+		payment,
+		session?.paymentIntentId, // Then create the payment intent
+		paymentMutation.mutate, // First confirm the session (validates fields, reserves inventory)
+		confirmMutation.mutate,
+	]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const handleRetry = () => {
 		if (!sessionId) return;

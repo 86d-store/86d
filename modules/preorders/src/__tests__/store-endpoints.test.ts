@@ -65,7 +65,7 @@ async function simulatePlacePreorder(
 	}
 	const controller = createPreordersController(data);
 	const campaign = await controller.getCampaign(body.campaignId);
-	if (!campaign || campaign.status !== "active") {
+	if (campaign?.status !== "active") {
 		return { error: "Campaign not found or not active", status: 404 };
 	}
 	const item = await controller.placePreorder({

@@ -37,7 +37,7 @@ async function simulateGetNavigation(data: DataService) {
 async function simulateGetPageBySlug(data: DataService, slug: string) {
 	const controller = createPagesController(data);
 	const page = await controller.getPageBySlug(slug);
-	if (!page || page.status !== "published") {
+	if (page?.status !== "published") {
 		return { error: "Page not found", status: 404 };
 	}
 	return { page };

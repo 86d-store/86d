@@ -19,7 +19,6 @@ export async function init(args: string[]) {
 	const root = findProjectRoot();
 
 	heading("Initializing 86d store");
-	console.log();
 
 	// 1. Copy .env.example if .env doesn't exist
 	const envPath = join(root, ".env");
@@ -86,7 +85,6 @@ export async function init(args: string[]) {
 		const reachable = await checkDbReachable(dbUrl);
 		if (reachable) {
 			info(`Database reachable`);
-			console.log();
 
 			// 5a. Migrations
 			const runMigrate = yes || (await confirm("Run database migrations?"));
@@ -115,7 +113,6 @@ export async function init(args: string[]) {
 					let adminPassword = "password123";
 
 					if (!yes && process.stdin.isTTY) {
-						console.log();
 						info("Set admin credentials (press Enter to use defaults)");
 						const inputEmail = await prompt(`Admin email [admin@86d.app]: `);
 						if (inputEmail.trim()) adminEmail = inputEmail.trim();
@@ -141,10 +138,6 @@ export async function init(args: string[]) {
 							adminEmail !== "admin@86d.app" ||
 							adminPassword !== "password123"
 						) {
-							console.log();
-							console.log(`  ${c.dim("Admin credentials:")}`);
-							console.log(`    Email:    ${c.cyan(adminEmail)}`);
-							console.log(`    Password: ${c.cyan("(as entered)")}`);
 						}
 					} catch {
 						warn("Seeding failed — retry with: bun run db:seed");
@@ -162,22 +155,10 @@ export async function init(args: string[]) {
 			);
 		}
 	} else {
-		console.log();
 		heading("Store initialized");
-		console.log();
-		console.log(`  Next steps:`);
-		console.log(`  ${c.dim("1.")} Set ${c.cyan("DATABASE_URL")} in .env`);
-		console.log(`  ${c.dim("2.")} Set ${c.cyan("STORE_ID")} in .env`);
-		console.log(`  ${c.dim("3.")} Run: ${c.bold("86d dev")}`);
-		console.log();
 		return;
 	}
-
-	console.log();
 	heading("Store initialized");
-	console.log();
-	console.log(`  Run: ${c.bold("86d dev")}`);
-	console.log();
 }
 
 function generateSecret(): string {

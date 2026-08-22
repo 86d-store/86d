@@ -11,7 +11,7 @@ export const getPostEndpoint = createStoreEndpoint(
 	async (ctx) => {
 		const controller = ctx.context.controllers.blog as BlogController;
 		const post = await controller.getPostBySlug(ctx.params.slug);
-		if (!post || post.status !== "published") {
+		if (post?.status !== "published") {
 			return { post: null };
 		}
 		return { post };

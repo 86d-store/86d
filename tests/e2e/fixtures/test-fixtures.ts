@@ -89,7 +89,7 @@ export class StorefrontPage {
 		await this.page.waitForLoadState("networkidle");
 	}
 
-	async addToCartFromDetail(quantity = 1) {
+	async addToCartFromDetail(_quantity = 1) {
 		const addButton = this.page
 			.locator("button")
 			.filter({ hasText: "Add to cart" });

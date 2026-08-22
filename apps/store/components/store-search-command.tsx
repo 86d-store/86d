@@ -122,7 +122,7 @@ export function StoreSearchCommand() {
 			if (data?.results) r.push(...data.results);
 		}
 		return { results: r, grouped: groupByGroup(r) };
-	}, [isLoading, isError, debouncedSearch]);
+	}, [contributorQueries]);
 
 	// Debounce search input (300ms)
 	useEffect(() => {

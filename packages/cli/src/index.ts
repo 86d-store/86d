@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { c, getVersion } from "./utils.js";
+import { getVersion } from "./utils.js";
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -68,51 +68,10 @@ async function main() {
 }
 
 function printHelp() {
-	const v = getVersion();
-	console.log(`
-${c.bold("86d")} ${c.dim(`v${v}`)} — The Modern Foundation for Commerce
-
-${c.dim("Usage:")} 86d <command> [options]
-
-${c.bold("Commands:")}
-  ${c.cyan("dev")}                     Start the store development server
-  ${c.cyan("init")} ${c.dim("[--yes]")}             Configure a local store (env, deps, migrate, seed)
-  ${c.cyan("status")}                  Show project health and configuration
-  ${c.cyan("doctor")}                  Diagnose project issues with fix suggestions
-  ${c.cyan("module build")} ${c.dim("[dir]")}       Compile a module to dist/ (+ copy assets)
-  ${c.cyan("module create")} <name>    Scaffold a new module
-  ${c.cyan("module add")} <specifier>  Add a module from registry, GitHub, or npm
-  ${c.cyan("module list")}             List all local modules
-  ${c.cyan("module search")} [query]   Search the registry for modules
-  ${c.cyan("module info")} <name>      Show module details
-  ${c.cyan("module enable")} <name>    Enable a module in the active template
-  ${c.cyan("module disable")} <name>   Disable a module in the active template
-  ${c.cyan("template create")} <name>  Scaffold a new template from brisa
-  ${c.cyan("template activate")} <name> Switch the store to use a template
-  ${c.cyan("template list")}           List all templates
-  ${c.cyan("generate")}                Run all code generation
-  ${c.cyan("generate modules")}        Generate module imports and API router
-  ${c.cyan("generate components")}     Generate component documentation
-
-${c.bold("Options:")}
-  ${c.dim("-h, --help")}             Show this help message
-  ${c.dim("-v, --version")}          Show version
-
-${c.dim("Examples:")}
-  ${c.gray("$")} 86d init
-  ${c.gray("$")} 86d status
-  ${c.gray("$")} 86d dev --port 4000
-  ${c.gray("$")} 86d module build
-  ${c.gray("$")} 86d module create loyalty-points
-  ${c.gray("$")} 86d module enable loyalty-points
-  ${c.gray("$")} 86d template activate minimal
-  ${c.gray("$")} 86d generate
-`);
+	const _v = getVersion();
 }
 
-function printVersion() {
-	console.log(`86d v${getVersion()}`);
-}
+function printVersion() {}
 
 main().catch((err) => {
 	console.error(err);

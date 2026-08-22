@@ -83,25 +83,17 @@ export const c = {
 	gray: (t: string) => ansi("90", t),
 };
 
-export function success(msg: string) {
-	console.log(`${c.green("✓")} ${msg}`);
-}
+export function success(_msg: string) {}
 
-export function warn(msg: string) {
-	console.log(`${c.yellow("!")} ${msg}`);
-}
+export function warn(_msg: string) {}
 
 export function error(msg: string) {
 	console.error(`${c.red("✗")} ${msg}`);
 }
 
-export function info(msg: string) {
-	console.log(`${c.blue("›")} ${msg}`);
-}
+export function info(_msg: string) {}
 
-export function heading(msg: string) {
-	console.log(`\n${c.bold(msg)}`);
-}
+export function heading(_msg: string) {}
 
 /**
  * Read and parse a JSON file, returning undefined on failure.

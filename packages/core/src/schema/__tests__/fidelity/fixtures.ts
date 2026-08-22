@@ -229,8 +229,7 @@ export const FIDELITY_FIXTURES: readonly FidelityFixture[] = [
 			assert: (table) => {
 				const status = table.columns.find((c) => c.name === "status");
 				if (
-					!status ||
-					status.enumValues?.length !== 3 ||
+					status?.enumValues?.length !== 3 ||
 					!status.checkConstraints.some((c) => c.includes("converted"))
 				) {
 					throw new Error("zod.enum.values fidelity failed");

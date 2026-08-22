@@ -31,7 +31,6 @@ export async function doctor(options: DoctorOptions = {}) {
 	let root: string | undefined;
 
 	heading("86d doctor");
-	console.log();
 
 	// 1. Runtime check
 	const nodeVersion = options.nodeVersion ?? process.versions.node;
@@ -355,34 +354,22 @@ export async function doctor(options: DoctorOptions = {}) {
 
 function printResults(checks: Check[]) {
 	for (const check of checks) {
-		const icon =
+		const _icon =
 			check.status === "pass"
 				? c.green("✓")
 				: check.status === "warn"
 					? c.yellow("!")
 					: c.red("✗");
-		const label = c.dim(`${check.label}:`);
-		const msg = check.status === "fail" ? c.red(check.message) : check.message;
-		console.log(`  ${icon} ${label} ${msg}`);
+		const _label = c.dim(`${check.label}:`);
+		const _msg = check.status === "fail" ? c.red(check.message) : check.message;
 		if (check.fix) {
-			console.log(`          ${c.dim(`Fix: ${check.fix}`)}`);
 		}
 	}
 
 	const fails = checks.filter((ch) => ch.status === "fail").length;
 	const warns = checks.filter((ch) => ch.status === "warn").length;
-
-	console.log();
 	if (fails === 0 && warns === 0) {
-		console.log(`  ${c.green("No issues found. Your project looks healthy.")}`);
 	} else if (fails === 0) {
-		console.log(
-			`  ${c.yellow(`${warns} warning${warns === 1 ? "" : "s"}`)} — project is functional but could be improved`,
-		);
 	} else {
-		console.log(
-			`  ${c.red(`${fails} error${fails === 1 ? "" : "s"}`)}${warns > 0 ? `, ${c.yellow(`${warns} warning${warns === 1 ? "" : "s"}`)}` : ""} — fix errors before running the store`,
-		);
 	}
-	console.log();
 }

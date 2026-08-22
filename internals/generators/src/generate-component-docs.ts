@@ -107,7 +107,7 @@ function findComponentFile(
 
 	// Convert PascalCase to kebab-case: ProductCard → product-card
 	const kebab = componentName
-		.replace(/([A-Z])/g, (m, letter, offset) =>
+		.replace(/([A-Z])/g, (_m, letter, offset) =>
 			offset > 0 ? `-${letter.toLowerCase()}` : letter.toLowerCase(),
 		)
 		.replace(/^-/, "");
@@ -306,7 +306,7 @@ function renderPropsTable(props: PropInfo[]): string {
 		return `| \`${p.name}\` | ${type} | ${p.optional ? "No" : "Yes"} | ${desc} |`;
 	});
 
-	return [header, divider, ...rows].join("\n") + "\n";
+	return `${[header, divider, ...rows].join("\n")}\n`;
 }
 
 /**

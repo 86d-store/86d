@@ -329,7 +329,7 @@ function SearchResults() {
 		if (urlQuery) input.search = urlQuery;
 		if (category) input.category = category;
 		return input;
-	}, [page, pageSize, sort, order, urlQuery, category]);
+	}, [page, sort, order, urlQuery, category]);
 
 	const {
 		data: productsData,

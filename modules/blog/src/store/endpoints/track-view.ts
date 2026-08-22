@@ -11,7 +11,7 @@ export const trackViewEndpoint = createStoreEndpoint(
 	async (ctx) => {
 		const controller = ctx.context.controllers.blog as BlogController;
 		const post = await controller.getPostBySlug(ctx.params.slug);
-		if (!post || post.status !== "published") {
+		if (post?.status !== "published") {
 			return { success: false };
 		}
 		await controller.incrementViews(post.id);

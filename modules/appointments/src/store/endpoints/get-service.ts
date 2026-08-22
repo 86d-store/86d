@@ -13,7 +13,7 @@ export const getService = createStoreEndpoint(
 			.appointments as AppointmentController;
 
 		const service = await controller.getServiceBySlug(ctx.params.slug);
-		if (!service || service.status !== "active") {
+		if (service?.status !== "active") {
 			return { error: "Service not found", status: 404 };
 		}
 

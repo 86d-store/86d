@@ -114,16 +114,12 @@ async function main(): Promise<void> {
 		);
 	}
 
-	const uniqueUrls = [...new Set(sources.map((s) => s.downloadUrl))];
-	console.log(
-		`Fetching ${uniqueUrls.length} unique URLs for ${sources.length} outputs…`,
-	);
+	const _uniqueUrls = [...new Set(sources.map((s) => s.downloadUrl))];
 
 	for (const entry of sources) {
 		const size = targetSizeForPath(entry.relativePath);
 		const buf = await downloadCached(entry.downloadUrl);
 		await writeWebp(entry.relativePath, buf, size);
-		console.log(`  wrote ${entry.relativePath} (${size.width}×${size.height})`);
 	}
 
 	const updated = manifest.map((row) => {
@@ -136,7 +132,6 @@ async function main(): Promise<void> {
 		};
 	});
 	writeFileSync(MANIFEST_PATH, `${JSON.stringify(updated, null, 2)}\n`, "utf8");
-	console.log(`\nUpdated ${MANIFEST_PATH}`);
 }
 
 main().catch((err: unknown) => {

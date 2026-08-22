@@ -44,7 +44,12 @@ export const ShippingOptions = observer((props: ShippingOptionsProps) => {
 		}
 		// Recalculate when inputs change
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [props.country, props.orderAmount, props.weight]);
+	}, [
+		props.country,
+		props.orderAmount,
+		props.weight,
+		calculateMutation.mutate,
+	]);
 
 	const rates: CalculatedRate[] =
 		(calculateMutation.data as { rates: CalculatedRate[] } | undefined)

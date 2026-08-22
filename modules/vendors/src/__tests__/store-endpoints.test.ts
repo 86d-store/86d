@@ -32,7 +32,7 @@ async function simulateListVendors(
 async function simulateGetVendor(data: DataService, slug: string) {
 	const controller = createVendorController(data);
 	const vendor = await controller.getVendorBySlug(slug);
-	if (!vendor || vendor.status !== "active") {
+	if (vendor?.status !== "active") {
 		return { error: "Vendor not found", status: 404 };
 	}
 	return { vendor };
@@ -45,7 +45,7 @@ async function simulateVendorProducts(
 ) {
 	const controller = createVendorController(data);
 	const vendor = await controller.getVendor(vendorId);
-	if (!vendor || vendor.status !== "active") {
+	if (vendor?.status !== "active") {
 		return { error: "Vendor not found", status: 404 };
 	}
 	const products = await controller.listVendorProducts({

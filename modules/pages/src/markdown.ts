@@ -36,7 +36,7 @@ export async function toMarkdownPageDetail(
 	if (!controller?.getPageBySlug) return null;
 
 	const page = await controller.getPageBySlug(slug);
-	if (!page || page.status !== "published") return null;
+	if (page?.status !== "published") return null;
 
 	let md = `# ${page.title}\n\n`;
 	if (page.excerpt) md += `${page.excerpt}\n\n`;

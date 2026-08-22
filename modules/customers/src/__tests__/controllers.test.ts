@@ -726,7 +726,7 @@ describe("customer controllers — edge cases & interactions", () => {
 
 	// ── Loyalty Points — complex interactions ────────────────────────
 
-	describe.skip("loyalty points — complex interactions", () => {
+	describe("loyalty points — complex interactions", () => {
 		it("balance starts at zero for any customer", async () => {
 			const customer = await createTestCustomer();
 			const balance = await controller.getLoyaltyBalance(customer.id);
@@ -986,7 +986,7 @@ describe("customer controllers — edge cases & interactions", () => {
 
 	// ── Loyalty History ──────────────────────────────────────────────
 
-	describe.skip("loyalty history — edge cases", () => {
+	describe("loyalty history — edge cases", () => {
 		it("history is empty for customer with no transactions", async () => {
 			const customer = await createTestCustomer();
 			const history = await controller.getLoyaltyHistory(customer.id);
@@ -1084,7 +1084,7 @@ describe("customer controllers — edge cases & interactions", () => {
 
 	// ── Loyalty Stats — complex scenarios ────────────────────────────
 
-	describe.skip("loyalty stats — complex scenarios", () => {
+	describe("loyalty stats — complex scenarios", () => {
 		it("stats are zero when no transactions exist", async () => {
 			const stats = await controller.getLoyaltyStats();
 			expect(stats.totalCustomersWithPoints).toBe(0);
