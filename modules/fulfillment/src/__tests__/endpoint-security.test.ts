@@ -322,7 +322,9 @@ describe("fulfillment endpoint security", () => {
 			await controller.cancelFulfillment(f2.id);
 
 			const results = await controller.listByOrder("order_1");
-			const statuses = results.map((f) => f.status).sort();
+			const statuses = results
+				.map((f) => f.status)
+				.sort((a, b) => a.localeCompare(b));
 			expect(statuses).toEqual(["cancelled", "shipped"]);
 		});
 

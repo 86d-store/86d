@@ -153,14 +153,15 @@ describe("store endpoint: get fulfillment", () => {
 		const result = await simulateGetFulfillment(controller, fulfillment.id);
 
 		expect("fulfillment" in result).toBe(true);
-		if ("fulfillment" in result) {
-			expect(result.fulfillment.id).toBe(fulfillment.id);
-			expect(result.fulfillment.orderId).toBe("order_abc");
-			expect(result.fulfillment.status).toBe("pending");
-			expect(result.fulfillment.items).toEqual([
-				{ lineItemId: "li_1", quantity: 3 },
-			]);
+		if (!("fulfillment" in result)) {
+			throw new Error("expected 'fulfillment' in result");
 		}
+		expect(result.fulfillment.id).toBe(fulfillment.id);
+		expect(result.fulfillment.orderId).toBe("order_abc");
+		expect(result.fulfillment.status).toBe("pending");
+		expect(result.fulfillment.items).toEqual([
+			{ lineItemId: "li_1", quantity: 3 },
+		]);
 	});
 
 	it("returns carrier and tracking when present", async () => {
@@ -172,10 +173,11 @@ describe("store endpoint: get fulfillment", () => {
 		const result = await simulateGetFulfillment(controller, fulfillment.id);
 
 		expect("fulfillment" in result).toBe(true);
-		if ("fulfillment" in result) {
-			expect(result.fulfillment.carrier).toBe("fedex");
-			expect(result.fulfillment.trackingNumber).toBe("TRACK123");
+		if (!("fulfillment" in result)) {
+			throw new Error("expected 'fulfillment' in result");
 		}
+		expect(result.fulfillment.carrier).toBe("fedex");
+		expect(result.fulfillment.trackingNumber).toBe("TRACK123");
 	});
 
 	it("returns shippedAt for shipped fulfillments", async () => {
@@ -186,10 +188,11 @@ describe("store endpoint: get fulfillment", () => {
 		const result = await simulateGetFulfillment(controller, fulfillment.id);
 
 		expect("fulfillment" in result).toBe(true);
-		if ("fulfillment" in result) {
-			expect(result.fulfillment.status).toBe("shipped");
-			expect(result.fulfillment.shippedAt).toBeDefined();
+		if (!("fulfillment" in result)) {
+			throw new Error("expected 'fulfillment' in result");
 		}
+		expect(result.fulfillment.status).toBe("shipped");
+		expect(result.fulfillment.shippedAt).toBeDefined();
 	});
 
 	it("returns deliveredAt for delivered fulfillments", async () => {
@@ -200,10 +203,11 @@ describe("store endpoint: get fulfillment", () => {
 		const result = await simulateGetFulfillment(controller, fulfillment.id);
 
 		expect("fulfillment" in result).toBe(true);
-		if ("fulfillment" in result) {
-			expect(result.fulfillment.status).toBe("delivered");
-			expect(result.fulfillment.deliveredAt).toBeDefined();
+		if (!("fulfillment" in result)) {
+			throw new Error("expected 'fulfillment' in result");
 		}
+		expect(result.fulfillment.status).toBe("delivered");
+		expect(result.fulfillment.deliveredAt).toBeDefined();
 	});
 
 	it("returns 404 when fulfillment does not exist", async () => {
@@ -649,8 +653,8 @@ describe("controller: autoShipOnTracking", () => {
 	});
 
 	it("auto-transitions pending to shipped when tracking is added", async () => {
-		const controller = createFulfillmentController(data, undefined, {
-			autoShipOnTracking: true,
+		const controller = createFulfillmentController(data, {
+			options: { autoShipOnTracking: true },
 		});
 		const fulfillment = await controller.createFulfillment({
 			orderId: "order_1",
@@ -667,8 +671,8 @@ describe("controller: autoShipOnTracking", () => {
 	});
 
 	it("auto-transitions processing to shipped when tracking is added", async () => {
-		const controller = createFulfillmentController(data, undefined, {
-			autoShipOnTracking: true,
+		const controller = createFulfillmentController(data, {
+			options: { autoShipOnTracking: true },
 		});
 		const fulfillment = await controller.createFulfillment({
 			orderId: "order_1",
@@ -686,8 +690,8 @@ describe("controller: autoShipOnTracking", () => {
 	});
 
 	it("does not auto-transition shipped fulfillment (already shipped)", async () => {
-		const controller = createFulfillmentController(data, undefined, {
-			autoShipOnTracking: true,
+		const controller = createFulfillmentController(data, {
+			options: { autoShipOnTracking: true },
 		});
 		const fulfillment = await controller.createFulfillment({
 			orderId: "order_1",
@@ -705,8 +709,8 @@ describe("controller: autoShipOnTracking", () => {
 	});
 
 	it("does not auto-transition when autoShipOnTracking is false", async () => {
-		const controller = createFulfillmentController(data, undefined, {
-			autoShipOnTracking: false,
+		const controller = createFulfillmentController(data, {
+			options: { autoShipOnTracking: false },
 		});
 		const fulfillment = await controller.createFulfillment({
 			orderId: "order_1",

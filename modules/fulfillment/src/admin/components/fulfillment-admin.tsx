@@ -407,10 +407,12 @@ export function FulfillmentAdmin() {
 							</thead>
 							<tbody className="divide-y divide-border">
 								{loading ? (
-									Array.from({ length: 3 }).map((_, i) => (
-										<tr key={`skeleton-${i}`}>
-											{Array.from({ length: 7 }).map((_, j) => (
-												<td key={`skeleton-cell-${j}`} className="px-4 py-3">
+									(["k0", "k1", "k2"] as const).map((_key) => (
+										<tr key={rowKey}>
+											{(
+												["k0", "k1", "k2", "k3", "k4", "k5", "k6"] as const
+											).map((_key) => (
+												<td key={cellKey} className="px-4 py-3">
 													<div className="h-4 w-20 animate-pulse rounded bg-muted" />
 												</td>
 											))}

@@ -60,7 +60,7 @@ function formatNumber(n: number): string {
 function extractError(err: unknown): string {
 	if (err && typeof err === "object" && "body" in err) {
 		const body = (err as { body: { message?: string } }).body;
-		return body?.message ?? "An error occurred";
+		return body.message ?? "An error occurred";
 	}
 	return "An error occurred";
 }
@@ -167,8 +167,8 @@ export function GameList() {
 
 	const gameListContent = gamesLoading ? (
 		<div className="animate-pulse divide-y divide-border">
-			{Array.from({ length: 4 }).map((_, i) => (
-				<div key={i} className="flex items-center justify-between px-5 py-3">
+			{(["k0", "k1", "k2", "k3"] as const).map((key) => (
+				<div key={key} className="flex items-center justify-between px-5 py-3">
 					<div>
 						<div className="h-4 w-36 rounded bg-muted" />
 						<div className="mt-1.5 h-3 w-48 rounded bg-muted" />

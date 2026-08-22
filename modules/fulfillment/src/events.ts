@@ -1,5 +1,5 @@
 import { defineDurableEvent } from "@86d-app/core/durable-events";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 
 /** Authoritative delivery obligation accepted against immutable Order lines. */
 export const fulfillmentCreatedV1 = defineDurableEvent({

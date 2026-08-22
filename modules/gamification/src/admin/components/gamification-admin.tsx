@@ -31,7 +31,7 @@ function formatDate(iso: string): string {
 function extractError(err: unknown): string {
 	if (err && typeof err === "object" && "body" in err) {
 		const body = (err as { body: { message?: string } }).body;
-		return body?.message ?? "An error occurred";
+		return body.message ?? "An error occurred";
 	}
 	return "An error occurred";
 }
@@ -161,9 +161,9 @@ export function GamificationAdmin() {
 	const tableContent = isLoading ? (
 		<div className="animate-pulse px-5 py-3">
 			<div className="mb-3 h-8 w-full rounded bg-muted" />
-			{Array.from({ length: 5 }).map((_, i) => (
+			{(["k0", "k1", "k2", "k3", "k4"] as const).map((key) => (
 				<div
-					key={i}
+					key={key}
 					className="flex items-center gap-4 border-border border-t py-3"
 				>
 					<div className="h-4 w-36 rounded bg-muted" />

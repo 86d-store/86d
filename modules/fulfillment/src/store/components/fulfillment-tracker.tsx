@@ -1,6 +1,6 @@
 "use client";
 
-import { observer } from "@86d-app/core/state";
+import { observer } from "mobx-react-lite";
 import type { FulfillmentStatus } from "../../service";
 import {
 	formatDateTime,

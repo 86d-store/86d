@@ -11,7 +11,6 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { FulfillmentAuthorityError } from "./authority";
 import { fulfillmentCreatedV1 } from "./events";
 import { fulfillmentStorage } from "./schema";
 import { createFulfillmentController } from "./service-impl";
@@ -24,7 +23,6 @@ export type {
 	FulfillmentItem,
 	FulfillmentStatus,
 } from "./service";
-export { FulfillmentAuthorityError, fulfillmentCreatedV1 };
 
 export interface FulfillmentOptions extends ModuleConfig {
 	/** Auto-transition to "shipped" when tracking is added */
@@ -58,15 +56,14 @@ export default function fulfillment(options?: FulfillmentOptions): Module {
 		// in-memory event above remains compatibility notification only.
 		durableEvents: { emits: [fulfillmentCreatedV1] },
 		init: async (ctx: ModuleContext) => {
-			const controller = createFulfillmentController(
-				ctx.data,
-				ctx.events,
-				{
+			const controller = createFulfillmentController(ctx.data, {
+				events: ctx.events,
+				options: {
 					autoShipOnTracking: options?.autoShipOnTracking,
 				},
-				ctx.capabilities,
-				ctx.transactions,
-			);
+				capabilities: ctx.capabilities,
+				transactions: ctx.transactions,
+			});
 			return { controllers: { fulfillment: controller } };
 		},
 		endpoints: {

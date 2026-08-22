@@ -4,7 +4,7 @@ import type {
 	ModuleDataTransaction,
 	ModuleTransactionRunner,
 } from "@86d-app/core/durable-events";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import { fulfillmentCreatedV1 } from "./events";
 import type { Fulfillment, FulfillmentItem } from "./service";
 

@@ -34,11 +34,10 @@ export function createTestFulfillmentController(
 	events?: ScopedEventEmitter | undefined,
 	options?: FulfillmentControllerOptions | undefined,
 ) {
-	return createFulfillmentController(
-		data,
+	return createFulfillmentController(data, {
 		events,
 		options,
-		orderLineAuthority,
-		createMockTransactionRunner({ data }),
-	);
+		capabilities: orderLineAuthority,
+		transactions: createMockTransactionRunner({ data }),
+	});
 }

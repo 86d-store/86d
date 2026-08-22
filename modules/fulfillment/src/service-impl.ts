@@ -24,13 +24,21 @@ export interface FulfillmentControllerOptions {
 	autoShipOnTracking?: boolean | undefined;
 }
 
+export interface FulfillmentControllerDeps {
+	events?: ScopedEventEmitter | undefined;
+	options?: FulfillmentControllerOptions | undefined;
+	capabilities?: OrderLineQuantityAuthority | undefined;
+	transactions?: ModuleTransactionRunner | undefined;
+}
+
 export function createFulfillmentController(
 	data: ModuleDataService,
-	events?: ScopedEventEmitter | undefined,
-	options?: FulfillmentControllerOptions | undefined,
-	capabilities?: OrderLineQuantityAuthority | undefined,
-	transactions?: ModuleTransactionRunner | undefined,
+	deps?: FulfillmentControllerDeps | undefined,
 ): FulfillmentController {
+	const events = deps?.events;
+	const options = deps?.options;
+	const capabilities = deps?.capabilities;
+	const transactions = deps?.transactions;
 	return {
 		async createFulfillment(params): Promise<Fulfillment> {
 			const fulfillment = await createAuthoritativeFulfillment({
