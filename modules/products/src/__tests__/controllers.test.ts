@@ -1783,7 +1783,9 @@ describe("import controllers", () => {
 			const stored = (await data.findMany("product", {
 				where: {},
 			})) as Product[];
-			const slugs = stored.map((p) => p.slug).sort();
+			const slugs = stored
+				.map((p) => p.slug)
+				.sort((a, b) => a.localeCompare(b));
 			expect(slugs).toContain("same-name");
 			expect(slugs).toContain("same-name-1");
 		});

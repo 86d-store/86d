@@ -682,7 +682,7 @@ export function ProductDetail(props: ProductDetailProps) {
 														{Object.entries(variant.options).map(
 															([key, value]) => (
 																<span
-																	key={key}
+																	key={rowKey}
 																	className="rounded-full border border-border px-2 py-0.5 text-muted-foreground text-xs"
 																>
 																	{key}: {value}

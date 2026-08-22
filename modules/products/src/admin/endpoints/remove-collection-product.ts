@@ -1,5 +1,5 @@
 import { createAdminEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 
 export const removeCollectionProduct = createAdminEndpoint(
 	"/admin/products/collections/:id/products/:productId/remove",

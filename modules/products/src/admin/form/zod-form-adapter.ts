@@ -1,4 +1,4 @@
-import type { z } from "@86d-app/core/zod";
+import type { z } from "zod";
 
 export function createZodFormAdapter<TSchema extends z.ZodType>(
 	schema: TSchema,

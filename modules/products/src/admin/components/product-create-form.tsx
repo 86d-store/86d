@@ -139,7 +139,7 @@ export function ProductCreateForm({ onNavigate }: ProductCreateFormProps) {
 											<p className="mt-1 text-destructive text-xs">
 												{String(
 													(field.state.meta.errors[0] as { message?: string })
-														?.message ?? field.state.meta.errors[0],
+														.message ?? field.state.meta.errors[0],
 												)}
 											</p>
 										) : null}
@@ -174,7 +174,7 @@ export function ProductCreateForm({ onNavigate }: ProductCreateFormProps) {
 											<p className="mt-1 text-destructive text-xs">
 												{String(
 													(field.state.meta.errors[0] as { message?: string })
-														?.message ?? field.state.meta.errors[0],
+														.message ?? field.state.meta.errors[0],
 												)}
 											</p>
 										) : null}
@@ -267,7 +267,7 @@ export function ProductCreateForm({ onNavigate }: ProductCreateFormProps) {
 											<p className="mt-1 text-destructive text-xs">
 												{String(
 													(field.state.meta.errors[0] as { message?: string })
-														?.message ?? field.state.meta.errors[0],
+														.message ?? field.state.meta.errors[0],
 												)}
 											</p>
 										) : null}

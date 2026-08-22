@@ -1,5 +1,5 @@
 import { createAdminEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 
 export const deleteCategory = createAdminEndpoint(
 	"/admin/categories/:id/delete",

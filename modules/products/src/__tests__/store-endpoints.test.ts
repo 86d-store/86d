@@ -243,10 +243,11 @@ describe("store endpoint: get product", () => {
 
 		const result = await simulateGetProduct(data, "prod_1");
 		expect("product" in result).toBe(true);
-		if ("product" in result) {
-			expect(result.product.id).toBe("prod_1");
-			expect(result.product.name).toBe("Test Product");
+		if (!("product" in result)) {
+			throw new Error("expected 'product' in result");
 		}
+		expect(result.product.id).toBe("prod_1");
+		expect(result.product.name).toBe("Test Product");
 	});
 
 	it("falls back to slug when ID is not found", async () => {
@@ -255,10 +256,11 @@ describe("store endpoint: get product", () => {
 
 		const result = await simulateGetProduct(data, "my-widget");
 		expect("product" in result).toBe(true);
-		if ("product" in result) {
-			expect(result.product.id).toBe("prod_abc");
-			expect(result.product.slug).toBe("my-widget");
+		if (!("product" in result)) {
+			throw new Error("expected 'product' in result");
 		}
+		expect(result.product.id).toBe("prod_abc");
+		expect(result.product.slug).toBe("my-widget");
 	});
 
 	it("returns 404 when neither ID nor slug matches", async () => {
@@ -302,11 +304,12 @@ describe("store endpoint: get product", () => {
 
 		const result = await simulateGetProduct(data, "prod_1");
 		expect("product" in result).toBe(true);
-		if ("product" in result) {
-			expect(result.product.variants).toBeDefined();
-			expect(result.product.variants).toHaveLength(1);
-			expect(result.product.variants[0].name).toBe("Small");
+		if (!("product" in result)) {
+			throw new Error("expected 'product' in result");
 		}
+		expect(result.product.variants).toBeDefined();
+		expect(result.product.variants).toHaveLength(1);
+		expect(result.product.variants[0].name).toBe("Small");
 	});
 
 	it("prefers ID match over slug match", async () => {
@@ -321,10 +324,11 @@ describe("store endpoint: get product", () => {
 
 		const result = await simulateGetProduct(data, "widget");
 		expect("product" in result).toBe(true);
-		if ("product" in result) {
-			// Should find productA by ID, not productB by slug
-			expect(result.product.id).toBe("widget");
+		if (!("product" in result)) {
+			throw new Error("expected 'product' in result");
 		}
+		// Should find productA by ID, not productB by slug
+		expect(result.product.id).toBe("widget");
 	});
 });
 
@@ -341,9 +345,10 @@ describe("store endpoint: get category", () => {
 
 		const result = await simulateGetCategory(data, "cat_1");
 		expect("category" in result).toBe(true);
-		if ("category" in result) {
-			expect(result.category.name).toBe("Electronics");
+		if (!("category" in result)) {
+			throw new Error("expected 'category' in result");
 		}
+		expect(result.category.name).toBe("Electronics");
 	});
 
 	it("falls back to slug when ID is not found", async () => {
@@ -352,9 +357,10 @@ describe("store endpoint: get category", () => {
 
 		const result = await simulateGetCategory(data, "clothing");
 		expect("category" in result).toBe(true);
-		if ("category" in result) {
-			expect(result.category.id).toBe("cat_xyz");
+		if (!("category" in result)) {
+			throw new Error("expected 'category' in result");
 		}
+		expect(result.category.id).toBe("cat_xyz");
 	});
 
 	it("returns 404 when category not found", async () => {
@@ -388,9 +394,10 @@ describe("store endpoint: get category", () => {
 
 		const result = await simulateGetCategory(data, "cat_1", false);
 		expect("category" in result).toBe(true);
-		if ("category" in result) {
-			expect(result.products).toBeUndefined();
+		if (!("category" in result)) {
+			throw new Error("expected 'category' in result");
 		}
+		expect(result.products).toBeUndefined();
 	});
 
 	it("includes products when requested", async () => {
@@ -401,10 +408,11 @@ describe("store endpoint: get category", () => {
 
 		const result = await simulateGetCategory(data, "cat_1", true);
 		expect("category" in result).toBe(true);
-		if ("category" in result) {
-			expect(result.products).toBeDefined();
-			expect(result.products).toHaveLength(1);
+		if (!("category" in result)) {
+			throw new Error("expected 'category' in result");
 		}
+		expect(result.products).toBeDefined();
+		expect(result.products).toHaveLength(1);
 	});
 });
 
@@ -421,9 +429,10 @@ describe("store endpoint: get collection", () => {
 
 		const result = await simulateGetCollection(data, "col_1");
 		expect("collection" in result).toBe(true);
-		if ("collection" in result) {
-			expect(result.collection.name).toBe("Summer Sale");
+		if (!("collection" in result)) {
+			throw new Error("expected 'collection' in result");
 		}
+		expect(result.collection.name).toBe("Summer Sale");
 	});
 
 	it("falls back to slug when ID is not found", async () => {
@@ -435,9 +444,10 @@ describe("store endpoint: get collection", () => {
 
 		const result = await simulateGetCollection(data, "winter-deals");
 		expect("collection" in result).toBe(true);
-		if ("collection" in result) {
-			expect(result.collection.id).toBe("col_xyz");
+		if (!("collection" in result)) {
+			throw new Error("expected 'collection' in result");
 		}
+		expect(result.collection.id).toBe("col_xyz");
 	});
 
 	it("returns 404 when collection not found", async () => {
@@ -479,9 +489,10 @@ describe("store endpoint: get collection", () => {
 
 		const result = await simulateGetCollection(data, "col_1");
 		expect("collection" in result).toBe(true);
-		if ("collection" in result) {
-			expect(result.collection.products).toBeDefined();
+		if (!("collection" in result)) {
+			throw new Error("expected 'collection' in result");
 		}
+		expect(result.collection.products).toBeDefined();
 	});
 });
 
@@ -1192,9 +1203,10 @@ describe("store endpoint: admin update product", () => {
 			name: "Updated Name",
 		});
 		expect("product" in result).toBe(true);
-		if ("product" in result) {
-			expect(result.product.name).toBe("Updated Name");
+		if (!("product" in result)) {
+			throw new Error("expected 'product' in result");
 		}
+		expect(result.product.name).toBe("Updated Name");
 	});
 
 	it("returns 404 when product does not exist", async () => {
@@ -1237,9 +1249,10 @@ describe("store endpoint: admin update product", () => {
 			slug: "new-slug",
 		});
 		expect("product" in result).toBe(true);
-		if ("product" in result) {
-			expect(result.product.slug).toBe("new-slug");
+		if (!("product" in result)) {
+			throw new Error("expected 'product' in result");
 		}
+		expect(result.product.slug).toBe("new-slug");
 	});
 });
 

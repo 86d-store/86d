@@ -1,9 +1,6 @@
 import { provideCapability } from "@86d-app/core/capabilities";
 import { productResolveCapability } from "@86d-app/core/commerce-capabilities";
 import { createProductController } from "./service-impl";
-
-export { productResolveCapability };
-
 export const productResolveProvider = provideCapability(
 	productResolveCapability,
 	async (ctx, request) => {

@@ -157,7 +157,6 @@ function ImageUpload({
 				setError(err instanceof Error ? err.message : "Upload failed");
 			} finally {
 				setUploading(false);
-				if (inputRef.current) inputRef.current.value = "";
 			}
 		},
 		[images, max, onChange, uploadFile],
@@ -345,7 +344,7 @@ export function ProductForm({ productId, onNavigate }: ProductFormProps) {
 			categoryId: p.categoryId ?? "",
 			isFeatured: p.isFeatured,
 			tags: p.tags.join(", "),
-			images: p.images ?? [],
+			images: p.images,
 		});
 		setSlugEdited(true);
 	}, [productData]);

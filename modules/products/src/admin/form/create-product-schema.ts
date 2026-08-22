@@ -1,4 +1,4 @@
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 
 /**
  * Client + server product create form schema for /admin/products/new.

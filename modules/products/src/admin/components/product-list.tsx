@@ -570,9 +570,9 @@ export function ProductList() {
 	const api = useProductsAdminApi();
 
 	const [page, setPage] = useState(1);
-	const search = "";
+	const _search = "";
 	const [status, setStatus] = useState("");
-	const category = "";
+	const _category = "";
 	const [deleting, setDeleting] = useState<string | null>(null);
 	const [exporting, setExporting] = useState(false);
 	const [showImport, setShowImport] = useState(false);
@@ -587,9 +587,7 @@ export function ProductList() {
 		sort: "createdAt",
 		order: "desc",
 	};
-	if (search) queryInput.search = search;
 	if (status) queryInput.status = status;
-	if (category) queryInput.category = category;
 
 	const {
 		data: productsData,
@@ -671,9 +669,7 @@ export function ProductList() {
 		setExporting(true);
 		try {
 			const exportQuery: Record<string, string> = { limit: "500" };
-			if (search) exportQuery.search = search;
 			if (status) exportQuery.status = status;
-			if (category) exportQuery.category = category;
 
 			const result = (await api.listProducts.fetch(exportQuery)) as
 				| ListResult

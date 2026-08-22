@@ -401,7 +401,6 @@ function CategoryImageField({
 			setUploadError(err instanceof Error ? err.message : "Upload failed");
 		} finally {
 			setUploading(false);
-			if (inputRef.current) inputRef.current.value = "";
 		}
 	};
 

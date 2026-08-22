@@ -36,7 +36,7 @@ function readStorage(tableId: string): PersistedTableState {
 		if (parsed.v !== SCHEMA_VERSION) return emptyState;
 		return {
 			v: SCHEMA_VERSION,
-			columnVisibility: parsed.columnVisibility ?? {},
+			columnVisibility: parsed.columnVisibility,
 			sorting: Array.isArray(parsed.sorting) ? parsed.sorting : [],
 			columnFilters: Array.isArray(parsed.columnFilters)
 				? parsed.columnFilters
