@@ -266,18 +266,19 @@ describe("store endpoint: schedule pickup", () => {
 		});
 
 		expect("pickup" in result).toBe(true);
-		if ("pickup" in result) {
-			expect(result.pickup.orderId).toBe("order_100");
-			expect(result.pickup.status).toBe("scheduled");
-			expect(result.pickup.locationId).toBe(location.id);
-			expect(result.pickup.windowId).toBe(window.id);
-			expect(result.pickup.scheduledDate).toBe(MONDAY_DATE);
-			expect(result.pickup.customerId).toBe("cust_1");
-			expect(result.pickup.notes).toBe("Ring the bell");
-			expect(result.pickup.locationName).toBe("Downtown Store");
-			expect(result.pickup.startTime).toBe("09:00");
-			expect(result.pickup.endTime).toBe("12:00");
+		if (!("pickup" in result)) {
+			throw new Error("expected 'pickup' in result");
 		}
+		expect(result.pickup.orderId).toBe("order_100");
+		expect(result.pickup.status).toBe("scheduled");
+		expect(result.pickup.locationId).toBe(location.id);
+		expect(result.pickup.windowId).toBe(window.id);
+		expect(result.pickup.scheduledDate).toBe(MONDAY_DATE);
+		expect(result.pickup.customerId).toBe("cust_1");
+		expect(result.pickup.notes).toBe("Ring the bell");
+		expect(result.pickup.locationName).toBe("Downtown Store");
+		expect(result.pickup.startTime).toBe("09:00");
+		expect(result.pickup.endTime).toBe("12:00");
 	});
 
 	it("rejects when scheduled date does not match window day of week", async () => {
@@ -291,11 +292,12 @@ describe("store endpoint: schedule pickup", () => {
 		});
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.error).toBe(
-				"Scheduled date does not match the window's day of week",
-			);
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.error).toBe(
+			"Scheduled date does not match the window's day of week",
+		);
 	});
 
 	it("prevents duplicate active pickup for the same order", async () => {
@@ -316,9 +318,10 @@ describe("store endpoint: schedule pickup", () => {
 		});
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.error).toBe("Order already has an active pickup scheduled");
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.error).toBe("Order already has an active pickup scheduled");
 	});
 
 	it("allows rescheduling after cancellation", async () => {
@@ -331,9 +334,10 @@ describe("store endpoint: schedule pickup", () => {
 			scheduledDate: MONDAY_DATE,
 		});
 		expect("pickup" in first).toBe(true);
-		if ("pickup" in first) {
-			await controller.cancelPickup(first.pickup.id);
+		if (!("pickup" in first)) {
+			throw new Error("expected pickup in first");
 		}
+		await controller.cancelPickup(first.pickup.id);
 
 		const second = await simulateSchedulePickup(data, {
 			locationId: location.id,
@@ -343,9 +347,10 @@ describe("store endpoint: schedule pickup", () => {
 		});
 
 		expect("pickup" in second).toBe(true);
-		if ("pickup" in second) {
-			expect(second.pickup.status).toBe("scheduled");
+		if (!("pickup" in second)) {
+			throw new Error("expected 'pickup' in second");
 		}
+		expect(second.pickup.status).toBe("scheduled");
 	});
 
 	it("respects capacity and rejects when fully booked", async () => {
@@ -369,9 +374,10 @@ describe("store endpoint: schedule pickup", () => {
 		});
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.error).toBe("Pickup window is fully booked");
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.error).toBe("Pickup window is fully booked");
 	});
 
 	it("rejects when location is inactive", async () => {
@@ -389,9 +395,10 @@ describe("store endpoint: schedule pickup", () => {
 		});
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.error).toBe("Pickup location is not available");
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.error).toBe("Pickup location is not available");
 	});
 
 	it("rejects when date is blacked out", async () => {
@@ -409,11 +416,12 @@ describe("store endpoint: schedule pickup", () => {
 		});
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.error).toBe(
-				"Pickup is not available at this location on this date",
-			);
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.error).toBe(
+			"Pickup is not available at this location on this date",
+		);
 	});
 });
 
@@ -481,10 +489,11 @@ describe("store endpoint: cancel pickup", () => {
 		const result = await simulateCancelPickup(data, pickup.id);
 
 		expect("pickup" in result).toBe(true);
-		if ("pickup" in result) {
-			expect(result.pickup.status).toBe("cancelled");
-			expect(result.pickup.cancelledAt).toBeDefined();
+		if (!("pickup" in result)) {
+			throw new Error("expected 'pickup' in result");
 		}
+		expect(result.pickup.status).toBe("cancelled");
+		expect(result.pickup.cancelledAt).toBeDefined();
 	});
 
 	it("cancels a preparing pickup", async () => {
@@ -500,9 +509,10 @@ describe("store endpoint: cancel pickup", () => {
 		const result = await simulateCancelPickup(data, scheduled.id);
 
 		expect("pickup" in result).toBe(true);
-		if ("pickup" in result) {
-			expect(result.pickup.status).toBe("cancelled");
+		if (!("pickup" in result)) {
+			throw new Error("expected 'pickup' in result");
 		}
+		expect(result.pickup.status).toBe("cancelled");
 	});
 
 	it("cancels a ready pickup", async () => {
@@ -519,9 +529,10 @@ describe("store endpoint: cancel pickup", () => {
 		const result = await simulateCancelPickup(data, scheduled.id);
 
 		expect("pickup" in result).toBe(true);
-		if ("pickup" in result) {
-			expect(result.pickup.status).toBe("cancelled");
+		if (!("pickup" in result)) {
+			throw new Error("expected 'pickup' in result");
 		}
+		expect(result.pickup.status).toBe("cancelled");
 	});
 
 	it("throws on already cancelled pickup", async () => {
@@ -537,9 +548,10 @@ describe("store endpoint: cancel pickup", () => {
 		const result = await simulateCancelPickup(data, scheduled.id);
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.error).toBe("Pickup is already cancelled");
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.error).toBe("Pickup is already cancelled");
 	});
 
 	it("throws on picked_up pickup", async () => {
@@ -557,9 +569,10 @@ describe("store endpoint: cancel pickup", () => {
 		const result = await simulateCancelPickup(data, scheduled.id);
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.error).toBe("Cannot cancel a completed pickup");
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.error).toBe("Cannot cancel a completed pickup");
 	});
 
 	it("returns 404 for nonexistent pickup", async () => {

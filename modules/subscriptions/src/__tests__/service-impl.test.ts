@@ -924,7 +924,9 @@ describe("createSubscriptionController", () => {
 				planId: plan.id,
 				email: "user@example.com",
 			});
-			await ctrl.cancelSubscription({ id: sub.id });
+			await expect(
+				ctrl.cancelSubscription({ id: sub.id }),
+			).resolves.toBeUndefined();
 		});
 	});
 });

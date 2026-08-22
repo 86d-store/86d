@@ -81,9 +81,7 @@ export class StripePaymentProvider implements PaymentProvider {
 		const json = (await res.json()) as T | StripeError;
 		if (!res.ok) {
 			const err = json as StripeError;
-			throw new Error(
-				`Stripe error: ${err.error?.message ?? `HTTP ${res.status}`}`,
-			);
+			throw new Error(`Stripe error: ${err.error.message}`);
 		}
 		return json as T;
 	}

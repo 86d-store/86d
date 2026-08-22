@@ -1,18 +1,8 @@
 import type { Module, ModuleConfig } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import {
-	createStripePaymentConnectionProvider,
-	StripePaymentConnectionProvider,
-} from "./connection-provider";
-import { StripePaymentProvider } from "./provider";
 import { createStoreEndpoints } from "./store/endpoints/routes";
 
 export type { StripePaymentConnectionProviderOptions } from "./connection-provider";
-export {
-	createStripePaymentConnectionProvider,
-	StripePaymentConnectionProvider,
-	StripePaymentProvider,
-};
 
 export interface StripeOptions extends ModuleConfig {
 	/** Stripe secret API key (sk_live_... or sk_test_...) */

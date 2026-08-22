@@ -90,13 +90,20 @@ function createTestContext() {
 	};
 }
 
-async function seedIntent(
-	data: ReturnType<typeof createMockDataService>,
-	payments: ReturnType<typeof createPaymentController>,
-	providerIntentId: string,
-	amount = 2000,
-	status = "pending",
-) {
+async function seedIntent(options: {
+	data: ReturnType<typeof createMockDataService>;
+	payments: ReturnType<typeof createPaymentController>;
+	providerIntentId: string;
+	amount?: number;
+	status?: string;
+}) {
+	const {
+		data,
+		payments,
+		providerIntentId,
+		amount = 2000,
+		status = "pending",
+	} = options;
 	const intent = await payments.createIntent({ amount });
 	await data.upsert("paymentIntent", intent.id, {
 		...intent,
@@ -261,7 +268,11 @@ describe("stripe endpoint security — event type filtering", () => {
 
 	it("handles payment_intent.succeeded as a mapped event", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "pi_sec_test_1");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "pi_sec_test_1",
+		});
 		const body = JSON.stringify({
 			type: "payment_intent.succeeded",
 			data: { object: { id: "pi_sec_test_1" } },
@@ -273,7 +284,11 @@ describe("stripe endpoint security — event type filtering", () => {
 
 	it("handles charge.failed as a mapped event", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "pi_charge_fail");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "pi_charge_fail",
+		});
 		const body = JSON.stringify({
 			type: "charge.failed",
 			data: { object: { payment_intent: "pi_charge_fail" } },
@@ -334,7 +349,11 @@ describe("stripe endpoint security — provider intent extraction", () => {
 
 	it("extracts intent ID from payment_intent events (object.id)", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "pi_extract_1");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "pi_extract_1",
+		});
 		const body = JSON.stringify({
 			type: "payment_intent.succeeded",
 			data: { object: { id: "pi_extract_1", amount: 1000 } },
@@ -346,7 +365,11 @@ describe("stripe endpoint security — provider intent extraction", () => {
 
 	it("extracts intent ID from charge events (object.payment_intent)", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "pi_from_charge");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "pi_from_charge",
+		});
 		const body = JSON.stringify({
 			type: "charge.succeeded",
 			data: {
@@ -396,7 +419,13 @@ describe("stripe endpoint security — refund event handling", () => {
 
 	it("does not treat dispute funds withdrawal as a refund", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "pi_dispute_sec", 5000, "succeeded");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "pi_dispute_sec",
+			amount: 5000,
+			status: "succeeded",
+		});
 		const body = JSON.stringify({
 			id: "evt_dispute_funds_withdrawn",
 			type: "charge.dispute.funds_withdrawn",
@@ -423,7 +452,13 @@ describe("stripe endpoint security — refund event handling", () => {
 
 	it("extracts refund details from charge.refunded event", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "pi_refund_sec", 5000, "succeeded");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "pi_refund_sec",
+			amount: 5000,
+			status: "succeeded",
+		});
 		const body = JSON.stringify({
 			type: "charge.refunded",
 			data: {
@@ -447,7 +482,13 @@ describe("stripe endpoint security — refund event handling", () => {
 
 	it("handles charge.refunded with empty refunds array gracefully", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "pi_empty_refunds", 3000, "succeeded");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "pi_empty_refunds",
+			amount: 3000,
+			status: "succeeded",
+		});
 		const body = JSON.stringify({
 			type: "charge.refunded",
 			data: {

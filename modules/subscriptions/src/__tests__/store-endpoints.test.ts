@@ -176,12 +176,16 @@ describe("subscribe (POST /subscriptions/subscribe)", () => {
 			session,
 		);
 		expect("subscription" in result).toBe(true);
-		if ("subscription" in result && result.subscription) {
-			expect(result.subscription.planId).toBe(plan.id);
-			expect(result.subscription.status).toBe("active");
-			expect(result.subscription.email).toBe("cust@example.com");
-			expect(result.subscription.customerId).toBe("cust_1");
+		expect("subscription" in result && result.subscription).toBeTruthy();
+		if (!("subscription" in result && result.subscription)) {
+			throw new Error(
+				"expected 'subscription' in result && result.subscription",
+			);
 		}
+		expect(result.subscription.planId).toBe(plan.id);
+		expect(result.subscription.status).toBe("active");
+		expect(result.subscription.email).toBe("cust@example.com");
+		expect(result.subscription.customerId).toBe("cust_1");
 	});
 
 	it("starts with trialing status when plan has trial days", async () => {
@@ -197,11 +201,15 @@ describe("subscribe (POST /subscriptions/subscribe)", () => {
 			{ planId: plan.id },
 			session,
 		);
-		if ("subscription" in result && result.subscription) {
-			expect(result.subscription.status).toBe("trialing");
-			expect(result.subscription.trialStart).toBeDefined();
-			expect(result.subscription.trialEnd).toBeDefined();
+		expect("subscription" in result && result.subscription).toBeTruthy();
+		if (!("subscription" in result && result.subscription)) {
+			throw new Error(
+				"expected 'subscription' in result && result.subscription",
+			);
 		}
+		expect(result.subscription.status).toBe("trialing");
+		expect(result.subscription.trialStart).toBeDefined();
+		expect(result.subscription.trialEnd).toBeDefined();
 	});
 
 	it("returns 404 for non-existent plan", async () => {
@@ -256,10 +264,11 @@ describe("get-my-subscriptions (GET /subscriptions/me)", () => {
 
 		const result = await simulateGetMySubscriptions(controller, session);
 		expect("subscriptions" in result).toBe(true);
-		if ("subscriptions" in result) {
-			expect(result.subscriptions).toHaveLength(1);
-			expect(result.subscriptions[0].email).toBe("cust@example.com");
+		if (!("subscriptions" in result)) {
+			throw new Error("expected 'subscriptions' in result");
 		}
+		expect(result.subscriptions).toHaveLength(1);
+		expect(result.subscriptions[0].email).toBe("cust@example.com");
 	});
 
 	it("enriches subscriptions with plan name", async () => {
@@ -275,16 +284,20 @@ describe("get-my-subscriptions (GET /subscriptions/me)", () => {
 		});
 
 		const result = await simulateGetMySubscriptions(controller, session);
-		if ("subscriptions" in result) {
-			expect(result.subscriptions[0].planName).toBe("Enterprise");
+		expect("subscriptions" in result).toBeTruthy();
+		if (!("subscriptions" in result)) {
+			throw new Error("expected 'subscriptions' in result");
 		}
+		expect(result.subscriptions[0].planName).toBe("Enterprise");
 	});
 
 	it("returns empty list when user has no subscriptions", async () => {
 		const result = await simulateGetMySubscriptions(controller, session);
-		if ("subscriptions" in result) {
-			expect(result.subscriptions).toHaveLength(0);
+		expect("subscriptions" in result).toBeTruthy();
+		if (!("subscriptions" in result)) {
+			throw new Error("expected 'subscriptions' in result");
 		}
+		expect(result.subscriptions).toHaveLength(0);
 	});
 });
 
@@ -312,10 +325,14 @@ describe("cancel (POST /subscriptions/me/cancel)", () => {
 			{ userId: "cust_1" },
 		);
 		expect("subscription" in result).toBe(true);
-		if ("subscription" in result && result.subscription) {
-			expect(result.subscription.status).toBe("cancelled");
-			expect(result.subscription.cancelledAt).toBeDefined();
+		expect("subscription" in result && result.subscription).toBeTruthy();
+		if (!("subscription" in result && result.subscription)) {
+			throw new Error(
+				"expected 'subscription' in result && result.subscription",
+			);
 		}
+		expect(result.subscription.status).toBe("cancelled");
+		expect(result.subscription.cancelledAt).toBeDefined();
 	});
 
 	it("cancels at period end when requested", async () => {
@@ -335,11 +352,15 @@ describe("cancel (POST /subscriptions/me/cancel)", () => {
 			{ id: sub.id, cancelAtPeriodEnd: true },
 			{ userId: "cust_1" },
 		);
-		if ("subscription" in result && result.subscription) {
-			expect(result.subscription.cancelAtPeriodEnd).toBe(true);
-			// Status remains active until period ends
-			expect(result.subscription.status).toBe("active");
+		expect("subscription" in result && result.subscription).toBeTruthy();
+		if (!("subscription" in result && result.subscription)) {
+			throw new Error(
+				"expected 'subscription' in result && result.subscription",
+			);
 		}
+		expect(result.subscription.cancelAtPeriodEnd).toBe(true);
+		// Status remains active until period ends
+		expect(result.subscription.status).toBe("active");
 	});
 
 	it("returns 404 for another customer's subscription", async () => {
@@ -393,10 +414,12 @@ describe("cross-endpoint lifecycle", () => {
 
 		// List shows active subscription
 		const listed = await simulateGetMySubscriptions(controller, session);
-		if ("subscriptions" in listed) {
-			expect(listed.subscriptions).toHaveLength(1);
-			expect(listed.subscriptions[0].status).toBe("active");
+		expect("subscriptions" in listed).toBeTruthy();
+		if (!("subscriptions" in listed)) {
+			throw new Error("expected 'subscriptions' in listed");
 		}
+		expect(listed.subscriptions).toHaveLength(1);
+		expect(listed.subscriptions[0].status).toBe("active");
 
 		// Cancel
 		const cancelled = await simulateCancel(
@@ -404,15 +427,21 @@ describe("cross-endpoint lifecycle", () => {
 			{ id: subId as string },
 			{ userId: "cust_1" },
 		);
-		if ("subscription" in cancelled && cancelled.subscription) {
-			expect(cancelled.subscription.status).toBe("cancelled");
+		expect("subscription" in cancelled && cancelled.subscription).toBeTruthy();
+		if (!("subscription" in cancelled && cancelled.subscription)) {
+			throw new Error(
+				"expected 'subscription' in cancelled && cancelled.subscription",
+			);
 		}
+		expect(cancelled.subscription.status).toBe("cancelled");
 
 		// List still shows it (now cancelled)
 		const afterCancel = await simulateGetMySubscriptions(controller, session);
-		if ("subscriptions" in afterCancel) {
-			expect(afterCancel.subscriptions).toHaveLength(1);
-			expect(afterCancel.subscriptions[0].status).toBe("cancelled");
+		expect("subscriptions" in afterCancel).toBeTruthy();
+		if (!("subscriptions" in afterCancel)) {
+			throw new Error("expected 'subscriptions' in afterCancel");
 		}
+		expect(afterCancel.subscriptions).toHaveLength(1);
+		expect(afterCancel.subscriptions[0].status).toBe("cancelled");
 	});
 });

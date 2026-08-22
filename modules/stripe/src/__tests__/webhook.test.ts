@@ -73,13 +73,20 @@ function createTestContext() {
 }
 
 /** Seed a payment intent with a specific providerIntentId. */
-async function seedIntent(
-	data: ReturnType<typeof createMockDataService>,
-	payments: ReturnType<typeof createPaymentController>,
-	providerIntentId: string,
-	amount = 2000,
-	status = "pending",
-) {
+async function seedIntent(options: {
+	data: ReturnType<typeof createMockDataService>;
+	payments: ReturnType<typeof createPaymentController>;
+	providerIntentId: string;
+	amount?: number;
+	status?: string;
+}) {
+	const {
+		data,
+		payments,
+		providerIntentId,
+		amount = 2000,
+		status = "pending",
+	} = options;
 	const intent = await payments.createIntent({ amount });
 	await data.upsert("paymentIntent", intent.id, {
 		...intent,
@@ -181,7 +188,11 @@ describe("createStripeWebhook — event handling", () => {
 
 	it("handles payment_intent.succeeded and emits payment.completed", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(data, payments, "pi_stripe_abc");
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "pi_stripe_abc",
+		});
 
 		const body = JSON.stringify({
 			type: "payment_intent.succeeded",
@@ -204,7 +215,11 @@ describe("createStripeWebhook — event handling", () => {
 
 	it("handles payment_intent.payment_failed and emits payment.failed", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(data, payments, "pi_fail_test");
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "pi_fail_test",
+		});
 
 		const body = JSON.stringify({
 			type: "payment_intent.payment_failed",
@@ -226,13 +241,13 @@ describe("createStripeWebhook — event handling", () => {
 
 	it("handles charge.refunded and emits payment.refunded", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(
-			data,
-			payments,
-			"pi_refund_test",
-			3000,
-			"succeeded",
-		);
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "pi_refund_test",
+			amount: 3000,
+			status: "succeeded",
+		});
 
 		const body = JSON.stringify({
 			type: "charge.refunded",
@@ -264,7 +279,11 @@ describe("createStripeWebhook — event handling", () => {
 
 	it("handles payment_intent.canceled without emitting a domain event", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(data, payments, "pi_cancel_test");
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "pi_cancel_test",
+		});
 
 		const body = JSON.stringify({
 			type: "payment_intent.canceled",
@@ -308,7 +327,11 @@ describe("createStripeWebhook — event handling", () => {
 
 	it("handles charge.succeeded via charge event mapping", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "pi_charge_succ");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "pi_charge_succ",
+		});
 
 		const body = JSON.stringify({
 			type: "charge.succeeded",
