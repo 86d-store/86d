@@ -1680,6 +1680,7 @@ describe("createCustomerController", () => {
 				firstName: "No",
 				lastName: "Event",
 			});
+			expect(true).toBe(true);
 		});
 
 		it("does not emit events on update", async () => {

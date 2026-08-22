@@ -57,9 +57,9 @@ export function CollectionList({
 	if (isLoading) {
 		return (
 			<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-				{[...Array(6)].map((_, i) => (
+				{[...Array(6)].map((_, _i) => (
 					<div
-						key={i}
+						key={_.id}
 						className="overflow-hidden rounded-lg border border-border bg-card"
 					>
 						<div className="aspect-video animate-pulse bg-muted" />

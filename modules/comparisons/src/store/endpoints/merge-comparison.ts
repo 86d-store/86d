@@ -1,5 +1,5 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { ComparisonController } from "../../service";
 
 export const mergeComparison = createStoreEndpoint(
@@ -20,7 +20,7 @@ export const mergeComparison = createStoreEndpoint(
 		}
 
 		const maxProducts = Number(
-			(ctx.context.options as Record<string, unknown>)?.maxProducts,
+			(ctx.context.options as Record<string, unknown>).maxProducts,
 		);
 
 		const merged = await controller.mergeComparison({

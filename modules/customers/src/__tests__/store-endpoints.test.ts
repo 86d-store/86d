@@ -215,11 +215,12 @@ describe("store endpoint: get-me", () => {
 
 		const result = await simulateGetMe(data, { userId: "cust_1" });
 		expect("customer" in result).toBe(true);
-		if ("customer" in result) {
-			expect(result.customer.firstName).toBe("Alice");
-			expect(result.customer.lastName).toBe("Smith");
-			expect(result.customer.email).toBe("alice@example.com");
+		if (!("customer" in result)) {
+			throw new Error("expected 'customer' in result");
 		}
+		expect(result.customer.firstName).toBe("Alice");
+		expect(result.customer.lastName).toBe("Smith");
+		expect(result.customer.email).toBe("alice@example.com");
 	});
 
 	it("returns 404 when customer record does not exist", async () => {
@@ -234,9 +235,10 @@ describe("store endpoint: get-me", () => {
 		// cust_1's session only returns cust_1's data
 		const result = await simulateGetMe(data, { userId: "cust_1" });
 		expect("customer" in result).toBe(true);
-		if ("customer" in result) {
-			expect(result.customer.id).toBe("cust_1");
+		if (!("customer" in result)) {
+			throw new Error("expected 'customer' in result");
 		}
+		expect(result.customer.id).toBe("cust_1");
 	});
 });
 
@@ -265,10 +267,11 @@ describe("store endpoint: update-me", () => {
 		);
 
 		expect("customer" in result).toBe(true);
-		if ("customer" in result) {
-			expect(result.customer.firstName).toBe("Bob");
-			expect(result.customer.lastName).toBe("Jones");
+		if (!("customer" in result)) {
+			throw new Error("expected 'customer' in result");
 		}
+		expect(result.customer.firstName).toBe("Bob");
+		expect(result.customer.lastName).toBe("Jones");
 	});
 
 	it("updates phone number", async () => {
@@ -281,9 +284,10 @@ describe("store endpoint: update-me", () => {
 		);
 
 		expect("customer" in result).toBe(true);
-		if ("customer" in result) {
-			expect(result.customer.phone).toBe("+1-555-0100");
+		if (!("customer" in result)) {
+			throw new Error("expected 'customer' in result");
 		}
+		expect(result.customer.phone).toBe("+1-555-0100");
 	});
 
 	it("clears phone number with null", async () => {
@@ -296,9 +300,10 @@ describe("store endpoint: update-me", () => {
 		);
 
 		expect("customer" in result).toBe(true);
-		if ("customer" in result) {
-			expect(result.customer.phone).toBeUndefined();
+		if (!("customer" in result)) {
+			throw new Error("expected 'customer' in result");
 		}
+		expect(result.customer.phone).toBeUndefined();
 	});
 
 	it("returns 404 for nonexistent customer", async () => {
@@ -331,14 +336,15 @@ describe("store endpoint: create-address — session-derived customerId", () => 
 		);
 
 		expect("address" in result).toBe(true);
-		if ("address" in result) {
-			expect(result.address.customerId).toBe("cust_1");
-			expect(result.address.firstName).toBe("Alice");
-			expect(result.address.lastName).toBe("Smith");
-			expect(result.address.city).toBe("Austin");
-			expect(result.address.state).toBe("TX");
-			expect(result.address.country).toBe("US");
+		if (!("address" in result)) {
+			throw new Error("expected 'address' in result");
 		}
+		expect(result.address.customerId).toBe("cust_1");
+		expect(result.address.firstName).toBe("Alice");
+		expect(result.address.lastName).toBe("Smith");
+		expect(result.address.city).toBe("Austin");
+		expect(result.address.state).toBe("TX");
+		expect(result.address.country).toBe("US");
 	});
 
 	it("defaults type to shipping", async () => {
@@ -347,9 +353,10 @@ describe("store endpoint: create-address — session-derived customerId", () => 
 		});
 
 		expect("address" in result).toBe(true);
-		if ("address" in result) {
-			expect(result.address.type).toBe("shipping");
+		if (!("address" in result)) {
+			throw new Error("expected 'address' in result");
 		}
+		expect(result.address.type).toBe("shipping");
 	});
 
 	it("allows specifying billing type", async () => {
@@ -360,9 +367,10 @@ describe("store endpoint: create-address — session-derived customerId", () => 
 		);
 
 		expect("address" in result).toBe(true);
-		if ("address" in result) {
-			expect(result.address.type).toBe("billing");
+		if (!("address" in result)) {
+			throw new Error("expected 'address' in result");
 		}
+		expect(result.address.type).toBe("billing");
 	});
 });
 
@@ -395,14 +403,15 @@ describe("store endpoint: list-addresses — customer scoping", () => {
 		const result = await simulateListAddresses(data, { userId: "cust_1" });
 
 		expect("addresses" in result).toBe(true);
-		if ("addresses" in result) {
-			expect(result.addresses).toHaveLength(2);
-			expect(
-				result.addresses.every(
-					(a: { customerId: string }) => a.customerId === "cust_1",
-				),
-			).toBe(true);
+		if (!("addresses" in result)) {
+			throw new Error("expected 'addresses' in result");
 		}
+		expect(result.addresses).toHaveLength(2);
+		expect(
+			result.addresses.every(
+				(a: { customerId: string }) => a.customerId === "cust_1",
+			),
+		).toBe(true);
 	});
 
 	it("returns empty array for customer with no addresses", async () => {
@@ -411,9 +420,10 @@ describe("store endpoint: list-addresses — customer scoping", () => {
 		});
 
 		expect("addresses" in result).toBe(true);
-		if ("addresses" in result) {
-			expect(result.addresses).toHaveLength(0);
+		if (!("addresses" in result)) {
+			throw new Error("expected 'addresses' in result");
 		}
+		expect(result.addresses).toHaveLength(0);
 	});
 
 	it("does not expose other customers' addresses", async () => {
@@ -424,9 +434,10 @@ describe("store endpoint: list-addresses — customer scoping", () => {
 		const result = await simulateListAddresses(data, { userId: "cust_1" });
 
 		expect("addresses" in result).toBe(true);
-		if ("addresses" in result) {
-			expect(result.addresses).toHaveLength(0);
+		if (!("addresses" in result)) {
+			throw new Error("expected 'addresses' in result");
 		}
+		expect(result.addresses).toHaveLength(0);
 	});
 });
 
@@ -455,20 +466,23 @@ describe("store endpoint: update-address — ownership verification", () => {
 		);
 
 		expect("address" in created).toBe(true);
-		if ("address" in created) {
-			const result = await simulateUpdateAddress(
-				data,
-				created.address.id,
-				{ firstName: "Updated", city: "Dallas" },
-				{ userId: "cust_1" },
-			);
-
-			expect("address" in result).toBe(true);
-			if ("address" in result && result.address) {
-				expect(result.address.firstName).toBe("Updated");
-				expect(result.address.city).toBe("Dallas");
-			}
+		if (!("address" in created)) {
+			throw new Error("expected 'address' in created");
 		}
+		const result = await simulateUpdateAddress(
+			data,
+			created.address.id,
+			{ firstName: "Updated", city: "Dallas" },
+			{ userId: "cust_1" },
+		);
+
+		expect("address" in result).toBe(true);
+		expect("address" in result && result.address).toBeTruthy();
+		if (!("address" in result && result.address)) {
+			throw new Error("expected 'address' in result && result.address");
+		}
+		expect(result.address.firstName).toBe("Updated");
+		expect(result.address.city).toBe("Dallas");
 	});
 
 	it("returns 404 when trying to update another customer's address", async () => {
@@ -477,17 +491,18 @@ describe("store endpoint: update-address — ownership verification", () => {
 		});
 
 		expect("address" in created).toBe(true);
-		if ("address" in created) {
-			const result = await simulateUpdateAddress(
-				data,
-				created.address.id,
-				{ firstName: "Hacked" },
-				{ userId: "cust_attacker" },
-			);
-
-			// Returns 404, not 403 — prevents leaking address existence
-			expect(result).toEqual({ error: "Address not found", status: 404 });
+		if (!("address" in created)) {
+			throw new Error("expected 'address' in created");
 		}
+		const result = await simulateUpdateAddress(
+			data,
+			created.address.id,
+			{ firstName: "Hacked" },
+			{ userId: "cust_attacker" },
+		);
+
+		// Returns 404, not 403 — prevents leaking address existence
+		expect(result).toEqual({ error: "Address not found", status: 404 });
 	});
 
 	it("returns 404 for nonexistent address ID", async () => {
@@ -520,20 +535,22 @@ describe("store endpoint: delete-address — ownership verification", () => {
 		});
 
 		expect("address" in created).toBe(true);
-		if ("address" in created) {
-			const result = await simulateDeleteAddress(data, created.address.id, {
-				userId: "cust_1",
-			});
-
-			expect(result).toEqual({ success: true });
-
-			// Verify it's gone
-			const list = await simulateListAddresses(data, { userId: "cust_1" });
-			expect("addresses" in list).toBe(true);
-			if ("addresses" in list) {
-				expect(list.addresses).toHaveLength(0);
-			}
+		if (!("address" in created)) {
+			throw new Error("expected 'address' in created");
 		}
+		const result = await simulateDeleteAddress(data, created.address.id, {
+			userId: "cust_1",
+		});
+
+		expect(result).toEqual({ success: true });
+
+		// Verify it's gone
+		const list = await simulateListAddresses(data, { userId: "cust_1" });
+		expect("addresses" in list).toBe(true);
+		if (!("addresses" in list)) {
+			throw new Error("expected 'addresses' in list");
+		}
+		expect(list.addresses).toHaveLength(0);
 	});
 
 	it("returns 404 when trying to delete another customer's address", async () => {
@@ -542,21 +559,23 @@ describe("store endpoint: delete-address — ownership verification", () => {
 		});
 
 		expect("address" in created).toBe(true);
-		if ("address" in created) {
-			const result = await simulateDeleteAddress(data, created.address.id, {
-				userId: "cust_attacker",
-			});
-
-			// Returns 404, not 403
-			expect(result).toEqual({ error: "Address not found", status: 404 });
-
-			// Address should still exist for the real owner
-			const list = await simulateListAddresses(data, { userId: "cust_1" });
-			expect("addresses" in list).toBe(true);
-			if ("addresses" in list) {
-				expect(list.addresses).toHaveLength(1);
-			}
+		if (!("address" in created)) {
+			throw new Error("expected 'address' in created");
 		}
+		const result = await simulateDeleteAddress(data, created.address.id, {
+			userId: "cust_attacker",
+		});
+
+		// Returns 404, not 403
+		expect(result).toEqual({ error: "Address not found", status: 404 });
+
+		// Address should still exist for the real owner
+		const list = await simulateListAddresses(data, { userId: "cust_1" });
+		expect("addresses" in list).toBe(true);
+		if (!("addresses" in list)) {
+			throw new Error("expected 'addresses' in list");
+		}
+		expect(list.addresses).toHaveLength(1);
 	});
 
 	it("returns 404 for nonexistent address ID", async () => {
@@ -578,18 +597,20 @@ describe("store endpoint: delete-address — ownership verification", () => {
 		);
 
 		expect("address" in work).toBe(true);
-		if ("address" in work) {
-			await simulateDeleteAddress(data, work.address.id, {
-				userId: "cust_1",
-			});
-
-			const list = await simulateListAddresses(data, { userId: "cust_1" });
-			expect("addresses" in list).toBe(true);
-			if ("addresses" in list) {
-				expect(list.addresses).toHaveLength(1);
-				expect(list.addresses[0].firstName).toBe("Home");
-			}
+		if (!("address" in work)) {
+			throw new Error("expected 'address' in work");
 		}
+		await simulateDeleteAddress(data, work.address.id, {
+			userId: "cust_1",
+		});
+
+		const list = await simulateListAddresses(data, { userId: "cust_1" });
+		expect("addresses" in list).toBe(true);
+		if (!("addresses" in list)) {
+			throw new Error("expected 'addresses' in list");
+		}
+		expect(list.addresses).toHaveLength(1);
+		expect(list.addresses[0].firstName).toBe("Home");
 	});
 });
 
@@ -611,34 +632,38 @@ describe("store endpoint: cross-endpoint flows", () => {
 		);
 		expect("address" in created).toBe(true);
 
-		if ("address" in created) {
-			// Update
-			const updated = await simulateUpdateAddress(
-				data,
-				created.address.id,
-				{ firstName: "Modified" },
-				session,
-			);
-			expect("address" in updated).toBe(true);
-			if ("address" in updated && updated.address) {
-				expect(updated.address.firstName).toBe("Modified");
-			}
-
-			// Delete
-			const deleted = await simulateDeleteAddress(
-				data,
-				created.address.id,
-				session,
-			);
-			expect(deleted).toEqual({ success: true });
-
-			// Verify gone
-			const list = await simulateListAddresses(data, session);
-			expect("addresses" in list).toBe(true);
-			if ("addresses" in list) {
-				expect(list.addresses).toHaveLength(0);
-			}
+		if (!("address" in created)) {
+			throw new Error("expected 'address' in created");
 		}
+		// Update
+		const updated = await simulateUpdateAddress(
+			data,
+			created.address.id,
+			{ firstName: "Modified" },
+			session,
+		);
+		expect("address" in updated).toBe(true);
+		expect("address" in updated && updated.address).toBeTruthy();
+		if (!("address" in updated && updated.address)) {
+			throw new Error("expected 'address' in updated && updated.address");
+		}
+		expect(updated.address.firstName).toBe("Modified");
+
+		// Delete
+		const deleted = await simulateDeleteAddress(
+			data,
+			created.address.id,
+			session,
+		);
+		expect(deleted).toEqual({ success: true });
+
+		// Verify gone
+		const list = await simulateListAddresses(data, session);
+		expect("addresses" in list).toBe(true);
+		if (!("addresses" in list)) {
+			throw new Error("expected 'addresses' in list");
+		}
+		expect(list.addresses).toHaveLength(0);
 	});
 
 	it("update profile then verify via get-me", async () => {
@@ -655,10 +680,11 @@ describe("store endpoint: cross-endpoint flows", () => {
 
 		const result = await simulateGetMe(data, { userId: "cust_1" });
 		expect("customer" in result).toBe(true);
-		if ("customer" in result) {
-			expect(result.customer.firstName).toBe("Bob");
-			expect(result.customer.lastName).toBe("Smith"); // unchanged
-			expect(result.customer.phone).toBe("+1-555-0100");
+		if (!("customer" in result)) {
+			throw new Error("expected 'customer' in result");
 		}
+		expect(result.customer.firstName).toBe("Bob");
+		expect(result.customer.lastName).toBe("Smith"); // unchanged
+		expect(result.customer.phone).toBe("+1-555-0100");
 	});
 });

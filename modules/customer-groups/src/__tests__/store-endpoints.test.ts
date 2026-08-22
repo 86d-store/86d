@@ -91,10 +91,11 @@ describe("store endpoint: my groups — auth required", () => {
 		const result = await simulateMyGroups(data, { customerId: "cust_1" });
 
 		expect("groups" in result).toBe(true);
-		if ("groups" in result) {
-			expect(result.groups).toHaveLength(1);
-			expect(result.groups[0].name).toBe("VIP Customers");
+		if (!("groups" in result)) {
+			throw new Error("expected 'groups' in result");
 		}
+		expect(result.groups).toHaveLength(1);
+		expect(result.groups[0].name).toBe("VIP Customers");
 	});
 
 	it("does not return inactive groups", async () => {
@@ -110,9 +111,10 @@ describe("store endpoint: my groups — auth required", () => {
 		const result = await simulateMyGroups(data, { customerId: "cust_1" });
 
 		expect("groups" in result).toBe(true);
-		if ("groups" in result) {
-			expect(result.groups).toHaveLength(0);
+		if (!("groups" in result)) {
+			throw new Error("expected 'groups' in result");
 		}
+		expect(result.groups).toHaveLength(0);
 	});
 
 	it("returns empty for customer with no memberships", async () => {
@@ -121,9 +123,10 @@ describe("store endpoint: my groups — auth required", () => {
 		});
 
 		expect("groups" in result).toBe(true);
-		if ("groups" in result) {
-			expect(result.groups).toHaveLength(0);
+		if (!("groups" in result)) {
+			throw new Error("expected 'groups' in result");
 		}
+		expect(result.groups).toHaveLength(0);
 	});
 });
 
@@ -159,10 +162,11 @@ describe("store endpoint: my pricing — auth required", () => {
 		const result = await simulateMyPricing(data, {}, { customerId: "cust_1" });
 
 		expect("pricing" in result).toBe(true);
-		if ("pricing" in result) {
-			expect(result.pricing).toHaveLength(1);
-			expect(result.pricing[0].value).toBe(20);
+		if (!("pricing" in result)) {
+			throw new Error("expected 'pricing' in result");
 		}
+		expect(result.pricing).toHaveLength(1);
+		expect(result.pricing[0].value).toBe(20);
 	});
 
 	it("returns empty for customer with no group pricing", async () => {
@@ -173,9 +177,10 @@ describe("store endpoint: my pricing — auth required", () => {
 		);
 
 		expect("pricing" in result).toBe(true);
-		if ("pricing" in result) {
-			expect(result.pricing).toHaveLength(0);
+		if (!("pricing" in result)) {
+			throw new Error("expected 'pricing' in result");
 		}
+		expect(result.pricing).toHaveLength(0);
 	});
 });
 
@@ -208,9 +213,10 @@ describe("store endpoint: check membership — auth required", () => {
 		});
 
 		expect("isMember" in result).toBe(true);
-		if ("isMember" in result) {
-			expect(result.isMember).toBe(true);
+		if (!("isMember" in result)) {
+			throw new Error("expected 'isMember' in result");
 		}
+		expect(result.isMember).toBe(true);
 	});
 
 	it("returns false when customer is not a member", async () => {
@@ -226,8 +232,9 @@ describe("store endpoint: check membership — auth required", () => {
 		});
 
 		expect("isMember" in result).toBe(true);
-		if ("isMember" in result) {
-			expect(result.isMember).toBe(false);
+		if (!("isMember" in result)) {
+			throw new Error("expected 'isMember' in result");
 		}
+		expect(result.isMember).toBe(false);
 	});
 });

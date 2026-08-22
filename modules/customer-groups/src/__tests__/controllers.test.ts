@@ -1215,9 +1215,11 @@ describe("customer-groups controllers — edge cases", () => {
 			for (let i = 1; i < groups.length; i++) {
 				const prev = groups[i - 1];
 				const curr = groups[i];
-				if (prev && curr) {
-					expect(prev.priority).toBeLessThanOrEqual(curr.priority);
+				expect(prev && curr).toBeTruthy();
+				if (!(prev && curr)) {
+					throw new Error("expected prev && curr");
 				}
+				expect(prev.priority).toBeLessThanOrEqual(curr.priority);
 			}
 		});
 

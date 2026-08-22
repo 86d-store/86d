@@ -45,7 +45,7 @@ function AddMemberForm({
 			setExpiresAt("");
 			onSaved();
 		},
-		onError: (err: Error) => setError(err.message ?? "Failed to add member"),
+		onError: (err: Error) => setError(err.message),
 	});
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -117,8 +117,7 @@ function AddPricingForm({
 			setScopeId("");
 			onSaved();
 		},
-		onError: (err: Error) =>
-			setError(err.message ?? "Failed to add adjustment"),
+		onError: (err: Error) => setError(err.message),
 	});
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -274,9 +273,9 @@ export function CustomerGroupDetail({
 					</a>
 				</div>
 				<div className="space-y-4">
-					{Array.from({ length: 2 }).map((_, i) => (
+					{(["k0", "k1"] as const).map((key) => (
 						<div
-							key={`skel-${i}`}
+							key={key}
 							className="h-32 animate-pulse rounded-lg border border-border bg-muted/30"
 						/>
 					))}

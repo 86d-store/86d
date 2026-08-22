@@ -132,11 +132,12 @@ describe("admin address endpoints — create", () => {
 			country: "US",
 		});
 		expect("address" in result && result.address).toBeDefined();
-		if ("address" in result) {
-			expect(result.address.customerId).toBe(customerId);
-			expect(result.address.type).toBe("shipping");
-			expect(result.address.firstName).toBe("Jane");
+		if (!("address" in result)) {
+			throw new Error("expected 'address' in result");
 		}
+		expect(result.address.customerId).toBe(customerId);
+		expect(result.address.type).toBe("shipping");
+		expect(result.address.firstName).toBe("Jane");
 	});
 
 	it("returns 404 when customer does not exist", async () => {
@@ -187,11 +188,12 @@ describe("admin address endpoints — update", () => {
 			postalCode: "62702",
 		});
 		expect("address" in result && result.address).toBeDefined();
-		if ("address" in result) {
-			expect(result.address.city).toBe("Shelbyville");
-			expect(result.address.postalCode).toBe("62702");
-			expect(result.address.firstName).toBe("Jane"); // unchanged
+		if (!("address" in result)) {
+			throw new Error("expected 'address' in result");
 		}
+		expect(result.address.city).toBe("Shelbyville");
+		expect(result.address.postalCode).toBe("62702");
+		expect(result.address.firstName).toBe("Jane"); // unchanged
 	});
 
 	it("returns 404 for unknown address", async () => {

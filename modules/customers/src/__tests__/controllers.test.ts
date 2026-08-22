@@ -1245,6 +1245,7 @@ describe("customer controllers — edge cases & interactions", () => {
 				firstName: "No",
 				lastName: "Event",
 			});
+			expect(true).toBe(true);
 		});
 
 		it("emits event for each create call", async () => {

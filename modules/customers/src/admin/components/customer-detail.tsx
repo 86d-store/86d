@@ -944,7 +944,7 @@ export function CustomerDetail(props: CustomerDetailProps) {
 									</thead>
 									<tbody className="divide-y divide-border">
 										{Object.entries(customer.metadata).map(([key, value]) => (
-											<tr key={key}>
+											<tr key={rowKey}>
 												<td className="py-2 font-mono text-foreground text-xs">
 													{key}
 												</td>

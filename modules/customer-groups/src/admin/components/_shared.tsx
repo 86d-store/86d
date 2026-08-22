@@ -87,7 +87,7 @@ export function GroupForm({
 			void api.list.invalidate();
 			onSaved();
 		},
-		onError: (err: Error) => setError(err.message ?? "Failed to create"),
+		onError: (err: Error) => setError(err.message),
 	});
 
 	const updateMutation = api.update.useMutation({
@@ -96,7 +96,7 @@ export function GroupForm({
 			void api.get.invalidate({ params: { id: group?.id ?? "" } });
 			onSaved();
 		},
-		onError: (err: Error) => setError(err.message ?? "Failed to update"),
+		onError: (err: Error) => setError(err.message),
 	});
 
 	const isPending = createMutation.isPending || updateMutation.isPending;

@@ -1,6 +1,6 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
 import { sanitizeText } from "@86d-app/core/sanitize";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { ComparisonController } from "../../service";
 
 export const addProduct = createStoreEndpoint(
@@ -34,7 +34,7 @@ export const addProduct = createStoreEndpoint(
 		const customerId = ctx.context.session?.user.id;
 
 		const maxProducts = Number(
-			(ctx.context.options as Record<string, unknown>)?.maxProducts,
+			(ctx.context.options as Record<string, unknown>).maxProducts,
 		);
 
 		try {

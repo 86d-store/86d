@@ -12,8 +12,8 @@ import Link from "next/link";
   {props.isLoading ? (
     <div className="animate-pulse">
       <div className="grid grid-cols-4 gap-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={`skeleton-${i}`}>
+        {(["k0", "k1", "k2", "k3"] as const).map((key) => (
+          <div key={key}>
             <div className="aspect-square rounded-lg bg-gray-200 dark:bg-gray-700" />
             <div className="mt-2 h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
             <div className="mt-1 h-3 w-1/2 rounded bg-gray-200 dark:bg-gray-700" />
@@ -88,7 +88,7 @@ import Link from "next/link";
             </tr>
           )}
           {props.attributeKeys.map((key) => (
-            <tr key={key} className="even:bg-gray-50 dark:even:bg-gray-800/50">
+            <tr key={rowKey} className="even:bg-gray-50 dark:even:bg-gray-800/50">
               <td className="sticky left-0 bg-inherit px-4 py-3 font-medium text-gray-500 dark:text-gray-400">
                 {key}
               </td>
