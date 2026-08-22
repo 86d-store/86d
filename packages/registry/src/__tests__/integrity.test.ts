@@ -80,6 +80,23 @@ describe("computeSubtreeIntegrity", () => {
 		expect(computeSubtreeIntegrity(one)).not.toBe(hashOne);
 	});
 
+	it("ignores host junk that differs across developer machines", () => {
+		const modulePath = writeModule({
+			"package.json": "{}",
+			"src/index.ts": "export default 1;",
+		});
+		const clean = computeSubtreeIntegrity(modulePath);
+
+		writeFileSync(join(modulePath, ".DS_Store"), "mac");
+		writeFileSync(join(modulePath, "Thumbs.db"), "win");
+		writeFileSync(join(modulePath, "src/index.tsbuildinfo"), "{}");
+
+		expect(computeSubtreeIntegrity(modulePath)).toBe(clean);
+		expect(
+			moduleSourceFiles(modulePath).some((f) => f.includes(".DS_Store")),
+		).toBe(false);
+	});
+
 	it("ignores build output that the source already determines", () => {
 		const modulePath = writeModule({
 			"package.json": "{}",

@@ -23,7 +23,7 @@ jobs:
       pull-requests: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # changesets needs full history for changelogs and publish decisions
           fetch-depth: 0

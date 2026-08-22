@@ -8,9 +8,11 @@ runs:
       with:
         bun-version: latest
 
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v5
       with:
         node-version-file: ".nvmrc"
+        # Bun owns installs; avoid setup-node auto-caching npm/yarn/pnpm.
+        package-manager-cache: false
 
     - shell: bash
       run: bun install
