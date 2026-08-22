@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { IconName } from "~/components/icon/icon";
@@ -257,14 +258,20 @@ function Sidebar({
 			{/* Logo */}
 			<div className="flex h-14 items-center border-border border-b px-4">
 				<a href="/" className="flex items-center gap-2">
-					<img
+					<Image
 						src="/assets/icon/light.svg"
 						alt="Store"
+						width={24}
+						height={24}
+						unoptimized
 						className="h-6 w-auto dark:hidden"
 					/>
-					<img
+					<Image
 						src="/assets/icon/dark.svg"
 						alt="Store"
+						width={24}
+						height={24}
+						unoptimized
 						className="hidden h-6 w-auto dark:block"
 					/>
 					<span className="font-semibold text-foreground text-sm">Admin</span>
