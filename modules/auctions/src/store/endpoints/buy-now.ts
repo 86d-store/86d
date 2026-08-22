@@ -1,5 +1,5 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { AuctionController } from "../../service";
 
 export const buyNow = createStoreEndpoint(
@@ -25,13 +25,13 @@ export const buyNow = createStoreEndpoint(
 		void ctx.context.events?.emit("auction.buy_now", {
 			auctionId: auction.id,
 			buyerId: userId,
-			price: auction.buyNowPrice ?? auction.currentBid,
+			price: auction.buyNowPrice,
 		});
 		void ctx.context.events?.emit("auction.sold", {
 			auctionId: auction.id,
 			title: auction.title,
 			winnerId: userId,
-			salePrice: auction.buyNowPrice ?? auction.currentBid,
+			salePrice: auction.buyNowPrice,
 		});
 
 		return { auction };

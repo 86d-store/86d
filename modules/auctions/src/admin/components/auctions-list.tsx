@@ -237,7 +237,7 @@ function AuctionForm({ auction, onSaved, onCancel }: AuctionFormProps) {
 			void api.summary.invalidate();
 			onSaved();
 		},
-		onError: (err: Error) => setError(err.message ?? "Failed to create"),
+		onError: (err: Error) => setError(err.message),
 	});
 
 	const updateMutation = api.update.useMutation({
@@ -245,7 +245,7 @@ function AuctionForm({ auction, onSaved, onCancel }: AuctionFormProps) {
 			void api.list.invalidate();
 			onSaved();
 		},
-		onError: (err: Error) => setError(err.message ?? "Failed to update"),
+		onError: (err: Error) => setError(err.message),
 	});
 
 	const isPending = createMutation.isPending || updateMutation.isPending;

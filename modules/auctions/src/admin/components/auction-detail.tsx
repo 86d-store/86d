@@ -224,7 +224,7 @@ function EditSheet({
 			void api.detail.invalidate({ params: { id: auction.id } });
 			onSaved();
 		},
-		onError: (err: Error) => setError(err.message ?? "Failed to update"),
+		onError: (err: Error) => setError(err.message),
 	});
 
 	useEffect(() => {

@@ -178,9 +178,10 @@ describe("store endpoint: get auction — visible statuses", () => {
 		const result = await simulateGetAuction(data, auction.id);
 
 		expect("auction" in result).toBe(true);
-		if ("auction" in result) {
-			expect(result.auction.title).toBe("Rare Widget");
+		if (!("auction" in result)) {
+			throw new Error("expected 'auction' in result");
 		}
+		expect(result.auction.title).toBe("Rare Widget");
 	});
 
 	it("returns 404 for draft auction", async () => {
@@ -239,10 +240,11 @@ describe("store endpoint: place bid — auth required", () => {
 		);
 
 		expect("bid" in result).toBe(true);
-		if ("bid" in result) {
-			expect(result.bid.amount).toBe(1500);
-			expect(result.bid.customerId).toBe("cust_1");
+		if (!("bid" in result)) {
+			throw new Error("expected 'bid' in result");
 		}
+		expect(result.bid.amount).toBe(1500);
+		expect(result.bid.customerId).toBe("cust_1");
 	});
 
 	it("rejects bid below starting price", async () => {
@@ -259,9 +261,10 @@ describe("store endpoint: place bid — auth required", () => {
 		);
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.status).toBe(400);
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.status).toBe(400);
 	});
 });
 
@@ -326,19 +329,21 @@ describe("store endpoint: my bids — auth required", () => {
 		const result = await simulateMyBids(data, { customerId: "cust_1" });
 
 		expect("bids" in result).toBe(true);
-		if ("bids" in result) {
-			expect(result.bids).toHaveLength(1);
-			expect(result.bids[0].amount).toBe(2000);
+		if (!("bids" in result)) {
+			throw new Error("expected 'bids' in result");
 		}
+		expect(result.bids).toHaveLength(1);
+		expect(result.bids[0].amount).toBe(2000);
 	});
 
 	it("returns empty for customer with no bids", async () => {
 		const result = await simulateMyBids(data, { customerId: "cust_new" });
 
 		expect("bids" in result).toBe(true);
-		if ("bids" in result) {
-			expect(result.bids).toHaveLength(0);
+		if (!("bids" in result)) {
+			throw new Error("expected 'bids' in result");
 		}
+		expect(result.bids).toHaveLength(0);
 	});
 
 	it("does not include other customers' bids", async () => {
@@ -356,8 +361,9 @@ describe("store endpoint: my bids — auth required", () => {
 		const result = await simulateMyBids(data, { customerId: "cust_1" });
 
 		expect("bids" in result).toBe(true);
-		if ("bids" in result) {
-			expect(result.bids).toHaveLength(0);
+		if (!("bids" in result)) {
+			throw new Error("expected 'bids' in result");
 		}
+		expect(result.bids).toHaveLength(0);
 	});
 });

@@ -65,9 +65,11 @@ describe("init() event registration", () => {
 		const mod = automations();
 		const ctx = createMockModuleContext({ data: mockData });
 		const init = mod.init;
-		if (init) {
-			await expect(init({ ...ctx, events: undefined })).resolves.toBeDefined();
+		expect(init).toBeTruthy();
+		if (!init) {
+			throw new Error("expected init");
 		}
+		await expect(init({ ...ctx, events: undefined })).resolves.toBeDefined();
 
 		// No listeners should be registered on the bus
 		expect(bus.listenerCount("order.placed")).toBe(0);

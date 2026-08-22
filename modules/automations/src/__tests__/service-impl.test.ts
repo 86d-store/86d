@@ -399,7 +399,6 @@ describe("createAutomationsController", () => {
 			operator: string,
 			condValue: unknown,
 			payloadValue: unknown,
-			expected: "completed" | "skipped",
 		) {
 			const automation = await controller.create({
 				name: `Test ${operator}`,
@@ -423,47 +422,61 @@ describe("createAutomationsController", () => {
 			const execution = await controller.execute(automation.id, {
 				testField: payloadValue,
 			});
-			expect(execution.status).toBe(expected);
+			return execution.status;
 		}
 
 		it("equals - matches", async () => {
-			await testCondition("equals", "active", "active", "completed");
+			expect(await testCondition("equals", "active", "active")).toBe(
+				"completed",
+			);
 		});
 
 		it("equals - does not match", async () => {
-			await testCondition("equals", "active", "inactive", "skipped");
+			expect(await testCondition("equals", "active", "inactive")).toBe(
+				"skipped",
+			);
 		});
 
 		it("not_equals - matches", async () => {
-			await testCondition("not_equals", "active", "inactive", "completed");
+			expect(await testCondition("not_equals", "active", "inactive")).toBe(
+				"completed",
+			);
 		});
 
 		it("contains - matches", async () => {
-			await testCondition("contains", "world", "hello world", "completed");
+			expect(await testCondition("contains", "world", "hello world")).toBe(
+				"completed",
+			);
 		});
 
 		it("contains - does not match", async () => {
-			await testCondition("contains", "foo", "hello world", "skipped");
+			expect(await testCondition("contains", "foo", "hello world")).toBe(
+				"skipped",
+			);
 		});
 
 		it("not_contains - matches", async () => {
-			await testCondition("not_contains", "foo", "hello world", "completed");
+			expect(await testCondition("not_contains", "foo", "hello world")).toBe(
+				"completed",
+			);
 		});
 
 		it("greater_than - matches", async () => {
-			await testCondition("greater_than", 50, 100, "completed");
+			expect(await testCondition("greater_than", 50, 100)).toBe("completed");
 		});
 
 		it("greater_than - does not match", async () => {
-			await testCondition("greater_than", 50, 30, "skipped");
+			expect(await testCondition("greater_than", 50, 30)).toBe("skipped");
 		});
 
 		it("less_than - matches", async () => {
-			await testCondition("less_than", 100, 50, "completed");
+			expect(await testCondition("less_than", 100, 50)).toBe("completed");
 		});
 
 		it("exists - matches", async () => {
-			await testCondition("exists", undefined, "value", "completed");
+			expect(await testCondition("exists", undefined, "value")).toBe(
+				"completed",
+			);
 		});
 
 		it("exists - does not match", async () => {

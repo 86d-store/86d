@@ -75,10 +75,11 @@ describe("store endpoint: log audit entry", () => {
 		});
 
 		expect("entry" in result).toBe(true);
-		if ("entry" in result) {
-			expect(result.entry.action).toBe("create");
-			expect(result.entry.resource).toBe("product");
+		if (!("entry" in result)) {
+			throw new Error("expected 'entry' in result");
 		}
+		expect(result.entry.action).toBe("create");
+		expect(result.entry.resource).toBe("product");
 	});
 });
 
@@ -183,10 +184,11 @@ describe("store endpoint: my-activity", () => {
 		const result = await simulateMyActivity(data, {}, { userId: "user_1" });
 
 		expect("entries" in result).toBe(true);
-		if ("entries" in result) {
-			expect(result.entries).toHaveLength(1);
-			expect(result.entries[0].actorId).toBe("user_1");
+		if (!("entries" in result)) {
+			throw new Error("expected 'entries' in result");
 		}
+		expect(result.entries).toHaveLength(1);
+		expect(result.entries[0].actorId).toBe("user_1");
 	});
 
 	it("returns empty when user has no activity", async () => {
@@ -197,10 +199,11 @@ describe("store endpoint: my-activity", () => {
 		);
 
 		expect("entries" in result).toBe(true);
-		if ("entries" in result) {
-			expect(result.entries).toHaveLength(0);
-			expect(result.total).toBe(0);
+		if (!("entries" in result)) {
+			throw new Error("expected 'entries' in result");
 		}
+		expect(result.entries).toHaveLength(0);
+		expect(result.total).toBe(0);
 	});
 
 	it("respects take and skip for pagination", async () => {
@@ -227,12 +230,13 @@ describe("store endpoint: my-activity", () => {
 		);
 
 		expect("entries" in page1 && "entries" in page2).toBe(true);
-		if ("entries" in page1 && "entries" in page2) {
-			expect(page1.entries).toHaveLength(2);
-			expect(page2.entries).toHaveLength(2);
-			const ids1 = page1.entries.map((e) => e.id);
-			const ids2 = page2.entries.map((e) => e.id);
-			expect(ids1.some((id) => ids2.includes(id))).toBe(false);
+		if (!("entries" in page1 && "entries" in page2)) {
+			throw new Error("expected 'entries' in page1 && 'entries' in page2");
 		}
+		expect(page1.entries).toHaveLength(2);
+		expect(page2.entries).toHaveLength(2);
+		const ids1 = page1.entries.map((e) => e.id);
+		const ids2 = page2.entries.map((e) => e.id);
+		expect(ids1.some((id) => ids2.includes(id))).toBe(false);
 	});
 });

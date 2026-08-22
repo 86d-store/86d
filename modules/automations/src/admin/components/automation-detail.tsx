@@ -118,7 +118,7 @@ export function AutomationDetail({ id }: { id: string }) {
 		<div className="space-y-2">
 			{automation.actions.map((action, i) => (
 				<div
-					key={`action-${action.type}-${i}`}
+					key={action.id}
 					className="flex items-center gap-3 rounded-md border border-border p-3"
 				>
 					<span className="rounded bg-muted px-2 py-0.5 font-mono text-xs">
@@ -138,9 +138,9 @@ export function AutomationDetail({ id }: { id: string }) {
 	const conditionsDisplay =
 		automation && automation.conditions.length > 0 ? (
 			<div className="space-y-2">
-				{automation.conditions.map((cond, i) => (
+				{automation.conditions.map((cond, _i) => (
 					<div
-						key={`cond-${cond.field}-${i}`}
+						key={cond.id}
 						className="flex items-center gap-2 rounded-md border border-border p-3 text-sm"
 					>
 						<code className="font-medium">{cond.field}</code>

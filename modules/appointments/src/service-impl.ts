@@ -64,7 +64,7 @@ export function createAppointmentController(
 
 		async getService(id) {
 			const raw = await data.get("service", id);
-			return (raw as unknown as Service) ?? null;
+			return raw as unknown as Service;
 		},
 
 		async getServiceBySlug(slug) {
@@ -165,7 +165,7 @@ export function createAppointmentController(
 
 		async getStaff(id) {
 			const raw = await data.get("staff", id);
-			return (raw as unknown as Staff) ?? null;
+			return raw as unknown as Staff;
 		},
 
 		async updateStaff(id, params) {
@@ -475,7 +475,7 @@ export function createAppointmentController(
 
 		async getAppointment(id) {
 			const raw = await data.get("appointment", id);
-			return (raw as unknown as Appointment) ?? null;
+			return raw as unknown as Appointment;
 		},
 
 		async updateAppointment(id, params) {
