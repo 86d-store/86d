@@ -136,7 +136,7 @@ Module packages use `"build": "86d module build"` (TypeScript → `dist/` plus n
 ## Deployment modes
 
 - **Docker (self-hosted):** `docker compose up` starts PostgreSQL, MinIO, and the store; auto-runs migrations, seeds demo data, creates the admin user, and stores blobs in MinIO (`STORAGE_CLIENT=s3`). Set `BETTER_AUTH_SECRET` to a secure random string in production.
-- **Managed (Railway):** the Control Plane within 86d.app provisions a dedicated instance with its own database, hosting, and blob storage. Managed identity is `86D_STORE_ID`, `86D_API_URL`, and an opaque `86D_WORKLOAD_CREDENTIAL` exchanged for short-lived scoped tokens (`packages/sdk`); the runtime pulls managed configuration through that token client, and Store Admin SSO uses a dedicated OAuth client (`86D_ADMIN_OAUTH_CLIENT_ID` / `86D_ADMIN_OAUTH_CLIENT_SECRET`). Standalone `STORE_ID` remains for local data isolation.
+- **Managed:** the Control Plane within 86d.app provisions a dedicated instance with its own database, hosting, and blob storage. Managed identity is `86D_STORE_ID`, `86D_API_URL`, and an opaque `86D_WORKLOAD_CREDENTIAL` exchanged for short-lived scoped tokens (`packages/sdk`); the runtime pulls managed configuration through that token client, and Store Admin SSO uses a dedicated OAuth client (`86D_ADMIN_OAUTH_CLIENT_ID` / `86D_ADMIN_OAUTH_CLIENT_SECRET`). Standalone `STORE_ID` remains for local data isolation. Do not label this path with upstream host names in merchant-reachable copy.
 - **Storage providers:** `STORAGE_CLIENT` = `local` (env default), `vercel`, or `s3` (MinIO, AWS S3, R2). See `.env.example`.
 
 ## API endpoints
