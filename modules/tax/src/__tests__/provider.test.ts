@@ -499,11 +499,13 @@ describe("TaxJarProvider", () => {
 			const result = await provider.verifyConnection();
 
 			expect(result.ok).toBe(false);
-			if (!result.ok) {
-				expect(result.error).toContain(
-					"Not authorized for route 'GET /v2/categories'",
-				);
+			expect(!result.ok).toBeTruthy();
+			if (result.ok) {
+				throw new Error("expected !result.ok");
 			}
+			expect(result.error).toContain(
+				"Not authorized for route 'GET /v2/categories'",
+			);
 		});
 
 		it("returns error when fetch throws a network error", async () => {

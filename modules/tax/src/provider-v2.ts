@@ -1,6 +1,6 @@
 import type { CapabilityRequest } from "@86d-app/core/capabilities";
 import type { taxQuoteV2Capability } from "@86d-app/core/commerce-capabilities";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import { TaxJarProvider } from "./provider";
 
 type TaxQuoteV2Request = CapabilityRequest<typeof taxQuoteV2Capability>;

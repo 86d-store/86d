@@ -5,7 +5,7 @@
 ) : (
   <div className="text-neutral-600 text-xs">
     {props.rates.map((r, i) => (
-      <div key={`${r.name}-${i}`}>
+      <div key={r.id}>
         {r.name}:{" "}
         {r.type === "percentage"
           ? `${(r.rate * 100).toFixed(2)}%`

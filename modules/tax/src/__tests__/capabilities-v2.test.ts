@@ -174,23 +174,25 @@ describe("Tax v2 native decisions", () => {
 	});
 
 	it.each([
-		[
-			"NO_NEXUS",
-			policy({ jurisdictionDecision: "NO_NEXUS" }),
-			quoteRequest(),
-			"NO_NEXUS_POLICY",
-			"NO_NEXUS",
-		],
-		[
-			"MARKETPLACE_COLLECTED",
-			policy({ jurisdictionDecision: "MARKETPLACE_COLLECTED" }),
-			quoteRequest({ marketplaceStatus: "COLLECTED" }),
-			"MARKETPLACE_POLICY",
-			"MARKETPLACE_COLLECTED",
-		],
+		{
+			label: "NO_NEXUS",
+			configuredPolicy: policy({ jurisdictionDecision: "NO_NEXUS" }),
+			request: quoteRequest(),
+			reason: "NO_NEXUS_POLICY",
+			status: "NO_NEXUS",
+		},
+		{
+			label: "MARKETPLACE_COLLECTED",
+			configuredPolicy: policy({
+				jurisdictionDecision: "MARKETPLACE_COLLECTED",
+			}),
+			request: quoteRequest({ marketplaceStatus: "COLLECTED" }),
+			reason: "MARKETPLACE_POLICY",
+			status: "MARKETPLACE_COLLECTED",
+		},
 	] as const)(
-		"returns an explicit versioned zero for %s",
-		async (_label, configuredPolicy, request, reason, status) => {
+		"returns an explicit versioned zero for $label",
+		async ({ configuredPolicy, request, reason, status }) => {
 			const data = createMockDataService();
 			await seedRateDecision(data, { policy: configuredPolicy });
 			const result = await handleTaxQuoteV2(data, request, dependencies);

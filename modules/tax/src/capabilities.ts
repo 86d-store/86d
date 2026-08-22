@@ -1,10 +1,8 @@
 import { provideCapability } from "@86d-app/core/capabilities";
 import { taxQuoteCapability } from "@86d-app/core/commerce-capabilities";
-import type { z } from "@86d-app/core/zod";
+import type { z } from "zod";
 import type { TaxController } from "./service";
 import { createTaxController } from "./service-impl";
-
-export { taxQuoteCapability };
 
 type TaxQuoteRequest = z.infer<typeof taxQuoteCapability.request>;
 

@@ -151,9 +151,7 @@ export class TaxJarProvider {
 		const json = (await res.json()) as T | TaxJarErrorResponse;
 		if (!res.ok) {
 			const err = json as TaxJarErrorResponse;
-			throw new Error(
-				`TaxJar API error: ${err.detail ?? err.error ?? `HTTP ${res.status}`}`,
-			);
+			throw new Error(`TaxJar API error: ${err.detail}`);
 		}
 		return json as T;
 	}

@@ -5,10 +5,8 @@ import {
 } from "@86d-app/core/capabilities";
 import { taxQuoteV2Capability } from "@86d-app/core/commerce-capabilities";
 import type { ModuleDataService } from "@86d-app/core/types/module";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { TaxProviderV2Result, TaxQuoteProviderV2 } from "./provider-v2";
-
-export { taxQuoteV2Capability };
 
 type TaxQuoteV2Request = CapabilityRequest<typeof taxQuoteV2Capability>;
 type TaxQuoteV2Decision = CapabilityDecision<typeof taxQuoteV2Capability>;

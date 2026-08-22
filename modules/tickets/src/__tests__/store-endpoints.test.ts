@@ -263,10 +263,11 @@ describe("store endpoint: get my tickets — auth required", () => {
 		});
 
 		expect("tickets" in result).toBe(true);
-		if ("tickets" in result) {
-			expect(result.tickets).toHaveLength(1);
-			expect(result.tickets[0].subject).toBe("My ticket");
+		if (!("tickets" in result)) {
+			throw new Error("expected 'tickets' in result");
 		}
+		expect(result.tickets).toHaveLength(1);
+		expect(result.tickets[0].subject).toBe("My ticket");
 	});
 
 	it("returns empty for customer with no tickets", async () => {
@@ -275,9 +276,10 @@ describe("store endpoint: get my tickets — auth required", () => {
 		});
 
 		expect("tickets" in result).toBe(true);
-		if ("tickets" in result) {
-			expect(result.tickets).toHaveLength(0);
+		if (!("tickets" in result)) {
+			throw new Error("expected 'tickets' in result");
 		}
+		expect(result.tickets).toHaveLength(0);
 	});
 });
 
@@ -311,9 +313,10 @@ describe("store endpoint: get ticket — by number, ownership check", () => {
 		});
 
 		expect("ticket" in result).toBe(true);
-		if ("ticket" in result) {
-			expect(result.ticket.subject).toBe("Help needed");
+		if (!("ticket" in result)) {
+			throw new Error("expected 'ticket' in result");
 		}
+		expect(result.ticket.subject).toBe("Help needed");
 	});
 
 	it("returns 404 when ticket belongs to another customer", async () => {
@@ -382,10 +385,11 @@ describe("store endpoint: add message — customer reply", () => {
 		);
 
 		expect("message" in result).toBe(true);
-		if ("message" in result) {
-			expect(result.message.body).toBe("Any update on this?");
-			expect(result.message.authorType).toBe("customer");
+		if (!("message" in result)) {
+			throw new Error("expected 'message' in result");
 		}
+		expect(result.message.body).toBe("Any update on this?");
+		expect(result.message.authorType).toBe("customer");
 	});
 
 	it("returns 404 when adding message to another customer's ticket", async () => {
@@ -455,11 +459,12 @@ describe("store endpoint: list messages — public only", () => {
 		});
 
 		expect("messages" in result).toBe(true);
-		if ("messages" in result) {
-			const bodies = result.messages.map((m) => m.body);
-			expect(bodies).toContain("We are looking into this.");
-			expect(bodies).not.toContain("Internal: escalate to tier 2");
+		if (!("messages" in result)) {
+			throw new Error("expected 'messages' in result");
 		}
+		const bodies = result.messages.map((m) => m.body);
+		expect(bodies).toContain("We are looking into this.");
+		expect(bodies).not.toContain("Internal: escalate to tier 2");
 	});
 
 	it("returns 404 when listing messages of another customer's ticket", async () => {

@@ -174,9 +174,9 @@ export function TicketCategories() {
 			{/* Category list */}
 			{isLoading ? (
 				<div className="space-y-3">
-					{Array.from({ length: 3 }).map((_, i) => (
+					{(["k0", "k1", "k2"] as const).map((key) => (
 						<div
-							key={`skel-${i}`}
+							key={key}
 							className="h-16 animate-pulse rounded-lg border border-border bg-muted/30"
 						/>
 					))}

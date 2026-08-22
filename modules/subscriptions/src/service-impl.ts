@@ -182,7 +182,7 @@ export function createSubscriptionController(
 				where,
 				take: 1,
 			});
-			return (matches[0] as Subscription) ?? null;
+			return matches[0] as Subscription;
 		},
 
 		async cancelSubscription(params) {

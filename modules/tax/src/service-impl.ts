@@ -355,7 +355,7 @@ export function createTaxController(
 
 					const tax = response.tax;
 					const lines: TaxLineResult[] = params.lineItems.map((item, idx) => {
-						const lineBreakdown = tax.breakdown?.line_items?.find(
+						const lineBreakdown = tax.breakdown.line_items.find(
 							(li) => li.id === (item.productId ?? String(idx)),
 						);
 						return {
@@ -363,9 +363,7 @@ export function createTaxController(
 							taxableAmount: lineBreakdown?.taxable_amount ?? item.amount,
 							taxAmount: lineBreakdown?.tax_collectable ?? 0,
 							rate: lineBreakdown?.combined_tax_rate ?? tax.rate,
-							rateNames: [
-								`${tax.jurisdictions?.state ?? params.address.state} (TaxJar)`,
-							],
+							rateNames: [`${tax.jurisdictions.state} (TaxJar)`],
 						};
 					});
 
@@ -378,9 +376,9 @@ export function createTaxController(
 						effectiveRate: tax.rate,
 						inclusive: false,
 						jurisdiction: {
-							country: tax.jurisdictions?.country ?? params.address.country,
-							state: tax.jurisdictions?.state ?? params.address.state,
-							city: tax.jurisdictions?.city ?? params.address.city ?? "*",
+							country: tax.jurisdictions.country,
+							state: tax.jurisdictions.state,
+							city: tax.jurisdictions.city,
 						},
 					};
 				} catch {
