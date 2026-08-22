@@ -29,9 +29,10 @@ test.describe("Storefront — Performance", () => {
 		});
 
 		expect(perf).not.toBeNull();
-		if (perf) {
-			expect(perf.domContentLoaded).toBeLessThan(3000);
+		if (!perf) {
+			throw new Error("expected perf");
 		}
+		expect(perf.domContentLoaded).toBeLessThan(3000);
 	});
 
 	test("product listing loads within 8s", async ({ page }) => {
@@ -107,8 +108,9 @@ test.describe("Storefront — Performance", () => {
 		});
 
 		expect(perf).not.toBeNull();
-		if (perf) {
-			expect(perf.domContentLoaded).toBeLessThan(3000);
+		if (!perf) {
+			throw new Error("expected perf");
 		}
+		expect(perf.domContentLoaded).toBeLessThan(3000);
 	});
 });

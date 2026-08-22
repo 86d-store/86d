@@ -239,7 +239,7 @@ function applyRewrites(): void {
 	);
 	rmSync(BACKUP_ROOT, { recursive: true, force: true });
 	mkdirSync(BACKUP_ROOT, { recursive: true });
-	let rewritten = 0;
+	let _rewritten = 0;
 
 	for (const pkgPath of paths) {
 		const pkg = readJson(pkgPath);
@@ -286,10 +286,8 @@ function applyRewrites(): void {
 		}
 
 		writeFileSync(pkgPath, `${JSON.stringify(next, null, "\t")}\n`);
-		rewritten += 1;
+		_rewritten += 1;
 	}
-
-	console.log(`Prepared ${rewritten} publishable package.json files for npm.`);
 }
 
 function checkProtocols(): void {
@@ -309,17 +307,13 @@ function checkProtocols(): void {
 		);
 		process.exit(1);
 	}
-	console.log(
-		`Checked ${paths.length} publishable packages: no workspace:/catalog: protocols.`,
-	);
 }
 
 function restoreFromBackup(): void {
 	if (!existsSync(BACKUP_ROOT)) {
-		console.log("No .prepare-publish-backup/ to restore.");
 		return;
 	}
-	let restored = 0;
+	let _restored = 0;
 	const stack = [BACKUP_ROOT];
 	while (stack.length > 0) {
 		const dir = stack.pop();
@@ -335,11 +329,10 @@ function restoreFromBackup(): void {
 			const dest = join(ROOT, rel);
 			mkdirSync(dirname(dest), { recursive: true });
 			cpSync(full, dest);
-			restored += 1;
+			_restored += 1;
 		}
 	}
 	rmSync(BACKUP_ROOT, { recursive: true, force: true });
-	console.log(`Restored ${restored} package.json files from backup.`);
 }
 
 if (mode === "restore") {

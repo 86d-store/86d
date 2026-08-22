@@ -1,4 +1,5 @@
-import { expect, test } from "./fixtures/test-fixtures";
+import { expect } from "@playwright/test";
+import { test } from "./fixtures/test-fixtures";
 
 /**
  * Visual regression tests — screenshot comparison across viewports.
@@ -30,7 +31,7 @@ const SCREENSHOT_OPTS = {
 /** Navigate to a page and wait for it to fully settle. */
 async function stableGoto(page: import("@playwright/test").Page, path: string) {
 	await page.goto(path);
-	await page.waitForLoadState("networkidle");
+	await page.waitForLoadState("load");
 }
 
 // ─── Core storefront pages ──────────────────────────────────────────────────
@@ -407,7 +408,7 @@ test.describe("Admin — Authenticated Visual", () => {
 	});
 
 	test("admin dashboard", async ({ admin }) => {
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-dashboard.png",
 			SCREENSHOT_OPTS,
@@ -416,7 +417,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin products page", async ({ admin }) => {
 		await admin.page.goto("/admin/products");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-products.png",
 			SCREENSHOT_OPTS,
@@ -425,7 +426,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin orders page", async ({ admin }) => {
 		await admin.page.goto("/admin/orders");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-orders.png",
 			SCREENSHOT_OPTS,
@@ -434,7 +435,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin customers page", async ({ admin }) => {
 		await admin.page.goto("/admin/customers");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-customers.png",
 			SCREENSHOT_OPTS,
@@ -443,7 +444,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin announcements list", async ({ admin }) => {
 		await admin.page.goto("/admin/announcements");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-announcements-list.png",
 			SCREENSHOT_OPTS,
@@ -452,7 +453,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin announcements new form", async ({ admin }) => {
 		await admin.page.goto("/admin/announcements/new");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-announcements-new.png",
 			SCREENSHOT_OPTS,
@@ -463,7 +464,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin discounts list", async ({ admin }) => {
 		await admin.page.goto("/admin/discounts");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-discounts-list.png",
 			SCREENSHOT_OPTS,
@@ -472,7 +473,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin discounts analytics", async ({ admin }) => {
 		await admin.page.goto("/admin/discounts/analytics");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-discounts-analytics.png",
 			SCREENSHOT_OPTS,
@@ -481,7 +482,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin reviews list", async ({ admin }) => {
 		await admin.page.goto("/admin/reviews");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-reviews-list.png",
 			SCREENSHOT_OPTS,
@@ -490,7 +491,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin inventory list", async ({ admin }) => {
 		await admin.page.goto("/admin/inventory");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-inventory-list.png",
 			SCREENSHOT_OPTS,
@@ -501,7 +502,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin stripe settings", async ({ admin }) => {
 		await admin.page.goto("/admin/stripe");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-stripe-settings.png",
 			SCREENSHOT_OPTS,
@@ -510,7 +511,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin shipping rates", async ({ admin }) => {
 		await admin.page.goto("/admin/shipping");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-shipping-rates.png",
 			SCREENSHOT_OPTS,
@@ -519,7 +520,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin tax configuration", async ({ admin }) => {
 		await admin.page.goto("/admin/tax");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-tax-config.png",
 			SCREENSHOT_OPTS,
@@ -528,7 +529,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin checkout sessions", async ({ admin }) => {
 		await admin.page.goto("/admin/checkout");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-checkout-sessions.png",
 			SCREENSHOT_OPTS,
@@ -537,7 +538,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin blog posts", async ({ admin }) => {
 		await admin.page.goto("/admin/blog");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-blog-posts.png",
 			SCREENSHOT_OPTS,
@@ -546,7 +547,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin discounts price rules", async ({ admin }) => {
 		await admin.page.goto("/admin/discounts/price-rules");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-discounts-price-rules.png",
 			SCREENSHOT_OPTS,
@@ -555,7 +556,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin loyalty program", async ({ admin }) => {
 		await admin.page.goto("/admin/loyalty");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-loyalty.png",
 			SCREENSHOT_OPTS,
@@ -564,7 +565,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin gift cards", async ({ admin }) => {
 		await admin.page.goto("/admin/gift-cards");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-gift-cards.png",
 			SCREENSHOT_OPTS,
@@ -573,7 +574,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin collections list", async ({ admin }) => {
 		await admin.page.goto("/admin/collections");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-collections-list.png",
 			SCREENSHOT_OPTS,
@@ -582,7 +583,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin brands list", async ({ admin }) => {
 		await admin.page.goto("/admin/brands");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-brands-list.png",
 			SCREENSHOT_OPTS,
@@ -593,7 +594,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin subscriptions list", async ({ admin }) => {
 		await admin.page.goto("/admin/subscriptions");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-subscriptions-list.png",
 			SCREENSHOT_OPTS,
@@ -602,7 +603,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin returns list", async ({ admin }) => {
 		await admin.page.goto("/admin/returns");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-returns-list.png",
 			SCREENSHOT_OPTS,
@@ -613,7 +614,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin vendors list", async ({ admin }) => {
 		await admin.page.goto("/admin/vendors");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-vendors-list.png",
 			SCREENSHOT_OPTS,
@@ -622,7 +623,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin memberships list", async ({ admin }) => {
 		await admin.page.goto("/admin/memberships");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-memberships-list.png",
 			SCREENSHOT_OPTS,
@@ -631,7 +632,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin store credits list", async ({ admin }) => {
 		await admin.page.goto("/admin/store-credits");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-store-credits-list.png",
 			SCREENSHOT_OPTS,
@@ -640,7 +641,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin customer groups list", async ({ admin }) => {
 		await admin.page.goto("/admin/customer-groups");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-customer-groups-list.png",
 			SCREENSHOT_OPTS,
@@ -649,7 +650,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin referrals list", async ({ admin }) => {
 		await admin.page.goto("/admin/referrals");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-referrals-list.png",
 			SCREENSHOT_OPTS,
@@ -660,7 +661,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin preorders list", async ({ admin }) => {
 		await admin.page.goto("/admin/preorders");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-preorders-list.png",
 			SCREENSHOT_OPTS,
@@ -669,7 +670,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin backorders list", async ({ admin }) => {
 		await admin.page.goto("/admin/backorders");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-backorders-list.png",
 			SCREENSHOT_OPTS,
@@ -680,7 +681,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin newsletter list", async ({ admin }) => {
 		await admin.page.goto("/admin/newsletter");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-newsletter-list.png",
 			SCREENSHOT_OPTS,
@@ -689,7 +690,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin waitlist list", async ({ admin }) => {
 		await admin.page.goto("/admin/waitlist");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-waitlist-list.png",
 			SCREENSHOT_OPTS,
@@ -700,7 +701,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin forms list", async ({ admin }) => {
 		await admin.page.goto("/admin/forms");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-forms-list.png",
 			SCREENSHOT_OPTS,
@@ -709,7 +710,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin faq list", async ({ admin }) => {
 		await admin.page.goto("/admin/faq");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-faq-list.png",
 			SCREENSHOT_OPTS,
@@ -718,7 +719,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin navigation list", async ({ admin }) => {
 		await admin.page.goto("/admin/navigation");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-navigation-list.png",
 			SCREENSHOT_OPTS,
@@ -727,7 +728,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin media library", async ({ admin }) => {
 		await admin.page.goto("/admin/media");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-media-library.png",
 			SCREENSHOT_OPTS,
@@ -736,7 +737,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin seo settings", async ({ admin }) => {
 		await admin.page.goto("/admin/seo");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-seo-settings.png",
 			SCREENSHOT_OPTS,
@@ -747,7 +748,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin revenue overview", async ({ admin }) => {
 		await admin.page.goto("/admin/revenue");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-revenue-overview.png",
 			SCREENSHOT_OPTS,
@@ -756,7 +757,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin analytics overview", async ({ admin }) => {
 		await admin.page.goto("/admin/analytics");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-analytics-overview.png",
 			SCREENSHOT_OPTS,
@@ -765,7 +766,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin automations list", async ({ admin }) => {
 		await admin.page.goto("/admin/automations");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-automations-list.png",
 			SCREENSHOT_OPTS,
@@ -776,7 +777,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin tickets list", async ({ admin }) => {
 		await admin.page.goto("/admin/tickets");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-tickets-list.png",
 			SCREENSHOT_OPTS,
@@ -787,7 +788,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin categories list", async ({ admin }) => {
 		await admin.page.goto("/admin/categories");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-categories-list.png",
 			SCREENSHOT_OPTS,
@@ -796,7 +797,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin bundles list", async ({ admin }) => {
 		await admin.page.goto("/admin/bundles");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-bundles-list.png",
 			SCREENSHOT_OPTS,
@@ -805,7 +806,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin price lists", async ({ admin }) => {
 		await admin.page.goto("/admin/price-lists");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-price-lists.png",
 			SCREENSHOT_OPTS,
@@ -814,7 +815,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin product labels", async ({ admin }) => {
 		await admin.page.goto("/admin/product-labels");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-product-labels.png",
 			SCREENSHOT_OPTS,
@@ -823,7 +824,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin product Q&A", async ({ admin }) => {
 		await admin.page.goto("/admin/product-qa");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-product-qa.png",
 			SCREENSHOT_OPTS,
@@ -832,7 +833,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin comparisons", async ({ admin }) => {
 		await admin.page.goto("/admin/comparisons");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-comparisons.png",
 			SCREENSHOT_OPTS,
@@ -843,7 +844,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin carts list", async ({ admin }) => {
 		await admin.page.goto("/admin/carts");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-carts-list.png",
 			SCREENSHOT_OPTS,
@@ -852,7 +853,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin abandoned carts list", async ({ admin }) => {
 		await admin.page.goto("/admin/abandoned-carts");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-abandoned-carts-list.png",
 			SCREENSHOT_OPTS,
@@ -861,7 +862,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin payments list", async ({ admin }) => {
 		await admin.page.goto("/admin/payments");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-payments-list.png",
 			SCREENSHOT_OPTS,
@@ -870,7 +871,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin invoices list", async ({ admin }) => {
 		await admin.page.goto("/admin/invoices");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-invoices-list.png",
 			SCREENSHOT_OPTS,
@@ -879,7 +880,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin flash sales list", async ({ admin }) => {
 		await admin.page.goto("/admin/flash-sales");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-flash-sales-list.png",
 			SCREENSHOT_OPTS,
@@ -888,7 +889,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin auctions list", async ({ admin }) => {
 		await admin.page.goto("/admin/auctions");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-auctions-list.png",
 			SCREENSHOT_OPTS,
@@ -897,7 +898,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin quotes list", async ({ admin }) => {
 		await admin.page.goto("/admin/quotes");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-quotes-list.png",
 			SCREENSHOT_OPTS,
@@ -908,7 +909,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin appointments list", async ({ admin }) => {
 		await admin.page.goto("/admin/appointments");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-appointments-list.png",
 			SCREENSHOT_OPTS,
@@ -917,7 +918,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin gift wrapping settings", async ({ admin }) => {
 		await admin.page.goto("/admin/gift-wrapping");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-gift-wrapping.png",
 			SCREENSHOT_OPTS,
@@ -926,7 +927,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin gift registry list", async ({ admin }) => {
 		await admin.page.goto("/admin/gift-registry");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-gift-registry-list.png",
 			SCREENSHOT_OPTS,
@@ -935,7 +936,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin warranties list", async ({ admin }) => {
 		await admin.page.goto("/admin/warranties");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-warranties-list.png",
 			SCREENSHOT_OPTS,
@@ -944,7 +945,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin fulfillment overview", async ({ admin }) => {
 		await admin.page.goto("/admin/fulfillment");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-fulfillment-overview.png",
 			SCREENSHOT_OPTS,
@@ -953,7 +954,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin store pickup queue", async ({ admin }) => {
 		await admin.page.goto("/admin/store-pickup");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-store-pickup.png",
 			SCREENSHOT_OPTS,
@@ -962,7 +963,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin delivery slots list", async ({ admin }) => {
 		await admin.page.goto("/admin/delivery-slots");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-delivery-slots.png",
 			SCREENSHOT_OPTS,
@@ -973,7 +974,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin social proof list", async ({ admin }) => {
 		await admin.page.goto("/admin/social-proof");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-social-proof-list.png",
 			SCREENSHOT_OPTS,
@@ -982,7 +983,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin recommendations settings", async ({ admin }) => {
 		await admin.page.goto("/admin/recommendations");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-recommendations.png",
 			SCREENSHOT_OPTS,
@@ -991,7 +992,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin social sharing settings", async ({ admin }) => {
 		await admin.page.goto("/admin/social-sharing");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-social-sharing.png",
 			SCREENSHOT_OPTS,
@@ -1002,7 +1003,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin cms pages list", async ({ admin }) => {
 		await admin.page.goto("/admin/pages");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-pages-list.png",
 			SCREENSHOT_OPTS,
@@ -1011,7 +1012,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin redirects list", async ({ admin }) => {
 		await admin.page.goto("/admin/redirects");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-redirects-list.png",
 			SCREENSHOT_OPTS,
@@ -1020,7 +1021,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin sitemap settings", async ({ admin }) => {
 		await admin.page.goto("/admin/sitemap");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-sitemap-settings.png",
 			SCREENSHOT_OPTS,
@@ -1029,7 +1030,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin product feeds list", async ({ admin }) => {
 		await admin.page.goto("/admin/product-feeds");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-product-feeds-list.png",
 			SCREENSHOT_OPTS,
@@ -1040,7 +1041,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin paypal settings", async ({ admin }) => {
 		await admin.page.goto("/admin/paypal");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-paypal-settings.png",
 			SCREENSHOT_OPTS,
@@ -1049,7 +1050,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin square settings", async ({ admin }) => {
 		await admin.page.goto("/admin/square");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-square-settings.png",
 			SCREENSHOT_OPTS,
@@ -1058,7 +1059,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin braintree settings", async ({ admin }) => {
 		await admin.page.goto("/admin/braintree");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-braintree-settings.png",
 			SCREENSHOT_OPTS,
@@ -1067,7 +1068,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin currencies list", async ({ admin }) => {
 		await admin.page.goto("/admin/currencies");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-currencies-list.png",
 			SCREENSHOT_OPTS,
@@ -1076,7 +1077,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin audit log", async ({ admin }) => {
 		await admin.page.goto("/admin/audit-log");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-audit-log.png",
 			SCREENSHOT_OPTS,
@@ -1085,7 +1086,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin search settings", async ({ admin }) => {
 		await admin.page.goto("/admin/search");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-search-settings.png",
 			SCREENSHOT_OPTS,
@@ -1096,7 +1097,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin import export", async ({ admin }) => {
 		await admin.page.goto("/admin/import-export");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-import-export.png",
 			SCREENSHOT_OPTS,
@@ -1105,7 +1106,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin store settings", async ({ admin }) => {
 		await admin.page.goto("/admin/settings");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-settings-general.png",
 			SCREENSHOT_OPTS,
@@ -1114,7 +1115,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin store-locator list", async ({ admin }) => {
 		await admin.page.goto("/admin/store-locator");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-store-locator-list.png",
 			SCREENSHOT_OPTS,
@@ -1123,7 +1124,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin affiliates list", async ({ admin }) => {
 		await admin.page.goto("/admin/affiliates");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-affiliates-list.png",
 			SCREENSHOT_OPTS,
@@ -1132,7 +1133,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin amazon settings", async ({ admin }) => {
 		await admin.page.goto("/admin/amazon");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-amazon-settings.png",
 			SCREENSHOT_OPTS,
@@ -1141,7 +1142,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin bulk pricing list", async ({ admin }) => {
 		await admin.page.goto("/admin/bulk-pricing");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-bulk-pricing-list.png",
 			SCREENSHOT_OPTS,
@@ -1150,7 +1151,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin digital downloads list", async ({ admin }) => {
 		await admin.page.goto("/admin/downloads");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-digital-downloads-list.png",
 			SCREENSHOT_OPTS,
@@ -1159,7 +1160,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin doordash settings", async ({ admin }) => {
 		await admin.page.goto("/admin/doordash");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-doordash-settings.png",
 			SCREENSHOT_OPTS,
@@ -1168,7 +1169,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin ebay settings", async ({ admin }) => {
 		await admin.page.goto("/admin/ebay");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-ebay-settings.png",
 			SCREENSHOT_OPTS,
@@ -1177,7 +1178,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin etsy settings", async ({ admin }) => {
 		await admin.page.goto("/admin/etsy");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-etsy-settings.png",
 			SCREENSHOT_OPTS,
@@ -1186,7 +1187,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin facebook shop settings", async ({ admin }) => {
 		await admin.page.goto("/admin/facebook-shop");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-facebook-shop-settings.png",
 			SCREENSHOT_OPTS,
@@ -1195,7 +1196,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin favor settings", async ({ admin }) => {
 		await admin.page.goto("/admin/favor");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-favor-settings.png",
 			SCREENSHOT_OPTS,
@@ -1204,7 +1205,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin gamification overview", async ({ admin }) => {
 		await admin.page.goto("/admin/gamification");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-gamification-overview.png",
 			SCREENSHOT_OPTS,
@@ -1213,7 +1214,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin google shopping settings", async ({ admin }) => {
 		await admin.page.goto("/admin/google-shopping");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-google-shopping-settings.png",
 			SCREENSHOT_OPTS,
@@ -1222,7 +1223,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin instagram shop settings", async ({ admin }) => {
 		await admin.page.goto("/admin/instagram-shop");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-instagram-shop-settings.png",
 			SCREENSHOT_OPTS,
@@ -1231,7 +1232,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin kiosks list", async ({ admin }) => {
 		await admin.page.goto("/admin/kiosk");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-kiosks-list.png",
 			SCREENSHOT_OPTS,
@@ -1240,7 +1241,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin notifications list", async ({ admin }) => {
 		await admin.page.goto("/admin/notifications");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-notifications-list.png",
 			SCREENSHOT_OPTS,
@@ -1249,7 +1250,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin order notes list", async ({ admin }) => {
 		await admin.page.goto("/admin/order-notes");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-order-notes-list.png",
 			SCREENSHOT_OPTS,
@@ -1258,7 +1259,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin photo booth list", async ({ admin }) => {
 		await admin.page.goto("/admin/photo-booth");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-photo-booth-list.png",
 			SCREENSHOT_OPTS,
@@ -1267,7 +1268,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin pinterest shop settings", async ({ admin }) => {
 		await admin.page.goto("/admin/pinterest-shop");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-pinterest-shop-settings.png",
 			SCREENSHOT_OPTS,
@@ -1276,7 +1277,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin qr codes list", async ({ admin }) => {
 		await admin.page.goto("/admin/qr-codes");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-qr-codes-list.png",
 			SCREENSHOT_OPTS,
@@ -1285,7 +1286,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin recently viewed list", async ({ admin }) => {
 		await admin.page.goto("/admin/recently-viewed");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-recently-viewed-list.png",
 			SCREENSHOT_OPTS,
@@ -1294,7 +1295,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin saved addresses list", async ({ admin }) => {
 		await admin.page.goto("/admin/saved-addresses");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-saved-addresses-list.png",
 			SCREENSHOT_OPTS,
@@ -1303,7 +1304,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin tiktok shop settings", async ({ admin }) => {
 		await admin.page.goto("/admin/tiktok-shop");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-tiktok-shop-settings.png",
 			SCREENSHOT_OPTS,
@@ -1312,7 +1313,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin tipping settings", async ({ admin }) => {
 		await admin.page.goto("/admin/tipping");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-tipping-settings.png",
 			SCREENSHOT_OPTS,
@@ -1321,7 +1322,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin toast settings", async ({ admin }) => {
 		await admin.page.goto("/admin/toast");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-toast-settings.png",
 			SCREENSHOT_OPTS,
@@ -1330,7 +1331,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin uber direct settings", async ({ admin }) => {
 		await admin.page.goto("/admin/uber-direct");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-uber-direct-settings.png",
 			SCREENSHOT_OPTS,
@@ -1339,7 +1340,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin uber eats settings", async ({ admin }) => {
 		await admin.page.goto("/admin/uber-eats");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-uber-eats-settings.png",
 			SCREENSHOT_OPTS,
@@ -1348,7 +1349,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin walmart settings", async ({ admin }) => {
 		await admin.page.goto("/admin/walmart");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-walmart-settings.png",
 			SCREENSHOT_OPTS,
@@ -1357,7 +1358,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin wish settings", async ({ admin }) => {
 		await admin.page.goto("/admin/wish");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-wish-settings.png",
 			SCREENSHOT_OPTS,
@@ -1366,7 +1367,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin wishlist list", async ({ admin }) => {
 		await admin.page.goto("/admin/wishlist");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-wishlist-list.png",
 			SCREENSHOT_OPTS,
@@ -1375,7 +1376,7 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin x shop settings", async ({ admin }) => {
 		await admin.page.goto("/admin/x-shop");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"admin-x-shop-settings.png",
 			SCREENSHOT_OPTS,
@@ -1393,7 +1394,7 @@ test.describe("Account — Visual", () => {
 
 	test("account home page", async ({ admin }) => {
 		await admin.page.goto("/account");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-home.png",
 			SCREENSHOT_OPTS,
@@ -1402,7 +1403,7 @@ test.describe("Account — Visual", () => {
 
 	test("account orders page", async ({ admin }) => {
 		await admin.page.goto("/account/orders");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-orders.png",
 			SCREENSHOT_OPTS,
@@ -1411,7 +1412,7 @@ test.describe("Account — Visual", () => {
 
 	test("account profile page", async ({ admin }) => {
 		await admin.page.goto("/account/profile");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-profile.png",
 			SCREENSHOT_OPTS,
@@ -1420,7 +1421,7 @@ test.describe("Account — Visual", () => {
 
 	test("account addresses page", async ({ admin }) => {
 		await admin.page.goto("/account/addresses");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-addresses.png",
 			SCREENSHOT_OPTS,
@@ -1429,7 +1430,7 @@ test.describe("Account — Visual", () => {
 
 	test("account wishlist page", async ({ admin }) => {
 		await admin.page.goto("/account/wishlist");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-wishlist.png",
 			SCREENSHOT_OPTS,
@@ -1438,7 +1439,7 @@ test.describe("Account — Visual", () => {
 
 	test("account reviews page", async ({ admin }) => {
 		await admin.page.goto("/account/reviews");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-reviews.png",
 			SCREENSHOT_OPTS,
@@ -1447,7 +1448,7 @@ test.describe("Account — Visual", () => {
 
 	test("account subscriptions page", async ({ admin }) => {
 		await admin.page.goto("/account/subscriptions");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-subscriptions.png",
 			SCREENSHOT_OPTS,
@@ -1456,7 +1457,7 @@ test.describe("Account — Visual", () => {
 
 	test("account loyalty page", async ({ admin }) => {
 		await admin.page.goto("/account/loyalty");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-loyalty.png",
 			SCREENSHOT_OPTS,
@@ -1465,7 +1466,7 @@ test.describe("Account — Visual", () => {
 
 	test("account downloads page", async ({ admin }) => {
 		await admin.page.goto("/account/downloads");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-downloads.png",
 			SCREENSHOT_OPTS,
@@ -1474,7 +1475,7 @@ test.describe("Account — Visual", () => {
 
 	test("account returns page", async ({ admin }) => {
 		await admin.page.goto("/account/returns");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-returns.png",
 			SCREENSHOT_OPTS,
@@ -1483,7 +1484,7 @@ test.describe("Account — Visual", () => {
 
 	test("account orders returns page", async ({ admin }) => {
 		await admin.page.goto("/account/orders/returns");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-orders-returns.png",
 			SCREENSHOT_OPTS,
@@ -1492,7 +1493,7 @@ test.describe("Account — Visual", () => {
 
 	test("account appointments page", async ({ admin }) => {
 		await admin.page.goto("/account/appointments");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-appointments.png",
 			SCREENSHOT_OPTS,
@@ -1501,7 +1502,7 @@ test.describe("Account — Visual", () => {
 
 	test("account preorders page", async ({ admin }) => {
 		await admin.page.goto("/account/preorders");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-preorders.png",
 			SCREENSHOT_OPTS,
@@ -1510,7 +1511,7 @@ test.describe("Account — Visual", () => {
 
 	test("account backorders page", async ({ admin }) => {
 		await admin.page.goto("/account/backorders");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-backorders.png",
 			SCREENSHOT_OPTS,
@@ -1519,7 +1520,7 @@ test.describe("Account — Visual", () => {
 
 	test("account store credits page", async ({ admin }) => {
 		await admin.page.goto("/account/store-credits");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-store-credits.png",
 			SCREENSHOT_OPTS,
@@ -1528,7 +1529,7 @@ test.describe("Account — Visual", () => {
 
 	test("account invoices page", async ({ admin }) => {
 		await admin.page.goto("/account/invoices");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-invoices.png",
 			SCREENSHOT_OPTS,
@@ -1537,7 +1538,7 @@ test.describe("Account — Visual", () => {
 
 	test("account warranties page", async ({ admin }) => {
 		await admin.page.goto("/account/warranties");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-warranties.png",
 			SCREENSHOT_OPTS,
@@ -1546,7 +1547,7 @@ test.describe("Account — Visual", () => {
 
 	test("account payment methods page", async ({ admin }) => {
 		await admin.page.goto("/account/payment-methods");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-payment-methods.png",
 			SCREENSHOT_OPTS,
@@ -1555,7 +1556,7 @@ test.describe("Account — Visual", () => {
 
 	test("account transactions page", async ({ admin }) => {
 		await admin.page.goto("/account/transactions");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"account-transactions.png",
 			SCREENSHOT_OPTS,
@@ -1564,7 +1565,7 @@ test.describe("Account — Visual", () => {
 
 	test("affiliate dashboard page", async ({ admin }) => {
 		await admin.page.goto("/affiliate/dashboard");
-		await admin.page.waitForLoadState("networkidle");
+		await admin.page.waitForLoadState("load");
 		await expect(admin.page).toHaveScreenshot(
 			"affiliate-dashboard.png",
 			SCREENSHOT_OPTS,
@@ -1580,7 +1581,7 @@ test.describe("Account — Unauthenticated", () => {
 		await page.waitForURL((url) => url.pathname.startsWith("/auth/signin"), {
 			timeout: 10_000,
 		});
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("load");
 		await expect(page).toHaveScreenshot(
 			"account-unauthenticated-redirect.png",
 			SCREENSHOT_OPTS,

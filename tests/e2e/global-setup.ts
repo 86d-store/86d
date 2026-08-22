@@ -1,6 +1,7 @@
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { chromium, type FullConfig } from "@playwright/test";
+import { getProcessEnv } from "env/process-env";
 import {
 	ADMIN_EMAIL,
 	ADMIN_PASSWORD,
@@ -14,7 +15,7 @@ import {
  */
 export default async function globalSetup(config: FullConfig) {
 	const baseURL =
-		process.env.E2E_STORE_URL ||
+		getProcessEnv("E2E_STORE_URL") ||
 		config.projects.find((project) => project.use.baseURL)?.use.baseURL ||
 		"http://localhost:3000";
 

@@ -284,10 +284,6 @@ function assertSample(sample: Sample, staging: string): void {
 			);
 		}
 	}
-
-	console.log(
-		`✓ ${sample.dir}: ${entries.length} files, dist exports ok, no protocols`,
-	);
 	rmSync(extractRoot, { recursive: true, force: true });
 }
 
@@ -298,9 +294,6 @@ function main(): void {
 		for (const sample of SAMPLES) {
 			assertSample(sample, staging);
 		}
-		console.log(
-			`Verified ${SAMPLES.length} publish packs (${SAMPLES.map((s) => s.dir).join(", ")}).`,
-		);
 	} finally {
 		rmSync(staging, { recursive: true, force: true });
 	}

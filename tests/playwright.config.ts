@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { getProcessEnv } from "env/process-env";
 
 /**
  * Playwright E2E configuration for 86d commerce platform.
@@ -19,14 +20,15 @@ import { defineConfig, devices } from "@playwright/test";
  *   PLAYWRIGHT_START_SERVER  — set to "1" to auto-start the dev server before tests
  */
 
-const STORE_URL = process.env.E2E_STORE_URL || "http://localhost:3000";
+const STORE_URL = getProcessEnv("E2E_STORE_URL") || "http://localhost:3000";
 const htmlReporter: ["html", { outputFolder: string }] = [
 	"html",
 	{ outputFolder: "../playwright-report" },
 ];
 /* Visual snapshots are Linux CI artifacts. Local Darwin runs differ enough to
  * fail the suite even when the UI is unchanged. Set E2E_VISUAL=1 to include them. */
-const runVisual = Boolean(process.env.CI) || process.env.E2E_VISUAL === "1";
+const runVisual =
+	Boolean(getProcessEnv("CI")) || getProcessEnv("E2E_VISUAL") === "1";
 
 export default defineConfig({
 	testDir: "e2e",
@@ -35,11 +37,11 @@ export default defineConfig({
 	snapshotPathTemplate:
 		"{testDir}/{testFilePath}-snapshots/{arg}{-projectName}{ext}",
 	fullyParallel: true,
-	forbidOnly: !!process.env.CI,
-	retries: process.env.CI ? 2 : 0,
+	forbidOnly: !!getProcessEnv("CI"),
+	retries: getProcessEnv("CI") ? 2 : 0,
 	/* Parallel workers share one origin and trip in-memory auth/API rate limits. */
 	workers: 1,
-	reporter: process.env.CI ? [["github"], htmlReporter] : [htmlReporter],
+	reporter: getProcessEnv("CI") ? [["github"], htmlReporter] : [htmlReporter],
 	timeout: 30_000,
 	expect: {
 		timeout: 10_000,
@@ -140,7 +142,7 @@ export default defineConfig({
 	/* Only auto-start the dev server when explicitly requested.
 	 * Never set PLAYWRIGHT_START_SERVER in headless/CI — the dev server
 	 * will hang indefinitely with no display and block the entire process. */
-	...(process.env.PLAYWRIGHT_START_SERVER === "1"
+	...(getProcessEnv("PLAYWRIGHT_START_SERVER") === "1"
 		? {
 				webServer: {
 					command: "bun run dev:store",

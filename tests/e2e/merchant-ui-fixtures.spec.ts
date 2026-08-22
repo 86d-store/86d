@@ -22,7 +22,7 @@ test.describe("merchant UI fixtures", () => {
 		test(`products ${state} @desktop`, async ({ page }) => {
 			await page.setViewportSize({ width: 1280, height: 720 });
 			await page.goto(`/__merchant_ui_fixtures__?state=${state}`, {
-				waitUntil: "networkidle",
+				waitUntil: "load",
 			});
 			await page.evaluate(() => document.fonts.ready);
 			await expect(page.getByTestId(`merchant-state-${state}`)).toBeVisible();
@@ -37,7 +37,7 @@ test.describe("merchant UI fixtures", () => {
 		await page.setViewportSize({ width: 375, height: 667 });
 		await page.emulateMedia({ colorScheme: "dark" });
 		await page.goto("/__merchant_ui_fixtures__?surface=products", {
-			waitUntil: "networkidle",
+			waitUntil: "load",
 		});
 		await page.evaluate(() => document.fonts.ready);
 		await expect(page.getByTestId("products-data-table")).toBeVisible();

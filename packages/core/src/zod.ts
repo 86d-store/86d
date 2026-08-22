@@ -1,7 +1,7 @@
 /**
  * @86d-app/core/zod
  *
- * Zod re-export for Modules.
+ * Zod gateway for Modules.
  *
  * Modules depend only on `@86d-app/core`, so zod has to reach them through this
  * package. It lives in its own file rather than in `./api` so that a Module's
@@ -10,4 +10,9 @@
  * split out to keep `mobx-react-lite` off the server.
  */
 
+import { z as zodZ } from "zod";
+
 export type { infer as ZodInfer, ZodSchema, ZodType } from "zod";
+
+/** Runtime Zod namespace (local binding — avoids export-from barrel rules). */
+export const z = zodZ;

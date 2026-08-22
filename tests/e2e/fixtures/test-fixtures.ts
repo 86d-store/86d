@@ -1,13 +1,14 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { test as base, type Cookie, expect, type Page } from "@playwright/test";
-
+import { getProcessEnv } from "env/process-env";
 /* ------------------------------------------------------------------ */
 /* Constants                                                           */
 /* ------------------------------------------------------------------ */
 
-export const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL || "admin@86d.app";
-export const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || "password123";
+export const ADMIN_EMAIL = getProcessEnv("E2E_ADMIN_EMAIL") || "admin@86d.app";
+export const ADMIN_PASSWORD =
+	getProcessEnv("E2E_ADMIN_PASSWORD") || "password123";
 export const ADMIN_STORAGE_STATE_PATH = resolve(
 	process.cwd(),
 	"test-results/e2e-admin-storage.json",
@@ -86,7 +87,7 @@ export class StorefrontPage {
 	async searchProducts(query: string) {
 		await this.searchInput.fill(query);
 		/* Wait for search results to update after debounce */
-		await this.page.waitForLoadState("networkidle");
+		await this.page.waitForLoadState("load");
 	}
 
 	async addToCartFromDetail(_quantity = 1) {
@@ -95,7 +96,7 @@ export class StorefrontPage {
 			.filter({ hasText: "Add to cart" });
 		await addButton.click();
 		/* Wait for cart mutation to settle */
-		await this.page.waitForLoadState("networkidle");
+		await this.page.waitForLoadState("load");
 	}
 }
 
@@ -252,5 +253,3 @@ export const test = base.extend<Fixtures>({
 		await use(new DashboardPage(page));
 	},
 });
-
-export { expect };

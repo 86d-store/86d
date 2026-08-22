@@ -1,4 +1,5 @@
-import { expect, test } from "./fixtures/test-fixtures";
+import { expect } from "@playwright/test";
+import { test } from "./fixtures/test-fixtures";
 
 test.describe("Storefront — Homepage", () => {
 	test("loads the homepage with hero section", async ({ storefront }) => {
@@ -18,26 +19,19 @@ test.describe("Storefront — Homepage", () => {
 		const isMobile = await hamburger.isVisible().catch(() => false);
 		if (isMobile) {
 			await hamburger.click();
-			/* After click, aria-label changes to "Close menu" — wait for the overlay */
-			const closeBtn = storefront.page.locator(
-				'button[aria-label="Close menu"]',
-			);
-			await expect(closeBtn).toBeVisible();
-			/* Use getByRole with exact match to avoid matching "Shop now" CTA */
-			await expect(
-				storefront.page.getByRole("link", { name: "Shop", exact: true }),
-			).toBeVisible();
-		} else {
-			const shopLink = storefront.page
-				.locator("header a")
-				.filter({ hasText: "Shop" });
-			await expect(shopLink.first()).toBeVisible();
 		}
+		await expect(
+			storefront.page.locator('button[aria-label="Close menu"]'),
+		).toHaveCount(isMobile ? 1 : 0);
+		const shopLink = isMobile
+			? storefront.page.getByRole("link", { name: "Shop", exact: true })
+			: storefront.page.locator("header a").filter({ hasText: "Shop" }).first();
+		await expect(shopLink).toBeVisible();
 	});
 
 	test("shows featured products section", async ({ storefront }) => {
 		await storefront.goto("/");
-		await storefront.page.waitForLoadState("networkidle");
+		await storefront.page.waitForLoadState("load");
 		/* Featured products section is client-rendered — if the API returns
 		   data the heading and cards appear; if not the component hides itself.
 		   Check for heading OR product cards on the homepage. */
@@ -98,7 +92,7 @@ test.describe("Storefront — Product listing", () => {
 		/* Type a search term — should narrow results */
 		await storefront.searchProducts("nonexistent-product-xyz");
 		/* Either shows empty state or zero products */
-		await storefront.page.waitForLoadState("networkidle");
+		await storefront.page.waitForLoadState("load");
 		const emptyState = storefront.page
 			.locator("p")
 			.filter({ hasText: "No products found" });
@@ -112,7 +106,7 @@ test.describe("Storefront — Product listing", () => {
 	test("category and sort dropdowns are present", async ({ storefront }) => {
 		await storefront.navigateToProducts();
 		/* Wait for page to fully load */
-		await storefront.page.waitForLoadState("networkidle");
+		await storefront.page.waitForLoadState("load");
 		/* Sort dropdown should always be present */
 		const sortSelect = storefront.page.locator("select").last();
 		await expect(sortSelect).toBeVisible();
@@ -244,7 +238,7 @@ test.describe("Storefront — Cart", () => {
 		});
 		await storefront.allProductCards.first().click();
 		await storefront.page.waitForURL(/\/products\/.+/);
-		await storefront.page.waitForLoadState("networkidle");
+		await storefront.page.waitForLoadState("load");
 		/* Check if product is in stock */
 		const addButton = storefront.page
 			.locator("button")
@@ -284,7 +278,7 @@ test.describe("Storefront — Cart", () => {
 		});
 		await storefront.allProductCards.first().click();
 		await storefront.page.waitForURL(/\/products\/.+/);
-		await storefront.page.waitForLoadState("networkidle");
+		await storefront.page.waitForLoadState("load");
 		const addButton = storefront.page
 			.locator("button")
 			.filter({ hasText: "Add to cart" });
@@ -372,7 +366,7 @@ test.describe("Storefront — Customer Account", () => {
 	for (const { name, path } of accountPaths) {
 		test(`${name} page loads without errors`, async ({ storefront }) => {
 			await storefront.page.goto(path);
-			await storefront.page.waitForLoadState("networkidle");
+			await storefront.page.waitForLoadState("load");
 			const heading = storefront.page.locator("h1, h2").first();
 			await expect(heading).toBeVisible({ timeout: 10_000 });
 		});
@@ -435,7 +429,7 @@ test.describe("Storefront — Module Pages", () => {
 			});
 
 			await page.goto(path);
-			await page.waitForLoadState("networkidle");
+			await page.waitForLoadState("load");
 
 			const is404 = await page
 				.locator("h1, h2")

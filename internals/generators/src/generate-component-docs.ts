@@ -93,7 +93,7 @@ function extractComponentNames(indexPath: string): string[] {
 		}
 	}
 
-	return names.sort();
+	return names.sort((a, b) => a.localeCompare(b));
 }
 
 /**
@@ -364,25 +364,21 @@ function renderModuleSection(doc: ModuleDoc, description: string): string {
 }
 
 async function main() {
-	console.log("Scanning modules for components...");
-
 	const moduleNames = readdirSync(MODULES_DIR, { withFileTypes: true })
 		.filter((d) => d.isDirectory())
 		.map((d) => d.name)
 		.sort();
 
 	const docs: ModuleDoc[] = [];
-	let scanned = 0;
+	let _scanned = 0;
 
 	for (const name of moduleNames) {
 		const doc = processModule(name);
 		if (doc) {
 			docs.push(doc);
-			scanned++;
+			_scanned++;
 		}
 	}
-
-	console.log(`  Found components in ${scanned}/${moduleNames.length} modules`);
 
 	// Build the full document
 	const sections: string[] = [
@@ -460,10 +456,6 @@ async function main() {
 	}
 
 	writeFileSync(OUTPUT_PATH, output);
-	console.log(`✓ Generated ${OUTPUT_PATH}`);
-	console.log(
-		`  ${output.split("\n").length} lines, ${Math.round(output.length / 1024)}KB`,
-	);
 }
 
 main().catch((err) => {

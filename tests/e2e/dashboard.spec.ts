@@ -1,9 +1,5 @@
-import {
-	ADMIN_EMAIL,
-	ADMIN_PASSWORD,
-	expect,
-	test,
-} from "./fixtures/test-fixtures";
+import { expect } from "@playwright/test";
+import { ADMIN_EMAIL, ADMIN_PASSWORD, test } from "./fixtures/test-fixtures";
 
 test.describe("User — Authentication", () => {
 	test("sign-in page renders with email and password fields", async ({
@@ -60,7 +56,7 @@ test.describe("User — Authentication", () => {
 		await form.locator('input[type="email"]').fill("wrong@invalid.com");
 		await form.locator('input[type="password"]').fill("wrongpassword123");
 		await form.locator('button[type="submit"]').click();
-		await storefront.page.waitForLoadState("networkidle");
+		await storefront.page.waitForLoadState("load");
 		expect(storefront.page.url()).toContain("/auth/signin");
 	});
 
@@ -96,7 +92,7 @@ test.describe("User — Account pages", () => {
 	test("account page requires authentication", async ({ storefront }) => {
 		await storefront.goto("/account");
 		/* Should redirect to sign-in or show account content */
-		await storefront.page.waitForLoadState("networkidle");
+		await storefront.page.waitForLoadState("load");
 		const url = storefront.page.url();
 		const isSignIn = url.includes("/auth/signin");
 		const hasAccountContent = await storefront.page
@@ -136,14 +132,14 @@ test.describe("User — Navigation", () => {
 
 	test("collections page loads", async ({ storefront }) => {
 		await storefront.goto("/collections");
-		await storefront.page.waitForLoadState("networkidle");
+		await storefront.page.waitForLoadState("load");
 		const heading = storefront.page.locator("h1").first();
 		await expect(heading).toBeVisible({ timeout: 10_000 });
 	});
 
 	test("blog page loads", async ({ storefront }) => {
 		await storefront.goto("/blog");
-		await storefront.page.waitForLoadState("networkidle");
+		await storefront.page.waitForLoadState("load");
 		const main = storefront.page.locator("main");
 		await expect(main).toBeVisible({ timeout: 10_000 });
 	});

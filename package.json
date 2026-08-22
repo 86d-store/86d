@@ -10,8 +10,8 @@
 		"build:packages": "turbo run build --filter=./packages/*",
 		"build:store": "turbo run build --filter=./apps/store",
 		"typecheck": "turbo run typecheck",
-		"check": "biome check .",
-		"check:fix": "biome check --write --unsafe .",
+		"check": "biome check --error-on-warnings .",
+		"check:fix": "biome check --write --unsafe --error-on-warnings .",
 		"clean": "turbo run clean && git clean -xdf .turbo .next node_modules coverage logs playwright-report",
 		"dev": "dotenv -- turbo run dev --filter=store",
 		"dev:store": "dotenv -- turbo run dev --filter=store",
@@ -43,6 +43,7 @@
 	},
 	"dependencies": {
 		"@86d-app/registry": "workspace:*",
+		"env": "workspace:*",
 		"tsx": "catalog:",
 		"zod": "catalog:"
 	},

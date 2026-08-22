@@ -28,6 +28,17 @@ import {
 } from "node:fs";
 import { join, relative } from "node:path";
 import { pathToFileURL } from "node:url";
+
+/**
+ * Rewrite emitted `process.env` reads to the env package gateway so generated
+ * `api.ts` stays clean under `lint/style/noProcessEnv`.
+ */
+function rewriteGeneratedProcessEnvAccess(source: string): string {
+	return source
+		.replace(/process\.env\[("(?:\\.|[^"\\])+")\]/g, "getProcessEnv($1)")
+		.replace(/process\.env\.([A-Za-z_][\w]*)/g, 'getProcessEnv("$1")');
+}
+
 import { readStoreConfig } from "@86d-app/registry/config";
 import { fetchModule } from "@86d-app/registry/fetcher";
 import {
@@ -273,17 +284,12 @@ async function resolveModulesFromRegistry(): Promise<ResolvedModule[]> {
 
 	// Fetch missing modules at buildtime
 	if (toFetch.length > 0) {
-		console.log(`  Fetching ${toFetch.length} missing module(s)...`);
-
 		// Load manifest for fetch operations
 		const { readLocalManifest } = await import("@86d-app/registry/resolver");
 		const manifest = readLocalManifest(registryManifestPath(WORKSPACE_ROOT));
 
 		for (const mod of toFetch) {
 			const { specifier } = mod;
-			console.log(
-				`  ↓ Fetching ${specifier.packageName} (${specifier.source})...`,
-			);
 
 			const result = await fetchModule(specifier, WORKSPACE_ROOT, manifest);
 			if (result.success && result.localPath) {
@@ -292,7 +298,6 @@ async function resolveModulesFromRegistry(): Promise<ResolvedModule[]> {
 					status: "found",
 					localPath: result.localPath,
 				});
-				console.log(`  ✓ ${specifier.packageName}`);
 			} else {
 				console.warn(
 					`  ⚠ Failed to fetch ${specifier.packageName}: ${result.error ?? "unknown error"} — skipping`,
@@ -302,10 +307,7 @@ async function resolveModulesFromRegistry(): Promise<ResolvedModule[]> {
 	}
 
 	const localCount = found.filter((m) => m.specifier.source === "local").length;
-	const remoteCount = found.length - localCount;
-	console.log(
-		`  Resolved ${found.length} module(s) (${localCount} local, ${remoteCount} fetched)`,
-	);
+	const _remoteCount = found.length - localCount;
 
 	return found;
 }
@@ -386,14 +388,12 @@ async function ensureModuleDependencies(modules: string[]) {
 		if (moduleType === "workspace") {
 			// Ensure workspace module is in dependencies as workspace:*
 			if (!dependencies[moduleName]) {
-				console.log(`Adding workspace module to dependencies: ${moduleName}`);
 				dependencies[moduleName] = "workspace:*";
 				modified = true;
 			}
 		} else {
 			// For npm modules, add to dependencies if not present
 			if (!dependencies[moduleName]) {
-				console.log(`Adding npm module to dependencies: ${moduleName}`);
 				dependencies[moduleName] = "latest";
 				modified = true;
 			}
@@ -403,7 +403,6 @@ async function ensureModuleDependencies(modules: string[]) {
 	if (modified) {
 		packageJson.dependencies = dependencies;
 		writePackageJson(packageJson);
-		console.log("Installing dependencies...");
 		try {
 			execSync("bun install", {
 				cwd: WORKSPACE_ROOT,
@@ -420,7 +419,6 @@ async function generateModulesFile() {
 	const modules = getCachedModules();
 
 	if (modules.length === 0) {
-		console.log("No modules defined in config.json");
 		// Even with no modules, template component overrides can still provide components
 		const templateDir = join(CONFIG_PATH, "..");
 		const templateOverridePath = join(templateDir, "components", "mdx.tsx");
@@ -520,22 +518,15 @@ export { components };
 
 	ensureDir(GENERATED_DIR);
 	writeFileSync(OUTPUT_PATH, content);
-	console.log(
-		`✓ Generated components.ts with ${modulesWithComponents.length} module(s)${hasTemplateOverrides ? " + template overrides" : ""}`,
-	);
 
 	// Log module types for transparency
-	const workspaceCount = moduleInfos.filter(
+	const _workspaceCount = moduleInfos.filter(
 		(m) => m.type === "workspace",
 	).length;
-	const npmCount = moduleInfos.filter((m) => m.type === "npm").length;
-	console.log(
-		`  - ${workspaceCount} workspace module(s), ${npmCount} npm module(s)`,
-	);
+	const _npmCount = moduleInfos.filter((m) => m.type === "npm").length;
 
 	if (modulesWithComponents.length < modules.length) {
-		const skipped = modules.length - modulesWithComponents.length;
-		console.log(`  - ${skipped} module(s) skipped (no components exported)`);
+		const _skipped = modules.length - modulesWithComponents.length;
 	}
 }
 
@@ -546,7 +537,6 @@ async function generateApiRouter() {
 	const moduleOptions = config.moduleOptions || {};
 
 	if (modules.length === 0) {
-		console.log("No modules defined for API router generation");
 		// Generate empty router
 		const emptyContent = `// Auto-generated file - do not edit manually
 // Run 'bun run generate:modules' to regenerate
@@ -577,7 +567,9 @@ export type Router = typeof router;
 			(moduleName, idx) => `import module${idx} from "${moduleName}";`,
 		),
 		...(hasPayPal
-			? [`import { PayPalPaymentConnectionProvider } from "@86d-app/paypal";`]
+			? [
+					`import { PayPalPaymentConnectionProvider } from "@86d-app/paypal/connection-provider";`,
+				]
 			: []),
 	].join("\n");
 
@@ -1067,9 +1059,32 @@ if (process.env.UBER_EATS_CLIENT_ID && process.env.UBER_EATS_CLIENT_SECRET && pr
 import { createRouter } from "better-call";
 import type { Endpoint, RouterConfig } from "better-call";
 import type { ModuleContext } from "@86d-app/core/types/module";
+import { getProcessEnv } from "env/process-env";
 ${moduleImports}
 const moduleOptions: Record<string, Record<string, unknown>> = ${JSON.stringify(moduleOptions, null, 2)};
-${providerWiringCode}${searchWiringCode}${toastWiringCode}${shippingWiringCode}${taxWiringCode}${notificationsWiringCode}${doordashWiringCode}${uberDirectWiringCode}${recommendationsWiringCode}${analyticsWiringCode}${amazonWiringCode}${tiktokShopWiringCode}${googleShoppingWiringCode}${facebookShopWiringCode}${instagramShopWiringCode}${etsyWiringCode}${ebayWiringCode}${walmartWiringCode}${pinterestShopWiringCode}${xShopWiringCode}${uberEatsWiringCode}
+${rewriteGeneratedProcessEnvAccess(
+	providerWiringCode +
+		searchWiringCode +
+		toastWiringCode +
+		shippingWiringCode +
+		taxWiringCode +
+		notificationsWiringCode +
+		doordashWiringCode +
+		uberDirectWiringCode +
+		recommendationsWiringCode +
+		analyticsWiringCode +
+		amazonWiringCode +
+		tiktokShopWiringCode +
+		googleShoppingWiringCode +
+		facebookShopWiringCode +
+		instagramShopWiringCode +
+		etsyWiringCode +
+		ebayWiringCode +
+		walmartWiringCode +
+		pinterestShopWiringCode +
+		xShopWiringCode +
+		uberEatsWiringCode,
+)}
 const modules = [
 ${moduleInstances}
 ];
@@ -1134,14 +1149,12 @@ export type Router = ReturnType<typeof createApiRouter>;
 
 	ensureDir(GENERATED_DIR);
 	writeFileSync(API_ROUTER_PATH, routerContent);
-	console.log(`✓ Generated api.ts with ${modules.length} module(s)`);
 }
 
 async function generateClient() {
 	const modules = getCachedModules();
 
 	if (modules.length === 0) {
-		console.log("No modules defined for client generation");
 		return;
 	}
 
@@ -1158,7 +1171,6 @@ export {};
 
 	ensureDir(GENERATED_DIR);
 	writeFileSync(CLIENT_PATH, clientContent);
-	console.log(`✓ Generated client.ts`);
 }
 
 function walkTypeScriptFiles(dirPath: string): string[] {
@@ -1399,7 +1411,9 @@ function readAdminComponentFiles(componentsDir: string): Map<string, string> {
 	const out = new Map<string, string>();
 	if (!existsSync(componentsDir)) return out;
 
-	for (const file of readdirSync(componentsDir).sort()) {
+	for (const file of readdirSync(componentsDir).sort((a, b) =>
+		a.localeCompare(b),
+	)) {
 		if (!file.endsWith(".tsx") || file.startsWith("_")) continue;
 		const source = readFileSync(join(componentsDir, file), "utf-8");
 		const base = file.replace(/\.tsx$/, "");
@@ -1491,9 +1505,6 @@ ${loadersEntries}
 
 	ensureDir(GENERATED_DIR);
 	writeFileSync(ADMIN_LOADERS_PATH, content);
-	console.log(
-		`✓ Generated admin-loaders.ts with ${entries.length} component(s)`,
-	);
 
 	writeAdminComponentExports(entries);
 }
@@ -1555,9 +1566,6 @@ function writeAdminComponentExports(
 		updated++;
 	}
 	if (updated > 0) {
-		console.log(
-			`✓ Wrote admin component exports into ${updated} module manifest(s)`,
-		);
 	}
 }
 
@@ -1609,7 +1617,6 @@ ${loadersEntries}
 
 	ensureDir(GENERATED_DIR);
 	writeFileSync(STORE_LOADERS_PATH, content);
-	console.log(`✓ Generated store-loaders.ts with ${entries.length} module(s)`);
 }
 
 /**
@@ -1641,12 +1648,9 @@ function generateTranspilePackages() {
 		}
 	}
 
-	transpile.sort();
+	transpile.sort((a, b) => a.localeCompare(b));
 	ensureDir(GENERATED_DIR);
 	writeFileSync(TRANSPILE_PACKAGES_PATH, JSON.stringify(transpile, null, 2));
-	console.log(
-		`✓ Generated transpile-packages.json with ${transpile.length} package(s)`,
-	);
 }
 
 // Cache resolved modules list so it's only computed once
@@ -1685,8 +1689,6 @@ const isFrozen = process.argv.includes("--frozen");
 
 // Run all generators
 async function runGenerators() {
-	// Pre-resolve modules once for all generators (with buildtime fetch)
-	console.log("Resolving modules...");
 	_cachedResolved = await resolveModulesFromRegistry();
 	_cachedModules = resolvedToPackageNames(_cachedResolved);
 	const resolvedModules = getCachedResolved();
@@ -1727,13 +1729,9 @@ async function runGenerators() {
 			console.error("  Run without --frozen to regenerate the lock file.");
 			process.exit(1);
 		}
-		console.log("✓ apps/registry/registry.lock.json is up to date");
 	} else {
 		const lockfile = generateLockfile(resolvedModules, WORKSPACE_ROOT);
 		writeLockfile(WORKSPACE_ROOT, lockfile);
-		console.log(
-			`✓ Generated apps/registry/registry.lock.json with ${Object.keys(lockfile.modules).length} module(s)`,
-		);
 	}
 
 	await ensureModuleDependencies(moduleNames);
@@ -1773,7 +1771,6 @@ async function runGenerators() {
 	// Auto-format generated files so biome check passes
 	try {
 		execSync(`bun biome check --write ${GENERATED_DIR}`, { stdio: "pipe" });
-		console.log("✓ Formatted generated files with biome");
 	} catch {
 		// Non-fatal: formatting may not be available in all environments
 		console.warn("⚠ Could not format generated files with biome");

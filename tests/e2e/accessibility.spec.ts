@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
-import { AdminPage, expect, test } from "./fixtures/test-fixtures";
+import { expect } from "@playwright/test";
+import { AdminPage, test } from "./fixtures/test-fixtures";
 
 /**
  * Accessibility tests using axe-core.
@@ -96,7 +97,7 @@ test.describe("Storefront — Accessibility (axe-core)", () => {
 
 	test("checkout page passes axe (empty cart state)", async ({ page }) => {
 		await page.goto("/checkout");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("load");
 
 		const results = await new AxeBuilder({ page })
 			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -113,7 +114,7 @@ test.describe("Storefront — Accessibility (axe-core)", () => {
 
 	test("product detail page passes axe", async ({ page }) => {
 		await page.goto("/products/regent-penny-loafer");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("load");
 
 		const results = await new AxeBuilder({ page })
 			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -130,7 +131,7 @@ test.describe("Storefront — Accessibility (axe-core)", () => {
 
 	test("cart page passes axe", async ({ page }) => {
 		await page.goto("/cart");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("load");
 
 		const results = await new AxeBuilder({ page })
 			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -147,7 +148,7 @@ test.describe("Storefront — Accessibility (axe-core)", () => {
 
 	test("blog post page passes axe", async ({ page }) => {
 		await page.goto("/blog/inside-the-atelier");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("load");
 
 		const results = await new AxeBuilder({ page })
 			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -230,7 +231,7 @@ test.describe("Admin — Accessibility (axe-core)", () => {
 	});
 
 	test("admin dashboard passes axe", async ({ page }) => {
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("load");
 
 		const results = await new AxeBuilder({ page })
 			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -247,7 +248,7 @@ test.describe("Admin — Accessibility (axe-core)", () => {
 
 	test("admin products page passes axe", async ({ page }) => {
 		await page.goto("/admin/products");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("load");
 		await page.locator("table, h1, h2").waitFor({ timeout: 15_000 });
 
 		const results = await new AxeBuilder({ page })
@@ -265,7 +266,7 @@ test.describe("Admin — Accessibility (axe-core)", () => {
 
 	test("admin orders page passes axe", async ({ page }) => {
 		await page.goto("/admin/orders");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("load");
 		await page.locator("table, h1, h2").waitFor({ timeout: 15_000 });
 
 		const results = await new AxeBuilder({ page })
@@ -283,7 +284,7 @@ test.describe("Admin — Accessibility (axe-core)", () => {
 
 	test("admin customers page passes axe", async ({ page }) => {
 		await page.goto("/admin/customers");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("load");
 		await page.locator("table, h1, h2").waitFor({ timeout: 15_000 });
 
 		const results = await new AxeBuilder({ page })
@@ -303,7 +304,7 @@ test.describe("Admin — Accessibility (axe-core)", () => {
 test.describe("Admin — Accessibility (axe-core, unauthenticated)", () => {
 	test("admin sign-in page passes axe", async ({ page }) => {
 		await page.goto("/auth/signin");
-		await page.waitForLoadState("networkidle");
+		await page.waitForLoadState("load");
 
 		const results = await new AxeBuilder({ page })
 			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
