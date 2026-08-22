@@ -1,5 +1,5 @@
 import { getQueryClient } from "@86d-app/core/client/query-client";
-import { dehydrate, HydrationBoundary } from "@86d-app/core/client/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import type { Metadata } from "next";
 import { getStoreName } from "~/lib/seo";
 import { prefetchCategories, prefetchProducts } from "~/lib/server-prefetch";

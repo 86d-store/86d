@@ -2,4 +2,6 @@
 
 import ProductsTemplate from "template/products/layout.mdx";
 
-export default ProductsTemplate;
+export default function ProductsPageClient() {
+	return <ProductsTemplate />;
+}

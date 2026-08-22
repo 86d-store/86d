@@ -3,6 +3,7 @@
 import { useModuleClient } from "@86d-app/core/client/provider";
 import { useStoreContext } from "@86d-app/core/client/store-context";
 import { SearchIcon as LucideSearchIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -231,9 +232,12 @@ const ProductCard = memo(function ProductCard({
 		>
 			<div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-muted">
 				{image ? (
-					<img
+					<Image
 						src={image}
 						alt={product.name}
+						width={400}
+						height={400}
+						unoptimized
 						className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
 					/>
 				) : (
@@ -498,15 +502,17 @@ function SearchResults() {
 					{/* Loading skeleton */}
 					{isLoading && !isError && (
 						<div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
-							{Array.from({ length: 8 }).map((_, i) => (
-								<div key={`skeleton-${i}`}>
-									<Skeleton className="aspect-[3/4] rounded-lg" />
-									<div className="mt-3 flex flex-col gap-1.5">
-										<Skeleton className="h-3.5 w-3/4" />
-										<Skeleton className="h-3.5 w-1/3" />
+							{(["k0", "k1", "k2", "k3", "k4", "k5", "k6", "k7"] as const).map(
+								(key) => (
+									<div key={key}>
+										<Skeleton className="aspect-[3/4] rounded-lg" />
+										<div className="mt-3 flex flex-col gap-1.5">
+											<Skeleton className="h-3.5 w-3/4" />
+											<Skeleton className="h-3.5 w-1/3" />
+										</div>
 									</div>
-								</div>
-							))}
+								),
+							)}
 						</div>
 					)}
 

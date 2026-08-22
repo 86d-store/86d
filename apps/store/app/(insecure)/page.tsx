@@ -2,4 +2,6 @@
 
 import Test from "template/index.mdx";
 
-export default Test;
+export default function HomePageClient() {
+	return <Test />;
+}

@@ -2,13 +2,14 @@
 
 import type { CheckoutStep } from "@86d-app/checkout/state";
 import { useModuleClient } from "@86d-app/core/client/provider";
-import { observer } from "@86d-app/core/state";
 import { useAnalytics } from "hooks/use-analytics";
 import { useStore } from "hooks/use-store";
 import { ShoppingBagIcon } from "lucide-react";
+import { observer } from "mobx-react-lite";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { buttonVariants } from "~/components/ui/button";
+import { buttonVariants } from "~/components/ui/button-variants";
 import {
 	Empty,
 	EmptyContent,
@@ -409,9 +410,12 @@ function OrderSummary({
 						<li key={item.id} className="flex gap-3">
 							<div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
 								{image ? (
-									<img
+									<Image
 										src={image}
 										alt={item.product.name}
+										width={400}
+										height={400}
+										unoptimized
 										className="h-full w-full object-cover"
 									/>
 								) : (
@@ -950,7 +954,7 @@ const CheckoutPage = observer(function CheckoutPage() {
 				},
 				{
 					onSuccess: (data: { rates?: ShippingRate[] }) => {
-						const rates = data?.rates ?? [];
+						const rates = data.rates ?? [];
 						setShippingRates(rates);
 						if (rates.length > 0) {
 							setSelectedRate(rates[0].id);
@@ -996,7 +1000,7 @@ const CheckoutPage = observer(function CheckoutPage() {
 				shippingMethodName: rate?.name,
 			});
 
-			const sess = result?.session;
+			const sess = result.session;
 			if (sess) setSession(sess);
 
 			co.setStep("payment");
@@ -1018,8 +1022,8 @@ const CheckoutPage = observer(function CheckoutPage() {
 				params: { id: co.sessionId },
 			});
 
-			const payment = payResult?.payment;
-			const sess = payResult?.session ?? session;
+			const payment = payResult.payment;
+			const sess = payResult.session ?? session;
 			if (sess) setSession(sess);
 
 			// If payment already succeeded (demo mode or zero-total), advance
@@ -1077,7 +1081,7 @@ const CheckoutPage = observer(function CheckoutPage() {
 					params: { id: co.sessionId },
 				});
 
-			const sess = statusResult?.session;
+			const sess = statusResult.session;
 			if (sess) setSession(sess);
 
 			setPaymentClientSecret(null);
@@ -1101,10 +1105,10 @@ const CheckoutPage = observer(function CheckoutPage() {
 					params: { id: co.sessionId },
 				});
 
-			const sess = captureResult?.session;
+			const sess = captureResult.session;
 			if (sess) setSession(sess);
 
-			const paymentStatus = captureResult?.payment?.status;
+			const paymentStatus = captureResult.payment?.status;
 			if (paymentStatus === "succeeded" || paymentStatus === "processing") {
 				setPaypalOrderId(null);
 				co.setStep("review");
@@ -1131,8 +1135,8 @@ const CheckoutPage = observer(function CheckoutPage() {
 					body: { paymentMethodNonce: nonce },
 				});
 
-				const payment = payResult?.payment;
-				const sess = payResult?.session ?? session;
+				const payment = payResult.payment;
+				const sess = payResult.session ?? session;
 				if (sess) setSession(sess);
 
 				if (
@@ -1167,8 +1171,8 @@ const CheckoutPage = observer(function CheckoutPage() {
 					body: { paymentMethodNonce: nonce },
 				});
 
-				const payment = payResult?.payment;
-				const sess = payResult?.session ?? session;
+				const payment = payResult.payment;
+				const sess = payResult.session ?? session;
 				if (sess) setSession(sess);
 
 				if (
@@ -1230,7 +1234,7 @@ const CheckoutPage = observer(function CheckoutPage() {
 				params: { id: co.sessionId },
 			});
 
-			if (confirmResult?.error) {
+			if (confirmResult.error) {
 				setError(confirmResult.error);
 				co.setProcessing(false);
 				return;
@@ -1243,8 +1247,8 @@ const CheckoutPage = observer(function CheckoutPage() {
 				});
 
 			// Store order summary for the confirmation page
-			const orderId = completeResult?.orderId ?? co.sessionId;
-			const orderNumber = completeResult?.orderNumber ?? orderId;
+			const orderId = completeResult.orderId ?? co.sessionId;
+			const orderNumber = completeResult.orderNumber ?? orderId;
 			try {
 				sessionStorage.setItem(
 					"checkout_confirmation",
@@ -1318,7 +1322,7 @@ const CheckoutPage = observer(function CheckoutPage() {
 					expectedRevision: session.revision,
 					code,
 				});
-				const sess = result?.session;
+				const sess = result.session;
 				if (sess) {
 					setSession(sess);
 					setDiscountCode(code);
@@ -1339,7 +1343,7 @@ const CheckoutPage = observer(function CheckoutPage() {
 				params: { id: co.sessionId },
 				expectedRevision: session.revision,
 			});
-			const sess = result?.session;
+			const sess = result.session;
 			if (sess) {
 				setSession(sess);
 				setDiscountCode("");
@@ -1360,7 +1364,7 @@ const CheckoutPage = observer(function CheckoutPage() {
 					expectedRevision: session.revision,
 					code,
 				});
-				const sess = result?.session;
+				const sess = result.session;
 				if (sess) {
 					setSession(sess);
 					setGiftCardCode(code.toUpperCase());
@@ -1381,7 +1385,7 @@ const CheckoutPage = observer(function CheckoutPage() {
 				params: { id: co.sessionId },
 				expectedRevision: session.revision,
 			});
-			const sess = result?.session;
+			const sess = result.session;
 			if (sess) {
 				setSession(sess);
 				setGiftCardCode("");
@@ -1400,7 +1404,7 @@ const CheckoutPage = observer(function CheckoutPage() {
 				params: { id: co.sessionId },
 				expectedRevision: session.revision,
 			});
-			const sess = result?.session;
+			const sess = result.session;
 			if (sess) {
 				setSession(sess);
 				setStoreCreditApplied(true);
@@ -1419,7 +1423,7 @@ const CheckoutPage = observer(function CheckoutPage() {
 				params: { id: co.sessionId },
 				expectedRevision: session.revision,
 			});
-			const sess = result?.session;
+			const sess = result.session;
 			if (sess) {
 				setSession(sess);
 				setStoreCreditApplied(false);
