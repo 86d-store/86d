@@ -24,8 +24,7 @@ export function ResetPasswordForm() {
 			if (!res.ok) {
 				const data = await res.json().catch(() => null);
 				throw new Error(
-					(data as { message?: string })?.message ??
-						"Could not send reset link",
+					(data as { message?: string }).message ?? "Could not send reset link",
 				);
 			}
 
