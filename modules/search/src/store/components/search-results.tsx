@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useSearchApi } from "./_hooks";
 
 interface SearchResult {
@@ -27,18 +28,18 @@ export function SearchResults({
 }: SearchResultsProps) {
 	const api = useSearchApi();
 
-	const { data, isLoading } =
-		query.trim().length > 0
-			? (api.search.useQuery({
-					q: query.trim(),
-					type: entityType,
-					limit: String(limit),
-					sessionId,
-				}) as {
-					data: { results: SearchResult[]; total: number } | undefined;
-					isLoading: boolean;
-				})
-			: { data: undefined, isLoading: false };
+	const { data, isLoading } = api.search.useQuery(
+		{
+			q: query.trim(),
+			type: entityType,
+			limit: String(limit),
+			sessionId,
+		},
+		{ enabled: query.trim().length > 0 },
+	) as {
+		data: { results: SearchResult[]; total: number } | undefined;
+		isLoading: boolean;
+	};
 
 	const results = data?.results ?? [];
 	const total = data?.total ?? 0;
@@ -48,9 +49,9 @@ export function SearchResults({
 	if (isLoading) {
 		return (
 			<div className="space-y-3">
-				{Array.from({ length: 4 }).map((_, i) => (
+				{(["k0", "k1", "k2", "k3"] as const).map((key) => (
 					<div
-						key={`skel-${i}`}
+						key={key}
 						className="flex items-start gap-4 rounded-lg border border-border p-4"
 					>
 						<div className="h-16 w-16 flex-shrink-0 animate-pulse rounded-md bg-muted" />
@@ -91,9 +92,12 @@ export function SearchResults({
 					>
 						<div className="flex items-start gap-4">
 							{result.image && (
-								<img
+								<Image
 									src={result.image}
 									alt=""
+									width={64}
+									height={64}
+									unoptimized
 									className="h-16 w-16 rounded-md object-cover"
 								/>
 							)}

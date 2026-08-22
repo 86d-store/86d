@@ -384,7 +384,9 @@ describe("shipping endpoint security", () => {
 				orderAmount: 1000,
 			});
 			expect(rates).toHaveLength(2);
-			expect(rates.map((r) => r.name).sort()).toEqual(["Express", "Ground"]);
+			expect(
+				rates.map((r) => r.name).sort((a, b) => a.localeCompare(b)),
+			).toEqual(["Express", "Ground"]);
 		});
 
 		it("rates are sorted by price ascending (cheapest first)", async () => {

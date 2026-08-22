@@ -1,7 +1,7 @@
 "use client";
 
 import { escapeScriptContent } from "@86d-app/core/sanitize";
-import { observer } from "@86d-app/core/state";
+import { observer } from "mobx-react-lite";
 import type { MetaTag } from "../../service";
 import { useSeoApi } from "./_hooks";
 import SeoHeadTemplate from "./seo-head.mdx";

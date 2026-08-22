@@ -606,11 +606,12 @@ describe("store endpoint: track shipment — auth and ownership", () => {
 		});
 
 		expect("shipment" in result).toBe(true);
-		if ("shipment" in result) {
-			expect(result.shipment.trackingNumber).toBe("1Z999AA10123456784");
-			expect(result.shipment.status).toBe("shipped");
-			expect(result.shipment.orderId).toBe("order_1");
+		if (!("shipment" in result)) {
+			throw new Error("expected 'shipment' in result");
 		}
+		expect(result.shipment.trackingNumber).toBe("1Z999AA10123456784");
+		expect(result.shipment.status).toBe("shipped");
+		expect(result.shipment.orderId).toBe("order_1");
 	});
 
 	it("returns 404 when order belongs to a different customer", async () => {
@@ -666,9 +667,10 @@ describe("store endpoint: track shipment — auth and ownership", () => {
 		});
 
 		expect("shipment" in result).toBe(true);
-		if ("shipment" in result) {
-			expect(result.shipment.trackingNumber).toBe("TRACK123");
+		if (!("shipment" in result)) {
+			throw new Error("expected 'shipment' in result");
 		}
+		expect(result.shipment.trackingNumber).toBe("TRACK123");
 	});
 
 	it("returns null trackingUrl when carrier has no template", async () => {
@@ -683,9 +685,10 @@ describe("store endpoint: track shipment — auth and ownership", () => {
 		});
 
 		expect("trackingUrl" in result).toBe(true);
-		if ("trackingUrl" in result) {
-			expect(result.trackingUrl).toBeNull();
+		if (!("trackingUrl" in result)) {
+			throw new Error("expected 'trackingUrl' in result");
 		}
+		expect(result.trackingUrl).toBeNull();
 	});
 
 	it("omits sensitive fields from the response", async () => {
@@ -701,12 +704,13 @@ describe("store endpoint: track shipment — auth and ownership", () => {
 		});
 
 		expect("shipment" in result).toBe(true);
-		if ("shipment" in result) {
-			// The endpoint shapes the response to exclude internal fields
-			expect(result.shipment).not.toHaveProperty("notes");
-			expect(result.shipment).not.toHaveProperty("externalShipmentId");
-			expect(result.shipment).not.toHaveProperty("labelUrl");
+		if (!("shipment" in result)) {
+			throw new Error("expected 'shipment' in result");
 		}
+		// The endpoint shapes the response to exclude internal fields
+		expect(result.shipment).not.toHaveProperty("notes");
+		expect(result.shipment).not.toHaveProperty("externalShipmentId");
+		expect(result.shipment).not.toHaveProperty("labelUrl");
 	});
 });
 

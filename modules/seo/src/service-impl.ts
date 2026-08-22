@@ -56,8 +56,8 @@ export function createSeoController(data: ModuleDataService): SeoController {
 			});
 
 			const existingTag = existing[0] as Record<string, unknown> | undefined;
-			const id = (existingTag?.id as string) ?? crypto.randomUUID();
-			const createdAt = (existingTag?.createdAt as Date) ?? now;
+			const id = (existingTag?.id as string | undefined) ?? crypto.randomUUID();
+			const createdAt = (existingTag?.createdAt as Date | undefined) ?? now;
 
 			const record: MetaTag = {
 				id,

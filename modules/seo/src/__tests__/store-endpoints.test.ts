@@ -60,10 +60,11 @@ describe("store endpoint: get meta by path", () => {
 		const result = await simulateGetMetaByPath(data, "/about");
 
 		expect("meta" in result).toBe(true);
-		if ("meta" in result) {
-			expect(result.meta.title).toBe("About Us | My Store");
-			expect(result.meta.description).toBe("Learn about our company");
+		if (!("meta" in result)) {
+			throw new Error("expected 'meta' in result");
 		}
+		expect(result.meta.title).toBe("About Us | My Store");
+		expect(result.meta.description).toBe("Learn about our company");
 	});
 
 	it("returns 404 for path with no meta tags", async () => {
@@ -121,9 +122,10 @@ describe("store endpoint: get redirect by path", () => {
 		const result = await simulateGetRedirectByPath(data, "/old-blog");
 
 		expect("redirect" in result).toBe(true);
-		if ("redirect" in result) {
-			expect(result.redirect.toPath).toBe("/blog");
+		if (!("redirect" in result)) {
+			throw new Error("expected 'redirect' in result");
 		}
+		expect(result.redirect.toPath).toBe("/blog");
 	});
 
 	it("returns 404 for unmatched path", async () => {

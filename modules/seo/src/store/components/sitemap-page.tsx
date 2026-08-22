@@ -1,6 +1,6 @@
 "use client";
 
-import { observer } from "@86d-app/core/state";
+import { observer } from "mobx-react-lite";
 import { useSeoApi } from "./_hooks";
 import { formatDate, pathToTitle } from "./_utils";
 import SitemapPageTemplate from "./sitemap-page.mdx";

@@ -92,7 +92,7 @@ function highlightText(
 	const allTerms = [...queryTokens, ...expandedTerms];
 	let result = text;
 	for (const term of allTerms) {
-		const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+		const escaped = term.replace(/[.*+?^$ ?? {}()|[\]\\]/g, "\\$&");
 		const regex = new RegExp(`(${escaped})`, "gi");
 		result = result.replace(regex, "<mark>$1</mark>");
 	}
@@ -179,11 +179,11 @@ function meiliResultToFacets(
 ): SearchFacets {
 	if (!distribution) return { entityTypes: [], tags: [] };
 
-	const entityTypes = Object.entries(distribution.entityType ?? {})
+	const entityTypes = Object.entries(distribution.entityType)
 		.map(([type, count]) => ({ type, count }))
 		.sort((a, b) => b.count - a.count);
 
-	const tags = Object.entries(distribution.tags ?? {})
+	const tags = Object.entries(distribution.tags)
 		.map(([tag, count]) => ({ tag, count }))
 		.sort((a, b) => b.count - a.count)
 		.slice(0, 20);
@@ -620,7 +620,7 @@ export function createSearchController(
 				// Compute semantic score if embeddings are available
 				let semanticScore = 0;
 				if (queryEmbedding) {
-					const itemEmbedding = item.metadata?.__embedding as
+					const itemEmbedding = item.metadata.__embedding as
 						| number[]
 						| undefined;
 					if (Array.isArray(itemEmbedding) && itemEmbedding.length > 0) {

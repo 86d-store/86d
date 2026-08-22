@@ -519,9 +519,11 @@ describe("EasyPostProvider", () => {
 			const result = await provider.verifyConnection();
 
 			expect(result.ok).toBe(false);
-			if (!result.ok) {
-				expect(result.error).toContain("Invalid API key");
+			expect(!result.ok).toBeTruthy();
+			if (result.ok) {
+				throw new Error("expected !result.ok");
 			}
+			expect(result.error).toContain("Invalid API key");
 		});
 
 		it("returns error when fetch throws a network error", async () => {

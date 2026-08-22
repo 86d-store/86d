@@ -422,12 +422,11 @@ describe("shipping webhook", () => {
 					shipmentTrackingNumber: "TRACK456",
 					shipmentStatus: "pending",
 				});
-				if (expected !== "pending") {
-					expect(result.body.status).toBe(expected);
-					expect(result.body.handled).toBe(true);
-				} else {
-					expect(result.body.handled).toBe(false);
-				}
+				const expectedBody =
+					expected === "pending"
+						? { handled: false }
+						: { handled: true, status: expected };
+				expect(result.body).toMatchObject(expectedBody);
 			});
 		}
 	});

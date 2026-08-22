@@ -577,7 +577,7 @@ describe("createSettingsController – edge cases", () => {
 
 			const all = await controller.getAll();
 			expect(all).toHaveLength(2);
-			const keys = all.map((s) => s.key).sort();
+			const keys = all.map((s) => s.key).sort((a, b) => a.localeCompare(b));
 			expect(keys).toEqual(["general.a", "general.c"]);
 			expect(await controller.getValue("general.a")).toBe("4");
 			expect(await controller.getValue("general.b")).toBeNull();
@@ -609,7 +609,10 @@ describe("createSettingsController – edge cases", () => {
 
 			const all = await controller.getAll();
 			expect(all).toHaveLength(2);
-			expect(all.map((s) => s.key).sort()).toEqual(["general.a", "general.c"]);
+			expect(all.map((s) => s.key).sort((a, b) => a.localeCompare(b))).toEqual([
+				"general.a",
+				"general.c",
+			]);
 		});
 	});
 

@@ -73,9 +73,10 @@ describe("store endpoint: get value — single setting", () => {
 		const result = await simulateGetValue(data, "theme_color");
 
 		expect("value" in result).toBe(true);
-		if ("value" in result) {
-			expect(result.value).toBe("#ff0000");
+		if (!("value" in result)) {
+			throw new Error("expected 'value' in result");
 		}
+		expect(result.value).toBe("#ff0000");
 	});
 
 	it("returns 404 for nonexistent setting", async () => {

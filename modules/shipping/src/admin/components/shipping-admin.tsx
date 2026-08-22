@@ -564,16 +564,15 @@ function ZoneRow({
 								</thead>
 								<tbody className="divide-y divide-border">
 									{loadingRates ? (
-										Array.from({ length: 2 }).map((_, i) => (
-											<tr key={`rate-skeleton-${i}`}>
-												{Array.from({ length: 5 }).map((_, j) => (
-													<td
-														key={`rate-skeleton-cell-${j}`}
-														className="px-4 py-2"
-													>
-														<div className="h-3 w-16 animate-pulse rounded bg-muted" />
-													</td>
-												))}
+										(["k0", "k1"] as const).map((rowKey) => (
+											<tr key={rowKey}>
+												{(["c0", "c1", "c2", "c3", "c4"] as const).map(
+													(cellKey) => (
+														<td key={cellKey} className="px-4 py-2">
+															<div className="h-3 w-16 animate-pulse rounded bg-muted" />
+														</td>
+													),
+												)}
 											</tr>
 										))
 									) : rates.length === 0 ? (
@@ -704,7 +703,7 @@ export function ShippingAdmin() {
 				})) as {
 					rates: ShippingRate[];
 				};
-				setRatesByZone((prev) => ({ ...prev, [zoneId]: data.rates ?? [] }));
+				setRatesByZone((prev) => ({ ...prev, [zoneId]: data.rates }));
 			} finally {
 				setLoadingRates((prev) => ({ ...prev, [zoneId]: false }));
 			}
@@ -909,16 +908,15 @@ export function ShippingAdmin() {
 							</thead>
 							<tbody className="divide-y divide-border">
 								{loading ? (
-									Array.from({ length: 3 }).map((_, i) => (
-										<tr key={`zone-skeleton-${i}`}>
-											{Array.from({ length: 5 }).map((_, j) => (
-												<td
-													key={`zone-skeleton-cell-${j}`}
-													className="px-4 py-3"
-												>
-													<div className="h-4 w-24 animate-pulse rounded bg-muted" />
-												</td>
-											))}
+									(["k0", "k1", "k2"] as const).map((rowKey) => (
+										<tr key={rowKey}>
+											{(["c0", "c1", "c2", "c3", "c4"] as const).map(
+												(cellKey) => (
+													<td key={cellKey} className="px-4 py-3">
+														<div className="h-4 w-24 animate-pulse rounded bg-muted" />
+													</td>
+												),
+											)}
 										</tr>
 									))
 								) : zones.length === 0 ? (

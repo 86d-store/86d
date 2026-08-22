@@ -20,12 +20,12 @@ export function SearchBar({
 	const inputRef = useRef<HTMLInputElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const { data: suggestData } =
-		query.trim().length >= 2
-			? (api.suggest.useQuery({ q: query.trim(), limit: "8" }) as {
-					data: { suggestions: string[] } | undefined;
-				})
-			: { data: undefined };
+	const { data: suggestData } = api.suggest.useQuery(
+		{ q: query.trim(), limit: "8" },
+		{ enabled: query.trim().length >= 2 },
+	) as {
+		data: { suggestions: string[] } | undefined;
+	};
 
 	useEffect(() => {
 		if (suggestData?.suggestions) {
@@ -70,10 +70,7 @@ export function SearchBar({
 	// Close suggestions on click outside
 	useEffect(() => {
 		const handleClick = (e: MouseEvent) => {
-			if (
-				containerRef.current &&
-				!containerRef.current.contains(e.target as Node)
-			) {
+			if (!containerRef.current.contains(e.target as Node)) {
 				setShowSuggestions(false);
 			}
 		};
