@@ -149,7 +149,7 @@ export class EtsyProvider {
 		if (!res.ok) {
 			const err = json as EtsyApiErrorResponse;
 			throw new Error(
-				`Etsy API error: ${err.error_description ?? err.error ?? `HTTP ${res.status}`}`,
+				`Etsy API error: ${err.error_description ?? `HTTP ${res.status}`}`,
 			);
 		}
 		return json as T;

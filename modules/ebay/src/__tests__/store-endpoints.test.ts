@@ -28,16 +28,15 @@ async function simulateWebhook(
 	if (body.type === "order.created" && body.payload.ebayOrderId) {
 		const order = await controller.receiveOrder({
 			ebayOrderId: body.payload.ebayOrderId as string,
-			items: (body.payload.items as unknown[]) ?? [],
-			subtotal: (body.payload.subtotal as number) ?? 0,
-			shippingCost: (body.payload.shippingCost as number) ?? 0,
-			ebayFee: (body.payload.ebayFee as number) ?? 0,
-			paymentProcessingFee: (body.payload.paymentProcessingFee as number) ?? 0,
-			total: (body.payload.total as number) ?? 0,
+			items: body.payload.items as unknown[],
+			subtotal: body.payload.subtotal as number,
+			shippingCost: body.payload.shippingCost as number,
+			ebayFee: body.payload.ebayFee as number,
+			paymentProcessingFee: body.payload.paymentProcessingFee as number,
+			total: body.payload.total as number,
 			buyerUsername: body.payload.buyerUsername as string | undefined,
 			buyerName: body.payload.buyerName as string | undefined,
-			shippingAddress:
-				(body.payload.shippingAddress as Record<string, unknown>) ?? {},
+			shippingAddress: body.payload.shippingAddress as Record<string, unknown>,
 		});
 		return { received: true, orderId: order.id };
 	}
@@ -90,13 +89,15 @@ describe("store endpoint: webhooks", () => {
 
 			expect(result.received).toBe(true);
 
-			if ("orderId" in result) {
-				const controller = createEbayController(data);
-				const order = await controller.getOrder(result.orderId);
-				expect(order).not.toBeNull();
-				expect(order?.ebayOrderId).toBe("ebay-order-persist");
-				expect(order?.status).toBe("pending");
+			expect("orderId" in result).toBeTruthy();
+			if (!("orderId" in result)) {
+				throw new Error("expected 'orderId' in result");
 			}
+			const controller = createEbayController(data);
+			const order = await controller.getOrder(result.orderId);
+			expect(order).not.toBeNull();
+			expect(order?.ebayOrderId).toBe("ebay-order-persist");
+			expect(order?.status).toBe("pending");
 		});
 
 		it("sets status to pending for a new order", async () => {
@@ -113,11 +114,13 @@ describe("store endpoint: webhooks", () => {
 				},
 			});
 
-			if ("orderId" in result) {
-				const controller = createEbayController(data);
-				const order = await controller.getOrder(result.orderId);
-				expect(order?.status).toBe("pending");
+			expect("orderId" in result).toBeTruthy();
+			if (!("orderId" in result)) {
+				throw new Error("expected 'orderId' in result");
 			}
+			const controller = createEbayController(data);
+			const order = await controller.getOrder(result.orderId);
+			expect(order?.status).toBe("pending");
 		});
 
 		it("stores buyer details when provided", async () => {
@@ -136,12 +139,14 @@ describe("store endpoint: webhooks", () => {
 				},
 			});
 
-			if ("orderId" in result) {
-				const controller = createEbayController(data);
-				const order = await controller.getOrder(result.orderId);
-				expect(order?.buyerUsername).toBe("shopper99");
-				expect(order?.buyerName).toBe("Alex Johnson");
+			expect("orderId" in result).toBeTruthy();
+			if (!("orderId" in result)) {
+				throw new Error("expected 'orderId' in result");
 			}
+			const controller = createEbayController(data);
+			const order = await controller.getOrder(result.orderId);
+			expect(order?.buyerUsername).toBe("shopper99");
+			expect(order?.buyerName).toBe("Alex Johnson");
 		});
 
 		it("returns received without orderId when ebayOrderId is absent", async () => {
@@ -220,9 +225,13 @@ describe("store endpoint: webhooks", () => {
 			expect(result1.received).toBe(true);
 			expect(result2.received).toBe(true);
 
-			if ("orderId" in result1 && "orderId" in result2) {
-				expect(result1.orderId).not.toBe(result2.orderId);
+			expect("orderId" in result1 && "orderId" in result2).toBeTruthy();
+			if (!("orderId" in result1 && "orderId" in result2)) {
+				throw new Error(
+					"expected 'orderId' in result1 && 'orderId' in result2",
+				);
 			}
+			expect(result1.orderId).not.toBe(result2.orderId);
 		});
 	});
 });

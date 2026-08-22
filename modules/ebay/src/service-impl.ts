@@ -134,7 +134,7 @@ export function createEbayController(
 				updatedAt: now,
 			};
 
-			if (provider && listing.metadata?.offerId) {
+			if (provider && listing.metadata.offerId) {
 				try {
 					const offerId = listing.metadata.offerId as string;
 					await provider.updateOffer(offerId, {
@@ -160,7 +160,7 @@ export function createEbayController(
 			const listing = existing as unknown as EbayListing;
 			const now = new Date();
 
-			if (provider && listing.metadata?.offerId) {
+			if (provider && listing.metadata.offerId) {
 				try {
 					const offerId = listing.metadata.offerId as string;
 					await provider.withdrawOffer(offerId);
@@ -192,7 +192,7 @@ export function createEbayController(
 				where: { localProductId: productId },
 				take: 1,
 			});
-			return (matches[0] as unknown as EbayListing) ?? null;
+			return matches[0] as unknown as EbayListing;
 		},
 
 		async listListings(params) {

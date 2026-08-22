@@ -265,8 +265,8 @@ function StarRating({ rating }: { rating: number }) {
 	const half = rating - full >= 0.5;
 	return (
 		<span className="inline-flex items-center gap-0.5 text-yellow-500">
-			{Array.from({ length: full }, (_, i) => (
-				<span key={i} className="text-sm">
+			{Array.from({ length: full }, (_, _i) => (
+				<span key={key} className="text-sm">
 					&#9733;
 				</span>
 			))}
@@ -346,8 +346,8 @@ export function EtsyAdmin() {
 				<Skeleton className="h-6 w-48" />
 				<Skeleton className="h-28 w-full rounded-lg" />
 				<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-					{Array.from({ length: 4 }, (_, i) => (
-						<Skeleton key={i} className="h-24 rounded-lg" />
+					{Array.from({ length: 4 }, (_, _i) => (
+						<Skeleton key={key} className="h-24 rounded-lg" />
 					))}
 				</div>
 				<Skeleton className="h-64 w-full rounded-lg" />
@@ -376,8 +376,8 @@ export function EtsyAdmin() {
 			{/* Stats */}
 			{statsLoading ? (
 				<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-					{Array.from({ length: 4 }, (_, i) => (
-						<Skeleton key={i} className="h-24 rounded-lg" />
+					{Array.from({ length: 4 }, (_, _i) => (
+						<Skeleton key={key} className="h-24 rounded-lg" />
 					))}
 				</div>
 			) : stats ? (
@@ -487,13 +487,10 @@ export function EtsyAdmin() {
 							<div className="hidden md:block">
 								<table className="w-full text-left text-sm">
 									<tbody className="divide-y divide-border">
-										{Array.from({ length: 5 }, (_, i) => (
-											<tr key={`listing-skeleton-${i}`}>
-												{Array.from({ length: 6 }, (_, j) => (
-													<td
-														key={`listing-skeleton-cell-${j}`}
-														className="px-5 py-3"
-													>
+										{Array.from({ length: 5 }, (_, _i) => (
+											<tr key={rowKey}>
+												{Array.from({ length: 6 }, (_, _j) => (
+													<td key={cellKey} className="px-5 py-3">
 														<Skeleton className="h-4 rounded" />
 													</td>
 												))}
@@ -503,11 +500,8 @@ export function EtsyAdmin() {
 								</table>
 							</div>
 							<div className="space-y-3 p-4 md:hidden">
-								{Array.from({ length: 3 }, (_, i) => (
-									<Skeleton
-										key={`listing-mobile-skeleton-${i}`}
-										className="h-16 rounded-lg"
-									/>
+								{Array.from({ length: 3 }, (_, _i) => (
+									<Skeleton key={key} className="h-16 rounded-lg" />
 								))}
 							</div>
 						</div>
@@ -686,13 +680,10 @@ export function EtsyAdmin() {
 							<div className="hidden md:block">
 								<table className="w-full text-left text-sm">
 									<tbody className="divide-y divide-border">
-										{Array.from({ length: 5 }, (_, i) => (
-											<tr key={`order-skeleton-${i}`}>
-												{Array.from({ length: 6 }, (_, j) => (
-													<td
-														key={`order-skeleton-cell-${j}`}
-														className="px-5 py-3"
-													>
+										{Array.from({ length: 5 }, (_, _i) => (
+											<tr key={rowKey}>
+												{Array.from({ length: 6 }, (_, _j) => (
+													<td key={cellKey} className="px-5 py-3">
 														<Skeleton className="h-4 rounded" />
 													</td>
 												))}
@@ -702,11 +693,8 @@ export function EtsyAdmin() {
 								</table>
 							</div>
 							<div className="space-y-3 p-4 md:hidden">
-								{Array.from({ length: 3 }, (_, i) => (
-									<Skeleton
-										key={`order-mobile-skeleton-${i}`}
-										className="h-16 rounded-lg"
-									/>
+								{Array.from({ length: 3 }, (_, _i) => (
+									<Skeleton key={key} className="h-16 rounded-lg" />
 								))}
 							</div>
 						</div>
@@ -851,11 +839,8 @@ export function EtsyAdmin() {
 				<div>
 					{reviewsLoading ? (
 						<div className="space-y-3">
-							{Array.from({ length: 3 }, (_, i) => (
-								<Skeleton
-									key={`review-skeleton-${i}`}
-									className="h-20 rounded-lg"
-								/>
+							{Array.from({ length: 3 }, (_, _i) => (
+								<Skeleton key={key} className="h-20 rounded-lg" />
 							))}
 						</div>
 					) : reviews.length === 0 ? (

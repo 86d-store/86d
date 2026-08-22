@@ -201,9 +201,7 @@ export class DoordashDriveProvider {
 		const json = (await res.json()) as T | DriveErrorResponse;
 		if (!res.ok) {
 			const err = json as DriveErrorResponse;
-			throw new Error(
-				`DoorDash API error: ${err.message ?? `HTTP ${res.status}`} (${err.code ?? "unknown"})`,
-			);
+			throw new Error(`DoorDash API error: ${err.message} (${err.code})`);
 		}
 		return json as T;
 	}

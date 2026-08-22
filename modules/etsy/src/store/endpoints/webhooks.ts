@@ -79,15 +79,14 @@ export function createEtsyWebhook(webhookSecret?: string | undefined) {
 
 				const order = await controller.receiveOrder({
 					etsyReceiptId: payload.etsyReceiptId as string,
-					items: (payload.items as unknown[]) ?? [],
-					subtotal: (payload.subtotal as number) ?? 0,
-					shippingCost: (payload.shippingCost as number) ?? 0,
-					etsyFee: (payload.etsyFee as number) ?? 0,
-					processingFee: (payload.processingFee as number) ?? 0,
-					tax: (payload.tax as number) ?? 0,
-					total: (payload.total as number) ?? 0,
-					shippingAddress:
-						(payload.shippingAddress as Record<string, unknown>) ?? {},
+					items: payload.items as unknown[],
+					subtotal: payload.subtotal as number,
+					shippingCost: payload.shippingCost as number,
+					etsyFee: payload.etsyFee as number,
+					processingFee: payload.processingFee as number,
+					tax: payload.tax as number,
+					total: payload.total as number,
+					shippingAddress: payload.shippingAddress as Record<string, unknown>,
 				});
 
 				return Response.json({ received: true, orderId: order.id });
