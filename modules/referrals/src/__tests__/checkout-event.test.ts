@@ -204,9 +204,11 @@ describe("checkout.completed event listener — referrals auto-completion", () =
 		const mod = referrals();
 		const data = createMockDataService();
 		const init = mod.init;
-		if (init) {
-			const ctx = createMockModuleContext({ data });
-			await expect(init({ ...ctx, events: undefined })).resolves.not.toThrow();
+		expect(init).toBeTruthy();
+		if (!init) {
+			throw new Error("expected init");
 		}
+		const ctx = createMockModuleContext({ data });
+		await expect(init({ ...ctx, events: undefined })).resolves.not.toThrow();
 	});
 });

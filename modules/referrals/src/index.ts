@@ -47,7 +47,7 @@ export default function referrals(options?: ReferralsOptions): Module {
 					customerId?: string | undefined;
 					orderId: string;
 				};
-				if (!p?.customerId) return;
+				if (!p.customerId) return;
 
 				const pending = await controller
 					.listReferrals({

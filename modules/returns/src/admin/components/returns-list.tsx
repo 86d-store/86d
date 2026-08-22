@@ -174,13 +174,15 @@ export function ReturnsList() {
 					</thead>
 					<tbody className="divide-y divide-border">
 						{loading ? (
-							Array.from({ length: 5 }).map((_, i) => (
-								<tr key={`skeleton-${i}`}>
-									{Array.from({ length: 6 }).map((_, j) => (
-										<td key={`cell-${j}`} className="px-4 py-3">
-											<div className="h-4 w-24 animate-pulse rounded bg-muted" />
-										</td>
-									))}
+							(["k0", "k1", "k2", "k3", "k4"] as const).map((_key) => (
+								<tr key={rowKey}>
+									{(["k0", "k1", "k2", "k3", "k4", "k5"] as const).map(
+										(_key) => (
+											<td key={cellKey} className="px-4 py-3">
+												<div className="h-4 w-24 animate-pulse rounded bg-muted" />
+											</td>
+										),
+									)}
 								</tr>
 							))
 						) : returns.length === 0 ? (

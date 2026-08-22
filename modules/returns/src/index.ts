@@ -6,18 +6,7 @@ import type {
 	ModuleContext,
 } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import {
-	authoritativeReturnRequestSchema,
-	ReturnAuthorityError,
-	requestAuthoritativeReturn,
-	requestReturnInputSchema,
-} from "./authority";
-import {
-	returnConditionSnapshotSchema,
-	returnReasonSnapshotSchema,
-	returnRequestedV1,
-	returnResolutionSchema,
-} from "./events";
+import { returnRequestedV1 } from "./events";
 import { returnsStorage } from "./schema";
 import { createReturnController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
@@ -41,16 +30,6 @@ export type {
 	ReturnStatus,
 	ReturnSummary,
 } from "./service";
-export {
-	authoritativeReturnRequestSchema,
-	ReturnAuthorityError,
-	requestAuthoritativeReturn,
-	requestReturnInputSchema,
-	returnConditionSnapshotSchema,
-	returnReasonSnapshotSchema,
-	returnRequestedV1,
-	returnResolutionSchema,
-};
 
 export interface ReturnsOptions extends ModuleConfig {
 	/**

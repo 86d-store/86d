@@ -1,5 +1,5 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 
 const unavailable = {
 	code: "RETURN_CUSTOMER_CONTINUITY_REQUIRED",

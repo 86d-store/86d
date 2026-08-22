@@ -27,7 +27,6 @@ function tryRegexMatch(
 	try {
 		const regex = new RegExp(`^${sourcePath}$`);
 		const match = regex.exec(requestPath);
-		if (!match) return null;
 		// Replace $1, $2, etc. with captured groups
 		let result = targetPath;
 		for (let i = 1; i < match.length; i++) {
@@ -75,7 +74,7 @@ export function createRedirectController(
 
 		async getRedirect(id) {
 			const raw = await data.get("redirect", id);
-			return (raw as unknown as Redirect) ?? null;
+			return raw as unknown as Redirect;
 		},
 
 		async updateRedirect(id, params) {

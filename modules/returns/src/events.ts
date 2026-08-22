@@ -1,9 +1,9 @@
 import {
 	actorReferenceSchema,
 	authoritySnapshotSchema,
-} from "@86d-app/core/commands";
+} from "@86d-app/contracts/command";
 import { defineDurableEvent } from "@86d-app/core/durable-events";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 
 export const returnReasonSnapshotSchema = z.enum([
 	"damaged",

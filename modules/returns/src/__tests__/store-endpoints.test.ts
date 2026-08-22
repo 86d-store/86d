@@ -179,13 +179,15 @@ describe("submit-return (POST /returns/submit)", () => {
 			{ userId: "cust_1" },
 		);
 		expect("return" in result).toBe(true);
-		if ("return" in result && result.return) {
-			const ret = result.return as ReturnRequestWithItems;
-			expect(ret.status).toBe("requested");
-			expect(ret.customerId).toBe("cust_1");
-			expect(ret.refundAmount).toBe(6000); // 2500*2 + 1000*1
-			expect(ret.items).toHaveLength(2);
+		expect("return" in result && result.return).toBeTruthy();
+		if (!("return" in result && result.return)) {
+			throw new Error("expected 'return' in result && result.return");
 		}
+		const ret = result.return as ReturnRequestWithItems;
+		expect(ret.status).toBe("requested");
+		expect(ret.customerId).toBe("cust_1");
+		expect(ret.refundAmount).toBe(6000); // 2500*2 + 1000*1
+		expect(ret.items).toHaveLength(2);
 	});
 
 	it("defaults refundMethod to original_payment", async () => {
@@ -198,10 +200,12 @@ describe("submit-return (POST /returns/submit)", () => {
 			},
 			{ userId: "cust_1" },
 		);
-		if ("return" in result && result.return) {
-			const ret = result.return as ReturnRequestWithItems;
-			expect(ret.refundMethod).toBe("original_payment");
+		expect("return" in result && result.return).toBeTruthy();
+		if (!("return" in result && result.return)) {
+			throw new Error("expected 'return' in result && result.return");
 		}
+		const ret = result.return as ReturnRequestWithItems;
+		expect(ret.refundMethod).toBe("original_payment");
 	});
 
 	it("accepts store_credit refund method", async () => {
@@ -215,10 +219,12 @@ describe("submit-return (POST /returns/submit)", () => {
 			},
 			{ userId: "cust_1" },
 		);
-		if ("return" in result && result.return) {
-			const ret = result.return as ReturnRequestWithItems;
-			expect(ret.refundMethod).toBe("store_credit");
+		expect("return" in result && result.return).toBeTruthy();
+		if (!("return" in result && result.return)) {
+			throw new Error("expected 'return' in result && result.return");
 		}
+		const ret = result.return as ReturnRequestWithItems;
+		expect(ret.refundMethod).toBe("store_credit");
 	});
 
 	it("verifies order ownership when order controller is available", async () => {
@@ -291,11 +297,13 @@ describe("get-return (GET /returns/:id)", () => {
 			userId: "cust_1",
 		});
 		expect("return" in result).toBe(true);
-		if ("return" in result && result.return) {
-			const ret = result.return as ReturnRequestWithItems;
-			expect(ret.id).toBe(created.id);
-			expect(ret.items).toHaveLength(1);
+		expect("return" in result && result.return).toBeTruthy();
+		if (!("return" in result && result.return)) {
+			throw new Error("expected 'return' in result && result.return");
 		}
+		const ret = result.return as ReturnRequestWithItems;
+		expect(ret.id).toBe(created.id);
+		expect(ret.items).toHaveLength(1);
 	});
 
 	it("returns 404 for another customer's return (not 403)", async () => {
@@ -335,9 +343,10 @@ describe("list-returns (GET /returns)", () => {
 			},
 		);
 		expect("returns" in result).toBe(true);
-		if ("returns" in result) {
-			expect(result.returns).toHaveLength(2);
+		if (!("returns" in result)) {
+			throw new Error("expected 'returns' in result");
 		}
+		expect(result.returns).toHaveLength(2);
 	});
 
 	it("paginates with take/skip", async () => {
@@ -353,18 +362,22 @@ describe("list-returns (GET /returns)", () => {
 			{ take: 2, skip: 0 },
 			{ userId: "cust_1" },
 		);
-		if ("returns" in page1) {
-			expect(page1.returns).toHaveLength(2);
+		expect("returns" in page1).toBeTruthy();
+		if (!("returns" in page1)) {
+			throw new Error("expected 'returns' in page1");
 		}
+		expect(page1.returns).toHaveLength(2);
 
 		const page3 = await simulateListReturns(
 			controller,
 			{ take: 2, skip: 4 },
 			{ userId: "cust_1" },
 		);
-		if ("returns" in page3) {
-			expect(page3.returns).toHaveLength(1);
+		expect("returns" in page3).toBeTruthy();
+		if (!("returns" in page3)) {
+			throw new Error("expected 'returns' in page3");
 		}
+		expect(page3.returns).toHaveLength(1);
 	});
 
 	it("returns empty list for customer with no returns", async () => {
@@ -375,9 +388,11 @@ describe("list-returns (GET /returns)", () => {
 				userId: "cust_999",
 			},
 		);
-		if ("returns" in result) {
-			expect(result.returns).toHaveLength(0);
+		expect("returns" in result).toBeTruthy();
+		if (!("returns" in result)) {
+			throw new Error("expected 'returns' in result");
 		}
+		expect(result.returns).toHaveLength(0);
 	});
 });
 
@@ -395,9 +410,11 @@ describe("cancel-return (POST /returns/:id/cancel)", () => {
 			userId: "cust_1",
 		});
 		expect("return" in result).toBe(true);
-		if ("return" in result && result.return) {
-			expect(result.return.status).toBe("cancelled");
+		expect("return" in result && result.return).toBeTruthy();
+		if (!("return" in result && result.return)) {
+			throw new Error("expected 'return' in result && result.return");
 		}
+		expect(result.return.status).toBe("cancelled");
 	});
 
 	it("cancels an approved return", async () => {
@@ -409,9 +426,11 @@ describe("cancel-return (POST /returns/:id/cancel)", () => {
 		const result = await simulateCancelReturn(controller, created.id, {
 			userId: "cust_1",
 		});
-		if ("return" in result && result.return) {
-			expect(result.return.status).toBe("cancelled");
+		expect("return" in result && result.return).toBeTruthy();
+		if (!("return" in result && result.return)) {
+			throw new Error("expected 'return' in result && result.return");
 		}
+		expect(result.return.status).toBe("cancelled");
 	});
 
 	it("throws when cancelling a completed return", async () => {
@@ -467,29 +486,37 @@ describe("cross-endpoint lifecycle", () => {
 		// Get
 		const fetched = await simulateGetReturn(controller, returnId, session);
 		expect("return" in fetched).toBe(true);
-		if ("return" in fetched && fetched.return) {
-			const ret = fetched.return as ReturnRequestWithItems;
-			expect(ret.reason).toBe("Wrong color");
-			expect(ret.refundAmount).toBe(3000);
+		expect("return" in fetched && fetched.return).toBeTruthy();
+		if (!("return" in fetched && fetched.return)) {
+			throw new Error("expected 'return' in fetched && fetched.return");
 		}
+		const fetchedReturn = fetched.return as ReturnRequestWithItems;
+		expect(fetchedReturn.reason).toBe("Wrong color");
+		expect(fetchedReturn.refundAmount).toBe(3000);
 
 		// List
 		const listed = await simulateListReturns(controller, {}, session);
-		if ("returns" in listed) {
-			expect(listed.returns).toHaveLength(1);
+		expect("returns" in listed).toBeTruthy();
+		if (!("returns" in listed)) {
+			throw new Error("expected 'returns' in listed");
 		}
+		expect(listed.returns).toHaveLength(1);
 
 		// Cancel
 		const cancelled = await simulateCancelReturn(controller, returnId, session);
-		if ("return" in cancelled && cancelled.return) {
-			expect(cancelled.return.status).toBe("cancelled");
+		expect("return" in cancelled && cancelled.return).toBeTruthy();
+		if (!("return" in cancelled && cancelled.return)) {
+			throw new Error("expected 'return' in cancelled && cancelled.return");
 		}
+		expect(cancelled.return.status).toBe("cancelled");
 
 		// Verify still visible after cancellation
 		const afterCancel = await simulateGetReturn(controller, returnId, session);
-		if ("return" in afterCancel && afterCancel.return) {
-			const ret = afterCancel.return as ReturnRequestWithItems;
-			expect(ret.status).toBe("cancelled");
+		expect("return" in afterCancel && afterCancel.return).toBeTruthy();
+		if (!("return" in afterCancel && afterCancel.return)) {
+			throw new Error("expected 'return' in afterCancel && afterCancel.return");
 		}
+		const afterCancelReturn = afterCancel.return as ReturnRequestWithItems;
+		expect(afterCancelReturn.status).toBe("cancelled");
 	});
 });

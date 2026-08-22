@@ -1,7 +1,7 @@
 import {
 	actorReferenceSchema,
 	authoritySnapshotSchema,
-} from "@86d-app/core/commands";
+} from "@86d-app/contracts/command";
 import { orderLineQuantityValidateCapability } from "@86d-app/core/commerce-capabilities";
 import type {
 	LockingModuleDataTransaction,
@@ -9,7 +9,7 @@ import type {
 	ModuleTransactionRunner,
 } from "@86d-app/core/durable-events";
 import { sanitizeText } from "@86d-app/core/sanitize";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import {
 	returnConditionSnapshotSchema,
 	returnReasonSnapshotSchema,

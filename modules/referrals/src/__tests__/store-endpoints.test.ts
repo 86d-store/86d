@@ -116,12 +116,13 @@ describe("store endpoint: my-code — get or auto-create referral code", () => {
 		const result = await simulateMyCode(data, { customerId: "cust_1" });
 
 		expect("code" in result).toBe(true);
-		if ("code" in result) {
-			expect(result.code.customerId).toBe("cust_1");
-			expect(result.code.code).toHaveLength(8);
-			expect(result.code.active).toBe(true);
-			expect(result.code.usageCount).toBe(0);
+		if (!("code" in result)) {
+			throw new Error("expected 'code' in result");
 		}
+		expect(result.code.customerId).toBe("cust_1");
+		expect(result.code.code).toHaveLength(8);
+		expect(result.code.active).toBe(true);
+		expect(result.code.usageCount).toBe(0);
 	});
 
 	it("returns existing code without creating a duplicate", async () => {
@@ -131,10 +132,11 @@ describe("store endpoint: my-code — get or auto-create referral code", () => {
 		const result = await simulateMyCode(data, { customerId: "cust_1" });
 
 		expect("code" in result).toBe(true);
-		if ("code" in result) {
-			expect(result.code.id).toBe(original.id);
-			expect(result.code.code).toBe(original.code);
+		if (!("code" in result)) {
+			throw new Error("expected 'code' in result");
 		}
+		expect(result.code.id).toBe(original.id);
+		expect(result.code.code).toBe(original.code);
 	});
 
 	it("creates distinct codes for different customers", async () => {
@@ -143,11 +145,13 @@ describe("store endpoint: my-code — get or auto-create referral code", () => {
 
 		expect("code" in result1).toBe(true);
 		expect("code" in result2).toBe(true);
-		if ("code" in result1 && "code" in result2) {
-			expect(result1.code.id).not.toBe(result2.code.id);
-			expect(result1.code.customerId).toBe("cust_1");
-			expect(result2.code.customerId).toBe("cust_2");
+		expect("code" in result1 && "code" in result2).toBeTruthy();
+		if (!("code" in result1 && "code" in result2)) {
+			throw new Error("expected 'code' in result1 && 'code' in result2");
 		}
+		expect(result1.code.id).not.toBe(result2.code.id);
+		expect(result1.code.customerId).toBe("cust_1");
+		expect(result2.code.customerId).toBe("cust_2");
 	});
 });
 
@@ -185,12 +189,13 @@ describe("store endpoint: my-referrals — list referrals as referrer", () => {
 		});
 
 		expect("referrals" in result).toBe(true);
-		if ("referrals" in result) {
-			expect(result.referrals).toHaveLength(2);
-			expect(
-				result.referrals.every((r) => r.referrerCustomerId === "cust_1"),
-			).toBe(true);
+		if (!("referrals" in result)) {
+			throw new Error("expected 'referrals' in result");
 		}
+		expect(result.referrals).toHaveLength(2);
+		expect(
+			result.referrals.every((r) => r.referrerCustomerId === "cust_1"),
+		).toBe(true);
 	});
 
 	it("returns empty array for customer with no referrals", async () => {
@@ -199,9 +204,10 @@ describe("store endpoint: my-referrals — list referrals as referrer", () => {
 		});
 
 		expect("referrals" in result).toBe(true);
-		if ("referrals" in result) {
-			expect(result.referrals).toHaveLength(0);
+		if (!("referrals" in result)) {
+			throw new Error("expected 'referrals' in result");
 		}
+		expect(result.referrals).toHaveLength(0);
 	});
 
 	it("excludes referrals where customer is the referee", async () => {
@@ -219,9 +225,10 @@ describe("store endpoint: my-referrals — list referrals as referrer", () => {
 		});
 
 		expect("referrals" in result).toBe(true);
-		if ("referrals" in result) {
-			expect(result.referrals).toHaveLength(0);
+		if (!("referrals" in result)) {
+			throw new Error("expected 'referrals' in result");
 		}
+		expect(result.referrals).toHaveLength(0);
 	});
 });
 
@@ -262,13 +269,14 @@ describe("store endpoint: my-stats — referral stats for customer", () => {
 		const result = await simulateMyStats(data, { customerId: "cust_1" });
 
 		expect("stats" in result).toBe(true);
-		if ("stats" in result) {
-			expect(result.stats.code).not.toBeNull();
-			expect(result.stats.code?.id).toBe(code.id);
-			expect(result.stats.totalReferrals).toBe(2);
-			expect(result.stats.completedReferrals).toBe(1);
-			expect(result.stats.pendingReferrals).toBe(1);
+		if (!("stats" in result)) {
+			throw new Error("expected 'stats' in result");
 		}
+		expect(result.stats.code).not.toBeNull();
+		expect(result.stats.code?.id).toBe(code.id);
+		expect(result.stats.totalReferrals).toBe(2);
+		expect(result.stats.completedReferrals).toBe(1);
+		expect(result.stats.pendingReferrals).toBe(1);
 	});
 
 	it("returns null code and zero counts for customer without a code", async () => {
@@ -277,12 +285,13 @@ describe("store endpoint: my-stats — referral stats for customer", () => {
 		});
 
 		expect("stats" in result).toBe(true);
-		if ("stats" in result) {
-			expect(result.stats.code).toBeNull();
-			expect(result.stats.totalReferrals).toBe(0);
-			expect(result.stats.completedReferrals).toBe(0);
-			expect(result.stats.pendingReferrals).toBe(0);
+		if (!("stats" in result)) {
+			throw new Error("expected 'stats' in result");
 		}
+		expect(result.stats.code).toBeNull();
+		expect(result.stats.totalReferrals).toBe(0);
+		expect(result.stats.completedReferrals).toBe(0);
+		expect(result.stats.pendingReferrals).toBe(0);
 	});
 
 	it("returns zero counts when code exists but no referrals yet", async () => {
@@ -292,12 +301,13 @@ describe("store endpoint: my-stats — referral stats for customer", () => {
 		const result = await simulateMyStats(data, { customerId: "cust_1" });
 
 		expect("stats" in result).toBe(true);
-		if ("stats" in result) {
-			expect(result.stats.code).not.toBeNull();
-			expect(result.stats.totalReferrals).toBe(0);
-			expect(result.stats.completedReferrals).toBe(0);
-			expect(result.stats.pendingReferrals).toBe(0);
+		if (!("stats" in result)) {
+			throw new Error("expected 'stats' in result");
 		}
+		expect(result.stats.code).not.toBeNull();
+		expect(result.stats.totalReferrals).toBe(0);
+		expect(result.stats.completedReferrals).toBe(0);
+		expect(result.stats.pendingReferrals).toBe(0);
 	});
 });
 
@@ -327,12 +337,13 @@ describe("store endpoint: apply — apply a referral code", () => {
 		);
 
 		expect("referral" in result).toBe(true);
-		if ("referral" in result) {
-			expect(result.referral.referrerCustomerId).toBe("cust_1");
-			expect(result.referral.refereeCustomerId).toBe("cust_2");
-			expect(result.referral.refereeEmail).toBe("referee@example.com");
-			expect(result.referral.status).toBe("pending");
+		if (!("referral" in result)) {
+			throw new Error("expected 'referral' in result");
 		}
+		expect(result.referral.referrerCustomerId).toBe("cust_1");
+		expect(result.referral.refereeCustomerId).toBe("cust_2");
+		expect(result.referral.refereeEmail).toBe("referee@example.com");
+		expect(result.referral.status).toBe("pending");
 	});
 
 	it("converts code to uppercase before lookup", async () => {
@@ -347,9 +358,10 @@ describe("store endpoint: apply — apply a referral code", () => {
 		);
 
 		expect("referral" in result).toBe(true);
-		if ("referral" in result) {
-			expect(result.referral.referrerCustomerId).toBe("cust_1");
+		if (!("referral" in result)) {
+			throw new Error("expected 'referral' in result");
 		}
+		expect(result.referral.referrerCustomerId).toBe("cust_1");
 	});
 
 	it("returns 404 for a code that does not exist", async () => {

@@ -51,10 +51,11 @@ describe("store endpoint: resolve redirect", () => {
 		const result = await simulateResolve(data, "/old-page");
 
 		expect("redirect" in result).toBe(true);
-		if ("redirect" in result) {
-			expect(result.redirect.targetPath).toBe("/new-page");
-			expect(result.redirect.statusCode).toBe(301);
+		if (!("redirect" in result)) {
+			throw new Error("expected 'redirect' in result");
 		}
+		expect(result.redirect.targetPath).toBe("/new-page");
+		expect(result.redirect.statusCode).toBe(301);
 	});
 
 	it("returns 404 for unmatched path", async () => {
