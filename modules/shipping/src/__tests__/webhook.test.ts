@@ -255,17 +255,18 @@ describe("EasyPost webhook HTTP boundary", () => {
 		await vi.waitFor(() =>
 			expect(updateShipmentStatus).toHaveBeenCalledTimes(1),
 		);
-		const secondPromise = callWebhook(
+		// Await the duplicate while the first request still holds "processing".
+		// A short timeout before releasing the gate is racy on loaded CI runners.
+		const second = await callWebhook(
 			endpoint,
 			await makeV2Request(body, secret),
 			context,
 		);
-		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(second.status).toBe(409);
 		releaseUpdate?.();
-		const [firstResponse, second] = await Promise.all([first, secondPromise]);
+		const firstResponse = await first;
 
 		expect(firstResponse.status).toBe(200);
-		expect(second.status).toBe(409);
 		expect(findShipment).toHaveBeenCalledTimes(1);
 		expect(updateShipmentStatus).toHaveBeenCalledTimes(1);
 	});

@@ -342,20 +342,18 @@ describe("uber-direct webhook endpoint", () => {
 		await vi.waitFor(() =>
 			expect(updateDeliveryStatus).toHaveBeenCalledTimes(1),
 		);
-		const secondPromise = callWebhook(
+		// Await the duplicate while the first request still holds "processing".
+		// A short timeout before releasing the gate is racy on loaded CI runners.
+		const secondResponse = await callWebhook(
 			endpoint,
 			await makeWebhookRequest(DELIVERY_PICKED_UP_PAYLOAD),
 			context,
 		);
-		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(secondResponse.status).toBe(409);
 		releaseUpdate?.();
-		const [firstResponse, secondResponse] = await Promise.all([
-			first,
-			secondPromise,
-		]);
+		const firstResponse = await first;
 
 		expect(firstResponse.status).toBe(200);
-		expect(secondResponse.status).toBe(409);
 		expect(listDeliveries).toHaveBeenCalledTimes(1);
 		expect(updateDeliveryStatus).toHaveBeenCalledTimes(1);
 		expect(
