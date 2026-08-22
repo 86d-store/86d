@@ -43,6 +43,8 @@
 		"seed": "bun src/seed.ts",
 		"seed:fetch-luxury-assets": "bun seed/fetch-luxury-stock-assets.ts",
 		"test": "vitest run",
+		"test:isolation-postgres": "bun scripts/test-module-isolation-postgres.ts",
+		"test:worker-schedule-postgres": "bun scripts/test-durable-event-worker-schedule.ts",
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {

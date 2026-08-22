@@ -99,6 +99,55 @@ describe("isolation compile", () => {
 		expect(first).toContain('CREATE OR REPLACE VIEW "pub"');
 	});
 
+	it("grants pub schema USAGE to published-view consumers", () => {
+		const publisher: Module = {
+			id: "cart",
+			version: "1.0.0",
+			storage: {
+				kind: "relational",
+				tables: {
+					cart: {
+						shape: z.object({
+							id: z.string().register(col, { pk: true }),
+							status: z.enum(["active", "abandoned"]),
+						}),
+					},
+				},
+				publishes: {
+					cart: {
+						version: "1.0.0",
+						table: "cart",
+						columns: ["id", "status"],
+					},
+				},
+			},
+		};
+		const consumer: Module = {
+			id: "checkout",
+			version: "1.0.0",
+			storage: {
+				kind: "relational",
+				tables: {
+					session: {
+						shape: z.object({
+							id: z.string().register(col, { pk: true }),
+						}),
+					},
+				},
+			},
+		};
+		const artifacts = compileIsolationArtifacts([publisher, consumer]);
+		const sql = emitIsolationSql(artifacts, [], {
+			viewGrants: {
+				checkout: [{ publisherModuleId: "cart", viewName: "cart" }],
+			},
+		});
+		expect(sql).toContain('GRANT USAGE ON SCHEMA "pub" TO "mod_checkout"');
+		expect(sql).toContain(
+			'GRANT SELECT ON "pub"."cart__cart" TO "mod_checkout"',
+		);
+	});
+
 	it("builds isolation artifacts for config keys and roles", () => {
 		const module: Module = {
 			id: "settings",

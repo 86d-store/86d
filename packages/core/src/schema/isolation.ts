@@ -181,7 +181,7 @@ function emitConfigFunctions(
 	lines.push(`  INSERT INTO core.module_config (module_id, key, value)`);
 	lines.push(`  VALUES (${sqlStringLiteral(moduleId)}, p_key, p_value)`);
 	lines.push(`  ON CONFLICT (module_id, key) DO UPDATE`);
-	lines.push(`  SET value = EXCLUDED.value, updated_at = CURRENT_TIMESTAMP;`);
+	lines.push(`  SET value = EXCLUDED.value, "updatedAt" = CURRENT_TIMESTAMP;`);
 	lines.push(`END;`);
 	lines.push(`$$;`);
 	lines.push("");
@@ -220,6 +220,7 @@ function emitConfigFunctions(
 	lines.push(
 		`GRANT EXECUTE ON FUNCTION core.${prefix}_delete(text) TO ${quoteIdent(role)};`,
 	);
+	lines.push(`GRANT USAGE ON SCHEMA core TO ${quoteIdent(role)};`);
 	lines.push("");
 
 	return lines;
@@ -248,8 +249,10 @@ function emitPublishedViews(
 		lines.push(
 			`  SELECT ${cols} FROM ${quoteIdent(view.schemaName)}.${quoteIdent(tableName)};`,
 		);
+		// Owner is the publisher Module role so view access uses that role's
+		// table privileges without granting base-table rights to consumers.
 		lines.push(
-			`ALTER VIEW ${quoteIdent("pub")}.${quoteIdent(viewIdent)} OWNER TO ${quoteIdent(STORE_OWNER_ROLE)};`,
+			`ALTER VIEW ${quoteIdent("pub")}.${quoteIdent(viewIdent)} OWNER TO ${quoteIdent(artifact.roleName)};`,
 		);
 		lines.push("");
 	}
@@ -334,10 +337,12 @@ export function emitIsolationSql(
 
 	// View SELECT grants to consuming Module roles.
 	const viewGrants = options.viewGrants ?? {};
+	const pubConsumers = new Set<string>();
 	for (const [consumerId, grants] of Object.entries(viewGrants)) {
 		const consumerRole = moduleRoleName(consumerId);
 		for (const grant of grants) {
 			const viewIdent = `${grant.publisherModuleId.replace(/-/g, "_")}__${grant.viewName.replace(/-/g, "_")}`;
+			pubConsumers.add(consumerRole);
 			lines.push(
 				`GRANT SELECT ON ${quoteIdent("pub")}.${quoteIdent(viewIdent)} TO ${quoteIdent(consumerRole)};`,
 			);
@@ -346,6 +351,13 @@ export function emitIsolationSql(
 				`REVOKE ALL ON SCHEMA ${quoteIdent(moduleSchemaName(grant.publisherModuleId))} FROM ${quoteIdent(consumerRole)};`,
 			);
 		}
+	}
+	for (const consumerRole of [...pubConsumers].sort((a, b) =>
+		a.localeCompare(b),
+	)) {
+		lines.push(
+			`GRANT USAGE ON SCHEMA ${quoteIdent("pub")} TO ${quoteIdent(consumerRole)};`,
+		);
 	}
 
 	return `${lines.join("\n").trimEnd()}\n`;

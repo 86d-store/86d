@@ -27,18 +27,41 @@ export function loadCoreMigration(name = "0001_core_tables.sql"): string[] {
 }
 
 /**
- * Split module DDL into executable statements. Handles DO $$ ... END $$; blocks
- * that contain internal semicolons.
+ * Split module DDL into executable statements. Handles:
+ * - DO $$ ... END $$; blocks with internal semicolons
+ * - Function bodies and other dollar-quoted strings (AS $$ ... $$;)
+ *
+ * Comment-only and blank lines outside a quote/block are skipped so a preceding
+ * `-- Isolation: …` marker cannot prefix the next statement and cause it to be
+ * dropped.
  */
 export function splitModuleDdlStatements(sql: string): string[] {
 	const statements: string[] = [];
 	let current = "";
 	let inDoBlock = false;
+	let inDollarQuote = false;
 
 	for (const line of sql.split("\n")) {
 		const trimmed = line.trim();
-		if (trimmed.startsWith("DO $$")) {
+
+		if (
+			!inDoBlock &&
+			!inDollarQuote &&
+			(trimmed === "" || trimmed.startsWith("--"))
+		) {
+			continue;
+		}
+
+		if (!inDollarQuote && trimmed.startsWith("DO $$")) {
 			inDoBlock = true;
+		}
+
+		// Toggle dollar-quote state for every $$ delimiter on the line.
+		// DO $$ blocks also use $$, but they close on END $$; via inDoBlock.
+		const dollarCount = (line.match(/\$\$/g) ?? []).length;
+		// Odd count toggles; even count returns to the prior state.
+		if (!inDoBlock && dollarCount > 0 && dollarCount % 2 === 1) {
+			inDollarQuote = !inDollarQuote;
 		}
 
 		current += `${line}\n`;
@@ -46,8 +69,9 @@ export function splitModuleDdlStatements(sql: string): string[] {
 		if (inDoBlock) {
 			if (trimmed === "END $$;" || trimmed.endsWith("END $$;")) {
 				inDoBlock = false;
+				inDollarQuote = false;
 				const statement = current.trim();
-				if (statement && !statement.startsWith("--")) {
+				if (statement) {
 					statements.push(statement);
 				}
 				current = "";
@@ -55,9 +79,13 @@ export function splitModuleDdlStatements(sql: string): string[] {
 			continue;
 		}
 
-		if (trimmed.endsWith(";") && !trimmed.startsWith("--")) {
+		if (inDollarQuote) {
+			continue;
+		}
+
+		if (trimmed.endsWith(";")) {
 			const statement = current.trim();
-			if (statement && !statement.startsWith("--")) {
+			if (statement) {
 				statements.push(statement);
 			}
 			current = "";
@@ -65,7 +93,7 @@ export function splitModuleDdlStatements(sql: string): string[] {
 	}
 
 	const remainder = current.trim();
-	if (remainder && !remainder.startsWith("--")) {
+	if (remainder) {
 		statements.push(remainder);
 	}
 
