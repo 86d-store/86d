@@ -190,9 +190,9 @@ export class UberEatsProvider {
 						error?: string;
 						error_description?: string;
 					};
-					if (errBody?.error_description) {
+					if (errBody.error_description) {
 						message = errBody.error_description;
-					} else if (errBody?.error) {
+					} else if (errBody.error) {
 						message = errBody.error;
 					}
 				} catch {
@@ -272,7 +272,7 @@ export class UberEatsProvider {
 			let message = `HTTP ${res.status}`;
 			try {
 				const err = (await res.json()) as UberEatsApiError;
-				message = err.message ?? message;
+				message = err.message;
 			} catch {
 				// response may not be JSON
 			}

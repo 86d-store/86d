@@ -24,7 +24,6 @@ export type {
 	UberOrder,
 	UberOrderStatus,
 } from "./service";
-export { UberEatsProvider };
 
 export interface UberEatsOptions extends ModuleConfig {
 	/** Uber Eats OAuth client ID */

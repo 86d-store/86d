@@ -153,9 +153,10 @@ describe("store endpoint: get vendor by slug", () => {
 		const result = await simulateGetVendor(data, "artisan-co");
 
 		expect("vendor" in result).toBe(true);
-		if ("vendor" in result) {
-			expect(result.vendor.name).toBe("Artisan Co");
+		if (!("vendor" in result)) {
+			throw new Error("expected 'vendor' in result");
 		}
+		expect(result.vendor.name).toBe("Artisan Co");
 	});
 
 	it("returns 404 for pending vendor", async () => {
@@ -203,9 +204,10 @@ describe("store endpoint: vendor products", () => {
 		const result = await simulateVendorProducts(data, vendor.id);
 
 		expect("products" in result).toBe(true);
-		if ("products" in result) {
-			expect(result.products).toHaveLength(1);
+		if (!("products" in result)) {
+			throw new Error("expected 'products' in result");
 		}
+		expect(result.products).toHaveLength(1);
 	});
 
 	it("returns 404 for inactive vendor's products", async () => {
@@ -239,9 +241,10 @@ describe("store endpoint: apply as vendor", () => {
 		});
 
 		expect("vendor" in result).toBe(true);
-		if ("vendor" in result) {
-			expect(result.vendor.status).toBe("pending");
-			expect(result.vendor.name).toBe("My Shop");
+		if (!("vendor" in result)) {
+			throw new Error("expected 'vendor' in result");
 		}
+		expect(result.vendor.status).toBe("pending");
+		expect(result.vendor.name).toBe("My Shop");
 	});
 });

@@ -122,12 +122,13 @@ describe("store endpoint: receive-order", () => {
 		});
 
 		expect("order" in result).toBe(true);
-		if ("order" in result) {
-			expect(result.order.externalOrderId).toBe("ext_order_123");
-			expect(result.order.status).toBe("pending");
-			expect(result.order.total).toBe(3122);
-			expect(result.order.customerName).toBe("Jane Doe");
+		if (!("order" in result)) {
+			throw new Error("expected 'order' in result");
 		}
+		expect(result.order.externalOrderId).toBe("ext_order_123");
+		expect(result.order.status).toBe("pending");
+		expect(result.order.total).toBe(3122);
+		expect(result.order.customerName).toBe("Jane Doe");
 	});
 
 	it("accepts orders without optional fields", async () => {
@@ -141,10 +142,11 @@ describe("store endpoint: receive-order", () => {
 		});
 
 		expect("order" in result).toBe(true);
-		if ("order" in result) {
-			expect(result.order.status).toBe("pending");
-			expect(result.order.customerName).toBeUndefined();
+		if (!("order" in result)) {
+			throw new Error("expected 'order' in result");
 		}
+		expect(result.order.status).toBe("pending");
+		expect(result.order.customerName).toBeUndefined();
 	});
 });
 
@@ -181,9 +183,10 @@ describe("store endpoint: accept-order", () => {
 		const result = await simulateAcceptOrder(data, true, created.id);
 
 		expect("order" in result).toBe(true);
-		if ("order" in result) {
-			expect(result.order.status).toBe("accepted");
+		if (!("order" in result)) {
+			throw new Error("expected 'order' in result");
 		}
+		expect(result.order.status).toBe("accepted");
 	});
 });
 
@@ -216,9 +219,10 @@ describe("store endpoint: mark-ready", () => {
 		const result = await simulateMarkReady(data, true, created.id);
 
 		expect("order" in result).toBe(true);
-		if ("order" in result) {
-			expect(result.order.status).toBe("ready");
+		if (!("order" in result)) {
+			throw new Error("expected 'order' in result");
 		}
+		expect(result.order.status).toBe("ready");
 	});
 });
 
@@ -250,9 +254,10 @@ describe("store endpoint: cancel-order", () => {
 		const result = await simulateCancelOrder(data, true, created.id);
 
 		expect("order" in result).toBe(true);
-		if ("order" in result) {
-			expect(result.order.status).toBe("cancelled");
+		if (!("order" in result)) {
+			throw new Error("expected 'order' in result");
 		}
+		expect(result.order.status).toBe("cancelled");
 	});
 });
 
@@ -290,11 +295,12 @@ describe("store endpoint: get-order", () => {
 		const result = await simulateGetOrder(data, true, created.id);
 
 		expect("order" in result).toBe(true);
-		if ("order" in result) {
-			expect(result.order.id).toBe(created.id);
-			expect(result.order.externalOrderId).toBe("ext_004");
-			expect(result.order.status).toBe("pending");
-			expect(result.order.customerName).toBe("Carlos R");
+		if (!("order" in result)) {
+			throw new Error("expected 'order' in result");
 		}
+		expect(result.order.id).toBe(created.id);
+		expect(result.order.externalOrderId).toBe("ext_004");
+		expect(result.order.status).toBe("pending");
+		expect(result.order.customerName).toBe("Carlos R");
 	});
 });

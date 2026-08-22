@@ -179,7 +179,7 @@ export function createUberEatsController(
 			if (provider) {
 				try {
 					const menu = await provider.getMenu();
-					const totalItems = menu.items?.length ?? 0;
+					const totalItems = menu.items.length;
 					const completed: MenuSync = {
 						...sync,
 						status: "synced",

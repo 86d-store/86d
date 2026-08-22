@@ -68,7 +68,7 @@ export function createVendorController(
 
 		async getVendor(id) {
 			const raw = await data.get("vendor", id);
-			return (raw as unknown as Vendor) ?? null;
+			return raw as unknown as Vendor;
 		},
 
 		async getVendorBySlug(slug) {
@@ -309,7 +309,7 @@ export function createVendorController(
 			if (assignments.length === 0) return null;
 
 			const vendor = await data.get("vendor", assignments[0].vendorId);
-			return (vendor as unknown as Vendor) ?? null;
+			return vendor as unknown as Vendor;
 		},
 
 		// ── Payouts ──────────────────────────────────────────
@@ -341,7 +341,7 @@ export function createVendorController(
 
 		async getPayout(id) {
 			const raw = await data.get("vendorPayout", id);
-			return (raw as unknown as VendorPayout) ?? null;
+			return raw as unknown as VendorPayout;
 		},
 
 		async updatePayoutStatus(id, status) {
