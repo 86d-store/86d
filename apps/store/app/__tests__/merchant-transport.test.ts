@@ -10,7 +10,7 @@ describe("public transport contract", () => {
 			readFileSync(resolve(publicRoot, "apps/store/package.json"), "utf8"),
 		) as { dependencies: Record<string, string> };
 		expect(storePkg.dependencies["better-call"]).toBeTruthy();
-		expect(storePkg.dependencies["@tanstack/react-form"]).toBe("1.33.5");
+		expect(storePkg.dependencies["@tanstack/react-query"]).toBeTruthy();
 		expect(storePkg.dependencies["@tanstack/react-table"]).toBe("9.1.2");
 		const banned = Object.keys(storePkg.dependencies).filter((name) =>
 			name.includes("trpc"),

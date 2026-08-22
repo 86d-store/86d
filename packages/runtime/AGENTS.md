@@ -46,6 +46,6 @@ Boot is resilient — individual module failures don't crash the store:
 
 ## Key details
 
-- Depends on: `@86d-app/core`, `better-call`, `packages/db`, `drizzle-orm`
+- Depends on: `@86d-app/core`, `packages/db`, `drizzle-orm`
 - This is the ONLY package that touches both the module world and the platform world
 - `CompiledModuleDataService` implements the `ModuleDataService` interface modules consume

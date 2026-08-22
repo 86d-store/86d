@@ -64,7 +64,6 @@
 	"devDependencies": {
 		"86d": "workspace:*",
 		"@biomejs/biome": "catalog:",
-		"@types/mdx": "catalog:mdx",
 		"@types/react": "catalog:react",
 		"next": "catalog:next",
 		"typescript": "catalog:",

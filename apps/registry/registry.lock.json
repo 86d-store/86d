@@ -1,6 +1,6 @@
 {
   "lockfileVersion": 1,
-  "generatedAt": "2026-08-22T18:18:03.318Z",
+  "generatedAt": "2026-08-22T21:39:44.242Z",
   "modules": {
     "abandoned-carts": {
       "source": "local",
@@ -20,7 +20,7 @@
       "source": "local",
       "packageName": "@86d-app/amazon",
       "version": "0.0.42",
-      "integrity": "sha256-622f58f5b4cf684c800653289520c39cd37103693b7f58e79966a42f9cc08876",
+      "integrity": "sha256-b3b820ad2c62597b9a547caef1758e7728e14ac874eb0ddc32de1840edc36f4c",
       "localPath": "modules/amazon"
     },
     "analytics": {
@@ -34,7 +34,7 @@
       "source": "local",
       "packageName": "@86d-app/announcements",
       "version": "0.0.42",
-      "integrity": "sha256-3c794a2e12c6844514c391785602e1c70728d652db4d8d2a35e370be6fc6cb2d",
+      "integrity": "sha256-ab7c4683b97fe08495b1a0b1850a09c7b8abeca00b80ecfc1685e181e2484990",
       "localPath": "modules/announcements"
     },
     "appointments": {
@@ -181,21 +181,21 @@
       "source": "local",
       "packageName": "@86d-app/ebay",
       "version": "0.0.42",
-      "integrity": "sha256-4974486efd52f668287da3d855ac36a469d6054b7e48dc6e368c16f7dfa78e71",
+      "integrity": "sha256-189c2806e4f7a35e0adcd98f4bfbf84ad86ff1202baf367b0a08bec0721ade0e",
       "localPath": "modules/ebay"
     },
     "etsy": {
       "source": "local",
       "packageName": "@86d-app/etsy",
       "version": "0.0.42",
-      "integrity": "sha256-8604bb005bcd3f826e207f8fc08410e59e8c9f50f5f021eb93f57bf2aae634d1",
+      "integrity": "sha256-2757dc2ef26b74803b975220db05c65f57e200fca571c1a9feb2c3efd3695751",
       "localPath": "modules/etsy"
     },
     "facebook-shop": {
       "source": "local",
       "packageName": "@86d-app/facebook-shop",
       "version": "0.0.42",
-      "integrity": "sha256-d4ab24143a296797a02e09474e5480a9235798fe3df6ef9e06451a687db647b6",
+      "integrity": "sha256-f0d106cb014da109f5a40d15dcc1896b4119699104e1190a26f5f5a593a1eaa9",
       "localPath": "modules/facebook-shop"
     },
     "faq": {
@@ -216,7 +216,7 @@
       "source": "local",
       "packageName": "@86d-app/flash-sales",
       "version": "0.0.42",
-      "integrity": "sha256-16c415d3cc9a916fef793c727d64466e1acac5b2b6c55589892988295289a766",
+      "integrity": "sha256-522d9f4b5288df807d4e139ebc989a6d982e39492687c413b5a71a51cece7b81",
       "localPath": "modules/flash-sales"
     },
     "forms": {
@@ -265,7 +265,7 @@
       "source": "local",
       "packageName": "@86d-app/google-shopping",
       "version": "0.0.42",
-      "integrity": "sha256-e2d9d490ecdfe53231be789bdff9095fda94acf1cfcd2f9f5956b6119ae7418d",
+      "integrity": "sha256-45318d62a9e67169f41502857a5ca3f10042682002d5540fa933067d7285a3a0",
       "localPath": "modules/google-shopping"
     },
     "import-export": {
@@ -279,7 +279,7 @@
       "source": "local",
       "packageName": "@86d-app/instagram-shop",
       "version": "0.0.42",
-      "integrity": "sha256-78a009eedeff881cbd14e35b7be612886a695c123cb8ad5140d58b6fe37825a3",
+      "integrity": "sha256-b124729b333cb6ef51b40512215120462710d91193cbfd8d4b4cd451ee5e44d8",
       "localPath": "modules/instagram-shop"
     },
     "inventory": {
@@ -419,7 +419,7 @@
       "source": "local",
       "packageName": "@86d-app/product-feeds",
       "version": "0.0.42",
-      "integrity": "sha256-c82009f541300eb0e07ca27ce440312d7b0731dd359741f0299e29d9e341a178",
+      "integrity": "sha256-b3517df23e589d5548e7123e6495cce75b2b3f0755d84ea98a9acfbc818a2338",
       "localPath": "modules/product-feeds"
     },
     "product-labels": {
@@ -475,7 +475,7 @@
       "source": "local",
       "packageName": "@86d-app/redirects",
       "version": "0.0.42",
-      "integrity": "sha256-3a19215b133e6de699d2ee5e0cf2669013df1064f0cda83e6d95b8c819876fa0",
+      "integrity": "sha256-975f2d02e5cd53f762d982de47db577da87d195da2ef12f42c29133ea9c491f7",
       "localPath": "modules/redirects"
     },
     "referrals": {
@@ -517,7 +517,7 @@
       "source": "local",
       "packageName": "@86d-app/search",
       "version": "0.0.42",
-      "integrity": "sha256-867361e1724a4810826a554c2f858c21248fb95e9c2870b8cdbe3befa1e39d9a",
+      "integrity": "sha256-31e3c7015827de1b320caabc47b7d844220b453f6fbacd51f629abeb55904298",
       "localPath": "modules/search"
     },
     "seo": {
@@ -545,7 +545,7 @@
       "source": "local",
       "packageName": "@86d-app/sitemap",
       "version": "0.0.42",
-      "integrity": "sha256-47cb845cb2b2217708760901d9e78517c5337536f6330dec8b68bced3bb9560f",
+      "integrity": "sha256-e7f72e9db1c55882cf472cef7466172a9cb5485d072b3f210761adbf0d8e7144",
       "localPath": "modules/sitemap"
     },
     "social-proof": {
@@ -622,7 +622,7 @@
       "source": "local",
       "packageName": "@86d-app/tiktok-shop",
       "version": "0.0.42",
-      "integrity": "sha256-20636a787873290437eacaf25173940a99d789944c2daa91d632cbd898ad19b3",
+      "integrity": "sha256-159af1649838d63bcf8461f716c4fae3947a8176c2bddf272715f02fb484ac4a",
       "localPath": "modules/tiktok-shop"
     },
     "tipping": {
