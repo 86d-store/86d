@@ -91,6 +91,34 @@
 	},
 	"overrides": [
 		{
+			"includes": ["packages/ui/src/core/**"],
+			"linter": {
+				"rules": {
+					"a11y": {
+						"useSemanticElements": "off",
+						"noLabelWithoutControl": "off",
+						"useFocusableInteractive": "off",
+						"useKeyWithClickEvents": "off",
+						"useAriaPropsForRole": "off"
+					},
+					"performance": {
+						"noNamespaceImport": "off"
+					},
+					"security": {
+						"noDangerouslySetInnerHtml": "off"
+					},
+					"style": {
+						"noExportedImports": "off"
+					},
+					"suspicious": {
+						"noArrayIndexKey": "off",
+						"noDocumentCookie": "off",
+						"noUnnecessaryConditions": "off"
+					}
+				}
+			}
+		},
+		{
 			"includes": ["apps/store/components/ui/**"],
 			"linter": {
 				"rules": {
@@ -139,7 +167,8 @@
 				"internals/lib/**",
 				"**/*.config.ts",
 				"packages/env/**",
-				"packages/utils/src/logger.ts"
+				"packages/utils/src/logger.ts",
+				"packages/ui/scripts/**"
 			],
 			"linter": {
 				"rules": {

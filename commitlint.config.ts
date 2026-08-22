@@ -10,6 +10,7 @@ const scopes = [
 	"env",
 	"lib",
 	"storage",
+	"ui",
 	"utils",
 	"modules",
 	"ci",

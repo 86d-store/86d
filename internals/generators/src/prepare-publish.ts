@@ -80,6 +80,7 @@ const REQUIRED_PUBLISHABLE = [
 	"@86d-app/contracts",
 	"@86d-app/registry",
 	"@86d-app/storage",
+	"@86d-app/ui",
 	"@86d-app/core",
 	"86d",
 ] as const;

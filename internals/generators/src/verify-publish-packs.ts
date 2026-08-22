@@ -99,6 +99,20 @@ const SAMPLES: Sample[] = [
 		],
 	},
 	{
+		dir: "packages/ui",
+		forbidden: [
+			".turbo",
+			"vitest.config",
+			"AGENTS.md",
+			"__tests__",
+			".test.ts",
+			".test.tsx",
+			".test.js",
+			"tsconfig.json",
+			"package/src/",
+		],
+	},
+	{
 		dir: "packages/cli",
 		forbidden: [
 			".turbo",
