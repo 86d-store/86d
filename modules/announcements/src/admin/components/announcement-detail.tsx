@@ -161,8 +161,8 @@ export function AnnouncementDetail({ id }: { id: string }) {
 			<div>
 				<Skeleton className="mb-4 h-7 w-1/2" />
 				<div className="space-y-3">
-					{Array.from({ length: 8 }, (_, i) => (
-						<div key={`sk-${i}`} className="flex gap-4">
+					{Array.from({ length: 8 }, (_, _i) => (
+						<div key={key} className="flex gap-4">
 							<Skeleton className="h-4 w-32" />
 							<Skeleton className="h-4 w-48" />
 						</div>

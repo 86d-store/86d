@@ -136,7 +136,7 @@ export function createAmazonController(
 				where: { localProductId: productId },
 				take: 1,
 			});
-			return (matches[0] as unknown as Listing) ?? null;
+			return matches[0] as unknown as Listing;
 		},
 
 		async getListingByAsin(asin) {
@@ -144,7 +144,7 @@ export function createAmazonController(
 				where: { asin },
 				take: 1,
 			});
-			return (matches[0] as unknown as Listing) ?? null;
+			return matches[0] as unknown as Listing;
 		},
 
 		async listListings(params) {
@@ -253,7 +253,7 @@ export function createAmazonController(
 				orderBy: { createdAt: "desc" },
 				take: 1,
 			});
-			return (all[0] as unknown as InventorySync) ?? null;
+			return all[0] as unknown as InventorySync;
 		},
 
 		async receiveOrder(params) {
@@ -513,29 +513,29 @@ export function createAmazonController(
 						where: { sku: item.sku },
 						take: 1,
 					});
-					const existing = (existingMatches[0] as unknown as Listing) ?? null;
+					const existing = existingMatches[0] as unknown as Listing;
 
 					const now = new Date();
 					const listingData: Listing = {
-						id: existing?.id ?? crypto.randomUUID(),
-						localProductId: existing?.localProductId ?? "",
+						id: existing.id(),
+						localProductId: existing.localProductId,
 						asin: summary.asin,
 						sku: item.sku,
 						title: summary.itemName,
 						status: summary.status?.includes("BUYABLE") ? "active" : "inactive",
 						fulfillmentChannel: availability
 							? mapFulfillmentChannel(availability.fulfillmentChannelCode)
-							: (existing?.fulfillmentChannel ?? "FBM"),
+							: existing.fulfillmentChannel,
 						price: offer
 							? Number.parseFloat(offer.price.amount)
-							: (existing?.price ?? 0),
-						quantity: availability?.quantity ?? existing?.quantity ?? 0,
-						condition: existing?.condition ?? "new",
-						buyBoxOwned: existing?.buyBoxOwned ?? false,
+							: existing.price,
+						quantity: availability?.quantity ?? existing.quantity ?? 0,
+						condition: existing.condition,
+						buyBoxOwned: existing.buyBoxOwned,
 						lastSyncedAt: now,
 						error: undefined,
-						metadata: existing?.metadata ?? {},
-						createdAt: existing?.createdAt ?? now,
+						metadata: existing.metadata,
+						createdAt: existing.createdAt,
 						updatedAt: now,
 					};
 
@@ -577,12 +577,11 @@ export function createAmazonController(
 						where: { amazonOrderId: spOrder.AmazonOrderId },
 						take: 1,
 					});
-					const existing =
-						(existingMatches[0] as unknown as AmazonOrder) ?? null;
+					const existing = existingMatches[0] as unknown as AmazonOrder;
 
 					// Fetch order items for financial details
-					let items: unknown[] = existing?.items ?? [];
-					let shippingTotal = existing?.shippingTotal ?? 0;
+					let items: unknown[] = existing.items;
+					let shippingTotal = existing.shippingTotal;
 					try {
 						const orderItems = await provider.getOrderItems(
 							spOrder.AmazonOrderId,
@@ -606,14 +605,13 @@ export function createAmazonController(
 
 					const orderTotal = parseSpApiMoney(spOrder.OrderTotal);
 					// Estimate marketplace fee as ~15% (actual fee varies by category)
-					const marketplaceFee = existing?.marketplaceFee ?? orderTotal * 0.15;
-					const netProceeds =
-						existing?.netProceeds ??
-						orderTotal - shippingTotal - marketplaceFee;
+					const marketplaceFee = existing.marketplaceFee * 0.15;
+					const netProceeds = existing.netProceeds;
+					orderTotal - shippingTotal - marketplaceFee;
 
 					const now = new Date();
 					const orderData: AmazonOrder = {
-						id: existing?.id ?? crypto.randomUUID(),
+						id: existing.id(),
 						amazonOrderId: spOrder.AmazonOrderId,
 						status: mapOrderStatus(spOrder.OrderStatus),
 						fulfillmentChannel: mapFulfillmentChannel(
@@ -635,11 +633,11 @@ export function createAmazonController(
 									postalCode: spOrder.ShippingAddress.PostalCode,
 									country: spOrder.ShippingAddress.CountryCode,
 								}
-							: (existing?.shippingAddress ?? {}),
-						shipDate: existing?.shipDate,
-						trackingNumber: existing?.trackingNumber,
-						carrier: existing?.carrier,
-						createdAt: existing?.createdAt ?? now,
+							: existing.shippingAddress,
+						shipDate: existing.shipDate,
+						trackingNumber: existing.trackingNumber,
+						carrier: existing.carrier,
+						createdAt: existing.createdAt,
 						updatedAt: now,
 					};
 

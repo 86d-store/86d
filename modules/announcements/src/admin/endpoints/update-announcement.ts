@@ -1,6 +1,6 @@
 import { createAdminEndpoint } from "@86d-app/core/api";
 import { isSafeUrl, sanitizeHtml, sanitizeText } from "@86d-app/core/sanitize";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { AnnouncementsController } from "../../service";
 
 export const updateAnnouncement = createAdminEndpoint(

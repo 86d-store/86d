@@ -1,5 +1,7 @@
 "use client";
 
+import { useModuleClient } from "@86d-app/core/client/provider";
+import { useCallback, useMemo, useState } from "react";
 import {
 	Area,
 	AreaChart,
@@ -14,9 +16,7 @@ import {
 	Tooltip,
 	XAxis,
 	YAxis,
-} from "@86d-app/core/charts";
-import { useModuleClient } from "@86d-app/core/client/provider";
-import { useCallback, useMemo, useState } from "react";
+} from "recharts";
 import AnalyticsAdminTemplate from "./analytics-admin.mdx";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -326,11 +326,6 @@ function OverviewTab({
 	addToCarts: number;
 	totalEvents: number;
 }) {
-	if (loading) return <LoadingState />;
-
-	const conversionRate =
-		pageViews > 0 ? ((purchases / pageViews) * 100).toFixed(1) : "—";
-
 	const pieData = useMemo(
 		() =>
 			stats.map((s, i) => ({
@@ -340,6 +335,11 @@ function OverviewTab({
 			})),
 		[stats],
 	);
+
+	if (loading) return <LoadingState />;
+
+	const conversionRate =
+		pageViews > 0 ? ((purchases / pageViews) * 100).toFixed(1) : "—";
 
 	return (
 		<div className="space-y-6">
@@ -505,6 +505,12 @@ function RevenueTab({
 			isLoading: boolean;
 		};
 
+	const currencyTooltipFormatter = useCallback(
+		(v: number | string | undefined) =>
+			formatCurrency(typeof v === "number" ? v : 0),
+		[],
+	);
+
 	if (loadingRevenue || loadingTs || loadingSales) return <LoadingState />;
 
 	const summary = revenueData?.summary;
@@ -517,12 +523,6 @@ function RevenueTab({
 	const ordersChange = summary
 		? formatChange(summary.orderCount, summary.previousOrders)
 		: null;
-
-	const currencyTooltipFormatter = useCallback(
-		(v: number | string | undefined) =>
-			formatCurrency(typeof v === "number" ? v : 0),
-		[],
-	);
 
 	return (
 		<div className="space-y-6">
@@ -910,7 +910,7 @@ function FunnelTooltip({
 	funnel: FunnelStep[];
 }) {
 	if (!active || !payload?.length) return null;
-	const step = funnel?.find(
+	const step = funnel.find(
 		(s: FunnelStep) => (FUNNEL_LABELS[s.step] ?? s.step) === label,
 	);
 	return (

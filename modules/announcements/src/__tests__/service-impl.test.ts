@@ -642,8 +642,9 @@ describe("createAnnouncementsControllers", () => {
 		});
 
 		it("does nothing for non-existent ID", async () => {
-			// Should not throw
-			await controller.recordImpression("non-existent");
+			await expect(
+				controller.recordImpression("non-existent"),
+			).resolves.toBeUndefined();
 		});
 	});
 
@@ -661,7 +662,9 @@ describe("createAnnouncementsControllers", () => {
 		});
 
 		it("does nothing for non-existent ID", async () => {
-			await controller.recordClick("non-existent");
+			await expect(
+				controller.recordClick("non-existent"),
+			).resolves.toBeUndefined();
 		});
 	});
 
@@ -678,7 +681,9 @@ describe("createAnnouncementsControllers", () => {
 		});
 
 		it("does nothing for non-existent ID", async () => {
-			await controller.recordDismissal("non-existent");
+			await expect(
+				controller.recordDismissal("non-existent"),
+			).resolves.toBeUndefined();
 		});
 	});
 

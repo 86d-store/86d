@@ -78,10 +78,11 @@ describe("store endpoint: track-event", () => {
 		});
 
 		expect("event" in result).toBe(true);
-		if ("event" in result) {
-			expect(result.event.type).toBe("pageView");
-			expect(result.event.sessionId).toBe("sess_abc");
+		if (!("event" in result)) {
+			throw new Error("expected 'event' in result");
 		}
+		expect(result.event.type).toBe("pageView");
+		expect(result.event.sessionId).toBe("sess_abc");
 	});
 
 	it("records a product view event with product and value", async () => {
@@ -93,11 +94,12 @@ describe("store endpoint: track-event", () => {
 		});
 
 		expect("event" in result).toBe(true);
-		if ("event" in result) {
-			expect(result.event.type).toBe("productView");
-			expect(result.event.productId).toBe("prod_123");
-			expect(result.event.value).toBe(4999);
+		if (!("event" in result)) {
+			throw new Error("expected 'event' in result");
 		}
+		expect(result.event.type).toBe("productView");
+		expect(result.event.productId).toBe("prod_123");
+		expect(result.event.value).toBe(4999);
 	});
 
 	it("records a purchase event with order id", async () => {
@@ -108,11 +110,12 @@ describe("store endpoint: track-event", () => {
 		});
 
 		expect("event" in result).toBe(true);
-		if ("event" in result) {
-			expect(result.event.type).toBe("purchase");
-			expect(result.event.orderId).toBe("ord_xyz");
-			expect(result.event.value).toBe(12999);
+		if (!("event" in result)) {
+			throw new Error("expected 'event' in result");
 		}
+		expect(result.event.type).toBe("purchase");
+		expect(result.event.orderId).toBe("ord_xyz");
+		expect(result.event.value).toBe(12999);
 	});
 
 	it("records multiple events independently", async () => {

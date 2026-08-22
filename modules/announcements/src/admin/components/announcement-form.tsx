@@ -38,9 +38,10 @@ export function AnnouncementForm({ id }: { id?: string }) {
 	const [error, setError] = useState("");
 	const [populated, setPopulated] = useState(!isEdit);
 
-	const existingQuery = id
-		? api.getAnnouncement.useQuery({ params: { id } })
-		: null;
+	const existingQuery = api.getAnnouncement.useQuery(
+		{ params: { id: id ?? "" } },
+		{ enabled: Boolean(id) },
+	);
 
 	useEffect(() => {
 		if (populated) return;
@@ -73,10 +74,10 @@ export function AnnouncementForm({ id }: { id?: string }) {
 	}, [populated, existingQuery?.data?.announcement]);
 
 	const createMutation = api.createAnnouncement.useMutation();
-	const updateMutation = id ? api.updateAnnouncement.useMutation() : null;
+	const updateMutation = api.updateAnnouncement.useMutation();
 
 	const isPending =
-		createMutation.isPending || (updateMutation?.isPending ?? false);
+		createMutation.isPending || (isEdit && updateMutation.isPending);
 
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
