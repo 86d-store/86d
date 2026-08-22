@@ -1,11 +1,8 @@
 import type { Module, ModuleConfig } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { PayPalPaymentConnectionProvider } from "./connection-provider";
-import { PayPalPaymentProvider } from "./provider";
 import { createStoreEndpoints } from "./store/endpoints/routes";
 
 export type { PayPalPaymentConnectionProviderOptions } from "./connection-provider";
-export { PayPalPaymentConnectionProvider, PayPalPaymentProvider };
 
 export interface PayPalOptions extends ModuleConfig {
 	clientId: string;

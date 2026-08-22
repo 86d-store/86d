@@ -1,5 +1,5 @@
 import { createAdminEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { PaymentController, PaymentIntentStatus } from "../../service";
 
 export const listIntents = createAdminEndpoint(

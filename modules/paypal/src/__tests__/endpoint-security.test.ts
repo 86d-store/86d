@@ -100,13 +100,20 @@ function createTestContext() {
 	};
 }
 
-async function seedIntent(
-	data: ReturnType<typeof createMockDataService>,
-	payments: ReturnType<typeof createPaymentController>,
-	providerIntentId: string,
-	amount = 2000,
-	status = "pending",
-) {
+async function seedIntent(options: {
+	data: ReturnType<typeof createMockDataService>;
+	payments: ReturnType<typeof createPaymentController>;
+	providerIntentId: string;
+	amount?: number;
+	status?: string;
+}) {
+	const {
+		data,
+		payments,
+		providerIntentId,
+		amount = 2000,
+		status = "pending",
+	} = options;
 	const intent = await payments.createIntent({ amount });
 	await data.upsert("paymentIntent", intent.id, {
 		...intent,
@@ -199,7 +206,11 @@ describe("paypal endpoint security — event type filtering", () => {
 
 	it("does not update state for unmapped event types", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "PP_ORDER_999");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_ORDER_999",
+		});
 
 		const body = JSON.stringify({
 			event_type: "BILLING.SUBSCRIPTION.CREATED",
@@ -223,7 +234,11 @@ describe("paypal endpoint security — event type filtering", () => {
 
 	it("does not update state for CHECKOUT.ORDER.COMPLETED (unmapped)", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "PP_UNMAPPED_1");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_UNMAPPED_1",
+		});
 
 		const body = JSON.stringify({
 			event_type: "CHECKOUT.ORDER.COMPLETED",
@@ -237,7 +252,11 @@ describe("paypal endpoint security — event type filtering", () => {
 
 	it("maps PAYMENT.CAPTURE.COMPLETED to succeeded status", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(data, payments, "PP_COMPLETED_1");
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_COMPLETED_1",
+		});
 
 		const body = JSON.stringify({
 			event_type: "PAYMENT.CAPTURE.COMPLETED",
@@ -257,7 +276,11 @@ describe("paypal endpoint security — event type filtering", () => {
 
 	it("maps PAYMENT.CAPTURE.DENIED to failed status", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(data, payments, "PP_DENIED_SEC");
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_DENIED_SEC",
+		});
 
 		const body = JSON.stringify({
 			event_type: "PAYMENT.CAPTURE.DENIED",
@@ -271,7 +294,11 @@ describe("paypal endpoint security — event type filtering", () => {
 
 	it("maps PAYMENT.CAPTURE.PENDING to processing status", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(data, payments, "PP_PENDING_SEC");
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_PENDING_SEC",
+		});
 
 		const body = JSON.stringify({
 			event_type: "PAYMENT.CAPTURE.PENDING",
@@ -295,13 +322,13 @@ describe("paypal endpoint security — refund amount integrity", () => {
 
 	it("converts refund dollar amount to cents correctly", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(
-			data,
-			payments,
-			"PP_REFUND_AMT",
-			5000,
-			"succeeded",
-		);
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_REFUND_AMT",
+			amount: 5000,
+			status: "succeeded",
+		});
 
 		const body = JSON.stringify({
 			event_type: "PAYMENT.CAPTURE.REFUNDED",
@@ -324,13 +351,13 @@ describe("paypal endpoint security — refund amount integrity", () => {
 
 	it("handles PAYMENT.SALE.REFUNDED event type as refund", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(
-			data,
-			payments,
-			"PP_SALE_REFUND",
-			3000,
-			"succeeded",
-		);
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_SALE_REFUND",
+			amount: 3000,
+			status: "succeeded",
+		});
 
 		const body = JSON.stringify({
 			event_type: "PAYMENT.SALE.REFUNDED",
@@ -353,7 +380,13 @@ describe("paypal endpoint security — refund amount integrity", () => {
 
 	it("rejects a refund when amount is missing", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "PP_NO_AMT", 2000, "succeeded");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_NO_AMT",
+			amount: 2000,
+			status: "succeeded",
+		});
 
 		const body = JSON.stringify({
 			event_type: "PAYMENT.CAPTURE.REFUNDED",
@@ -513,7 +546,11 @@ describe("paypal endpoint security — idempotency", () => {
 
 	it("processing the same COMPLETED event twice does not corrupt state", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(data, payments, "PP_IDEMPOTENT_1");
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_IDEMPOTENT_1",
+		});
 
 		const body = JSON.stringify({
 			event_type: "PAYMENT.CAPTURE.COMPLETED",
@@ -572,7 +609,11 @@ describe("paypal endpoint security — domain event emission", () => {
 
 	it("PAYMENT.CAPTURE.PENDING does not emit a domain event", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "PP_PENDING_EVT");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_PENDING_EVT",
+		});
 
 		const body = JSON.stringify({
 			event_type: "PAYMENT.CAPTURE.PENDING",
@@ -585,7 +626,11 @@ describe("paypal endpoint security — domain event emission", () => {
 
 	it("CHECKOUT.ORDER.APPROVED does not emit a domain event", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "PP_APPROVED_EVT");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_APPROVED_EVT",
+		});
 
 		const body = JSON.stringify({
 			event_type: "CHECKOUT.ORDER.APPROVED",
@@ -598,7 +643,11 @@ describe("paypal endpoint security — domain event emission", () => {
 
 	it("PAYMENT.CAPTURE.COMPLETED emits payment.completed", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "PP_EMIT_COMP");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_EMIT_COMP",
+		});
 
 		const body = JSON.stringify({
 			event_type: "PAYMENT.CAPTURE.COMPLETED",
@@ -621,7 +670,11 @@ describe("paypal endpoint security — domain event emission", () => {
 
 	it("PAYMENT.CAPTURE.DENIED emits payment.failed", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "PP_EMIT_DENIED");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_EMIT_DENIED",
+		});
 
 		const body = JSON.stringify({
 			event_type: "PAYMENT.CAPTURE.DENIED",
@@ -637,7 +690,13 @@ describe("paypal endpoint security — domain event emission", () => {
 
 	it("PAYMENT.CAPTURE.REFUNDED emits payment.refunded", async () => {
 		const { data, payments, context } = createTestContext();
-		await seedIntent(data, payments, "PP_EMIT_REFUND", 4000, "succeeded");
+		await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_EMIT_REFUND",
+			amount: 4000,
+			status: "succeeded",
+		});
 
 		const body = JSON.stringify({
 			event_type: "PAYMENT.CAPTURE.REFUNDED",

@@ -6,7 +6,7 @@ import type {
 	PaymentProviderOperationRequest,
 	PaymentProviderReconciliationRequest,
 } from "@86d-app/core/payment-connection-provider";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 
 const identifierSchema = z.string().trim().min(1).max(255);
 const secretSchema = z.string().min(1).max(1_000);

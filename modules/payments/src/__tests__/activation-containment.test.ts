@@ -1,4 +1,5 @@
 import { createMockDataService } from "@86d-app/core/test-utils";
+import { getProcessEnv, setProcessEnv } from "env/process-env";
 import { describe, expect, it } from "vitest";
 import payments from "../index";
 import { createPaymentController } from "../service-impl";
@@ -65,8 +66,8 @@ describe("payment activation containment", () => {
 	});
 
 	it("never enables explicit offline development mode in production", async () => {
-		const previousNodeEnv = process.env.NODE_ENV;
-		process.env.NODE_ENV = "production";
+		const previousNodeEnv = getProcessEnv("NODE_ENV");
+		setProcessEnv("NODE_ENV", "production");
 		try {
 			const controller = createPaymentController(
 				createMockDataService(),
@@ -80,9 +81,9 @@ describe("payment activation containment", () => {
 			);
 		} finally {
 			if (previousNodeEnv === undefined) {
-				delete process.env.NODE_ENV;
+				setProcessEnv("NODE_ENV", undefined);
 			} else {
-				process.env.NODE_ENV = previousNodeEnv;
+				setProcessEnv("NODE_ENV", previousNodeEnv);
 			}
 		}
 	});

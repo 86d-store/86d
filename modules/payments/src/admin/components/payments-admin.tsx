@@ -371,13 +371,15 @@ function IntentsTab() {
 					</thead>
 					<tbody className="divide-y divide-border">
 						{loading ? (
-							Array.from({ length: 5 }).map((_, i) => (
-								<tr key={`skeleton-${i}`}>
-									{Array.from({ length: 6 }).map((_, j) => (
-										<td key={`skeleton-cell-${j}`} className="px-4 py-3">
-											<div className="h-4 w-24 animate-pulse rounded bg-muted" />
-										</td>
-									))}
+							(["k0", "k1", "k2", "k3", "k4"] as const).map((_key) => (
+								<tr key={rowKey}>
+									{(["k0", "k1", "k2", "k3", "k4", "k5"] as const).map(
+										(_key) => (
+											<td key={cellKey} className="px-4 py-3">
+												<div className="h-4 w-24 animate-pulse rounded bg-muted" />
+											</td>
+										),
+									)}
 								</tr>
 							))
 						) : intents.length === 0 ? (
@@ -528,10 +530,10 @@ function RefundsTab() {
 				</thead>
 				<tbody className="divide-y divide-border">
 					{loadingIntents ? (
-						Array.from({ length: 4 }).map((_, i) => (
-							<tr key={`skeleton-${i}`}>
-								{Array.from({ length: 5 }).map((_, j) => (
-									<td key={`skeleton-cell-${j}`} className="px-4 py-3">
+						(["k0", "k1", "k2", "k3"] as const).map((_key) => (
+							<tr key={rowKey}>
+								{(["k0", "k1", "k2", "k3", "k4"] as const).map((_key) => (
+									<td key={cellKey} className="px-4 py-3">
 										<div className="h-4 w-24 animate-pulse rounded bg-muted" />
 									</td>
 								))}

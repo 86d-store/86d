@@ -374,12 +374,9 @@ describe("PayPal Payment Connection provider", () => {
 
 	it("performs a real void and waits for canonical confirmation", async () => {
 		let voidSubmitted = false;
-		const fetchMock = installPayPalFetch(async (url, init) => {
+		const fetchMock = installPayPalFetch(async (url, _init) => {
 			if (url.endsWith("/AUTH-4/void")) {
 				voidSubmitted = true;
-				expect(init?.headers).toMatchObject({
-					"PayPal-Request-Id": "void-stable-key",
-				});
 				return new Response(null, { status: 204 });
 			}
 			expect(url).toContain("/v2/payments/authorizations/AUTH-4");
@@ -398,6 +395,12 @@ describe("PayPal Payment Connection provider", () => {
 		);
 
 		expect(voidSubmitted).toBe(true);
+		const voidCall = fetchMock.mock.calls.find(([url]) =>
+			String(url).endsWith("/AUTH-4/void"),
+		);
+		expect(voidCall?.[1]?.headers).toMatchObject({
+			"PayPal-Request-Id": "void-stable-key",
+		});
 		expect(outcome).toMatchObject({
 			state: "succeeded",
 			providerReference: "AUTH-4",

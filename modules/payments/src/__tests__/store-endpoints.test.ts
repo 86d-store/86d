@@ -296,10 +296,11 @@ describe("store endpoint: get intent — retrieval", () => {
 		const result = await simulateGetIntent(data, created.id);
 
 		expect("intent" in result).toBe(true);
-		if ("intent" in result) {
-			expect(result.intent.id).toBe(created.id);
-			expect(result.intent.amount).toBe(4000);
+		if (!("intent" in result)) {
+			throw new Error("expected 'intent' in result");
 		}
+		expect(result.intent.id).toBe(created.id);
+		expect(result.intent.amount).toBe(4000);
 	});
 
 	it("returns 404 for nonexistent intent", async () => {
@@ -342,9 +343,10 @@ describe("store endpoint: confirm intent — auth and state machine", () => {
 		});
 
 		expect("intent" in result).toBe(true);
-		if ("intent" in result) {
-			expect(result.intent.status).toBe("succeeded");
+		if (!("intent" in result)) {
+			throw new Error("expected 'intent' in result");
 		}
+		expect(result.intent.status).toBe("succeeded");
 	});
 
 	it("returns already-succeeded intent without error", async () => {
@@ -362,9 +364,10 @@ describe("store endpoint: confirm intent — auth and state machine", () => {
 		});
 
 		expect("intent" in result).toBe(true);
-		if ("intent" in result) {
-			expect(result.intent.status).toBe("succeeded");
+		if (!("intent" in result)) {
+			throw new Error("expected 'intent' in result");
 		}
+		expect(result.intent.status).toBe("succeeded");
 	});
 
 	it("returns 404 when intent does not exist", async () => {
@@ -412,10 +415,11 @@ describe("store endpoint: confirm intent — auth and state machine", () => {
 		});
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.status).toBe(400);
-			expect(result.error).toContain("cancelled");
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.status).toBe(400);
+		expect(result.error).toContain("cancelled");
 	});
 
 	it("returns 400 when trying to confirm a failed intent", async () => {
@@ -444,10 +448,11 @@ describe("store endpoint: confirm intent — auth and state machine", () => {
 		});
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.status).toBe(400);
-			expect(result.error).toContain("failed");
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.status).toBe(400);
+		expect(result.error).toContain("failed");
 	});
 
 	it("allows confirming an intent with no customerId (guest intent)", async () => {
@@ -464,9 +469,10 @@ describe("store endpoint: confirm intent — auth and state machine", () => {
 		});
 
 		expect("intent" in result).toBe(true);
-		if ("intent" in result) {
-			expect(result.intent.status).toBe("succeeded");
+		if (!("intent" in result)) {
+			throw new Error("expected 'intent' in result");
 		}
+		expect(result.intent.status).toBe("succeeded");
 	});
 });
 
@@ -500,9 +506,10 @@ describe("store endpoint: cancel intent — auth and ownership", () => {
 		});
 
 		expect("intent" in result).toBe(true);
-		if ("intent" in result) {
-			expect(result.intent.status).toBe("cancelled");
+		if (!("intent" in result)) {
+			throw new Error("expected 'intent' in result");
 		}
+		expect(result.intent.status).toBe("cancelled");
 	});
 
 	it("returns 404 when intent does not exist", async () => {
@@ -550,10 +557,11 @@ describe("store endpoint: cancel intent — auth and ownership", () => {
 		});
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.status).toBe(400);
-			expect(result.error).toContain("succeeded");
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.status).toBe(400);
+		expect(result.error).toContain("succeeded");
 	});
 
 	it("returns already-cancelled intent without error", async () => {
@@ -571,9 +579,10 @@ describe("store endpoint: cancel intent — auth and ownership", () => {
 		});
 
 		expect("intent" in result).toBe(true);
-		if ("intent" in result) {
-			expect(result.intent.status).toBe("cancelled");
+		if (!("intent" in result)) {
+			throw new Error("expected 'intent' in result");
 		}
+		expect(result.intent.status).toBe("cancelled");
 	});
 
 	it("allows cancelling an intent with no customerId", async () => {
@@ -590,9 +599,10 @@ describe("store endpoint: cancel intent — auth and ownership", () => {
 		});
 
 		expect("intent" in result).toBe(true);
-		if ("intent" in result) {
-			expect(result.intent.status).toBe("cancelled");
+		if (!("intent" in result)) {
+			throw new Error("expected 'intent' in result");
 		}
+		expect(result.intent.status).toBe("cancelled");
 	});
 });
 
@@ -636,9 +646,10 @@ describe("store endpoint: list payment methods — auth scoping", () => {
 		});
 
 		expect("methods" in result).toBe(true);
-		if ("methods" in result) {
-			expect(result.methods).toHaveLength(2);
+		if (!("methods" in result)) {
+			throw new Error("expected 'methods' in result");
 		}
+		expect(result.methods).toHaveLength(2);
 	});
 
 	it("does not return methods belonging to other users", async () => {
@@ -658,9 +669,10 @@ describe("store endpoint: list payment methods — auth scoping", () => {
 		});
 
 		expect("methods" in result).toBe(true);
-		if ("methods" in result) {
-			expect(result.methods).toHaveLength(0);
+		if (!("methods" in result)) {
+			throw new Error("expected 'methods' in result");
 		}
+		expect(result.methods).toHaveLength(0);
 	});
 
 	it("returns empty array for a user with no saved methods", async () => {
@@ -669,9 +681,10 @@ describe("store endpoint: list payment methods — auth scoping", () => {
 		});
 
 		expect("methods" in result).toBe(true);
-		if ("methods" in result) {
-			expect(result.methods).toHaveLength(0);
+		if (!("methods" in result)) {
+			throw new Error("expected 'methods' in result");
 		}
+		expect(result.methods).toHaveLength(0);
 	});
 });
 
@@ -708,9 +721,10 @@ describe("store endpoint: delete payment method — auth and ownership", () => {
 		});
 
 		expect("deleted" in result).toBe(true);
-		if ("deleted" in result) {
-			expect(result.deleted).toBe(true);
+		if (!("deleted" in result)) {
+			throw new Error("expected 'deleted' in result");
 		}
+		expect(result.deleted).toBe(true);
 
 		// Verify it's actually gone
 		const methods = await controller.listPaymentMethods("cust_1");
@@ -802,9 +816,10 @@ describe("store endpoint: intent lifecycle — end-to-end flow", () => {
 			session: makeSession("cust_1"),
 		});
 		expect("intent" in confirmed).toBe(true);
-		if ("intent" in confirmed) {
-			expect(confirmed.intent.status).toBe("succeeded");
+		if (!("intent" in confirmed)) {
+			throw new Error("expected 'intent' in confirmed");
 		}
+		expect(confirmed.intent.status).toBe("succeeded");
 	});
 
 	it("create → cancel lifecycle", async () => {
@@ -819,9 +834,10 @@ describe("store endpoint: intent lifecycle — end-to-end flow", () => {
 			session: makeSession("cust_1"),
 		});
 		expect("intent" in cancelled).toBe(true);
-		if ("intent" in cancelled) {
-			expect(cancelled.intent.status).toBe("cancelled");
+		if (!("intent" in cancelled)) {
+			throw new Error("expected 'intent' in cancelled");
 		}
+		expect(cancelled.intent.status).toBe("cancelled");
 	});
 
 	it("cannot confirm after cancel", async () => {
@@ -839,9 +855,10 @@ describe("store endpoint: intent lifecycle — end-to-end flow", () => {
 		});
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.status).toBe(400);
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.status).toBe(400);
 	});
 
 	it("cannot cancel after confirm", async () => {
@@ -859,9 +876,10 @@ describe("store endpoint: intent lifecycle — end-to-end flow", () => {
 		});
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.status).toBe(400);
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.status).toBe(400);
 	});
 
 	it("multiple intents are independent", async () => {
@@ -888,9 +906,11 @@ describe("store endpoint: intent lifecycle — end-to-end flow", () => {
 
 		expect("intent" in resultA).toBe(true);
 		expect("intent" in resultB).toBe(true);
-		if ("intent" in resultA && "intent" in resultB) {
-			expect(resultA.intent.status).toBe("succeeded");
-			expect(resultB.intent.status).toBe("cancelled");
+		expect("intent" in resultA && "intent" in resultB).toBeTruthy();
+		if (!("intent" in resultA && "intent" in resultB)) {
+			throw new Error("expected 'intent' in resultA && 'intent' in resultB");
 		}
+		expect(resultA.intent.status).toBe("succeeded");
+		expect(resultB.intent.status).toBe("cancelled");
 	});
 });

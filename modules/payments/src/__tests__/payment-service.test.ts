@@ -362,15 +362,15 @@ describe("Payment v2 confirmed financial transitions", () => {
 	});
 
 	it("commits the aggregate transition and outbox fact atomically", async () => {
-		let rejectEmit = false;
+		const rejectEmitBox: { value: boolean } = { value: false };
 		const transactions = createMockTransactionRunner({
 			beforeEmit() {
-				if (rejectEmit) throw new Error("outbox unavailable");
+				if (rejectEmitBox.value) throw new Error("outbox unavailable");
 			},
 		});
 		const store = createPaymentAggregateStore(transactions.data, transactions);
 		await store.create(paymentInput());
-		rejectEmit = true;
+		rejectEmitBox.value = true;
 
 		await expect(
 			store.recordConfirmedOperation(

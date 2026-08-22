@@ -78,9 +78,10 @@ describe("store endpoint: create session", () => {
 		});
 
 		expect("session" in result).toBe(true);
-		if ("session" in result) {
-			expect(result.session.id).toBeDefined();
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.id).toBeDefined();
 	});
 });
 
@@ -102,9 +103,10 @@ describe("store endpoint: capture photo", () => {
 		});
 
 		expect("photo" in result).toBe(true);
-		if ("photo" in result) {
-			expect(result.photo.imageUrl).toBe("https://cdn.example.com/photo1.jpg");
+		if (!("photo" in result)) {
+			throw new Error("expected 'photo' in result");
 		}
+		expect(result.photo.imageUrl).toBe("https://cdn.example.com/photo1.jpg");
 	});
 
 	it("returns 404 for nonexistent session", async () => {
@@ -135,9 +137,10 @@ describe("store endpoint: get photo", () => {
 		const result = await simulateGetPhoto(data, photo.id);
 
 		expect("photo" in result).toBe(true);
-		if ("photo" in result) {
-			expect(result.photo.imageUrl).toBe("https://cdn.example.com/pic.jpg");
+		if (!("photo" in result)) {
+			throw new Error("expected 'photo' in result");
 		}
+		expect(result.photo.imageUrl).toBe("https://cdn.example.com/pic.jpg");
 	});
 
 	it("returns 404 for nonexistent photo", async () => {
@@ -167,9 +170,10 @@ describe("store endpoint: get stream photos", () => {
 		const result = await simulateGetStreamPhotos(data, stream.id);
 
 		expect("photos" in result).toBe(true);
-		if ("photos" in result) {
-			expect(result.photos).toHaveLength(1);
+		if (!("photos" in result)) {
+			throw new Error("expected 'photos' in result");
 		}
+		expect(result.photos).toHaveLength(1);
 	});
 
 	it("returns 404 for nonexistent stream", async () => {
@@ -262,10 +266,11 @@ describe("store endpoint: send photo — deliver to email or phone", () => {
 		});
 
 		expect(result).not.toBeNull();
-		if (result) {
-			expect(result.sendStatus).toBe("sent");
-			expect(result.email).toBe("guest@example.com");
+		if (!result) {
+			throw new Error("expected result");
 		}
+		expect(result.sendStatus).toBe("sent");
+		expect(result.email).toBe("guest@example.com");
 	});
 
 	it("returns null for nonexistent photo", async () => {

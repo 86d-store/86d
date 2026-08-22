@@ -84,13 +84,20 @@ function createTestContext() {
 }
 
 /** Seed a payment intent with a specific providerIntentId. */
-async function seedIntent(
-	data: ReturnType<typeof createMockDataService>,
-	payments: ReturnType<typeof createPaymentController>,
-	providerIntentId: string,
-	amount = 2000,
-	status = "pending",
-) {
+async function seedIntent(options: {
+	data: ReturnType<typeof createMockDataService>;
+	payments: ReturnType<typeof createPaymentController>;
+	providerIntentId: string;
+	amount?: number;
+	status?: string;
+}) {
+	const {
+		data,
+		payments,
+		providerIntentId,
+		amount = 2000,
+		status = "pending",
+	} = options;
 	const intent = await payments.createIntent({ amount });
 	await data.upsert("paymentIntent", intent.id, {
 		...intent,
@@ -232,7 +239,11 @@ describe("createPayPalWebhook — event handling", () => {
 
 	it("handles PAYMENT.CAPTURE.COMPLETED and emits payment.completed", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(data, payments, "PP_ORDER_123");
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_ORDER_123",
+		});
 
 		const body = JSON.stringify({
 			event_type: "PAYMENT.CAPTURE.COMPLETED",
@@ -259,7 +270,11 @@ describe("createPayPalWebhook — event handling", () => {
 
 	it("handles PAYMENT.CAPTURE.DENIED and emits payment.failed", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(data, payments, "PP_DENIED_123");
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_DENIED_123",
+		});
 
 		const body = JSON.stringify({
 			event_type: "PAYMENT.CAPTURE.DENIED",
@@ -280,13 +295,13 @@ describe("createPayPalWebhook — event handling", () => {
 
 	it("handles PAYMENT.CAPTURE.REFUNDED and emits payment.refunded", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(
-			data,
-			payments,
-			"PP_REFUND_ORDER",
-			5000,
-			"succeeded",
-		);
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "PP_REFUND_ORDER",
+			amount: 5000,
+			status: "succeeded",
+		});
 
 		const body = JSON.stringify({
 			event_type: "PAYMENT.CAPTURE.REFUNDED",

@@ -3,11 +3,9 @@ import {
 	paymentCheckoutCapability,
 	paymentIntentCapability,
 } from "@86d-app/core/commerce-capabilities";
-import type { z } from "@86d-app/core/zod";
+import type { z } from "zod";
 import type { PaymentController, PaymentProvider } from "./service";
 import { createPaymentController } from "./service-impl";
-
-export { paymentCheckoutCapability, paymentIntentCapability };
 
 type PaymentCheckoutRequest = z.infer<typeof paymentCheckoutCapability.request>;
 

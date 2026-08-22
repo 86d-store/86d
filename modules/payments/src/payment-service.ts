@@ -9,7 +9,7 @@ import type {
 	ModuleController,
 	ModuleDataService,
 } from "@86d-app/core/types/module";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 
 const identifierSchema = z.string().trim().min(1).max(255);
 const idempotencyKeySchema = z.string().trim().min(8).max(200);

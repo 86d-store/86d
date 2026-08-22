@@ -2,6 +2,7 @@ import type {
 	ModuleContext,
 	ModuleDataService,
 } from "@86d-app/core/types/module";
+import { getProcessEnv } from "env/process-env";
 import type {
 	PaymentController,
 	PaymentIntent,
@@ -21,7 +22,7 @@ export function createPaymentController(
 ): PaymentController {
 	const allowOffline =
 		options?.allowOfflineForDevelopment === true &&
-		process.env.NODE_ENV !== "production";
+		getProcessEnv("NODE_ENV") !== "production";
 	const coreMoney = options?.coreMoney;
 	/** Sum of all succeeded refund amounts for an intent. */
 	async function totalRefunded(intentId: string): Promise<number> {

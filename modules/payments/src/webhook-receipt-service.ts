@@ -7,7 +7,7 @@ import type {
 	ModuleController,
 	ModuleDataService,
 } from "@86d-app/core/types/module";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { PaymentAggregateStore } from "./payment-service";
 
 const identifierSchema = z.string().trim().min(1).max(255);

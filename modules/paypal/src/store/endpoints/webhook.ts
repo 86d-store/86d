@@ -1,4 +1,5 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
+import { getProcessEnv } from "env/process-env";
 
 /** Minimal typed shape of a PayPal webhook event resource. */
 interface PayPalResource {
@@ -48,14 +49,22 @@ async function getAccessToken(
 	return data.access_token;
 }
 
-async function verifyPayPalSignature(
-	rawBody: string,
-	requestHeaders: { get(name: string): string | null },
-	webhookId: string,
-	clientId: string,
-	clientSecret: string,
-	baseUrl: string,
-): Promise<boolean> {
+async function verifyPayPalSignature(options: {
+	rawBody: string;
+	requestHeaders: { get(name: string): string | null };
+	webhookId: string;
+	clientId: string;
+	clientSecret: string;
+	baseUrl: string;
+}): Promise<boolean> {
+	const {
+		rawBody,
+		requestHeaders,
+		webhookId,
+		clientId,
+		clientSecret,
+		baseUrl,
+	} = options;
 	const authAlgo = requestHeaders.get("paypal-auth-algo");
 	const certUrl = requestHeaders.get("paypal-cert-url");
 	const transmissionId = requestHeaders.get("paypal-transmission-id");
@@ -284,12 +293,12 @@ export function createDurablePayPalWebhook(opts: PayPalWebhookOptions) {
 			requireRequest: true,
 		},
 		async (ctx) => {
-			const clientId = opts.clientId?.trim();
-			const clientSecret = opts.clientSecret?.trim();
+			const clientId = opts.clientId.trim();
+			const clientSecret = opts.clientSecret.trim();
 			const webhookId = opts.webhookId?.trim();
 			const connectionId = opts.connectionId?.trim();
 			const storeId =
-				opts.storeId?.trim() ?? process.env["86D_STORE_ID"]?.trim();
+				opts.storeId?.trim() ?? getProcessEnv("86D_STORE_ID")?.trim();
 			if (!clientId || !clientSecret || !webhookId) {
 				return Response.json(
 					{ error: "PayPal webhook verification is not configured." },
@@ -308,14 +317,14 @@ export function createDurablePayPalWebhook(opts: PayPalWebhookOptions) {
 			}
 
 			const rawBody = await ctx.request.text();
-			const valid = await verifyPayPalSignature(
+			const valid = await verifyPayPalSignature({
 				rawBody,
-				ctx.request.headers,
+				requestHeaders: ctx.request.headers,
 				webhookId,
 				clientId,
 				clientSecret,
 				baseUrl,
-			);
+			});
 			if (!valid) {
 				return Response.json(
 					{ error: "Invalid or unverifiable webhook signature." },
@@ -512,8 +521,8 @@ export function createPayPalWebhook(opts: PayPalWebhookOptions) {
 		},
 		async (ctx) => {
 			if (
-				!opts.clientId?.trim() ||
-				!opts.clientSecret?.trim() ||
+				!opts.clientId.trim() ||
+				!opts.clientSecret.trim() ||
 				!opts.webhookId?.trim()
 			) {
 				return Response.json(
@@ -525,14 +534,14 @@ export function createPayPalWebhook(opts: PayPalWebhookOptions) {
 			const request = ctx.request;
 			const rawBody = await request.text();
 
-			const valid = await verifyPayPalSignature(
+			const valid = await verifyPayPalSignature({
 				rawBody,
-				request.headers,
-				opts.webhookId,
-				opts.clientId,
-				opts.clientSecret,
+				requestHeaders: request.headers,
+				webhookId: opts.webhookId,
+				clientId: opts.clientId,
+				clientSecret: opts.clientSecret,
 				baseUrl,
-			);
+			});
 			if (!valid) {
 				return Response.json(
 					{ error: "Invalid or unverifiable webhook signature." },
@@ -641,8 +650,8 @@ export function createContainedPayPalWebhook(opts: PayPalWebhookOptions) {
 			requireRequest: true,
 		},
 		async (ctx) => {
-			const clientId = opts.clientId?.trim();
-			const clientSecret = opts.clientSecret?.trim();
+			const clientId = opts.clientId.trim();
+			const clientSecret = opts.clientSecret.trim();
 			const webhookId = opts.webhookId?.trim();
 			if (!clientId || !clientSecret || !webhookId) {
 				return Response.json(
@@ -652,14 +661,14 @@ export function createContainedPayPalWebhook(opts: PayPalWebhookOptions) {
 			}
 
 			const rawBody = await ctx.request.text();
-			const valid = await verifyPayPalSignature(
+			const valid = await verifyPayPalSignature({
 				rawBody,
-				ctx.request.headers,
+				requestHeaders: ctx.request.headers,
 				webhookId,
 				clientId,
 				clientSecret,
 				baseUrl,
-			);
+			});
 			if (!valid) {
 				return Response.json(
 					{ error: "Invalid or unverifiable webhook signature." },

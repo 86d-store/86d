@@ -1,7 +1,7 @@
 {props.isLoading ? (
   <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-    {Array.from({ length: 8 }).map((_, i) => (
-      <div key={`skel-${i}`} className="aspect-square animate-pulse rounded-xl border border-border bg-muted/30" />
+    {(["k0", "k1", "k2", "k3", "k4", "k5", "k6", "k7"] as const).map((key) => (
+      <div key={key} className="aspect-square animate-pulse rounded-xl border border-border bg-muted/30" />
     ))}
   </div>
 ) : props.photos.length === 0 ? (

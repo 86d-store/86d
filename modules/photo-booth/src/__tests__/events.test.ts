@@ -244,7 +244,7 @@ describe("no events without emitter", () => {
 		await ctrl.sendPhoto(photo.id, { email: "user@test.com" });
 		await ctrl.deletePhoto(photo.id);
 		const stream = await ctrl.createStream({ name: "Silent" });
-		await ctrl.toggleStreamLive(stream.id);
+		await expect(ctrl.toggleStreamLive(stream.id)).resolves.toBeUndefined();
 
 		// No errors thrown
 	});

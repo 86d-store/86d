@@ -4,9 +4,9 @@
   </div>
 ) : props.isLoading ? (
   <div className="space-y-3">
-    {Array.from({ length: 2 }).map((_, i) => (
+    {(["k0", "k1"] as const).map((key) => (
       <div
-        key={`skel-${i}`}
+        key={key}
         className="h-16 animate-pulse rounded-xl border border-border bg-muted/30"
       />
     ))}

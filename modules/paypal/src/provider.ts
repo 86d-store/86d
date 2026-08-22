@@ -77,9 +77,7 @@ export class PayPalPaymentProvider implements PaymentProvider {
 		});
 		if (!res.ok) {
 			const err = (await res.json()) as PayPalErrorResponse;
-			throw new Error(
-				`PayPal auth error: ${err.message ?? `HTTP ${res.status}`}`,
-			);
+			throw new Error(`PayPal auth error: ${err.message}`);
 		}
 		const data = (await res.json()) as PayPalTokenResponse;
 		this.accessToken = data.access_token;
@@ -108,7 +106,7 @@ export class PayPalPaymentProvider implements PaymentProvider {
 		const json = (await res.json()) as T | PayPalErrorResponse;
 		if (!res.ok) {
 			const err = json as PayPalErrorResponse;
-			throw new Error(`PayPal error: ${err.message ?? `HTTP ${res.status}`}`);
+			throw new Error(`PayPal error: ${err.message}`);
 		}
 		return json as T;
 	}

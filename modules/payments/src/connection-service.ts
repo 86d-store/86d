@@ -1,4 +1,5 @@
-import { type JsonValue, jsonValueSchema } from "@86d-app/core/commands";
+import type { JsonValue } from "@86d-app/contracts/json-value";
+import { jsonValueSchema } from "@86d-app/contracts/json-value";
 import type {
 	LockingModuleDataTransaction,
 	ModuleDataTransaction,
@@ -13,7 +14,7 @@ import type {
 	ModuleController,
 	ModuleDataService,
 } from "@86d-app/core/types/module";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import {
 	assertPaymentOperationClaimableLocked,
 	PaymentAggregateError,

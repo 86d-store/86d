@@ -49,7 +49,8 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-app/core": "workspace:*",
+		"env": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

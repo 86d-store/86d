@@ -1,6 +1,7 @@
 "use client";
 
 import { useModuleClient } from "@86d-app/core/client/provider";
+import Image from "next/image";
 import { useState } from "react";
 import PhotoBoothAdminTemplate from "./photo-booth-admin.mdx";
 
@@ -46,7 +47,7 @@ function formatNumber(n: number): string {
 function extractError(err: unknown): string {
 	if (err && typeof err === "object" && "body" in err) {
 		const body = (err as { body: { message?: string } }).body;
-		return body?.message ?? "An error occurred";
+		return body.message ?? "An error occurred";
 	}
 	return "An error occurred";
 }
@@ -187,11 +188,8 @@ export function PhotoBoothAdmin() {
 
 	const sessionsContent = sessionsLoading ? (
 		<div className="divide-y divide-border">
-			{Array.from({ length: 4 }, (_, i) => (
-				<div
-					key={`session-skeleton-${i}`}
-					className="flex items-center justify-between px-5 py-3"
-				>
+			{Array.from({ length: 4 }, (_, _i) => (
+				<div key={key} className="flex items-center justify-between px-5 py-3">
 					<div className="flex-1 space-y-1.5">
 						<Skeleton className="h-4 w-40 rounded" />
 						<Skeleton className="h-3 w-28 rounded" />
@@ -283,11 +281,8 @@ export function PhotoBoothAdmin() {
 
 	const photosContent = photosLoading ? (
 		<div className="grid grid-cols-2 gap-4 p-5 sm:grid-cols-3 lg:grid-cols-4">
-			{Array.from({ length: 8 }, (_, i) => (
-				<Skeleton
-					key={`photo-skeleton-${i}`}
-					className="aspect-square rounded-lg"
-				/>
+			{Array.from({ length: 8 }, (_, _i) => (
+				<Skeleton key={key} className="aspect-square rounded-lg" />
 			))}
 		</div>
 	) : photos.length === 0 ? (
@@ -300,9 +295,12 @@ export function PhotoBoothAdmin() {
 				{photos.map((photo) => (
 					<div key={photo.id} className="group relative">
 						<div className="aspect-square overflow-hidden rounded-lg border border-border bg-muted">
-							<img
+							<Image
 								src={photo.thumbnailUrl ?? photo.imageUrl}
 								alt={photo.caption ?? "Photo"}
+								width={400}
+								height={400}
+								unoptimized
 								className="h-full w-full object-cover"
 							/>
 						</div>
