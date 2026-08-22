@@ -59,9 +59,7 @@ export class OpenAIEmbeddingProvider implements EmbeddingProvider {
 
 			if (!res.ok) {
 				const err = (await res.json()) as EmbeddingErrorResponse;
-				console.error(
-					`Embedding API error: ${err.error?.message ?? `HTTP ${res.status}`}`,
-				);
+				console.error(`Embedding API error: ${err.error.message}`);
 				return texts.map(() => null);
 			}
 

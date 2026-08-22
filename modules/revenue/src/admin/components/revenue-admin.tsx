@@ -150,11 +150,8 @@ function OverviewTab({ preset }: { preset: DatePreset }) {
 	if (isLoading) {
 		return (
 			<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-				{Array.from({ length: 4 }).map((_, i) => (
-					<div
-						key={`stat-skeleton-${i}`}
-						className="h-24 animate-pulse rounded-lg bg-muted"
-					/>
+				{(["k0", "k1", "k2", "k3"] as const).map((key) => (
+					<div key={key} className="h-24 animate-pulse rounded-lg bg-muted" />
 				))}
 			</div>
 		);
@@ -421,10 +418,10 @@ function TransactionsTab({ preset }: { preset: DatePreset }) {
 					</thead>
 					<tbody className="divide-y divide-border">
 						{isLoading ? (
-							Array.from({ length: 5 }).map((_, i) => (
-								<tr key={`skeleton-${i}`}>
-									{Array.from({ length: 5 }).map((_, j) => (
-										<td key={`cell-${j}`} className="px-4 py-3">
+							(["k0", "k1", "k2", "k3", "k4"] as const).map((_key) => (
+								<tr key={rowKey}>
+									{(["k0", "k1", "k2", "k3", "k4"] as const).map((_key) => (
+										<td key={cellKey} className="px-4 py-3">
 											<div className="h-4 w-24 animate-pulse rounded bg-muted" />
 										</td>
 									))}

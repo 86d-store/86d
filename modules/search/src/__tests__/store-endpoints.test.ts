@@ -272,14 +272,18 @@ describe("search store endpoints", () => {
 			const result = await simulateSearch(data, { q: "red widget" });
 
 			const redWidget = result.results.find((r) => r.entityId === "prod-1");
-			if (redWidget) {
-				expect(redWidget.image).toBe("/img/red-widget.jpg");
+			expect(redWidget).toBeTruthy();
+			if (!redWidget) {
+				throw new Error("expected redWidget");
 			}
+			expect(redWidget.image).toBe("/img/red-widget.jpg");
 
 			const blueGadget = result.results.find((r) => r.entityId === "prod-2");
-			if (blueGadget) {
-				expect(blueGadget.image).toBeUndefined();
+			expect(blueGadget).toBeTruthy();
+			if (!blueGadget) {
+				throw new Error("expected blueGadget");
 			}
+			expect(blueGadget.image).toBeUndefined();
 		});
 	});
 

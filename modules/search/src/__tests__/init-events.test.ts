@@ -423,8 +423,9 @@ describe("init without event emitter", () => {
 
 		const init = mod.init;
 		expect(init).toBeDefined();
-		if (init) {
-			await expect(init({ ...ctx, events: undefined })).resolves.toBeDefined();
+		if (!init) {
+			throw new Error("expected init");
 		}
+		await expect(init({ ...ctx, events: undefined })).resolves.toBeDefined();
 	});
 });

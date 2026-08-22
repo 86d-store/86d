@@ -1,5 +1,5 @@
 import { createAdminEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import { listRevenueIntents } from "../../payment-source";
 import type { PaymentIntentStatus } from "../../service";
 import { buildCSV } from "../../service-impl";

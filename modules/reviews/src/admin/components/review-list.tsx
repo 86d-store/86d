@@ -223,10 +223,10 @@ export function ReviewList() {
 
 	const tableBody =
 		loading && reviews.length === 0 ? (
-			Array.from({ length: 5 }, (_, i) => (
-				<tr key={`sk-${i}`}>
-					{Array.from({ length: 7 }, (_, j) => (
-						<td key={`sk-cell-${j}`} className="px-4 py-3">
+			Array.from({ length: 5 }, (_, _i) => (
+				<tr key={rowKey}>
+					{Array.from({ length: 7 }, (_, _j) => (
+						<td key={cellKey} className="px-4 py-3">
 							<Skeleton className="h-4" />
 						</td>
 					))}

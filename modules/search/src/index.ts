@@ -23,7 +23,6 @@ export type {
 	SearchSortField,
 	SearchSynonym,
 } from "./service";
-export { OpenAIEmbeddingProvider };
 
 export interface SearchOptions extends ModuleConfig {
 	/** Maximum number of search results per query */

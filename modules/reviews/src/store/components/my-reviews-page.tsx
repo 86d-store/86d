@@ -64,9 +64,9 @@ export function MyReviewsPage() {
 	if (loading) {
 		return (
 			<div className="space-y-4">
-				{Array.from({ length: 3 }).map((_, i) => (
+				{(["k0", "k1", "k2"] as const).map((key) => (
 					<div
-						key={`skel-${i}`}
+						key={key}
 						className="space-y-3 rounded-xl border border-border p-4"
 					>
 						<div className="h-4 w-1/3 animate-pulse rounded bg-muted" />

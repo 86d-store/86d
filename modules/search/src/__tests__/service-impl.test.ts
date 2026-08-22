@@ -213,9 +213,8 @@ describe("createSearchController", () => {
 				skip: 1,
 			});
 			expect(page1).toHaveLength(1);
-			if (page2.length > 0) {
-				expect(page1[0].item.id).not.toBe(page2[0].item.id);
-			}
+			expect(page2.length).toBeGreaterThan(0);
+			expect(page1[0].item.id).not.toBe(page2[0].item.id);
 		});
 
 		it("matches on tags", async () => {

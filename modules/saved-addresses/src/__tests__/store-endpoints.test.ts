@@ -136,11 +136,12 @@ describe("create-address", () => {
 			session,
 		);
 		expect("address" in result).toBe(true);
-		if ("address" in result) {
-			expect(result.address.firstName).toBe("Jane");
-			expect(result.address.isDefault).toBe(true);
-			expect(result.address.isDefaultBilling).toBe(true);
+		if (!("address" in result)) {
+			throw new Error("expected 'address' in result");
 		}
+		expect(result.address.firstName).toBe("Jane");
+		expect(result.address.isDefault).toBe(true);
+		expect(result.address.isDefaultBilling).toBe(true);
 	});
 
 	it("second address is not default", async () => {
@@ -150,9 +151,11 @@ describe("create-address", () => {
 			addressInput({ firstName: "John", line1: "456 Oak Ave" }),
 			session,
 		);
-		if ("address" in result) {
-			expect(result.address.isDefault).toBe(false);
+		expect("address" in result).toBeTruthy();
+		if (!("address" in result)) {
+			throw new Error("expected 'address' in result");
 		}
+		expect(result.address.isDefault).toBe(false);
 	});
 });
 
@@ -168,9 +171,11 @@ describe("list-addresses", () => {
 		await controller.create("cust_2", addressInput());
 
 		const result = await simulateListAddresses(controller, session);
-		if ("addresses" in result) {
-			expect(result.addresses).toHaveLength(2);
+		expect("addresses" in result).toBeTruthy();
+		if (!("addresses" in result)) {
+			throw new Error("expected 'addresses' in result");
 		}
+		expect(result.addresses).toHaveLength(2);
 	});
 });
 
@@ -196,10 +201,12 @@ describe("update-address", () => {
 			{ city: "Dallas", state: "TX" },
 			session,
 		);
-		if ("address" in result) {
-			expect(result.address.city).toBe("Dallas");
-			expect(result.address.firstName).toBe("Jane"); // unchanged
+		expect("address" in result).toBeTruthy();
+		if (!("address" in result)) {
+			throw new Error("expected 'address' in result");
 		}
+		expect(result.address.city).toBe("Dallas");
+		expect(result.address.firstName).toBe("Jane"); // unchanged
 	});
 
 	it("returns 404 for another customer's address", async () => {
@@ -221,9 +228,11 @@ describe("delete-address", () => {
 		expect(result).toEqual({ success: true });
 
 		const listed = await simulateListAddresses(controller, session);
-		if ("addresses" in listed) {
-			expect(listed.addresses).toHaveLength(0);
+		expect("addresses" in listed).toBeTruthy();
+		if (!("addresses" in listed)) {
+			throw new Error("expected 'addresses' in listed");
 		}
+		expect(listed.addresses).toHaveLength(0);
 	});
 
 	it("returns 404 for another customer's address", async () => {
@@ -236,9 +245,11 @@ describe("delete-address", () => {
 describe("get-default / set-default", () => {
 	it("returns null when no default exists", async () => {
 		const result = await simulateGetDefault(controller, session);
-		if ("address" in result) {
-			expect(result.address).toBeNull();
+		expect("address" in result).toBeTruthy();
+		if (!("address" in result)) {
+			throw new Error("expected 'address' in result");
 		}
+		expect(result.address).toBeNull();
 	});
 
 	it("switches default address", async () => {
@@ -250,16 +261,20 @@ describe("get-default / set-default", () => {
 
 		// addr1 is default (first created)
 		const before = await simulateGetDefault(controller, session);
-		if ("address" in before && before.address) {
-			expect(before.address.id).toBe(addr1.id);
+		expect("address" in before && before.address).toBeTruthy();
+		if (!("address" in before && before.address)) {
+			throw new Error("expected 'address' in before && before.address");
 		}
+		expect(before.address.id).toBe(addr1.id);
 
 		// Switch to addr2
 		await simulateSetDefault(controller, addr2.id, session);
 		const after = await simulateGetDefault(controller, session);
-		if ("address" in after && after.address) {
-			expect(after.address.id).toBe(addr2.id);
+		expect("address" in after && after.address).toBeTruthy();
+		if (!("address" in after && after.address)) {
+			throw new Error("expected 'address' in after && after.address");
 		}
+		expect(after.address.id).toBe(addr2.id);
 	});
 
 	it("returns 404 when setting default for another customer", async () => {
@@ -288,9 +303,11 @@ describe("cross-endpoint lifecycle", () => {
 
 		// List
 		const listed = await simulateListAddresses(controller, session);
-		if ("addresses" in listed) {
-			expect(listed.addresses).toHaveLength(2);
+		expect("addresses" in listed).toBeTruthy();
+		if (!("addresses" in listed)) {
+			throw new Error("expected 'addresses' in listed");
 		}
+		expect(listed.addresses).toHaveLength(2);
 
 		// Update
 		const updated = await simulateUpdateAddress(
@@ -299,22 +316,28 @@ describe("cross-endpoint lifecycle", () => {
 			{ city: "San Francisco" },
 			session,
 		);
-		if ("address" in updated) {
-			expect(updated.address.city).toBe("San Francisco");
+		expect("address" in updated).toBeTruthy();
+		if (!("address" in updated)) {
+			throw new Error("expected 'address' in updated");
 		}
+		expect(updated.address.city).toBe("San Francisco");
 
 		// Set default
 		await simulateSetDefault(controller, addr2Id, session);
 		const def = await simulateGetDefault(controller, session);
-		if ("address" in def && def.address) {
-			expect(def.address.id).toBe(addr2Id);
+		expect("address" in def && def.address).toBeTruthy();
+		if (!("address" in def && def.address)) {
+			throw new Error("expected 'address' in def && def.address");
 		}
+		expect(def.address.id).toBe(addr2Id);
 
 		// Delete first
 		await simulateDeleteAddress(controller, addr1Id, session);
 		const afterDelete = await simulateListAddresses(controller, session);
-		if ("addresses" in afterDelete) {
-			expect(afterDelete.addresses).toHaveLength(1);
+		expect("addresses" in afterDelete).toBeTruthy();
+		if (!("addresses" in afterDelete)) {
+			throw new Error("expected 'addresses' in afterDelete");
 		}
+		expect(afterDelete.addresses).toHaveLength(1);
 	});
 });

@@ -995,7 +995,7 @@ describe("search controllers — additional coverage", () => {
 			let skip = 0;
 			const limit = 3;
 
-			while (true) {
+			for (;;) {
 				const { results, total } = await controller.search("beta", {
 					skip,
 					limit,
