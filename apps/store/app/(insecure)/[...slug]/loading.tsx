@@ -16,9 +16,9 @@ export default function SlugLoading() {
 					<div className="flex flex-col gap-3">
 						<Skeleton className="aspect-square w-full rounded-lg" />
 						<div className="grid grid-cols-4 gap-2">
-							{Array.from({ length: 4 }).map((_, i) => (
+							{(["k0", "k1", "k2", "k3"] as const).map((key) => (
 								<Skeleton
-									key={`thumb-${i}`}
+									key={key}
 									className="aspect-square w-full rounded-md"
 								/>
 							))}

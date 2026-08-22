@@ -4,7 +4,8 @@ import { useModuleClient } from "@86d-app/core/client/provider";
 import { DownloadIcon } from "lucide-react";
 import { useState } from "react";
 import { StatusBadge } from "~/components/status-badge";
-import { Button, buttonVariants } from "~/components/ui/button";
+import { Button } from "~/components/ui/button";
+import { buttonVariants } from "~/components/ui/button-variants";
 import {
 	Empty,
 	EmptyContent,
@@ -87,7 +88,7 @@ export default function DownloadsPage() {
 			const result = (await downloadApi.fetch({
 				params: { token },
 			})) as { url?: string };
-			const url = result?.url;
+			const url = result.url;
 			if (url) {
 				window.open(url, "_blank", "noopener,noreferrer");
 			}

@@ -1,5 +1,5 @@
 import { getQueryClient } from "@86d-app/core/client/query-client";
-import { dehydrate, HydrationBoundary } from "@86d-app/core/client/react-query";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getBaseUrl } from "utils/url";
@@ -125,10 +125,9 @@ export default async function StoreCatchAllPage({ params }: Props) {
 	const content = (
 		<>
 			{jsonLd && (
-				<script
-					type="application/ld+json"
-					dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-				/>
+				<script type="application/ld+json" suppressHydrationWarning>
+					{JSON.stringify(jsonLd)}
+				</script>
 			)}
 			<StoreModuleRouteClient
 				moduleId={moduleId}

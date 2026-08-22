@@ -4,7 +4,7 @@ import { useModuleClient } from "@86d-app/core/client/provider";
 import { ShoppingBagIcon } from "lucide-react";
 import { useState } from "react";
 import { StatusBadge } from "~/components/status-badge";
-import { buttonVariants } from "~/components/ui/button";
+import { buttonVariants } from "~/components/ui/button-variants";
 import {
 	Empty,
 	EmptyContent,
