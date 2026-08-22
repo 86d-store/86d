@@ -1,1 +1,2 @@
-bunx lint-staged
+# Treat pathspecs literally so Next.js routes like [...slug] can be re-staged.
+GIT_LITERAL_PATHSPECS=1 bunx lint-staged
