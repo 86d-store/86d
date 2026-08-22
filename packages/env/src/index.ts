@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { readProcessEnv } from "./process-env";
 
 const LOCAL_BETTER_AUTH_SECRET =
 	"86d-local-development-only-better-auth-secret";
@@ -117,6 +118,6 @@ export function parseEnvironment(
 	};
 }
 
-const env = parseEnvironment(process.env);
+const env = parseEnvironment(readProcessEnv());
 
 export default env;

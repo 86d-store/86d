@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { getProcessEnv, setProcessEnv } from "./process-env";
 
 describe("env", () => {
 	it("rejects production without an auth secret", async () => {
@@ -119,18 +120,16 @@ describe("env", () => {
 		const mod = await import("../index");
 		const env = mod.default;
 
-		if (!process.env["86D_STORE_ID"]) {
-			expect(env["86D_STORE_ID"]).toBeUndefined();
-		}
-		if (!process.env["86D_WORKLOAD_CREDENTIAL"]) {
-			expect(env["86D_WORKLOAD_CREDENTIAL"]).toBeUndefined();
-		}
+		expect(env["86D_STORE_ID"]).toBe(getProcessEnv("86D_STORE_ID"));
+		expect(env["86D_WORKLOAD_CREDENTIAL"]).toBe(
+			getProcessEnv("86D_WORKLOAD_CREDENTIAL"),
+		);
 	});
 
 	it("accepts only the explicit Managed Runtime Diagnostics opt-in", async () => {
-		const previous = process.env["86D_TELEMETRY"];
+		const previous = getProcessEnv("86D_TELEMETRY");
 		try {
-			process.env["86D_TELEMETRY"] = "managed-runtime-diagnostics-v1";
+			setProcessEnv("86D_TELEMETRY", "managed-runtime-diagnostics-v1");
 			vi.resetModules();
 
 			const mod = await import("../index");
@@ -140,9 +139,9 @@ describe("env", () => {
 			);
 		} finally {
 			if (previous === undefined) {
-				Reflect.deleteProperty(process.env, "86D_TELEMETRY");
+				setProcessEnv("86D_TELEMETRY", undefined);
 			} else {
-				process.env["86D_TELEMETRY"] = previous;
+				setProcessEnv("86D_TELEMETRY", previous);
 			}
 			vi.resetModules();
 		}
@@ -151,11 +150,11 @@ describe("env", () => {
 	it("prefers managed Store identity at the shared Runtime boundary", async () => {
 		const legacyStoreId = "784d078d-9202-43e7-9624-63a92f479331";
 		const managedStoreId = "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d";
-		const previousLegacy = process.env.STORE_ID;
-		const previousManaged = process.env["86D_STORE_ID"];
+		const previousLegacy = getProcessEnv("STORE_ID");
+		const previousManaged = getProcessEnv("86D_STORE_ID");
 		try {
-			process.env.STORE_ID = legacyStoreId;
-			process.env["86D_STORE_ID"] = managedStoreId;
+			setProcessEnv("STORE_ID", legacyStoreId);
+			setProcessEnv("86D_STORE_ID", managedStoreId);
 			vi.resetModules();
 
 			const mod = await import("../index");
@@ -164,14 +163,14 @@ describe("env", () => {
 			expect(mod.default["86D_STORE_ID"]).toBe(managedStoreId);
 		} finally {
 			if (previousLegacy === undefined) {
-				Reflect.deleteProperty(process.env, "STORE_ID");
+				setProcessEnv("STORE_ID", undefined);
 			} else {
-				process.env.STORE_ID = previousLegacy;
+				setProcessEnv("STORE_ID", previousLegacy);
 			}
 			if (previousManaged === undefined) {
-				Reflect.deleteProperty(process.env, "86D_STORE_ID");
+				setProcessEnv("86D_STORE_ID", undefined);
 			} else {
-				process.env["86D_STORE_ID"] = previousManaged;
+				setProcessEnv("86D_STORE_ID", previousManaged);
 			}
 			vi.resetModules();
 		}
@@ -182,9 +181,7 @@ describe("env", () => {
 		const env = mod.default;
 
 		// This should be undefined unless set in the actual environment.
-		if (!process.env.RESEND_API_KEY) {
-			expect(env.RESEND_API_KEY).toBeUndefined();
-		}
+		expect(env.RESEND_API_KEY).toBe(getProcessEnv("RESEND_API_KEY"));
 	});
 
 	it("exports the Env type", async () => {

@@ -1,16 +1,26 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.5.9/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
 	"linter": {
 		"domains": {
 			"next": "all",
 			"react": "recommended",
 			"tailwind": "all",
 			"turborepo": "all",
-			"types": "all"
+			"types": "all",
+			"test": "all",
+			"playwright": "all"
 		},
 		"rules": {
+			"a11y": {
+				"useSemanticElements": "error"
+			},
 			"complexity": {
-				"useMaxParams": "warn"
+				"useMaxParams": "error"
 			},
 			"correctness": {
 				"noPrivateImports": "error",
@@ -19,14 +29,19 @@
 					"fix": "safe"
 				},
 				"noUnusedVariables": {
-					"level": "warn",
+					"level": "error",
 					"fix": "safe"
 				},
-				"useExhaustiveDependencies": "warn",
-				"useHookAtTopLevel": "warn"
+				"useExhaustiveDependencies": "error",
+				"useHookAtTopLevel": "error"
 			},
 			"nursery": {
 				"recommended": true,
+				"noConditionalExpect": "error",
+				"noPlaywrightNetworkidle": "error",
+				"noPlaywrightWaitForSelector": "error",
+				"noPlaywrightWaitForTimeout": "error",
+				"useExpect": "error",
 				"useSortedClasses": {
 					"level": "error",
 					"fix": "safe"
@@ -36,22 +51,23 @@
 				"noAccumulatingSpread": "error",
 				"noBarrelFile": "error",
 				"noDelete": "error",
-				"noImgElement": "warn",
-				"noNamespaceImport": "warn",
-				"noReExportAll": "error"
+				"noImgElement": "error",
+				"noNamespaceImport": "error",
+				"noReExportAll": "error",
+				"noSyncScripts": "error"
 			},
 			"security": {
-				"noDangerouslySetInnerHtml": "warn",
+				"noDangerouslySetInnerHtml": "error",
 				"noGlobalEval": "error"
 			},
 			"style": {
 				"noEnum": "error",
-				"noExportedImports": "warn",
+				"noExportedImports": "error",
 				"noInferrableTypes": "error",
 				"noNamespace": "error",
 				"noNonNullAssertion": "error",
 				"noParameterAssign": "error",
-				"noProcessEnv": "warn",
+				"noProcessEnv": "error",
 				"noYodaExpression": "error",
 				"useCollapsedIf": "error",
 				"useFilenamingConvention": {
@@ -64,18 +80,22 @@
 			},
 			"suspicious": {
 				"noConsole": {
-					"level": "warn",
+					"level": "error",
 					"options": {
 						"allow": ["error", "warn"]
 					}
 				},
-				"noArrayIndexKey": "warn",
+				"noArrayIndexKey": "error",
 				"noEvolvingTypes": "error",
-				"noFocusedTests": "off",
+				"noFocusedTests": "error",
 				"noImplicitAnyLet": "error",
 				"noImportCycles": "error",
+				"noSkippedTests": "error",
 				"noTsIgnore": "error",
-				"noUndeclaredEnvVars": "warn",
+				"noUndeclaredEnvVars": "error",
+				"noUnnecessaryConditions": "error",
+				"useArraySortCompare": "error",
+				"useBiomeIgnoreFolder": "error",
 				"useErrorMessage": "error"
 			}
 		}
@@ -102,7 +122,8 @@
 						"useAriaPropsForRole": "off"
 					},
 					"performance": {
-						"noNamespaceImport": "off"
+						"noNamespaceImport": "off",
+						"noBarrelFile": "off"
 					},
 					"security": {
 						"noDangerouslySetInnerHtml": "off"
@@ -117,79 +138,17 @@
 					}
 				}
 			}
-		},
-		{
-			"includes": ["apps/store/components/ui/**"],
-			"linter": {
-				"rules": {
-					"a11y": {
-						"useSemanticElements": "off"
-					}
-				}
-			}
-		},
-		{
-			"includes": [
-				"**/__tests__/**",
-				"**/*.test.ts",
-				"**/*.test.tsx",
-				"**/e2e/**"
-			],
-			"linter": {
-				"domains": {
-					"test": "all",
-					"playwright": "all"
-				},
-				"rules": {
-					"nursery": {
-						"noConditionalExpect": "warn",
-						"noPlaywrightNetworkidle": "warn",
-						"noPlaywrightWaitForSelector": "warn",
-						"noPlaywrightWaitForTimeout": "warn",
-						"useConsistentTestIt": "off",
-						"useExpect": "warn"
-					},
-					"style": {
-						"noProcessEnv": "off"
-					},
-					"suspicious": {
-						"noConsole": "off",
-						"noFocusedTests": "error",
-						"noSkippedTests": "warn"
-					}
-				}
-			}
-		},
-		{
-			"includes": [
-				"internals/generators/**",
-				"apps/registry/**",
-				"internals/lib/**",
-				"**/*.config.ts",
-				"packages/env/**",
-				"packages/utils/src/logger.ts",
-				"packages/ui/scripts/**"
-			],
-			"linter": {
-				"rules": {
-					"style": {
-						"noProcessEnv": "off"
-					},
-					"suspicious": {
-						"noConsole": "off"
-					}
-				}
-			}
 		}
 	],
 	"files": {
+		"ignoreUnknown": true,
 		"includes": [
-			"apps/**/*",
-			"modules/**/*",
-			"packages/**/*",
-			"tests/**/*",
-			"templates/**/*",
-			"internals/**/*",
+			"apps/**",
+			"modules/**",
+			"packages/**",
+			"tests/**",
+			"templates/**",
+			"internals/**",
 			"!**/dist",
 			"!**/.dist",
 			"!**/.turbo",
@@ -197,11 +156,20 @@
 			"!**/.next",
 			"!**/.cache",
 			"!**/node_modules",
+			"!**/coverage",
+			"!**/build",
+			"!**/out",
 			"!**/e2e/.results",
 			"!**/e2e/.auth",
+			"!**/e2e/.snapshots",
 			"!apps/registry/registry.json",
 			"!apps/registry/registry.lock.json",
-			"!packages/db/drizzle"
+			"!packages/db/drizzle",
+			"!packages/contracts/src/generated",
+			"!packages/contracts/dist/generated",
+			"!apps/store/generated",
+			"!**/*.min.js",
+			"!**/*.tsbuildinfo"
 		]
 	},
 	"css": {

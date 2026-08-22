@@ -8,6 +8,10 @@
 		".": {
 			"types": "./src/index.ts",
 			"default": "./src/index.ts"
+		},
+		"./process-env": {
+			"types": "./src/process-env.ts",
+			"default": "./src/process-env.ts"
 		}
 	},
 	"scripts": {
