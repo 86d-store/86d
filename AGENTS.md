@@ -1,238 +1,178 @@
 # 86d.store Store Runtime (public)
 
-Modular, MIT-licensed commerce Store Runtime. Each Store is single-tenant with its own Storefront, Store Admin, and authoritative commerce data. The Control Plane within 86d.app can provision and operate this product from the sibling `private/` repo; it also runs fully standalone via Docker. See the root `AGENTS.md` for how the areas fit together.
+`public/` is the MIT-licensed 86d.store Store Runtime: one storefront, store admin, and authoritative commerce database per single-tenant Store. It runs standalone through Docker. The optional Control Plane in sibling `private/` may provision and operate it; standalone operation never acquires a Control Plane dependency.
 
-Bun monorepo orchestrated by Turborepo. TypeScript everywhere, strict mode.
+This is a strict TypeScript Bun monorepo orchestrated by Turborepo.
 
-## Source of truth
+## Change protocol
 
-In the full workspace, read `../prd/README.md` before changing product behavior, ownership, payments, Checkout, Fulfillment, managed credentials, Modules, or agent surfaces. It defines target behavior. This file and the code describe current implementation. When they differ, implement an explicit migration and preserve standalone operation.
+1. **Route the context.** Read workspace `../AGENTS.md` when it exists, then this guide, then every nearer `AGENTS.md` down to the files you will touch.
+   - Product behavior, authority, payments, Checkout, Fulfillment, managed credentials, Modules, and agent surfaces: start at `../prd/README.md` and follow every reading route it names for the branch.
+   - Visual or interaction work: also read `../prd/experience.md` before implementation. It owns UI/UX law; this guide owns repository mechanics.
+   - Maturity or shipment claims: also read `../prd/current-state.md`, `../prd/launch.md`, and the relevant evidence. Code, endpoints, packages, and generated metadata do not prove maturity.
+   - The PRD is target authority; code is current implementation. Resolve a difference through an explicit migration — never by silently treating either as the other.
+   - Done when every named route for this branch is loaded and the authority boundary below is clear.
+2. **Protect the authority boundary.** The Store Runtime owns commerce facts. The Control Plane owns only managed-service facts. Humans and agents use the same versioned Command contracts; raw transport is private implementation detail.
+   - Done when the change cannot invent a second ownership of managed-service facts or a Control Plane dependency for standalone operation.
+3. **Implement a complete _slice_.** Include its public interface, required durable persistence, closed failure behavior, focused tests, nearest documentation projection, and explicit evidence update when the canonical context requires one.
+   - Done when every required artifact for the slice exists or is explicitly out of scope with a written reason.
+4. **Verify the _slice_.** Apply the [Module integrity gate](#module-integrity-gate), run focused tests while iterating, then run every required pre-commit gate under [Git and commits](#git-and-commits).
+   - Done when every required gate is _green_ (exit 0, no warnings, no errors).
+5. **Keep publication _local_.** Agents never publish. The operator owns remotes and releases.
+   - Done when no push, `gh`, PR tooling, or remote-history rewrite has been used.
 
-## Required gates (every slice)
+Use `package.json` and `--help` as the command inventory. Never leave `bun run dev` or a Docker dev process running in a headless agent cycle.
 
-GitHub Setup, Release, and e2e all run `bun install`, which runs `postinstall` → `bun run generate:modules -- --frozen`. If `apps/registry/registry.lock.json` does not match the current Module trees, **every** workflow dies in Setup. This is a gate for all work in this repo, not a CI-only afterthought.
+## Module integrity gate
 
-- The lock hashes each Module's source subtree (including `__tests__`). Editing a webhook test, fixture, or `package.json` invalidates that Module's integrity.
-- After any change under `modules/`, run `bun run generate:modules` and **commit** the updated `apps/registry/registry.lock.json` in the same slice.
-- Before claiming the slice done, prove `bun run generate:modules -- --frozen` exits 0.
-- Lint-staged regenerates the lock when staged paths match `modules/**/*.{ts,tsx,json,md,mdx}`. Do not skip hooks. If you change modules outside that glob, regenerate the lock yourself.
-- `bun run bump-version` regenerates `apps/registry/registry.json` **and** the lock. Commit both.
+This gate applies to **every _slice_**, not only CI. GitHub Setup, Release, and e2e run `bun install`; `postinstall` runs `bun run generate:modules -- --frozen`. A stale `apps/registry/registry.lock.json` therefore fails every workflow during Setup.
 
-Do not treat local `bun run test` / `typecheck` as sufficient. A green local tree with a stale lock still fails GitHub.
+- The lock hashes each Module's complete source subtree, including tests, fixtures, and `package.json`.
+- After any change under `modules/`, run `bun run generate:modules` and commit the updated `apps/registry/registry.lock.json` in the same slice.
+- Before declaring any slice complete, prove `bun run generate:modules -- --frozen` is _green_ under [Git and commits](#git-and-commits). Unit tests and typecheck do not substitute for this gate.
+- Lint-staged regenerates the lock only for `modules/**/*.{ts,tsx,json,md,mdx}`. Regenerate it yourself for Module changes outside that glob; let hooks run.
+- `bun run bump-version` regenerates both `apps/registry/registry.json` and the lock. Commit both outputs.
 
-## Get started
+## Context routes
 
-```bash
-# Docker (recommended, zero configuration)
-docker compose up                  # postgres + MinIO + store on :3000 (auto-migrates, seeds, creates admin)
+- Store routes, storefront, store admin, and theme work: `apps/store/AGENTS.md`; Module usage examples: `apps/store/EXAMPLES.md`.
+- Module work: `../prd/contexts/store-runtime/module-system.md`, the target Module's `AGENTS.md`, and the closest package guides for any shared runtime code.
+- Template work: `templates/brisa/AGENTS.md` or the target template's nearest guide.
+- CLI work: `packages/cli/AGENTS.md`.
+- Registry or lock work: `packages/registry/AGENTS.md`.
+- E2E work: `tests/e2e/AGENTS.md`, with the stricter waiting rules in [Testing](#testing) taking precedence over stale examples there.
 
-# Local development
-bun install                        # also runs generate:modules (--frozen) via postinstall
-bun run generate:modules           # regenerate module imports from config
-bun run db:seed                    # seed demo data (requires DATABASE_URL)
-bun run dev                        # store dev server on :3000 (do NOT run in a headless cycle)
+## Module and runtime patterns
+
+Every installable Module exports a factory with `id`, `version`, required `storage`, `endpoints`, and optional `init`. It declares exactly one storage branch:
+
+```ts
+{ kind: "none" }
+{ kind: "config", config }
+{ kind: "relational", tables?, extends?, anchors?, publishes?, config? }
 ```
 
-Default admin: `admin@86d.app` / `password123` (override with `APP_ADMIN_EMAIL` / `APP_ADMIN_PASSWORD`).
+Relational declarations use native Zod plus the `col` registry. `@86d-app/core` is every Module's base internal dependency; current cross-plane contracts use `@86d-app/contracts`, server configuration uses `env`, and `managed-payments` also uses `@86d-app/sdk`. Treat any other internal dependency as an architecture change. Database work goes through `ModuleDataService`, bound to the compiled query surface under `mod_<moduleId>` and declared Config functions.
 
-## Build, test, CLI
+Drizzle owns framework tables for auth, commands, outbox, files, logs, and webhooks plus `core.*`. The schema compiler owns Module DDL, roles, Config `SECURITY DEFINER` functions, published views, grants, revocations, and statement timeouts. The login role has no Module privileges; request transactions enter the Module role with `SET LOCAL ROLE`. `Module.schema` and `transcodeModuleSchema` are removed patterns.
 
-```bash
-bun run build                # build everything
-bun run typecheck            # TypeScript across all packages
-bun run check                # Biome lint + format
-bun run test                 # Vitest unit tests
-bun run test:e2e             # Playwright E2E (needs a running, seeded store)
-bun run generate:modules     # regenerate generated/components.ts + module imports
-bun run generate:registry    # regenerate registry.json from module metadata
-bun run generate:docs        # regenerate internals/docs/component-api.md
-bun run 86d <command>        # the CLI (see below)
-bun run bump-version         # shared minor bump by default (see Version policy)
-```
+Use typed synchronous capabilities for immediate cross-Module decisions. Completed changes cross Module boundaries through versioned, idempotent durable events in the transactional outbox. Existing `requires`, `exports`, or in-memory events are migration state when they do not satisfy that contract.
 
-## Repository structure
+Keep a Module's source shape recognizable:
 
-```
-apps/
-  store/             Next.js storefront + per-store admin
-  registry/          registry.json manifest generator and lock file
-modules/             First-party Modules, one directory each (cart, products, orders, checkout, ...)
-packages/
-  core/              Module system: isolation boundary, contracts, types, sanitization, test-utils
-  runtime/           Store runtime: ModuleRegistry, CompiledModuleDataService
-  cli/               CLI tool (dev, init, module, template, generate, status, doctor)
-  registry/          Git-based module registry (resolve, fetch, cache)
-  storage/           Storage abstraction (local FS, Vercel Blob, S3-compatible)
-  ui/                Shared merchant UI primitives, Console compositions, and data tables
-  db/                Drizzle client singleton (lazy Pool; framework + core schema)
-  auth/              Better Auth (sessions, admin role, 86d.app SSO)
-  emails/            Email templates: React components sent via the Resend SDK
-  env/               Zod env validation (includes STORAGE_CLIENT)
-  utils/             Logger, rate-limit, url, sanitize (text + HTML)
-  lib/               Webhook delivery, carrier tracking, notification settings, LLM content
-  sdk/               Store config, workload identity token client, template loading, API client
-templates/
-  brisa/             Default store template (config.json, MDX pages, globals.css)
-tests/e2e/           Playwright E2E (storefront, admin, checkout, dashboard, accessibility, performance, visual)
-internals/
-  github/            CI composite Actions
-  docker/            Docker entrypoint + legacy init.sql
-  docs/              generated component-api.md
-  generators/        generate-modules, generate-component-docs, bump-version
-packages/db/seed/    demo seed catalog, assets, and fetch tooling
-Dockerfile           Multi-stage build (deps → build → runtime)
-docker-compose.yml   One-command local deployment (postgres + MinIO + store)
-```
-
-Package presence, generated registry metadata, or an existing endpoint does not establish product maturity. Inspect each capability's evidence and follow the canonical [Module maturity](#module-maturity) rules instead of assigning status from the source tree.
-
-## Module system
-
-Every Module exports a factory with `id`, `version`, required `storage`, `endpoints`, and optional `init`. Every installable Module declares exactly one canonical storage branch: `{ kind: "none" }`, `{ kind: "config", config }`, or `{ kind: "relational", tables?, extends?, anchors?, publishes?, config? }`. Relational shapes are native Zod with the `col` registry. Modules depend **only** on `@86d-app/core` (one exception: `managed-payments` also depends on `@86d-app/sdk`). Database access goes through `ModuleDataService`, which binds each Module operation to the compiled query surface under `mod_<moduleId>` (and Config functions when declared). The Module contract is defined in [`../prd/contexts/store-runtime/module-system.md`](../prd/contexts/store-runtime/module-system.md).
-
-**Storage authority:** Drizzle owns framework tables (auth, commands, outbox, files, logs, webhooks) and `core.*`. The schema compiler emits Module table DDL plus isolation identities (roles, Config `SECURITY DEFINER` functions, published views, grants, revocations, and statement timeouts). The login role holds no Module privileges; request transactions enter the Module role with `SET LOCAL ROLE`. Legacy `Module.schema` and `transcodeModuleSchema` are removed.
-
-The target cross-Module boundary uses typed synchronous capability calls for immediate business decisions and a durable transactional outbox with versioned, idempotent events for completed changes. The current `requires` and `exports` contracts and in-memory event behavior are migration state where they do not meet that boundary.
-
-Admin pages declare a `group` and optional `subgroup` for the 2-level sidebar. Groups: Catalog, Sales, Customers, Fulfillment, Marketing, Content, Finance, Support, System. Subgroup mapping is centralized in `apps/store/lib/admin-registry.ts`.
-
-```
+```text
 modules/<name>/src/
-  index.ts              Factory + types + admin nav (no `export { … } from` barrels)
-  schema.ts             Native `storage` declaration (Zod + col)
-  service.ts            Business-logic interface
-  service-impl.ts       Business-logic implementation
-  store/endpoints/      Public endpoints
-  store/components/     Customer-facing components (.tsx + .mdx)
-  admin/endpoints/      Protected endpoints
-  admin/components/     Admin UI components (.tsx + .mdx)
+  index.ts              factory, local declarations, admin nav
+  schema.ts             native storage declaration
+  service.ts            business-logic interface
+  service-impl.ts       implementation
+  store/endpoints/      public endpoints
+  store/components/     customer components (.tsx + .mdx)
+  admin/endpoints/      protected endpoints
+  admin/components/     admin components (.tsx + .mdx)
 ```
 
-External-provider Modules include real HTTP integrations, but each provider path must be verified independently before it is called Stable. Missing credentials may hide an optional Integration. A required Checkout decision must instead fail closed or enter an explicitly non-binding review path. Never accept an unsigned webhook, shopper-supplied provider result, or silent provider fallback.
+Admin pages declare a `group` and optional `subgroup`. Valid groups are Catalog, Sales, Customers, Fulfillment, Marketing, Content, Finance, Support, and System; subgroup mapping stays centralized in `apps/store/lib/admin-registry.ts`.
 
-## Template system
+External-provider paths earn maturity independently. An optional Integration may hide when credentials are absent. A required Checkout decision fails closed or enters an explicitly non-binding review path. Accept only verified webhooks and server-derived provider outcomes; shopper input never supplies trust, money, tax, Shipping, inventory, or authorization results. No provider fallback is silent.
 
-Templates live in `templates/<name>/`. The store app resolves them via tsconfig alias `template/*` → `../../templates/brisa/*`. Each template has `config.json` (modules, OKLCH color tokens, logos), `layout.mdx`, `index.mdx`, page MDX files, and `globals.css`. Components follow a two-file pattern: `.tsx` (logic) + `.mdx` (presentation).
+Templates use `.tsx` for logic and `.mdx` for presentation. Overrides live in `templates/<name>/components/mdx.tsx`; generated component registration spreads `...templateOverrides` last. CLI Module builds compile TypeScript and copy non-TS assets. The workspace CLI bin must exist at install time (`packages/cli/bin/86d.mjs`); a gitignored build output cannot be its workspace bin target.
 
-**Component overrides:** templates override Module components through `templates/<name>/components/mdx.tsx`. Exported names replace matching Module defaults at render time. `generate:modules` wires this up by spreading `...templateOverrides` last in `generated/components.ts`. **External templates:** `86d template add github:owner/repo`.
+The canonical registry manifest is the published `apps/registry/registry.json` from `86d-app/86d`, not an arbitrary local copy. Resolution checks local workspace Modules before the registry and verifies fetched integrity. Inspect `packages/registry/AGENTS.md` before changing this behavior.
 
-## CLI
+## Deployment identity
 
-`bun run 86d <command>` (source: `packages/cli/src/commands/`):
+- Production self-hosting uses a strong random `BETTER_AUTH_SECRET`. Storage is selected through `STORAGE_CLIENT`; keep its current values and required configuration in `.env.example` rather than duplicating provider setup in code.
+- A managed runtime identifies itself with `86D_STORE_ID`, `86D_API_URL`, and an opaque `86D_WORKLOAD_CREDENTIAL` exchanged by `packages/sdk` for short-lived, Store-scoped tokens. Store admin SSO uses its dedicated OAuth client variables. Managed provider secrets never enter browser or merchant-readable configuration.
+- Standalone `STORE_ID` remains available for local isolation and cannot require the managed identity exchange.
 
-- `dev`, `init`, `status`, `doctor`
-- `module build | create | add | list | search | info | enable | disable`
-- `template create | activate | list`
-- `generate modules | components`
+## TypeScript and imports
 
-Module packages use `"build": "86d module build"` (TypeScript → `dist/` plus non-TS asset copy). Add `"86d": "workspace:*"` (or a published CLI version) as a devDependency so the bin resolves. The workspace bin is `packages/cli/bin/86d.mjs` (a file that exists at install time); `dist/index.js` is gitignored and cannot be the workspace `bin` target.
+- Biome owns formatting and linting through one repository-root `bun run check`; fix findings rather than suppressing them. Auto-fix formatting on a narrow path; never change a diagnostic to hide an error.
+- `any`, `@ts-expect-error`, `@ts-ignore`, and `biome-ignore` are prohibited. Fix types at boundaries — parameters, exports, and empty containers — then let inference carry downstream. Narrow a plain `as X` with guards or fix its source type.
+- Ask before changing Biome, TypeScript, package, Tailwind, or Next configuration merely to silence a diagnostic. Tests are typechecked.
+- Module `src/index.ts` is not a barrel: keep the factory and its declarations there. Named package-root exports use import-then-export. Type-only `export type { ... } from` is allowed. Direct subpath imports only; no barrels or `export *` except framework-mandated entrypoints.
+- `@86d-app/core` has subpath exports only. Use `@86d-app/core/types/module`, `@86d-app/core/schema`, `@86d-app/core/zod`, `@86d-app/core/sanitize`, `@86d-app/core/state`, `@86d-app/core/client/*`, and `@86d-app/core/test-utils` as appropriate.
+- Command and Change Set wire contracts live in `@86d-app/contracts` (`./command`, `./change-set`, `./conformance`). `@86d-app/core/commands` only re-exports them. Pin the exact contract version and call `assertConformancePin` before serving Commands.
+- Inside `apps/store`, use `~/` for local imports. Bare `lib/` conflicts with `packages/lib`.
+- Reach storage through `@86d-app/storage`; do not import `@vercel/blob` directly.
+- Unit tests use `@86d-app/core/test-utils` data-service mocks and never a real database.
+- Default to no comments. Add a one-line why comment only for a workaround, subtle invariant, or deliberate choice that otherwise looks wrong.
+- While editing a file, fix convention violations in the same function, component, or file. Expand to co-located callers only when a signature change forces it.
+- Use locale-aware `Intl.DateTimeFormat` and `Intl.NumberFormat`; check stored identifiers with `== null`, not falsiness. Handle every error path and prefer idempotent mutations.
 
-## Registry
+## Request and security boundaries
 
-`apps/registry/registry.json` carries per-Module metadata: description, version, category, `requires`, `hasStoreComponents`, `hasAdminComponents`, `hasStorePages`, `maturity`, `maturityEvidence`, `commit`, `subtreeIntegrity`, and integrity hash. The resolver loads the manifest locally or from `https://raw.githubusercontent.com/86d-app/86d/main/apps/registry/registry.json`, which is the canonical source. Never assume a local copy is authoritative. The fetcher retries with exponential backoff (maximum 3 attempts, 500 to 2,000 milliseconds). A wildcard includes all registry Modules plus local workspace Modules.
+- Apply `.transform(sanitizeText)` from `@86d-app/core/sanitize` to every user-provided text string in Store endpoints. Use `sanitizeHtml()` at the accepting admin endpoint for rich HTML.
+- Bound every input string with `.max()`, including optional strings, and every input array with `.max()`.
+- Bound arbitrary metadata records with `z.record(z.string().max(100), z.unknown())` plus a key-count `.refine()`.
+- Create admin endpoints with `createAdminEndpoint`; framework authentication owns the guard.
+- Keep centralized rate limits in `apps/store/app/api/[...path]/route.ts`: public 2,000 requests/minute/IP, admin 300/minute/session user, sensitive public 10/10 minutes/IP, and provider webhooks 600/minute/source IP. Do not recreate them per endpoint.
+- Return endpoint errors as data, for example `return { error: "...", status: 404 }`, so stacks do not leak.
+- Derive `customerId`, email, and other identity from `ctx.context.session.user`, never request input. Reject client-supplied trust-elevation flags.
+- Verify ownership before mutating user-scoped resources. Return 404 rather than 403 when revealing existence would leak data.
+- Money, Shipping, tax, webhook, and destructive paths execute only through a complete Workflow with evidence; otherwise they fail closed.
 
-`apps/registry/registry.lock.json` is the committed integrity snapshot for those resolutions. It is a **required work gate**: regenerate it with `bun run generate:modules` whenever Module source changes, commit it, then verify `bun run generate:modules -- --frozen`. See [Required gates](#required-gates-every-slice).
+## Product language
 
-## Deployment modes
+Before editing merchant-reachable UI, email, support, pricing, errors, or agent prose, read `../prd/product.md#the-merchant-sees-86d-never-our-suppliers` and `../prd/experience.md#copy` in the full workspace.
 
-- **Docker (self-hosted):** `docker compose up` starts PostgreSQL, MinIO, and the store; auto-runs migrations, seeds demo data, creates the admin user, and stores blobs in MinIO (`STORAGE_CLIENT=s3`). Set `BETTER_AUTH_SECRET` to a secure random string in production.
-- **Managed:** the Control Plane within 86d.app provisions a dedicated instance with its own database, hosting, and blob storage. Managed identity is `86D_STORE_ID`, `86D_API_URL`, and an opaque `86D_WORKLOAD_CREDENTIAL` exchanged for short-lived scoped tokens (`packages/sdk`); the runtime pulls managed configuration through that token client, and Store Admin SSO uses a dedicated OAuth client (`86D_ADMIN_OAUTH_CLIENT_ID` / `86D_ADMIN_OAUTH_CLIENT_SECRET`). Standalone `STORE_ID` remains for local data isolation. Do not label this path with upstream host names in merchant-reachable copy.
-- **Storage providers:** `STORAGE_CLIENT` = `local` (env default), `vercel`, or `s3` (MinIO, AWS S3, R2). See `.env.example`.
-
-## API endpoints
-
-- `GET /api/health`: database connectivity and Store status (Docker `HEALTHCHECK`).
-- `POST /api/upload`: file upload (admin only; JPEG, PNG, WebP, GIF, SVG, and PDF; magic-byte validation; SVG XSS checks).
-- `DELETE /api/upload`: file deletion (admin only, Store-isolated).
-- `GET /uploads/[...path]`: serve local-storage files when `STORAGE_CLIENT=local` (SVGs use restrictive CSP).
-- `GET/POST /api/auth/[...all]`: Better Auth handlers (sign-in, sign-up, SSO).
-- `ALL /api/[...path]`: Module endpoints (rate-limited, session-authenticated).
-
-## Terminology
-
-- **86d.app** — the optional managed product; **86d Console** — its human-facing interface.
-- **86d.store** / **Store Runtime** — the deployed open-source product; use these, not bare "store app", when the deployment boundary matters.
-- **storefront** — the shopper experience; **store admin** — the merchant operating interface inside one Store Runtime.
-- **Control Plane** — the architectural authority within 86d.app; use in code comments, plans, `prd/`, and documentation — never in merchant copy.
-- **feature** and **integration** — merchant language; **module** — the technical packaging unit in this repository; **Connection** — a configured provider relationship used by an Integration.
-- Sentence case in merchant copy: store, business, storefront, store admin, module, feature, and integration are ordinary nouns. When one starts a sentence, heading, or nav label, capitalize only the first word: **Store admin**, not **Store Admin**. Keep **Store Runtime**, **86d Console**, and code identifiers as written. (Published docs follow the Capitalization rules in `../docs/AGENTS.md` instead, which capitalize defined 86d concepts.)
-- Name the owner instead of bare "dashboard" or "console": **86d Console** in product copy, `console` for its app, package, and code identifiers.
-- **Supplier invisibility.** Upstream providers (Finix, Railway, Cloudflare, Neon, Resend, EasyPost, Vercel, and peers) **must never** appear in Store Admin, storefront, emails, or other merchant-reachable copy for 86d-managed capabilities. Prefer 86d product vocabulary in merchant-facing strings and UI identifiers. Keep vendor names in Integration Modules the merchant brings as their own Connection, adapter code, required env keys, and tests that assert provider wiring. Canonical rule: [prd/product.md — supplier invisibility](../prd/product.md#the-merchant-sees-86d-never-our-suppliers).
-
-## Code conventions
-
-- Biome handles formatting and linting in one repo-root pass (`bun run check`). Domains: `next` (all), `react` (recommended), `tailwind`, `turborepo`, `types`; test files also enable `test` and `playwright`. Tailwind class sorting is enforced via `useSortedClasses`.
-- No `any`, `@ts-expect-error`, `@ts-ignore`, or `biome-ignore`. Fix the type or the code.
-- Module `src/index.ts` must not use `export { … } from` (Biome `noBarrelFile`). Keep the factory and its own declarations in the entry; named package-root exports use import-then-export. Type-only `export type { … } from` is allowed. Consumers still import from `@86d-app/<module>` or the existing `"./*"` subpath map.
-- `@86d-app/core` exposes subpath exports only — there is no package-root import. Module types come from `@86d-app/core/types/module`; target storage declarations use `col` and declaration types from `@86d-app/core/schema` plus `z` from `@86d-app/core/zod`. Other common paths are `@86d-app/core/sanitize`, `@86d-app/core/state` (MobX), `@86d-app/core/client/*` (React Query hooks, provider, client), and `@86d-app/core/test-utils`.
-- Shared Command and Change Set wire contracts live in `@86d-app/contracts` (`./command`, `./change-set`, `./conformance`). `@86d-app/core/commands` re-exports only; do not add schemas there. Pin the exact package version and verify `CONFORMANCE_DIGEST` via `assertConformancePin` before serving Commands.
-- Store app path alias: `~/` for local imports (not bare `lib/`, which conflicts with `packages/lib`).
-- Use the `@86d-app/storage` abstraction. Never import `@vercel/blob` directly.
-- Tests use `@86d-app/core/test-utils` mock data services. Never hit a real database.
-
-## Security conventions
-
-- **Sanitize all user text** in store endpoints: `.transform(sanitizeText)` from `@86d-app/core/sanitize` on every user-provided string (names, descriptions, messages, notes, titles).
-- **Bound string lengths:** add `.max()` to every string field, even optional ones. **Bound arrays:** `.max()` on every user-input array.
-- **Constrain records:** `z.record(z.string().max(100), z.unknown())` with `.refine()` to limit key count on arbitrary metadata.
-- **Admin endpoints** are auth-protected at the framework level through `createAdminEndpoint`; no per-endpoint checks are needed.
-- **Rate limiting** at the route handler (`apps/store/app/api/[...path]/route.ts`): 2,000 req/min per IP public, 300 req/min per user admin, 10 per 10 minutes on sensitive endpoints, 600 req/min per IP for provider webhooks.
-- **Rich HTML** fields (page content, blog posts) use `sanitizeHtml()` instead of `sanitizeText()`, in the admin endpoint that accepts the field. Storing sanitized content keeps the render path free of a second pass.
-- **Return errors, don't throw:** store endpoints `return { error: "...", status: 404 }` to avoid stack-trace leakage.
-- **Never trust client identity:** derive `customerId`/email from `ctx.context.session.user`, never the request body. Never accept trust-elevation flags (e.g. `isVerifiedPurchase`) from clients.
-- **Verify ownership** before mutating user-scoped resources (`resource.customerId === session.user.id`); return 404, not 403, to avoid leaking existence.
-
-## Module maturity
-
-Maturity enablement behavior is defined in [`../prd/launch.md`](../prd/launch.md#maturity-model). Registry generation records versioned maturity, `maturityEvidence`, commit SHA, and a hash of the complete Module subtree — machine-written fields, so inspect the evidence itself rather than inferring maturity from a field's presence.
+- `86d.app` is the optional managed product; `86d Console` is its human interface.
+- `86d.store` or `Store Runtime` names this deployed product. `storefront` is the shopper surface; `store admin` is the merchant interface inside one runtime.
+- `Control Plane` names an architectural authority and stays out of merchant copy.
+- `feature` and `integration` are merchant terms; `module` is the repository package; a `Connection` is a configured provider relationship used by an Integration.
+- Merchant and published copy uses sentence-case common nouns: store, business, storefront, store admin, module, feature, integration. Keep product names such as 86d Console and Store Runtime.
+- Name the owner: use `86d Console` in product copy and `console` only for its app/package identifiers.
+- Supplier invisibility is absolute for 86d-managed capabilities. Merchant-reachable strings and UI identifiers use 86d product language. Vendor names stay in adapters, required environment keys, vendor-boundary tests, operator/PRD evidence, merchant-chosen Connections or hosts, and legally required disclosures.
+- State current availability or omit the claim. Merchant copy does not use readiness hedges such as “at launch,” “coming soon,” or “WIP”; the Launch plan name remains valid.
 
 ## Testing
 
-**Unit (Vitest):** `bun run test`, with `@86d-app/core/test-utils` mocks. External-provider fixtures must match the real API JSON shape so a broken integration cannot pass.
+- Unit tests use Vitest. External-provider fixtures match the provider's real JSON shape so a broken adapter cannot pass against an invented fixture.
+- Playwright needs an already running, seeded Store; authenticated setup fails when it cannot create the admin session. Import from `./fixtures/test-fixtures`, use `data-testid` selectors, and wait with web-first assertions.
+- New tests never use `waitForTimeout()` or `waitForLoadState("networkidle")`. The `networkidle` pattern in a nearer guide is stale and does not override this rule.
+- Cover every page route, admin and storefront screen, empty state, and error state. Visual coverage runs in light and dark at desktop (1280×720), tablet (768×1024), and mobile (375×667); `tests/playwright.config.ts` remains the executable source of truth. Read `../prd/experience.md` for the cross-product visual contract.
 
-**E2E (Playwright):** config at `tests/playwright.config.ts`; specs `storefront`, `checkout`, `admin`, `dashboard`, `accessibility`, `performance`, `visual`. Visual regression runs across viewport projects `visual-desktop` (1280×720), `visual-tablet` (768×1024), `visual-mobile` (375×667), in light and dark. Import from `./fixtures/test-fixtures`, not `@playwright/test`. Selectors are always `data-testid`. Wait with web-first assertions; never `waitForTimeout()`. Older specs use `waitForLoadState('networkidle')`, which Biome's `noPlaywrightNetworkidle` ratchet now warns on — burn that backlog down, don't add to it. Coverage target: every page route, admin screen, store-facing screen, empty state, and error state.
+## Git and commits
 
-## Health gates
+Agents keep all work _local_. Do not use `git push`, `gh`, PR tooling, branch-upload tools, or any command that publishes or rewrites remote history.
 
-Use the scripts in `package.json` (`check`, `typecheck`, `test`, `build`) and the repository `ci/cd` composite Action. `bun run check` is one repo-root Biome pass, so `internals/`, `tests/`, `templates/`, and root config files are covered, not just package `src/`. Playwright (`test:e2e`) needs an already running, seeded Store. Authenticated setup fails if the admin session cannot be created.
+Commits use Conventional Commits with a required scope: `type(scope): subject`. Use an imperative lowercase subject, no trailing period, and preferably fewer than 72 characters.
 
-CI event and gate selection live in `.github/workflows/ci.yml`, `.github/workflows/e2e.yml`, `.github/workflows/release.yml`, and `internals/github/ci-cd/action.yml`; read those files instead of copying the matrix into repository guides.
+`CONTRIBUTING.md` is the contributor reference, but this guide's frozen-lock requirement and gate order are stricter and take precedence for agents.
 
-## Git safety
+Before changing CI triggers or gate selection, read `.github/workflows/ci.yml`, `.github/workflows/e2e.yml`, `.github/workflows/release.yml`, and `internals/github/ci-cd/action.yml`.
 
-**Agents never push.** Local work stays local until the operator publishes it. This covers every publication path: `git push` and all its variants, `gh`, and any tool that uploads branches or rewrites remote history.
+- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+- Scopes: `store`, `cli`, `core`, `runtime`, `sdk`, `registry`, `db`, `emails`, `env`, `lib`, `storage`, `ui`, `utils`, `modules`, `ci`, `deps`, `config`, `docs`, `repo`.
+- Scope follows the changed area. Notable mappings: either registry package/app → `registry`; `.github/workflows/` → `ci`; lockfiles and dependency bumps → `deps`; Biome, Turbo, or tsconfig changes → `config`; cross-cutting hooks/repository work → `repo`.
 
-## Commits
+Commit guardrails:
 
-Every commit follows [Conventional Commits](https://www.conventionalcommits.org/) with a **required scope**: `type(scope): subject` — imperative, lowercase subject, no trailing period, under 72 characters when possible. Husky and commitlint enforce the format locally; CI enforces it on pull requests. See `CONTRIBUTING.md` for the full contributor guide.
+1. Commit only when the user asks or when a self-contained slice is finished and every gate below is _green_.
+2. Immediately before **every** commit, run this exact sequence from the repository root. A gate is _green_ only when the command exits 0 and its output contains no warnings and no errors:
 
-**Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
+   ```bash
+   bun run generate:modules -- --frozen
+   bun run typecheck
+   bun run check
+   bun run test
+   bun run build
+   ```
 
-**Scopes:** `store`, `cli`, `core`, `runtime`, `sdk`, `registry`, `db`, `emails`, `env`, `lib`, `storage`, `ui`, `utils`, `modules`, `ci`, `deps`, `config`, `docs`, `repo`. Scope is the directory you changed (`packages/core/` → `core`, `packages/ui/` → `ui`, `apps/store/` → `store`, `modules/*` → `modules`); non-obvious mappings: `apps/registry/` and `packages/registry/` → `registry`, `.github/workflows/` → `ci`, lockfiles and dependency bumps → `deps`, `biome.json`/`turbo.json`/tsconfig → `config`, cross-cutting repo or hook changes → `repo`.
+   The frozen registry check and typecheck come first. A green lint pass cannot waive any later failure.
+3. Keep one logical change per commit. Split unrelated Store UI, Module, and package changes.
+4. Let Husky and lint-staged run; pre-commit applies Biome to staged files and runs repository typecheck. Use `git commit --no-verify` only when the user explicitly requests it.
+5. When a published package or Module API changes, run `bunx changeset` and place the generated file in its own `chore(repo): add changeset` commit when appropriate.
 
-**Agent rules:**
+## Version and release guardrails
 
-- Commit only when the user asks, or when finishing a self-contained slice that passes **all** health gates below. Pre-commit runs Biome on staged files via lint-staged and `bun run typecheck`.
-- **Before every commit, run the full gate sequence in order and confirm exit code 0:** `bun run generate:modules -- --frozen`, `bun run typecheck`, `bun run check`, `bun run test`, `bun run build`. Run `bun run typecheck` immediately after the frozen registry check — a green `bun run check` alone is never sufficient. Typecheck, test, and build failures block commit.
-- One logical change per commit. Split unrelated work (for example a store UI fix and a module schema change) into separate commits.
-- Let the hooks run: `git commit --no-verify` only when the user explicitly requests it.
-- Run `bunx changeset` when a published package or module API changes, and commit the generated file in a separate `chore(repo): add changeset` commit when appropriate.
+One shared version line covers the root, CLI, publishable packages and Modules, versioned private workspace packages, and `@86d-app/contracts`. Contract `package.json`, `CONTRACTS_PACKAGE_VERSION`, conformance artifact version, and the private `vendor/` pin move together.
 
-## Version policy
-
-One shared version line covers the root `package.json`, the `86d` CLI, every publishable package and module, and every other workspace `package.json` that carries a version on that line (including private packages such as `db` and `auth`). `@86d-app/contracts` stays on that same line: its `package.json`, `CONTRACTS_PACKAGE_VERSION`, `generate:conformance` artifact version, and the private `vendor/` pin move together.
-
-**Default bump is minor.** After the work that warrants a release is committed, run `bun run bump-version` (minor). Use patch or major only when the operator names that kind. The script updates the shared line, regenerates `apps/registry/registry.json` and `apps/registry/registry.lock.json`, and self-skips if it already bumped within 24 hours (`--force` to override). Commit the result as `chore(repo): bump version to X.Y.Z`, then regenerate contracts and refresh the private vendor pin when contracts changed.
-
-A new package joins the current shared version on creation. Run `bun run bump-version` for every version change; do not hand-edit `version` fields or invent a second line for one package.
-
-**Release CI** (`.github/workflows/release.yml`) runs after the **CI** workflow succeeds on `main`. E2E is a separate workflow and does not block publish. Release publishes when no pending `.changeset/` files remain and package versions are ahead of npm. The release script builds packages/modules, runs `bun run prepare-publish` (rewrites `workspace:*` / `catalog:` to semver and swaps `exports` to `publishConfig.exports` under `dist/`), gates with `prepare-publish --check` + `verify-publish-packs`, then `changeset publish`, then restores package.json backups. Auth is npm trusted publishing (OIDC): the job uses the `npm-publish` GitHub Environment, `id-token: write`, and matching trusted-publisher entries (org, repo, workflow `release.yml`, environment `npm-publish`). Do not restore long-lived publish tokens. Packages should require 2FA and disallow token publish.
-
-**Published tarball contract:** every publishable package ships compiled `dist/` (`.js` + `.d.ts`, plus copied non-TS assets such as `.mdx`). Workspace `exports` may still point at `./src` for local DX; npm consumers must resolve `./dist` only. Do not publish `src`, `__tests__`, `.turbo`, `vitest.config.ts`, `AGENTS.md`, or `tsconfig.json`. `@86d-app/contracts`, `@86d-app/registry`, `@86d-app/storage`, and `@86d-app/ui` stay on the shared version line and publish whenever that version is ahead of npm (including first publish of a new package name).
-
-## Detailed docs
-
-- `apps/store/AGENTS.md`: Store app architecture, routes, Store Admin, and theme system.
-- `apps/store/EXAMPLES.md`: Module usage examples.
-- `templates/brisa/AGENTS.md`: template authoring guide.
-- `tests/e2e/AGENTS.md`: E2E patterns, fixtures, and conventions.
+- After release-worthy work is committed, use `bun run bump-version`; minor is the default. Use patch or major only when the operator names it. The script self-skips when it bumped within 24 hours unless `--force` is passed. Never hand-edit a `version` field.
+- The bump updates every package on the shared line plus `apps/registry/registry.json` and `apps/registry/registry.lock.json`. Commit it as `chore(repo): bump version to X.Y.Z`. Refresh generated contracts and the private vendor pin when contracts changed.
+- A new package joins the current shared version when created.
+- Before changing release mechanics, read `.github/workflows/release.yml`, `internals/github/ci-cd/action.yml`, and the publish scripts instead of copying their matrix here. Release follows successful CI on `main`; e2e is separate. Publish only with no pending Changesets and versions ahead of npm.
+- Preserve npm trusted publishing through OIDC, package 2FA, and disabled token publishing. Never restore a long-lived publish token.
+- `@86d-app/contracts`, `@86d-app/registry`, `@86d-app/storage`, and `@86d-app/ui` remain publishable on the shared version line and publish whenever that version is ahead of npm, including a first publish.
+- Published packages resolve to compiled `dist/` JavaScript, declarations, and required non-TS assets. Tarballs exclude `src`, `__tests__`, `.turbo`, `vitest.config.ts`, `AGENTS.md`, and `tsconfig.json`. `prepare-publish --check` and `verify-publish-packs` are release gates.
