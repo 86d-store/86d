@@ -1,5 +1,9 @@
+import {
+	restoreProcessEnv,
+	setProcessEnv,
+	snapshotProcessEnv,
+} from "env/process-env";
 import { afterEach, describe, expect, it } from "vitest";
-
 import {
 	buildPublicUploadUrl,
 	hasInvalidUploadKey,
@@ -10,29 +14,29 @@ import {
 // ── isProxyingUploadUrls ────────────────────────────────────────────
 
 describe("isProxyingUploadUrls", () => {
-	const originalEnv = { ...process.env };
+	const originalEnv = snapshotProcessEnv();
 
 	afterEach(() => {
-		process.env = { ...originalEnv };
+		restoreProcessEnv(originalEnv);
 	});
 
 	it("returns false when STORAGE_PUBLIC_URL_MODE is unset", () => {
-		delete process.env.STORAGE_PUBLIC_URL_MODE;
+		setProcessEnv("STORAGE_PUBLIC_URL_MODE", undefined);
 		expect(isProxyingUploadUrls()).toBe(false);
 	});
 
 	it("returns true when STORAGE_PUBLIC_URL_MODE is proxy", () => {
-		process.env.STORAGE_PUBLIC_URL_MODE = "proxy";
+		setProcessEnv("STORAGE_PUBLIC_URL_MODE", "proxy");
 		expect(isProxyingUploadUrls()).toBe(true);
 	});
 
 	it("returns false when STORAGE_PUBLIC_URL_MODE is direct", () => {
-		process.env.STORAGE_PUBLIC_URL_MODE = "direct";
+		setProcessEnv("STORAGE_PUBLIC_URL_MODE", "direct");
 		expect(isProxyingUploadUrls()).toBe(false);
 	});
 
 	it("returns false for any other value", () => {
-		process.env.STORAGE_PUBLIC_URL_MODE = "cdn";
+		setProcessEnv("STORAGE_PUBLIC_URL_MODE", "cdn");
 		expect(isProxyingUploadUrls()).toBe(false);
 	});
 });

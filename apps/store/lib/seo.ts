@@ -90,16 +90,16 @@ export const fetchProductForSeo = cache(
 		if (d?.status !== "active") return null;
 
 		return {
-			name: (d.name as string) ?? "",
-			slug: (d.slug as string) ?? slug,
-			description: (d.description as string) ?? null,
-			shortDescription: (d.shortDescription as string) ?? null,
+			name: d.name as string,
+			slug: d.slug as string,
+			description: d.description as string,
+			shortDescription: d.shortDescription as string,
 			price: typeof d.price === "number" ? d.price : 0,
 			compareAtPrice:
 				typeof d.compareAtPrice === "number" ? d.compareAtPrice : null,
 			images: normalizeImages(d.images),
-			status: (d.status as string) ?? "draft",
-			sku: (d.sku as string) ?? null,
+			status: d.status as string,
+			sku: d.sku as string,
 			updatedAt:
 				typeof d.updatedAt === "string"
 					? d.updatedAt
@@ -125,10 +125,10 @@ export const fetchCollectionForSeo = cache(
 		if (!d || d.isVisible === false) return null;
 
 		return {
-			name: (d.name as string) ?? "",
-			slug: (d.slug as string) ?? slug,
-			description: (d.description as string) ?? null,
-			image: (d.image as string) ?? null,
+			name: d.name as string,
+			slug: d.slug as string,
+			description: d.description as string,
+			image: d.image as string,
 			updatedAt:
 				typeof d.updatedAt === "string"
 					? d.updatedAt
@@ -199,7 +199,7 @@ export async function fetchCollectionSlugsForSitemap(): Promise<
 export async function getStoreName(): Promise<string> {
 	try {
 		const config = await getStoreConfigCached();
-		return config.name ?? "86d Store";
+		return config.name;
 	} catch {
 		return "86d Store";
 	}
@@ -270,12 +270,12 @@ export const fetchBlogPostForSeo = cache(
 		if (d?.status !== "published") return null;
 
 		return {
-			title: (d.title as string) ?? "",
-			slug: (d.slug as string) ?? slug,
-			excerpt: (d.excerpt as string) ?? null,
-			coverImage: (d.coverImage as string) ?? null,
-			author: (d.author as string) ?? null,
-			category: (d.category as string) ?? null,
+			title: d.title as string,
+			slug: d.slug as string,
+			excerpt: d.excerpt as string,
+			coverImage: d.coverImage as string,
+			author: d.author as string,
+			category: d.category as string,
 			updatedAt:
 				typeof d.updatedAt === "string"
 					? d.updatedAt
@@ -396,8 +396,6 @@ export async function fetchPreorderCampaignIdsForSitemap(): Promise<
 
 // ── llms-full.txt content fetchers ──────────────────────────────────────────
 
-export type { LlmsBlogPost, LlmsCollection, LlmsProduct };
-
 /**
  * Fetch all active products for llms-full.txt.
  */
@@ -416,9 +414,9 @@ export async function fetchProductsForLlms(): Promise<LlmsProduct[]> {
 		.map((r) => {
 			const d = r as JsonData;
 			return {
-				name: (d.name as string) ?? "",
+				name: d.name as string,
 				slug: d.slug as string,
-				shortDescription: (d.shortDescription as string) ?? null,
+				shortDescription: d.shortDescription as string,
 				price: typeof d.price === "number" ? d.price : 0,
 				images: normalizeImages(d.images).map((img) => img.url),
 			};
@@ -443,9 +441,9 @@ export async function fetchCollectionsForLlms(): Promise<LlmsCollection[]> {
 		.map((r) => {
 			const d = r as JsonData;
 			return {
-				name: (d.name as string) ?? "",
+				name: d.name as string,
 				slug: d.slug as string,
-				description: (d.description as string) ?? null,
+				description: d.description as string,
 			};
 		});
 }
@@ -468,10 +466,10 @@ export async function fetchBlogPostsForLlms(): Promise<LlmsBlogPost[]> {
 		.map((r) => {
 			const d = r as JsonData;
 			return {
-				title: (d.title as string) ?? "",
+				title: d.title as string,
 				slug: d.slug as string,
-				excerpt: (d.excerpt as string) ?? null,
-				author: (d.author as string) ?? null,
+				excerpt: d.excerpt as string,
+				author: d.author as string,
 				publishedAt:
 					typeof d.publishedAt === "string"
 						? new Date(d.publishedAt).toISOString()
@@ -502,3 +500,9 @@ export async function buildWebSiteJsonLd(): Promise<object> {
 		},
 	};
 }
+
+export type {
+	LlmsBlogPost,
+	LlmsCollection,
+	LlmsProduct,
+} from "../../../packages/lib/src/llms-content";

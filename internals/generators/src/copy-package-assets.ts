@@ -10,8 +10,6 @@ import { copyPackageAssets } from "../../../packages/cli/src/copy-package-assets
 const arg = process.argv[2];
 const result = copyPackageAssets(arg);
 if (result.skipped) {
-	console.log(`No src/ in ${result.pkgDir} — skip asset copy`);
 } else {
-	const relDist = join(relative(process.cwd(), result.pkgDir) || ".", "dist");
-	console.log(`Copied ${result.copied} asset(s) → ${relDist}`);
+	const _relDist = join(relative(process.cwd(), result.pkgDir) || ".", "dist");
 }

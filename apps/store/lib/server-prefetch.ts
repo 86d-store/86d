@@ -215,7 +215,7 @@ export const prefetchProductBySlug = cache(
 				price: num(vd.price),
 				compareAtPrice: numOrUndef(vd.compareAtPrice),
 				inventory: num(vd.inventory),
-				options: (vd.options as Record<string, string>) ?? {},
+				options: vd.options as Record<string, string>,
 				images: Array.isArray(vd.images) ? (vd.images as string[]) : [],
 				position: num(vd.position),
 				createdAt: dateStr(vd.createdAt, product.createdAt),

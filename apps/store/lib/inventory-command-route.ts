@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import {
 	inventoryStockAdjustOutcomeSchema,
 	inventoryStockAdjustTransportSchema,
-} from "@86d-app/inventory";
+} from "@86d-app/inventory/commands";
 import type { CommandPrincipal } from "@86d-app/runtime/command";
 import type { Session } from "auth";
 import env from "env";

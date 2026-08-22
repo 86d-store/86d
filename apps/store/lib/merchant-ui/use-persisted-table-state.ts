@@ -36,7 +36,7 @@ function readStorage(tableId: string): PersistedTableState {
 		if (parsed.v !== SCHEMA_VERSION) return emptyState;
 		return {
 			v: SCHEMA_VERSION,
-			columnVisibility: parsed.columnVisibility ?? {},
+			columnVisibility: parsed.columnVisibility,
 			sorting: Array.isArray(parsed.sorting) ? parsed.sorting : [],
 			columnFilters: Array.isArray(parsed.columnFilters)
 				? parsed.columnFilters
@@ -77,53 +77,64 @@ export function usePersistedTableState(tableId: string) {
 		[tableId],
 	);
 
-	const onColumnVisibilityChange: OnChangeFn<ColumnVisibilityState> = (
-		updater,
-	) => {
-		setState((prev) => {
-			const nextVisibility =
-				typeof updater === "function"
-					? updater(prev.columnVisibility)
-					: updater;
-			const next = {
-				...prev,
-				columnVisibility: nextVisibility,
-				v: SCHEMA_VERSION,
-			};
-			writeStorage(tableId, next);
-			return next;
-		});
-	};
+	const onColumnVisibilityChange: OnChangeFn<ColumnVisibilityState> =
+		useCallback(
+			(updater) => {
+				setState((prev) => {
+					const nextVisibility =
+						typeof updater === "function"
+							? updater(prev.columnVisibility)
+							: updater;
+					const next = {
+						...prev,
+						columnVisibility: nextVisibility,
+						v: SCHEMA_VERSION,
+					};
+					writeStorage(tableId, next);
+					return next;
+				});
+			},
+			[tableId],
+		);
 
-	const onSortingChange: OnChangeFn<SortingState> = (updater) => {
-		setState((prev) => {
-			const nextSorting =
-				typeof updater === "function" ? updater(prev.sorting) : updater;
-			const next = { ...prev, sorting: nextSorting, v: SCHEMA_VERSION };
-			writeStorage(tableId, next);
-			return next;
-		});
-	};
+	const onSortingChange: OnChangeFn<SortingState> = useCallback(
+		(updater) => {
+			setState((prev) => {
+				const nextSorting =
+					typeof updater === "function" ? updater(prev.sorting) : updater;
+				const next = { ...prev, sorting: nextSorting, v: SCHEMA_VERSION };
+				writeStorage(tableId, next);
+				return next;
+			});
+		},
+		[tableId],
+	);
 
-	const onColumnFiltersChange: OnChangeFn<ColumnFiltersState> = (updater) => {
-		setState((prev) => {
-			const nextFilters =
-				typeof updater === "function" ? updater(prev.columnFilters) : updater;
-			const next = { ...prev, columnFilters: nextFilters, v: SCHEMA_VERSION };
-			writeStorage(tableId, next);
-			return next;
-		});
-	};
+	const onColumnFiltersChange: OnChangeFn<ColumnFiltersState> = useCallback(
+		(updater) => {
+			setState((prev) => {
+				const nextFilters =
+					typeof updater === "function" ? updater(prev.columnFilters) : updater;
+				const next = { ...prev, columnFilters: nextFilters, v: SCHEMA_VERSION };
+				writeStorage(tableId, next);
+				return next;
+			});
+		},
+		[tableId],
+	);
 
-	const onGlobalFilterChange = (updater: Updater<string>) => {
-		setState((prev) => {
-			const nextFilter =
-				typeof updater === "function" ? updater(prev.globalFilter) : updater;
-			const next = { ...prev, globalFilter: nextFilter, v: SCHEMA_VERSION };
-			writeStorage(tableId, next);
-			return next;
-		});
-	};
+	const onGlobalFilterChange = useCallback(
+		(updater: Updater<string>) => {
+			setState((prev) => {
+				const nextFilter =
+					typeof updater === "function" ? updater(prev.globalFilter) : updater;
+				const next = { ...prev, globalFilter: nextFilter, v: SCHEMA_VERSION };
+				writeStorage(tableId, next);
+				return next;
+			});
+		},
+		[tableId],
+	);
 
 	return useMemo(
 		() => ({

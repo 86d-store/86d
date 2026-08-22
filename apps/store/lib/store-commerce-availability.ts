@@ -4,6 +4,7 @@ import {
 	isRemoteStoreConfigV2,
 	type RemoteStoreConfig,
 } from "@86d-app/sdk/types";
+import { readProcessEnv } from "env/process-env";
 import { logger } from "utils/logger";
 
 export type StoreCommerceGate =
@@ -29,7 +30,7 @@ export type StoreCommerceGate =
  * managed credential signal opts it into Control Plane configuration.
  */
 export function isManagedStoreRuntime(
-	environment: NodeJS.ProcessEnv = process.env,
+	environment: NodeJS.ProcessEnv = readProcessEnv(),
 ): boolean {
 	return [
 		environment["86D_STORE_ID"],

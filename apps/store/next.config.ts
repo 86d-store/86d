@@ -3,6 +3,7 @@ import { join } from "node:path";
 import createMDX from "@next/mdx";
 import { withSentryConfig } from "@sentry/nextjs";
 import env from "env";
+import { getProcessEnv } from "env/process-env";
 import type { NextConfig } from "next";
 import type { RemotePattern } from "next/dist/shared/lib/image-config";
 
@@ -24,7 +25,7 @@ function loadTranspilePackages(): string[] {
 	}
 }
 
-const isVercelProduction = process.env.VERCEL_ENV === "production";
+const isVercelProduction = getProcessEnv("VERCEL_ENV") === "production";
 
 const cspDirectives = [
 	"default-src 'self'",
@@ -81,7 +82,7 @@ function resolveTurbopackRoot(): string | undefined {
 const turbopackRoot = resolveTurbopackRoot();
 
 const nextConfig = withMDX({
-	...(process.env.DOCKER_BUILD === "true"
+	...(getProcessEnv("DOCKER_BUILD") === "true"
 		? { output: "standalone" as const }
 		: {}),
 	pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],

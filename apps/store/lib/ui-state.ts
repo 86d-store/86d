@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "@86d-app/core/state";
+import { makeAutoObservable } from "mobx";
 
 export type ToastVariant = "default" | "success" | "error" | "warning";
 

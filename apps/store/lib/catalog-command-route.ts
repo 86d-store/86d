@@ -3,7 +3,7 @@ import {
 	catalogDraftCommandInputSchema,
 	catalogRevisionOperationDecisionSchema,
 	catalogTransitionTransportSchema,
-} from "@86d-app/products";
+} from "@86d-app/products/catalog-revisions";
 import type { CommandPrincipal } from "@86d-app/runtime/command";
 import type { Session } from "auth";
 import env from "env";

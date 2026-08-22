@@ -74,9 +74,7 @@ async function main() {
 
 	if (outPath) {
 		writeFileSync(outPath, formatted, "utf8");
-		console.log(`Wrote ${outPath}`);
 	} else {
-		console.log(formatted);
 	}
 
 	console.error(

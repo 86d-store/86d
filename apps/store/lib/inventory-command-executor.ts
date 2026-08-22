@@ -2,13 +2,14 @@ import type {
 	ActorReference,
 	AuthoritySnapshot,
 	CommandReference,
-} from "@86d-app/core/commands";
+} from "@86d-app/contracts/command";
+import { computeCommandBindingHash } from "@86d-app/contracts/command";
 import type { Module } from "@86d-app/core/types/module";
 import {
 	adjustInventoryStockFromCommand,
 	inventoryStockAdjustInputSchema,
 	inventoryStockAdjustOutcomeSchema,
-} from "@86d-app/inventory";
+} from "@86d-app/inventory/commands";
 import {
 	type CommandAuthority,
 	type CommandPrincipal,
@@ -25,7 +26,6 @@ import {
 	createDrizzlePersistenceClient,
 	type PersistenceTransaction,
 } from "@86d-app/runtime/drizzle-persistence-client";
-import { computeCommandBindingHash } from "@86d-app/runtime/grants";
 import { getPool } from "db";
 import { drizzle } from "drizzle-orm/node-postgres";
 import env from "env";

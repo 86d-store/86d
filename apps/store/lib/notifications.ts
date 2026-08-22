@@ -318,7 +318,7 @@ function createBackInStockHandler(
 ) {
 	return async (event: ModuleEvent<BackInStockPayload>) => {
 		const p = event.payload;
-		if (!p.subscribers || p.subscribers.length === 0) {
+		if (p.subscribers.length === 0) {
 			return;
 		}
 

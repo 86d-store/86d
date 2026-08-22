@@ -3,7 +3,8 @@ import type {
 	AuthoritySnapshot,
 	CommandReference,
 	TargetReference,
-} from "@86d-app/core/commands";
+} from "@86d-app/contracts/command";
+import { computeCommandBindingHash } from "@86d-app/contracts/command";
 import type { ModuleDataTransaction } from "@86d-app/core/durable-events";
 import type { Module } from "@86d-app/core/types/module";
 import {
@@ -13,7 +14,7 @@ import {
 	catalogDraftCommandInputSchema,
 	catalogRevisionOperationDecisionSchema,
 	catalogTransitionCommandInputSchema,
-} from "@86d-app/products";
+} from "@86d-app/products/catalog-revisions";
 import {
 	type CommandAuthority,
 	type CommandPersistence,
@@ -28,7 +29,6 @@ import {
 	compileInstalledModules,
 } from "@86d-app/runtime/compiled-schema-boot";
 import { createDrizzlePersistenceClient } from "@86d-app/runtime/drizzle-persistence-client";
-import { computeCommandBindingHash } from "@86d-app/runtime/grants";
 import { getPool } from "db";
 import { drizzle } from "drizzle-orm/node-postgres";
 import env from "env";

@@ -37,6 +37,7 @@
 		"@86d-app/checkout": "workspace:*",
 		"@86d-app/collections": "workspace:*",
 		"@86d-app/comparisons": "workspace:*",
+		"@86d-app/contracts": "workspace:*",
 		"@86d-app/core": "workspace:*",
 		"@86d-app/customer-groups": "workspace:*",
 		"@86d-app/customers": "workspace:*",

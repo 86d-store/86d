@@ -6,6 +6,7 @@
       "name": "@86d-app/86d",
       "dependencies": {
         "@86d-app/registry": "workspace:*",
+        "env": "workspace:*",
         "tsx": "catalog:",
         "zod": "catalog:",
       },
@@ -70,6 +71,7 @@
         "@86d-app/checkout": "workspace:*",
         "@86d-app/collections": "workspace:*",
         "@86d-app/comparisons": "workspace:*",
+        "@86d-app/contracts": "workspace:*",
         "@86d-app/core": "workspace:*",
         "@86d-app/customer-groups": "workspace:*",
         "@86d-app/customers": "workspace:*",
@@ -573,6 +575,7 @@
       "version": "0.0.42",
       "dependencies": {
         "@86d-app/core": "workspace:*",
+        "env": "workspace:*",
       },
       "devDependencies": {
         "86d": "workspace:*",
@@ -1078,6 +1081,7 @@
       "name": "@86d-app/inventory",
       "version": "0.0.42",
       "dependencies": {
+        "@86d-app/contracts": "workspace:*",
         "@86d-app/core": "workspace:*",
       },
       "devDependencies": {
@@ -1164,6 +1168,7 @@
       "dependencies": {
         "@86d-app/core": "workspace:*",
         "@86d-app/sdk": "workspace:*",
+        "env": "workspace:*",
       },
       "devDependencies": {
         "86d": "workspace:*",
@@ -1367,7 +1372,9 @@
       "name": "@86d-app/payments",
       "version": "0.0.42",
       "dependencies": {
+        "@86d-app/contracts": "workspace:*",
         "@86d-app/core": "workspace:*",
+        "env": "workspace:*",
       },
       "devDependencies": {
         "86d": "workspace:*",
@@ -1389,6 +1396,7 @@
       "version": "0.0.42",
       "dependencies": {
         "@86d-app/core": "workspace:*",
+        "env": "workspace:*",
       },
       "devDependencies": {
         "86d": "workspace:*",
@@ -1557,6 +1565,7 @@
       "name": "@86d-app/products",
       "version": "0.0.42",
       "dependencies": {
+        "@86d-app/contracts": "workspace:*",
         "@86d-app/core": "workspace:*",
         "@tanstack/react-form": "1.33.5",
         "@tanstack/react-table": "9.1.2",
@@ -1708,6 +1717,7 @@
       "name": "@86d-app/returns",
       "version": "0.0.42",
       "dependencies": {
+        "@86d-app/contracts": "workspace:*",
         "@86d-app/core": "workspace:*",
       },
       "devDependencies": {
@@ -2384,6 +2394,7 @@
       "dependencies": {
         "@86d-app/core": "workspace:*",
         "@86d-app/registry": "workspace:*",
+        "env": "workspace:*",
       },
       "devDependencies": {
         "@biomejs/biome": "catalog:",
@@ -2441,6 +2452,7 @@
         "@86d-app/core": "workspace:*",
         "@86d-app/storage": "workspace:*",
         "drizzle-orm": "0.45.2",
+        "env": "workspace:*",
         "pg": "8.23.0",
       },
       "devDependencies": {
@@ -2458,6 +2470,7 @@
       "name": "emails",
       "version": "0.0.42",
       "dependencies": {
+        "env": "workspace:*",
         "resend": "6.21.0",
       },
       "devDependencies": {
@@ -2496,6 +2509,7 @@
       "name": "@86d-app/registry",
       "version": "0.0.42",
       "dependencies": {
+        "env": "workspace:*",
         "zod": "catalog:",
       },
       "devDependencies": {
@@ -2529,6 +2543,7 @@
       "name": "@86d-app/sdk",
       "version": "0.0.42",
       "dependencies": {
+        "env": "workspace:*",
         "zod": "catalog:",
       },
       "devDependencies": {
@@ -2540,6 +2555,7 @@
       "name": "@86d-app/storage",
       "version": "0.0.42",
       "dependencies": {
+        "env": "workspace:*",
         "zod": "catalog:",
       },
       "devDependencies": {
@@ -2608,6 +2624,7 @@
       "name": "utils",
       "version": "0.0.42",
       "dependencies": {
+        "env": "workspace:*",
         "winston": "3.19.0",
       },
       "devDependencies": {

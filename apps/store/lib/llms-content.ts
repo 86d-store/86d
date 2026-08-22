@@ -12,9 +12,6 @@ import {
 	fetchProductsForLlms,
 	getStoreName,
 } from "./seo";
-
-export type { LlmsFullContent };
-
 /**
  * Fetch all public store content for llms-full.txt.
  * Queries run in parallel for minimal latency.
@@ -39,3 +36,5 @@ export async function generateLlmsFullMarkdown(): Promise<string> {
 	]);
 	return renderLlmsFullMarkdown(content, storeName, getBaseUrl());
 }
+
+export type { LlmsFullContent } from "../../../packages/lib/src/llms-content";

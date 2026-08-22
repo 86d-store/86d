@@ -17,9 +17,10 @@ import { getStoreConfig } from "@86d-app/sdk/get-store-config";
 import { loadFromTemplate } from "@86d-app/sdk/load-from-template";
 import type { Config } from "@86d-app/sdk/types";
 import { db, getPool } from "db";
-import { module } from "db/schema";
+import { module } from "db/schema/tables";
 import { and, eq } from "drizzle-orm";
 import env from "env";
+import { getProcessEnv } from "env/process-env";
 import { logger } from "utils/logger";
 import { modules } from "../generated/api";
 import { resolveTemplatePath } from "./template-path";
@@ -167,7 +168,7 @@ function getRegistry(): ModuleRegistry {
 				createTransactionRunner: (params) => moduleDataService(params),
 				createCoreMoneyWriter: () => ({
 					write: async (input) => {
-						const { writeCoreMoney } = await import("db");
+						const { writeCoreMoney } = await import("db/core-money");
 						await writeCoreMoney(db, input);
 					},
 				}),
@@ -197,7 +198,7 @@ export async function ensureBooted(): Promise<ModuleRegistry> {
 	if (!subscribersRegistered) {
 		const bus = reg.getEventBus();
 		if (bus) {
-			if (!process.env.RESEND_API_KEY) {
+			if (!getProcessEnv("RESEND_API_KEY")) {
 				logger.debug("Email notifications disabled (RESEND_API_KEY not set)");
 			} else {
 				try {
@@ -225,7 +226,7 @@ export async function ensureBooted(): Promise<ModuleRegistry> {
 						const config = await getStoreConfig({
 							templatePath: resolveTemplatePath(),
 						});
-						storeName = config.name ?? "Our Store";
+						storeName = config.name;
 						const localNotificationSettings =
 							getStoreOwnedConfig().notificationSettings;
 						const settings = localNotificationSettings

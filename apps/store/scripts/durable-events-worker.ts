@@ -1,10 +1,11 @@
 import { getPool } from "db";
+import { getProcessEnv } from "env/process-env";
 import { ensureBooted } from "../lib/api-registry";
 import { runDurableEventWorker } from "../lib/durable-event-worker";
 import { drainDurableEventsBatch } from "../lib/durable-events";
 
 const configuredMaxBatches = Number.parseInt(
-	process.env.DURABLE_EVENT_MAX_BATCHES ?? "25",
+	getProcessEnv("DURABLE_EVENT_MAX_BATCHES") ?? "25",
 	10,
 );
 

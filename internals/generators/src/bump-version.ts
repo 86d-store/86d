@@ -29,10 +29,7 @@ const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 if (!args.includes("--force") && existsSync(STAMP_FILE)) {
 	const last = Number(readFileSync(STAMP_FILE, "utf8").trim());
 	if (Date.now() - last < TWENTY_FOUR_HOURS) {
-		const hoursAgo = ((Date.now() - last) / (60 * 60 * 1000)).toFixed(1);
-		console.log(
-			`Version already bumped ${hoursAgo}h ago — skipping (use --force to override).`,
-		);
+		const _hoursAgo = ((Date.now() - last) / (60 * 60 * 1000)).toFixed(1);
 		process.exit(0);
 	}
 }
@@ -112,16 +109,13 @@ if (args[0] && /^\d+\.\d+\.\d+$/.test(args[0])) {
 	targetVersion = bumpSemver(canonical, "minor");
 }
 
-console.log(`Bumping shared version line: ${canonical} → ${targetVersion}`);
-
-let updated = 0;
+let _updated = 0;
 for (const pkgPath of packageJsonPaths) {
 	const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
 	if (!pkg.version) continue;
 	pkg.version = targetVersion;
 	writeFileSync(pkgPath, `${JSON.stringify(pkg, null, "\t")}\n`);
-	console.log(`  ✓ ${pkg.name}@${targetVersion}`);
-	updated++;
+	_updated++;
 }
 
 // Keep the workspace root version aligned with the shared publish line.
@@ -133,11 +127,8 @@ const rootPkg = JSON.parse(readFileSync(rootPkgPath, "utf8")) as {
 if (rootPkg.version) {
 	rootPkg.version = targetVersion;
 	writeFileSync(rootPkgPath, `${JSON.stringify(rootPkg, null, "\t")}\n`);
-	console.log(`  ✓ ${rootPkg.name ?? "root"}@${targetVersion}`);
-	updated++;
+	_updated++;
 }
-
-console.log(`\nUpdated ${updated} packages to ${targetVersion}`);
 
 // Regenerate apps/registry/registry.json so versions and integrity hashes stay in sync.
 execSync("tsx apps/registry/src/generate-manifest.ts", {

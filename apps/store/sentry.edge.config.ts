@@ -1,9 +1,10 @@
-import * as Sentry from "@sentry/nextjs";
+import { init } from "@sentry/nextjs";
+import { getProcessEnv } from "env/process-env";
 
-if (process.env.SENTRY_DSN) {
-	Sentry.init({
-		dsn: process.env.SENTRY_DSN,
+if (getProcessEnv("SENTRY_DSN")) {
+	init({
+		dsn: getProcessEnv("SENTRY_DSN"),
 		tracesSampleRate: 0.1,
-		environment: process.env.NODE_ENV,
+		environment: getProcessEnv("NODE_ENV"),
 	});
 }

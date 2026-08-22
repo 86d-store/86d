@@ -1,7 +1,9 @@
+import { getProcessEnv } from "env/process-env";
+
 const PUBLIC_UPLOAD_PREFIX = "/uploads/";
 
 export function isProxyingUploadUrls(): boolean {
-	return (process.env.STORAGE_PUBLIC_URL_MODE ?? "direct") === "proxy";
+	return (getProcessEnv("STORAGE_PUBLIC_URL_MODE") ?? "direct") === "proxy";
 }
 
 export function buildPublicUploadUrl(key: string): string {

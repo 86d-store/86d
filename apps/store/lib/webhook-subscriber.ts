@@ -10,7 +10,7 @@
 
 import type { EventBus, ModuleEvent } from "@86d-app/core/events";
 import type { Database } from "db";
-import { webhook, webhookDelivery } from "db/schema";
+import { webhook, webhookDelivery } from "db/schema/tables";
 import { and, eq, sql } from "drizzle-orm";
 import {
 	buildWebhookPayload,
