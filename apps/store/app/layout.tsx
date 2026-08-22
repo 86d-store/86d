@@ -9,6 +9,7 @@ import { GoogleTagManager } from "@next/third-parties/google";
 import { StoreQueryProvider } from "components/providers";
 import { ThemePreloadRelease } from "components/theme-preload-release";
 import env from "env";
+import { getProcessEnv } from "env/process-env";
 import { IBM_Plex_Mono, Merriweather } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { getBaseUrl } from "utils/url";
@@ -70,7 +71,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 const THEME_BG_LIGHT = "oklch(1 0 0)";
 const THEME_BG_DARK = "oklch(0.145 0 0)";
 const isVercelProduction =
-	env.NODE_ENV === "production" && process.env.VERCEL_ENV === "production";
+	env.NODE_ENV === "production" && getProcessEnv("VERCEL_ENV") === "production";
 
 /**
  * Hint for critical CSS: which appearance to paint before client theme runs.
@@ -120,16 +121,14 @@ export default async function RootLayout({
 		>
 			<head>
 				<meta httpEquiv="Accept-CH" content="Sec-CH-Prefers-Color-Scheme" />
-				<style dangerouslySetInnerHTML={{ __html: themePreloadCriticalCss }} />
-				<script dangerouslySetInnerHTML={{ __html: themeScript }} />
-				<script
-					type="application/ld+json"
-					dangerouslySetInnerHTML={{
-						__html: JSON.stringify(webSiteJsonLd),
-					}}
-				/>
+				<style>{themePreloadCriticalCss}</style>
+				<script suppressHydrationWarning>{themeScript}</script>
+				<script type="application/ld+json" suppressHydrationWarning>
+					{JSON.stringify(webSiteJsonLd)}
+				</script>
 				{env.NODE_ENV === "development" && (
 					<script
+						async
 						crossOrigin="anonymous"
 						src="//unpkg.com/react-scan/dist/auto.global.js"
 					/>
