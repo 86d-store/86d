@@ -279,9 +279,10 @@ describe("checkout → inventory integration", () => {
 			);
 
 			expect("session" in result).toBe(true);
-			if ("session" in result) {
-				expect(result.session.status).toBe("processing");
+			if (!("session" in result)) {
+				throw new Error("expected 'session' in result");
 			}
+			expect(result.session.status).toBe("processing");
 		});
 
 		it("rejects when a product is out of stock", async () => {
@@ -301,11 +302,12 @@ describe("checkout → inventory integration", () => {
 			);
 
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.status).toBe(422);
-				expect(result.error).toContain("Widget");
-				expect(result.error).toContain("Insufficient stock");
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.status).toBe(422);
+			expect(result.error).toContain("Widget");
+			expect(result.error).toContain("Insufficient stock");
 		});
 
 		it("rejects when a variant is out of stock", async () => {
@@ -325,9 +327,10 @@ describe("checkout → inventory integration", () => {
 			);
 
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.error).toContain("Gadget S");
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.error).toContain("Gadget S");
 		});
 
 		it("lists all out-of-stock items in error message", async () => {
@@ -347,10 +350,11 @@ describe("checkout → inventory integration", () => {
 			);
 
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.error).toContain("Widget");
-				expect(result.error).toContain("Gadget S");
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.error).toContain("Widget");
+			expect(result.error).toContain("Gadget S");
 		});
 
 		it("allows backorder items even when stock is zero", async () => {
@@ -824,9 +828,10 @@ describe("checkout → inventory integration", () => {
 			);
 
 			expect("session" in result).toBe(true);
-			if ("session" in result) {
-				expect(result.session.status).toBe("completed");
+			if (!("session" in result)) {
+				throw new Error("expected 'session' in result");
 			}
+			expect(result.session.status).toBe("completed");
 
 			// Verify deduct was called for each line item
 			const deductCalls = inventoryCtrl._calls.filter(
@@ -917,10 +922,11 @@ describe("checkout → inventory integration", () => {
 			);
 
 			expect("session" in result).toBe(true);
-			if ("session" in result) {
-				expect(result.session.status).toBe("completed");
-				expect(result.orderId).toBe("ORD-004");
+			if (!("session" in result)) {
+				throw new Error("expected 'session' in result");
 			}
+			expect(result.session.status).toBe("completed");
+			expect(result.orderId).toBe("ORD-004");
 		});
 
 		it("full lifecycle: reserve → deduct leaves correct stock", async () => {
@@ -991,9 +997,10 @@ describe("checkout → inventory integration", () => {
 			);
 
 			expect("session" in result).toBe(true);
-			if ("session" in result) {
-				expect(result.session.status).toBe("processing");
+			if (!("session" in result)) {
+				throw new Error("expected 'session' in result");
 			}
+			expect(result.session.status).toBe("processing");
 		});
 
 		it("abandon works without inventory controller", async () => {
@@ -1041,11 +1048,12 @@ describe("checkout → inventory integration", () => {
 			);
 
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.error).toContain("Item B");
-				expect(result.error).not.toContain("Item A");
-				expect(result.error).not.toContain("Item C");
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.error).toContain("Item B");
+			expect(result.error).not.toContain("Item A");
+			expect(result.error).not.toContain("Item C");
 		});
 
 		it("handles exact stock (quantity equals available)", async () => {

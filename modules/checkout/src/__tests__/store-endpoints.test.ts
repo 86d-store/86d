@@ -1058,9 +1058,9 @@ describe("checkout store endpoints", () => {
 			});
 
 			const res = result as { session: CheckoutSession };
-			expect(res.session?.discountCode).toBe("SAVE10");
-			expect(res.session?.discountAmount).toBe(1000);
-			expect(res.session?.total).toBe(4000); // 5000 - 1000
+			expect(res.session.discountCode).toBe("SAVE10");
+			expect(res.session.discountAmount).toBe(1000);
+			expect(res.session.total).toBe(4000); // 5000 - 1000
 		});
 
 		it("rejects invalid discount code", async () => {
@@ -1104,7 +1104,7 @@ describe("checkout store endpoints", () => {
 			});
 
 			const res = result as { session: CheckoutSession };
-			expect(res.session?.shippingAmount).toBe(0);
+			expect(res.session.shippingAmount).toBe(0);
 		});
 
 		it("returns 404 for nonexistent session", async () => {
@@ -1154,9 +1154,9 @@ describe("checkout store endpoints", () => {
 			});
 
 			const res = result as { session: CheckoutSession };
-			expect(res.session?.giftCardCode).toBe("GC-123"); // uppercased
-			expect(res.session?.giftCardAmount).toBe(2000);
-			expect(res.session?.total).toBe(3000); // 5000 - 2000
+			expect(res.session.giftCardCode).toBe("GC-123"); // uppercased
+			expect(res.session.giftCardAmount).toBe(2000);
+			expect(res.session.total).toBe(3000); // 5000 - 2000
 		});
 
 		it("caps gift card amount to remaining total", async () => {
@@ -1179,8 +1179,8 @@ describe("checkout store endpoints", () => {
 			});
 
 			const res = result as { session: CheckoutSession };
-			expect(res.session?.giftCardAmount).toBe(1000); // Capped to total
-			expect(res.session?.total).toBe(0);
+			expect(res.session.giftCardAmount).toBe(1000); // Capped to total
+			expect(res.session.total).toBe(0);
 		});
 
 		it("rejects nonexistent gift card", async () => {
@@ -1283,8 +1283,8 @@ describe("checkout store endpoints", () => {
 			const result = await simulateRemoveDiscount(data, session.id);
 
 			const res = result as { session: CheckoutSession };
-			expect(res.session?.discountCode).toBeUndefined();
-			expect(res.session?.discountAmount).toBe(0);
+			expect(res.session.discountCode).toBeUndefined();
+			expect(res.session.discountAmount).toBe(0);
 		});
 
 		it("returns 404 for nonexistent session", async () => {
@@ -1318,8 +1318,8 @@ describe("checkout store endpoints", () => {
 
 			const result = await simulateRemoveDiscount(data, session.id);
 			const res = result as { session: CheckoutSession };
-			expect(res.session?.discountAmount).toBe(0);
-			expect(res.session?.total).toBe(3000);
+			expect(res.session.discountAmount).toBe(0);
+			expect(res.session.total).toBe(3000);
 		});
 	});
 
@@ -1341,8 +1341,8 @@ describe("checkout store endpoints", () => {
 			const result = await simulateRemoveGiftCard(data, session.id);
 
 			const res = result as { session: CheckoutSession };
-			expect(res.session?.giftCardCode).toBeUndefined();
-			expect(res.session?.giftCardAmount).toBe(0);
+			expect(res.session.giftCardCode).toBeUndefined();
+			expect(res.session.giftCardAmount).toBe(0);
 		});
 
 		it("returns 404 for nonexistent session", async () => {
@@ -1413,8 +1413,8 @@ describe("checkout store endpoints", () => {
 
 			const res = result as { session: CheckoutSession };
 			// Capped to 2000 (the remaining total)
-			expect(res.session?.storeCreditAmount).toBe(2000);
-			expect(res.session?.total).toBe(0);
+			expect(res.session.storeCreditAmount).toBe(2000);
+			expect(res.session.total).toBe(0);
 		});
 
 		it("applies partial credit when balance is less than total", async () => {
@@ -1430,8 +1430,8 @@ describe("checkout store endpoints", () => {
 			});
 
 			const res = result as { session: CheckoutSession };
-			expect(res.session?.storeCreditAmount).toBe(1000);
-			expect(res.session?.total).toBe(4000);
+			expect(res.session.storeCreditAmount).toBe(1000);
+			expect(res.session.total).toBe(4000);
 		});
 
 		it("returns 404 for nonexistent session", async () => {
@@ -1482,7 +1482,7 @@ describe("checkout store endpoints", () => {
 			});
 
 			const res = result as { session: CheckoutSession };
-			expect(res.session?.storeCreditAmount).toBe(0);
+			expect(res.session.storeCreditAmount).toBe(0);
 		});
 
 		it("returns 404 for nonexistent session", async () => {

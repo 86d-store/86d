@@ -59,7 +59,9 @@ describe("mergeGuestCart", () => {
 
 		const customerItems = await ctrl.getCartItems(CUSTOMER_ID);
 		expect(customerItems).toHaveLength(2);
-		const productIds = customerItems.map((i) => i.productId).sort();
+		const productIds = customerItems
+			.map((i) => i.productId)
+			.sort((a, b) => a.localeCompare(b));
 		expect(productIds).toEqual(["p1", "p2"]);
 	});
 

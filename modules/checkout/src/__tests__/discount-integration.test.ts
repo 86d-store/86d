@@ -170,14 +170,16 @@ describe("checkout → discount usage increment", () => {
 		// Even when applyCode() returns invalid, it shouldn't throw
 		let threw = false;
 		try {
-			if (stored?.discountCode) {
-				const result = await discountCtrl.applyCode({
-					code: stored.discountCode,
-					subtotal: stored.subtotal,
-				});
-				// valid: false means usage limit hit or expired — log but don't block
-				expect(result.valid).toBe(false);
+			expect(stored?.discountCode).toBeTruthy();
+			if (!stored?.discountCode) {
+				throw new Error("expected stored?.discountCode");
 			}
+			const result = await discountCtrl.applyCode({
+				code: stored.discountCode,
+				subtotal: stored.subtotal,
+			});
+			// valid: false means usage limit hit or expired — log but don't block
+			expect(result.valid).toBe(false);
 		} catch {
 			threw = true;
 		}

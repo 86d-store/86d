@@ -436,9 +436,10 @@ describe("complete-session gift card redemption", () => {
 
 		// Session should be completed
 		expect("session" in result).toBe(true);
-		if ("session" in result) {
-			expect(result.session.status).toBe("completed");
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.status).toBe("completed");
 	});
 
 	it("rejects completion when gift card redemption fails", async () => {
@@ -459,10 +460,11 @@ describe("complete-session gift card redemption", () => {
 
 		// Should fail
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.error).toContain("Gift card could not be redeemed");
-			expect(result.status).toBe(422);
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.error).toContain("Gift card could not be redeemed");
+		expect(result.status).toBe(422);
 
 		// No order should be created
 		expect(orderCtrl._orders).toHaveLength(0);
@@ -487,9 +489,11 @@ describe("complete-session gift card redemption", () => {
 
 		// Redemption should succeed with capped amount
 		expect("session" in result).toBe(true);
-		if ("actualGiftCardAmount" in result) {
-			expect(result.actualGiftCardAmount).toBe(1000);
+		expect("actualGiftCardAmount" in result).toBeTruthy();
+		if (!("actualGiftCardAmount" in result)) {
+			throw new Error("expected 'actualGiftCardAmount' in result");
 		}
+		expect(result.actualGiftCardAmount).toBe(1000);
 
 		// Order should have adjusted amounts
 		expect(orderCtrl._orders).toHaveLength(1);

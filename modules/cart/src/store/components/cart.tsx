@@ -1,6 +1,6 @@
 "use client";
 
-import { observer } from "@86d-app/core/state";
+import { observer } from "mobx-react-lite";
 import { cartState } from "../../state";
 import CartTemplate from "./cart.mdx";
 import { CartDrawerInner } from "./cart-drawer-inner";

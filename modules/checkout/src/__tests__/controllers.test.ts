@@ -789,10 +789,11 @@ describe("checkout controller edge cases", () => {
 			await controller.complete(session.id, "ord-1");
 			const result = await controller.confirm(session.id);
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.status).toBe(422);
-				expect(result.error).toContain("completed");
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.status).toBe(422);
+			expect(result.error).toContain("completed");
 		});
 
 		it("returns error for expired session", async () => {
@@ -807,10 +808,11 @@ describe("checkout controller edge cases", () => {
 			await controller.expireStale();
 			const result = await controller.confirm(session.id);
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.status).toBe(422);
-				expect(result.error).toContain("expired");
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.status).toBe(422);
+			expect(result.error).toContain("expired");
 		});
 
 		it("returns error for abandoned session", async () => {
@@ -824,10 +826,11 @@ describe("checkout controller edge cases", () => {
 			await controller.abandon(session.id);
 			const result = await controller.confirm(session.id);
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.status).toBe(422);
-				expect(result.error).toContain("abandoned");
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.status).toBe(422);
+			expect(result.error).toContain("abandoned");
 		});
 
 		it("both customerId and guestEmail present satisfies customer check", async () => {
@@ -865,11 +868,13 @@ describe("checkout controller edge cases", () => {
 				shippingAddress: sampleAddress,
 			});
 			const result = await controller.confirm(session.id);
-			if ("session" in result) {
-				expect(result.session.updatedAt.getTime()).toBeGreaterThanOrEqual(
-					session.updatedAt.getTime(),
-				);
+			expect("session" in result).toBeTruthy();
+			if (!("session" in result)) {
+				throw new Error("expected 'session' in result");
 			}
+			expect(result.session.updatedAt.getTime()).toBeGreaterThanOrEqual(
+				session.updatedAt.getTime(),
+			);
 		});
 	});
 
@@ -1624,9 +1629,10 @@ describe("checkout controller edge cases", () => {
 			// Confirm
 			const confirmed = await controller.confirm(session.id);
 			expect("session" in confirmed).toBe(true);
-			if ("session" in confirmed) {
-				expect(confirmed.session.status).toBe("processing");
+			if (!("session" in confirmed)) {
+				throw new Error("expected 'session' in confirmed");
 			}
+			expect(confirmed.session.status).toBe("processing");
 
 			// Set payment intent
 			const withPayment = await controller.setPaymentIntent(

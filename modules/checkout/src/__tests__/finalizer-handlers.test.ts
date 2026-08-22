@@ -6,6 +6,7 @@ import {
 } from "@86d-app/core/commerce-capabilities";
 import { inventoryCheckoutV2Capability } from "@86d-app/core/inventory-reservation-capability";
 import { createMockTransactionRunner } from "@86d-app/core/test-utils";
+import { getProcessEnv, setProcessEnv } from "env/process-env";
 import { describe, expect, it } from "vitest";
 import { createCheckoutFinalizationStore } from "../finalization";
 import {
@@ -481,8 +482,8 @@ describe("Checkout finalization handlers", () => {
 			paymentAggregates,
 		});
 
-		const previousActivation = process.env["86D_PAYMENTS_LIVE_ACTIVATION"];
-		process.env["86D_PAYMENTS_LIVE_ACTIVATION"] = "true";
+		const previousActivation = getProcessEnv("86D_PAYMENTS_LIVE_ACTIVATION");
+		setProcessEnv("86D_PAYMENTS_LIVE_ACTIVATION", "true");
 		try {
 			const run = await createCheckoutFinalizationTransport({
 				store,
@@ -494,9 +495,9 @@ describe("Checkout finalization handlers", () => {
 			);
 		} finally {
 			if (previousActivation === undefined) {
-				process.env["86D_PAYMENTS_LIVE_ACTIVATION"] = undefined;
+				setProcessEnv("86D_PAYMENTS_LIVE_ACTIVATION", undefined);
 			} else {
-				process.env["86D_PAYMENTS_LIVE_ACTIVATION"] = previousActivation;
+				setProcessEnv("86D_PAYMENTS_LIVE_ACTIVATION", previousActivation);
 			}
 		}
 	});

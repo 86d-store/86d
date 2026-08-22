@@ -216,7 +216,9 @@ describe("cart controllers — edge cases", () => {
 
 		it("removing a nonexistent item does not throw", async () => {
 			// data.delete on a nonexistent key is silent
-			await controller.removeItem("does_not_exist");
+			await expect(
+				controller.removeItem("does_not_exist"),
+			).resolves.toBeUndefined();
 		});
 	});
 

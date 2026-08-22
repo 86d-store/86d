@@ -299,9 +299,10 @@ describe("store endpoint: add to cart — price validation", () => {
 		);
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.price).toBe(1999); // corrected to DB price
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.price).toBe(1999); // corrected to DB price
 	});
 
 	it("uses variant price when variantId is provided", async () => {
@@ -331,9 +332,10 @@ describe("store endpoint: add to cart — price validation", () => {
 		);
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.price).toBe(3499); // corrected to variant price
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.price).toBe(3499); // corrected to variant price
 	});
 
 	it("falls back to product price when variant not found", async () => {
@@ -357,9 +359,10 @@ describe("store endpoint: add to cart — price validation", () => {
 		);
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.price).toBe(2999);
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.price).toBe(2999);
 	});
 
 	it("returns 404 when product not found in registry", async () => {
@@ -443,9 +446,10 @@ describe("store endpoint: add to cart — price validation", () => {
 		);
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.price).toBe(5000); // client price used as-is
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.price).toBe(5000); // client price used as-is
 	});
 });
 
@@ -470,10 +474,11 @@ describe("store endpoint: add to cart — guest vs. authenticated", () => {
 		);
 
 		expect("cart" in result).toBe(true);
-		if ("cart" in result) {
-			expect(result.cart.id).toBe("cust_42");
-			expect(result.cart.customerId).toBe("cust_42");
+		if (!("cart" in result)) {
+			throw new Error("expected 'cart' in result");
 		}
+		expect(result.cart.id).toBe("cust_42");
+		expect(result.cart.customerId).toBe("cust_42");
 	});
 
 	it("creates a guest-scoped cart for unauthenticated users", async () => {
@@ -490,10 +495,11 @@ describe("store endpoint: add to cart — guest vs. authenticated", () => {
 		);
 
 		expect("cart" in result).toBe(true);
-		if ("cart" in result) {
-			expect(result.cart.id).toBe("guest_abc123");
-			expect(result.cart.guestId).toBe("guest_abc123");
+		if (!("cart" in result)) {
+			throw new Error("expected 'cart' in result");
 		}
+		expect(result.cart.id).toBe("guest_abc123");
+		expect(result.cart.guestId).toBe("guest_abc123");
 	});
 
 	it("increments quantity when adding the same product again", async () => {
@@ -522,9 +528,10 @@ describe("store endpoint: add to cart — guest vs. authenticated", () => {
 		);
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.quantity).toBe(5); // 2 + 3
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.quantity).toBe(5); // 2 + 3
 	});
 
 	it("caps quantity at 999 when adding would exceed limit", async () => {
@@ -553,9 +560,10 @@ describe("store endpoint: add to cart — guest vs. authenticated", () => {
 		);
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.quantity).toBe(999);
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.quantity).toBe(999);
 	});
 
 	it("returns correct subtotal and itemCount", async () => {
@@ -584,10 +592,11 @@ describe("store endpoint: add to cart — guest vs. authenticated", () => {
 		);
 
 		expect("itemCount" in result).toBe(true);
-		if ("itemCount" in result) {
-			expect(result.itemCount).toBe(2); // 2 distinct items
-			expect(result.subtotal).toBe(2 * 1000 + 1 * 3000); // 5000
+		if (!("itemCount" in result)) {
+			throw new Error("expected 'itemCount' in result");
 		}
+		expect(result.itemCount).toBe(2); // 2 distinct items
+		expect(result.subtotal).toBe(2 * 1000 + 1 * 3000); // 5000
 	});
 
 	it("treats same product with different variants as separate items", async () => {
@@ -620,9 +629,10 @@ describe("store endpoint: add to cart — guest vs. authenticated", () => {
 		);
 
 		expect("itemCount" in result).toBe(true);
-		if ("itemCount" in result) {
-			expect(result.itemCount).toBe(2);
+		if (!("itemCount" in result)) {
+			throw new Error("expected 'itemCount' in result");
 		}
+		expect(result.itemCount).toBe(2);
 	});
 });
 
@@ -745,10 +755,11 @@ describe("store endpoint: update cart item — ownership verification", () => {
 		});
 
 		expect("item" in result).toBe(true);
-		if ("item" in result) {
-			expect(result.item.quantity).toBe(5);
-			expect(result.subtotal).toBe(5 * 2999);
+		if (!("item" in result)) {
+			throw new Error("expected 'item' in result");
 		}
+		expect(result.item.quantity).toBe(5);
+		expect(result.subtotal).toBe(5 * 2999);
 	});
 
 	it("returns 404 when item belongs to a different user's cart", async () => {
@@ -803,10 +814,11 @@ describe("store endpoint: update cart item — ownership verification", () => {
 		});
 
 		expect("subtotal" in result).toBe(true);
-		if ("subtotal" in result) {
-			expect(result.itemCount).toBe(2);
-			expect(result.subtotal).toBe(1 * 1000 + 4 * 2000); // 9000
+		if (!("subtotal" in result)) {
+			throw new Error("expected 'subtotal' in result");
 		}
+		expect(result.itemCount).toBe(2);
+		expect(result.subtotal).toBe(1 * 1000 + 4 * 2000); // 9000
 	});
 });
 
@@ -827,11 +839,12 @@ describe("store endpoint: remove from cart — ownership and composite IDs", () 
 		});
 
 		expect("items" in result).toBe(true);
-		if ("items" in result) {
-			expect(result.items).toHaveLength(0);
-			expect(result.itemCount).toBe(0);
-			expect(result.subtotal).toBe(0);
+		if (!("items" in result)) {
+			throw new Error("expected 'items' in result");
 		}
+		expect(result.items).toHaveLength(0);
+		expect(result.itemCount).toBe(0);
+		expect(result.subtotal).toBe(0);
 	});
 
 	it("removes item by composite cartId_productId", async () => {
@@ -845,9 +858,10 @@ describe("store endpoint: remove from cart — ownership and composite IDs", () 
 		});
 
 		expect("items" in result).toBe(true);
-		if ("items" in result) {
-			expect(result.items).toHaveLength(0);
+		if (!("items" in result)) {
+			throw new Error("expected 'items' in result");
 		}
+		expect(result.items).toHaveLength(0);
 	});
 
 	it("removes item by composite cartId_productId_variantId", async () => {
@@ -868,9 +882,10 @@ describe("store endpoint: remove from cart — ownership and composite IDs", () 
 		);
 
 		expect("items" in result).toBe(true);
-		if ("items" in result) {
-			expect(result.items).toHaveLength(0);
+		if (!("items" in result)) {
+			throw new Error("expected 'items' in result");
 		}
+		expect(result.items).toHaveLength(0);
 	});
 
 	it("returns 404 when item belongs to another user", async () => {
@@ -923,11 +938,12 @@ describe("store endpoint: remove from cart — ownership and composite IDs", () 
 		});
 
 		expect("items" in result).toBe(true);
-		if ("items" in result) {
-			expect(result.items).toHaveLength(1);
-			expect(result.itemCount).toBe(1);
-			expect(result.subtotal).toBe(2000);
+		if (!("items" in result)) {
+			throw new Error("expected 'items' in result");
 		}
+		expect(result.items).toHaveLength(1);
+		expect(result.itemCount).toBe(1);
+		expect(result.subtotal).toBe(2000);
 	});
 });
 

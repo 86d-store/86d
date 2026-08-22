@@ -1,5 +1,5 @@
 import { createAdminEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { CheckoutController, CheckoutStatus } from "../../service";
 
 export const adminListSessions = createAdminEndpoint(

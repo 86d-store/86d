@@ -247,8 +247,7 @@ async function simulateCreatePayment(
 	});
 
 	// If provider returned clientSecret, do NOT auto-confirm (Stripe mode)
-	const clientSecret =
-		(intent.providerMetadata?.clientSecret as string) ?? undefined;
+	const clientSecret = intent.providerMetadata?.clientSecret as string;
 	if (clientSecret) {
 		await checkoutCtrl.setPaymentIntent(sessionId, intent.id, intent.status);
 		return {
@@ -464,13 +463,13 @@ describe("checkout → payment integration", () => {
 			);
 
 			expect(result.payment).toBeDefined();
-			expect(result.payment?.status).toBe("succeeded");
-			expect(result.payment?.amount).toBe(4900);
-			expect(result.payment?.currency).toBe("USD");
+			expect(result.payment.status).toBe("succeeded");
+			expect(result.payment.amount).toBe(4900);
+			expect(result.payment.currency).toBe("USD");
 
 			// Intent should be stored on the session
 			const updated = await checkoutCtrl.getById(session.id);
-			expect(updated?.paymentIntentId).toBe(result.payment?.id);
+			expect(updated?.paymentIntentId).toBe(result.payment.id);
 			expect(updated?.paymentStatus).toBe("succeeded");
 		});
 
@@ -484,8 +483,8 @@ describe("checkout → payment integration", () => {
 				undefined,
 			);
 
-			expect(result.payment?.status).toBe("succeeded");
-			expect(result.payment?.id).toMatch(/^demo_/);
+			expect(result.payment.status).toBe("succeeded");
+			expect(result.payment.id).toMatch(/^demo_/);
 
 			const updated = await checkoutCtrl.getById(session.id);
 			expect(updated?.paymentIntentId).toMatch(/^demo_/);
@@ -505,9 +504,9 @@ describe("checkout → payment integration", () => {
 				paymentCtrl,
 			);
 
-			expect(result.payment?.id).toBe("no_payment_required");
-			expect(result.payment?.status).toBe("succeeded");
-			expect(result.payment?.amount).toBe(0);
+			expect(result.payment.id).toBe("no_payment_required");
+			expect(result.payment.status).toBe("succeeded");
+			expect(result.payment.amount).toBe(0);
 
 			// No calls to payment controller
 			expect(paymentCtrl._calls).toHaveLength(0);
@@ -561,10 +560,11 @@ describe("checkout → payment integration", () => {
 			);
 
 			expect("session" in result).toBe(true);
-			if ("session" in result) {
-				expect(result.session.status).toBe("completed");
-				expect(result.session.orderId).toBe("ORD-001");
+			if (!("session" in result)) {
+				throw new Error("expected 'session' in result");
 			}
+			expect(result.session.status).toBe("completed");
+			expect(result.session.orderId).toBe("ORD-001");
 		});
 
 		it("blocks completion when payment has not been initiated", async () => {
@@ -581,9 +581,10 @@ describe("checkout → payment integration", () => {
 			);
 
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.error).toContain("Payment has not been initiated");
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.error).toContain("Payment has not been initiated");
 		});
 
 		it("blocks completion when payment failed", async () => {
@@ -608,9 +609,10 @@ describe("checkout → payment integration", () => {
 			);
 
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.error).toContain("Payment has not been completed");
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.error).toContain("Payment has not been completed");
 		});
 
 		it("allows completion for zero-total without payment", async () => {
@@ -628,9 +630,10 @@ describe("checkout → payment integration", () => {
 			);
 
 			expect("session" in result).toBe(true);
-			if ("session" in result) {
-				expect(result.session.status).toBe("completed");
+			if (!("session" in result)) {
+				throw new Error("expected 'session' in result");
 			}
+			expect(result.session.status).toBe("completed");
 		});
 
 		it("allows completion for demo payment", async () => {
@@ -651,9 +654,10 @@ describe("checkout → payment integration", () => {
 			);
 
 			expect("session" in result).toBe(true);
-			if ("session" in result) {
-				expect(result.session.status).toBe("completed");
+			if (!("session" in result)) {
+				throw new Error("expected 'session' in result");
 			}
+			expect(result.session.status).toBe("completed");
 		});
 	});
 
@@ -668,7 +672,7 @@ describe("checkout → payment integration", () => {
 				session.id,
 				paymentCtrl,
 			);
-			const intentId = payResult.payment?.id;
+			const intentId = payResult.payment.id;
 
 			await simulateAbandonWithPayment(checkoutCtrl, session.id, paymentCtrl);
 
@@ -802,13 +806,13 @@ describe("checkout → payment integration", () => {
 			);
 
 			// Should return clientSecret and pending status (NOT auto-confirmed)
-			expect(result.payment?.clientSecret).toBeDefined();
-			expect(result.payment?.status).toBe("pending");
-			expect(result.payment?.amount).toBe(4900);
+			expect(result.payment.clientSecret).toBeDefined();
+			expect(result.payment.status).toBe("pending");
+			expect(result.payment.amount).toBe(4900);
 
 			// Session should have the intent stored with pending status
 			const updated = await checkoutCtrl.getById(session.id);
-			expect(updated?.paymentIntentId).toBe(result.payment?.id);
+			expect(updated?.paymentIntentId).toBe(result.payment.id);
 			expect(updated?.paymentStatus).toBe("pending");
 		});
 
@@ -852,10 +856,10 @@ describe("checkout → payment integration", () => {
 			);
 
 			// Session is pending
-			expect(result.payment?.status).toBe("pending");
+			expect(result.payment.status).toBe("pending");
 
 			// Simulate client-side Stripe.js confirmation
-			const intentId = result.payment?.id;
+			const intentId = result.payment.id;
 			if (intentId) {
 				await paymentCtrl.confirmIntent(intentId);
 			}
@@ -886,7 +890,7 @@ describe("checkout → payment integration", () => {
 			);
 
 			// Simulate Stripe.js confirmation
-			const intentId = result.payment?.id;
+			const intentId = result.payment.id;
 			if (intentId) {
 				await paymentCtrl.confirmIntent(intentId);
 			}
@@ -903,9 +907,10 @@ describe("checkout → payment integration", () => {
 			);
 
 			expect("session" in completeResult).toBe(true);
-			if ("session" in completeResult) {
-				expect(completeResult.session.status).toBe("completed");
+			if (!("session" in completeResult)) {
+				throw new Error("expected 'session' in completeResult");
 			}
+			expect(completeResult.session.status).toBe("completed");
 		});
 
 		it("blocks completion when client-side confirmation has not occurred", async () => {
@@ -924,11 +929,10 @@ describe("checkout → payment integration", () => {
 			);
 
 			expect("error" in completeResult).toBe(true);
-			if ("error" in completeResult) {
-				expect(completeResult.error).toContain(
-					"Payment has not been completed",
-				);
+			if (!("error" in completeResult)) {
+				throw new Error("expected 'error' in completeResult");
 			}
+			expect(completeResult.error).toContain("Payment has not been completed");
 		});
 
 		it("cancels Stripe intent on session abandonment", async () => {
@@ -941,7 +945,7 @@ describe("checkout → payment integration", () => {
 				session.id,
 				paymentCtrl,
 			);
-			const intentId = result.payment?.id;
+			const intentId = result.payment.id;
 
 			await simulateAbandonWithPayment(checkoutCtrl, session.id, paymentCtrl);
 
@@ -1055,14 +1059,14 @@ describe("checkout → payment integration", () => {
 				paymentCtrl,
 			);
 
-			expect(result.payment?.paypalOrderId).toBeDefined();
-			expect(result.payment?.paypalOrderId).toMatch(/^PP_/);
-			expect(result.payment?.status).toBe("pending");
-			expect(result.payment?.amount).toBe(4900);
+			expect(result.payment.paypalOrderId).toBeDefined();
+			expect(result.payment.paypalOrderId).toMatch(/^PP_/);
+			expect(result.payment.status).toBe("pending");
+			expect(result.payment.amount).toBe(4900);
 
 			// Session should have the intent stored with pending status
 			const updated = await checkoutCtrl.getById(session.id);
-			expect(updated?.paymentIntentId).toBe(result.payment?.id);
+			expect(updated?.paymentIntentId).toBe(result.payment.id);
 			expect(updated?.paymentStatus).toBe("pending");
 		});
 
@@ -1089,7 +1093,7 @@ describe("checkout → payment integration", () => {
 				session.id,
 				paymentCtrl,
 			);
-			const intentId = result.payment?.id;
+			const intentId = result.payment.id;
 
 			// Simulate PayPal approval + capture
 			if (intentId) {
@@ -1105,9 +1109,10 @@ describe("checkout → payment integration", () => {
 			);
 
 			expect("session" in completeResult).toBe(true);
-			if ("session" in completeResult) {
-				expect(completeResult.session.status).toBe("completed");
+			if (!("session" in completeResult)) {
+				throw new Error("expected 'session' in completeResult");
 			}
+			expect(completeResult.session.status).toBe("completed");
 		});
 
 		it("blocks completion when PayPal order is still pending", async () => {
@@ -1126,11 +1131,10 @@ describe("checkout → payment integration", () => {
 			);
 
 			expect("error" in completeResult).toBe(true);
-			if ("error" in completeResult) {
-				expect(completeResult.error).toContain(
-					"Payment has not been completed",
-				);
+			if (!("error" in completeResult)) {
+				throw new Error("expected 'error' in completeResult");
 			}
+			expect(completeResult.error).toContain("Payment has not been completed");
 		});
 
 		it("cancels PayPal intent on session abandonment", async () => {
@@ -1143,7 +1147,7 @@ describe("checkout → payment integration", () => {
 				session.id,
 				paymentCtrl,
 			);
-			const intentId = result.payment?.id;
+			const intentId = result.payment.id;
 
 			await simulateAbandonWithPayment(checkoutCtrl, session.id, paymentCtrl);
 
@@ -1255,11 +1259,11 @@ describe("checkout → payment integration", () => {
 				paymentCtrl,
 			);
 
-			expect(result.payment?.braintreeClientToken).toBe(
+			expect(result.payment.braintreeClientToken).toBe(
 				"bt_client_token_test_abc",
 			);
-			expect(result.payment?.status).toBe("pending");
-			expect(result.payment?.amount).toBe(4900);
+			expect(result.payment.status).toBe("pending");
+			expect(result.payment.amount).toBe(4900);
 		});
 
 		it("does NOT auto-confirm on first call", async () => {
@@ -1411,8 +1415,8 @@ describe("checkout → payment integration", () => {
 				paymentCtrl,
 			);
 
-			expect(result.payment?.squarePayment).toBe(true);
-			expect(result.payment?.status).toBe("pending");
+			expect(result.payment.squarePayment).toBe(true);
+			expect(result.payment.status).toBe("pending");
 		});
 
 		it("does NOT auto-confirm on first call", async () => {

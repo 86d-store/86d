@@ -1,6 +1,6 @@
 "use client";
 
-import { observer } from "@86d-app/core/state";
+import { observer } from "mobx-react-lite";
 import Image from "next/image";
 import { useEffect } from "react";
 import { cartState } from "../../state";

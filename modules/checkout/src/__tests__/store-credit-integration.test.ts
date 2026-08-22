@@ -315,9 +315,10 @@ describe("complete-session store credit debit", () => {
 		expect(scCtrl._debitCalls[0].reason).toBe("order_payment");
 
 		expect("session" in result).toBe(true);
-		if ("session" in result) {
-			expect(result.session.status).toBe("completed");
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.status).toBe("completed");
 	});
 
 	it("rejects completion when store credit debit fails", async () => {
@@ -332,10 +333,11 @@ describe("complete-session store credit debit", () => {
 		});
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.error).toContain("Store credit could not be applied");
-			expect(result.status).toBe(422);
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.error).toContain("Store credit could not be applied");
+		expect(result.status).toBe(422);
 	});
 
 	it("does not debit when storeCreditAmount is zero", async () => {
@@ -383,8 +385,9 @@ describe("complete-session store credit debit", () => {
 
 		// Should complete using the session's stored storeCreditAmount
 		expect("session" in result).toBe(true);
-		if ("session" in result) {
-			expect(result.session.status).toBe("completed");
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.status).toBe("completed");
 	});
 });

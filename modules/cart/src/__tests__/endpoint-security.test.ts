@@ -214,7 +214,9 @@ describe("cart endpoint security", () => {
 
 			const remaining = await controller.getCartItems(cart.id);
 			expect(remaining).toHaveLength(2);
-			expect(remaining.map((i) => i.productId).sort()).toEqual(["p2", "p3"]);
+			expect(
+				remaining.map((i) => i.productId).sort((a, b) => a.localeCompare(b)),
+			).toEqual(["p2", "p3"]);
 		});
 	});
 
@@ -780,9 +782,10 @@ describe("cart endpoint security", () => {
 			);
 
 			expect("item" in result).toBe(true);
-			if ("item" in result) {
-				expect(result.item.price).toBe(2500);
+			if (!("item" in result)) {
+				throw new Error("expected 'item' in result");
 			}
+			expect(result.item.price).toBe(2500);
 		});
 
 		it("uses variant price over product price", async () => {
@@ -816,9 +819,10 @@ describe("cart endpoint security", () => {
 			);
 
 			expect("item" in result).toBe(true);
-			if ("item" in result) {
-				expect(result.item.price).toBe(3500);
+			if (!("item" in result)) {
+				throw new Error("expected 'item' in result");
 			}
+			expect(result.item.price).toBe(3500);
 		});
 
 		it("rejects non-existent product with 404", async () => {
@@ -842,9 +846,10 @@ describe("cart endpoint security", () => {
 			);
 
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.status).toBe(404);
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.status).toBe(404);
 		});
 
 		it("rejects inactive product with 400", async () => {
@@ -873,10 +878,11 @@ describe("cart endpoint security", () => {
 			);
 
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.status).toBe(400);
-				expect(result.error).toContain("not available");
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.status).toBe(400);
+			expect(result.error).toContain("not available");
 		});
 
 		it("accepts client price when no products registry exists", async () => {
@@ -898,9 +904,10 @@ describe("cart endpoint security", () => {
 			);
 
 			expect("item" in result).toBe(true);
-			if ("item" in result) {
-				expect(result.item.price).toBe(777);
+			if (!("item" in result)) {
+				throw new Error("expected 'item' in result");
 			}
+			expect(result.item.price).toBe(777);
 		});
 
 		it("falls back to product price when variant not found", async () => {
@@ -930,9 +937,10 @@ describe("cart endpoint security", () => {
 			);
 
 			expect("item" in result).toBe(true);
-			if ("item" in result) {
-				expect(result.item.price).toBe(1500);
+			if (!("item" in result)) {
+				throw new Error("expected 'item' in result");
 			}
+			expect(result.item.price).toBe(1500);
 		});
 	});
 

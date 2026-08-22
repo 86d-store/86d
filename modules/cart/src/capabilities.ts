@@ -9,8 +9,6 @@ import { cartSnapshotCapability } from "@86d-app/core/commerce-capabilities";
 import type { ModuleDataService } from "@86d-app/core/types/module";
 import { createCartControllers } from "./service-impl";
 
-export { cartSnapshotCapability };
-
 type CartSnapshotRequest = CapabilityRequest<typeof cartSnapshotCapability>;
 type CartSnapshotResult = CapabilityResult<
 	CapabilityDecision<typeof cartSnapshotCapability>,

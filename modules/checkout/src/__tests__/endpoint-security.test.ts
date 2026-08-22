@@ -162,18 +162,20 @@ describe("checkout endpoint security", () => {
 
 			const result = await controller.confirm(session.id);
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.status).toBe(422);
-				expect(result.error).toContain("completed");
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.status).toBe(422);
+			expect(result.error).toContain("completed");
 		});
 
 		it("confirm on non-existent session returns 404 error", async () => {
 			const result = await controller.confirm("nonexistent_id");
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.status).toBe(404);
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.status).toBe(404);
 		});
 
 		it("completed session cannot be abandoned", async () => {
@@ -399,11 +401,12 @@ describe("checkout endpoint security", () => {
 			);
 
 			expect("session" in result).toBe(true);
-			if ("session" in result) {
-				// Total should be based on real price (2500 * 2 = 5000), not client price (100 * 2 = 200)
-				expect(result.session.subtotal).toBe(5000);
-				expect(result.session.total).toBe(5000);
+			if (!("session" in result)) {
+				throw new Error("expected 'session' in result");
 			}
+			// Total should be based on real price (2500 * 2 = 5000), not client price (100 * 2 = 200)
+			expect(result.session.subtotal).toBe(5000);
+			expect(result.session.total).toBe(5000);
 		});
 
 		it("uses variant price when variant exists", async () => {
@@ -433,11 +436,12 @@ describe("checkout endpoint security", () => {
 			);
 
 			expect("session" in result).toBe(true);
-			if ("session" in result) {
-				// Should use variant price (3000), not product price (2000) or client price (100)
-				expect(result.session.subtotal).toBe(3000);
-				expect(result.session.total).toBe(3000);
+			if (!("session" in result)) {
+				throw new Error("expected 'session' in result");
 			}
+			// Should use variant price (3000), not product price (2000) or client price (100)
+			expect(result.session.subtotal).toBe(3000);
+			expect(result.session.total).toBe(3000);
 		});
 
 		it("falls back to product price when variant not found", async () => {
@@ -463,9 +467,10 @@ describe("checkout endpoint security", () => {
 			);
 
 			expect("session" in result).toBe(true);
-			if ("session" in result) {
-				expect(result.session.subtotal).toBe(2000);
+			if (!("session" in result)) {
+				throw new Error("expected 'session' in result");
 			}
+			expect(result.session.subtotal).toBe(2000);
 		});
 
 		it("rejects when product does not exist", async () => {
@@ -486,10 +491,11 @@ describe("checkout endpoint security", () => {
 			);
 
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.status).toBe(400);
-				expect(result.error).toContain("Ghost Item");
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.status).toBe(400);
+			expect(result.error).toContain("Ghost Item");
 		});
 
 		it("validates prices for multiple line items independently", async () => {
@@ -515,11 +521,12 @@ describe("checkout endpoint security", () => {
 			);
 
 			expect("session" in result).toBe(true);
-			if ("session" in result) {
-				// Should be (1000*2) + (3000*1) = 5000, not (1*2) + (1*1) = 3
-				expect(result.session.subtotal).toBe(5000);
-				expect(result.session.total).toBe(5000);
+			if (!("session" in result)) {
+				throw new Error("expected 'session' in result");
 			}
+			// Should be (1000*2) + (3000*1) = 5000, not (1*2) + (1*1) = 3
+			expect(result.session.subtotal).toBe(5000);
+			expect(result.session.total).toBe(5000);
 		});
 
 		it("recalculates total including tax and shipping after price correction", async () => {
@@ -538,11 +545,12 @@ describe("checkout endpoint security", () => {
 			);
 
 			expect("session" in result).toBe(true);
-			if ("session" in result) {
-				// subtotal=2000, tax=200, shipping=500 → total=2700
-				expect(result.session.subtotal).toBe(2000);
-				expect(result.session.total).toBe(2700);
+			if (!("session" in result)) {
+				throw new Error("expected 'session' in result");
 			}
+			// subtotal=2000, tax=200, shipping=500 → total=2700
+			expect(result.session.subtotal).toBe(2000);
+			expect(result.session.total).toBe(2700);
 		});
 
 		it("passes through prices unchanged when no products registry", async () => {
@@ -554,11 +562,12 @@ describe("checkout endpoint security", () => {
 			);
 
 			expect("session" in result).toBe(true);
-			if ("session" in result) {
-				// Client price accepted as-is
-				expect(result.session.subtotal).toBe(2997);
-				expect(result.session.total).toBe(2997);
+			if (!("session" in result)) {
+				throw new Error("expected 'session' in result");
 			}
+			// Client price accepted as-is
+			expect(result.session.subtotal).toBe(2997);
+			expect(result.session.total).toBe(2997);
 		});
 	});
 

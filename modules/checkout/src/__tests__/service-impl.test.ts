@@ -252,9 +252,10 @@ describe("confirm", () => {
 
 		const result = await ctrl.confirm(session.id);
 		expect("session" in result).toBe(true);
-		if ("session" in result) {
-			expect(result.session.status).toBe("processing");
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.status).toBe("processing");
 	});
 
 	it("accepts guestEmail as customer identification", async () => {
@@ -274,9 +275,10 @@ describe("confirm", () => {
 		const ctrl = createCheckoutController(createMockDataService());
 		const result = await ctrl.confirm("nonexistent");
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.status).toBe(404);
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.status).toBe(404);
 	});
 
 	it("returns error for non-pending session", async () => {
@@ -291,10 +293,11 @@ describe("confirm", () => {
 
 		const result = await ctrl.confirm(session.id);
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.status).toBe(422);
-			expect(result.error).toContain("processing");
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.status).toBe(422);
+		expect(result.error).toContain("processing");
 	});
 
 	it("returns error when no customer identification", async () => {
@@ -307,10 +310,11 @@ describe("confirm", () => {
 
 		const result = await ctrl.confirm(session.id);
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.status).toBe(422);
-			expect(result.error).toContain("Customer ID or guest email");
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.status).toBe(422);
+		expect(result.error).toContain("Customer ID or guest email");
 	});
 
 	it("returns error when no shipping address", async () => {
@@ -323,10 +327,11 @@ describe("confirm", () => {
 
 		const result = await ctrl.confirm(session.id);
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.status).toBe(422);
-			expect(result.error).toContain("Shipping address");
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.status).toBe(422);
+		expect(result.error).toContain("Shipping address");
 	});
 
 	it("returns error when no line items", async () => {
@@ -341,10 +346,11 @@ describe("confirm", () => {
 
 		const result = await ctrl.confirm(session.id);
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.status).toBe(422);
-			expect(result.error).toContain("no line items");
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.status).toBe(422);
+		expect(result.error).toContain("no line items");
 	});
 });
 

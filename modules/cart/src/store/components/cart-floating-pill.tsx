@@ -1,6 +1,6 @@
 "use client";
 
-import { observer } from "@86d-app/core/state";
+import { observer } from "mobx-react-lite";
 import { cartState } from "../../state";
 import CartFloatingPillTemplate from "./cart-floating-pill.mdx";
 

@@ -142,15 +142,16 @@ describe("checkout shipping rate integration", () => {
 			);
 
 			expect("rates" in result).toBe(true);
-			if ("rates" in result) {
-				expect(result.rates).toHaveLength(3);
-				expect(result.rates[0]).toEqual({
-					id: "rate-std",
-					name: "Standard Shipping",
-					zoneName: "US",
-					price: 599,
-				});
+			if (!("rates" in result)) {
+				throw new Error("expected 'rates' in result");
 			}
+			expect(result.rates).toHaveLength(3);
+			expect(result.rates[0]).toEqual({
+				id: "rate-std",
+				name: "Standard Shipping",
+				zoneName: "US",
+				price: 599,
+			});
 		});
 
 		it("passes correct country and order amount to shipping controller", async () => {
@@ -185,9 +186,10 @@ describe("checkout shipping rate integration", () => {
 			);
 
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.status).toBe(422);
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.status).toBe(422);
 		});
 
 		it("returns error for non-existent session", async () => {
@@ -202,9 +204,10 @@ describe("checkout shipping rate integration", () => {
 			);
 
 			expect("error" in result).toBe(true);
-			if ("error" in result) {
-				expect(result.status).toBe(404);
+			if (!("error" in result)) {
+				throw new Error("expected 'error' in result");
 			}
+			expect(result.status).toBe(404);
 		});
 
 		it("returns empty rates when shipping controller is not available", async () => {
@@ -222,9 +225,10 @@ describe("checkout shipping rate integration", () => {
 			);
 
 			expect("rates" in result).toBe(true);
-			if ("rates" in result) {
-				expect(result.rates).toHaveLength(0);
+			if (!("rates" in result)) {
+				throw new Error("expected 'rates' in result");
 			}
+			expect(result.rates).toHaveLength(0);
 		});
 
 		it("calculates order amount from line items correctly", async () => {
@@ -417,10 +421,11 @@ describe("checkout shipping rate integration", () => {
 			// Step 5: Confirm session
 			const confirmed = await ctrl.confirm(session.id);
 			expect("session" in confirmed).toBe(true);
-			if ("session" in confirmed) {
-				expect(confirmed.session.status).toBe("processing");
-				expect(confirmed.session.shippingAmount).toBe(1299);
+			if (!("session" in confirmed)) {
+				throw new Error("expected 'session' in confirmed");
 			}
+			expect(confirmed.session.status).toBe("processing");
+			expect(confirmed.session.shippingAmount).toBe(1299);
 		});
 
 		it("shipping rates use correct country after address change", async () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { observer } from "@86d-app/core/state";
+import { observer } from "mobx-react-lite";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
@@ -86,7 +86,7 @@ export const CartDrawerInner = observer(() => {
 	}, [queryItemCount]);
 
 	useEffect(() => {
-		if (cartState.isDrawerOpen && awaitingCartSync) {
+		if (awaitingCartSync) {
 			void cartRefetch();
 		}
 	}, [awaitingCartSync, cartRefetch]);

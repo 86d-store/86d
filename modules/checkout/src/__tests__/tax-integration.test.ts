@@ -139,7 +139,7 @@ async function simulateCreateWithTax(
 			customerId: createParams.customerId,
 		});
 
-		if (taxResult && typeof taxResult.totalTax === "number") {
+		if (typeof taxResult.totalTax === "number") {
 			const updated = await ctrl.update(session.id, {
 				taxAmount: taxResult.totalTax,
 			});
@@ -157,17 +157,17 @@ async function simulateCreateWithTax(
  * update-session.ts when a shipping address or shipping amount changes.
  * Now uses the controller's `update({ taxAmount })` instead of direct data access.
  */
-async function simulateUpdateWithTax(
-	ctrl: ReturnType<typeof createCheckoutController>,
-	_data: ReturnType<typeof createMockDataService>,
-	taxController: TaxCalculateController | undefined,
-	sessionId: string,
+async function simulateUpdateWithTax(options: {
+	ctrl: ReturnType<typeof createCheckoutController>;
+	taxController: TaxCalculateController | undefined;
+	sessionId: string;
 	updates: {
 		shippingAddress?: CheckoutAddress | undefined;
 		shippingAmount?: number | undefined;
 		guestEmail?: string | undefined;
-	},
-) {
+	};
+}) {
+	const { ctrl, taxController, sessionId, updates } = options;
 	let session = await ctrl.update(sessionId, updates);
 	if (!session) return null;
 
@@ -196,7 +196,7 @@ async function simulateUpdateWithTax(
 			customerId: session.customerId,
 		});
 
-		if (taxResult && typeof taxResult.totalTax === "number") {
+		if (typeof taxResult.totalTax === "number") {
 			// Use the controller's update method with taxAmount support
 			const updated = await ctrl.update(session.id, {
 				taxAmount: taxResult.totalTax,
@@ -221,13 +221,12 @@ describe("update-session tax auto-calculation", () => {
 		const taxCtrl = createMockTaxController(0.1); // 10% tax
 
 		const session = await ctrl.create(makeSession());
-		const updated = await simulateUpdateWithTax(
+		const updated = await simulateUpdateWithTax({
 			ctrl,
-			data,
-			taxCtrl,
-			session.id,
-			{ shippingAddress: sampleAddress },
-		);
+			taxController: taxCtrl,
+			sessionId: session.id,
+			updates: { shippingAddress: sampleAddress },
+		});
 
 		expect(updated).not.toBeNull();
 		// Line items: p1 = 1000*2 = 2000, p2 = 2000*1 = 2000 → subtotal 4000
@@ -243,8 +242,11 @@ describe("update-session tax auto-calculation", () => {
 		const taxCtrl = createMockTaxController(0.08);
 
 		const session = await ctrl.create(makeSession());
-		await simulateUpdateWithTax(ctrl, data, taxCtrl, session.id, {
-			shippingAddress: sampleAddress,
+		await simulateUpdateWithTax({
+			ctrl,
+			taxController: taxCtrl,
+			sessionId: session.id,
+			updates: { shippingAddress: sampleAddress },
 		});
 
 		expect(taxCtrl._calls).toHaveLength(1);
@@ -262,8 +264,11 @@ describe("update-session tax auto-calculation", () => {
 		const taxCtrl = createMockTaxController(0.05);
 
 		const session = await ctrl.create(makeSession());
-		await simulateUpdateWithTax(ctrl, data, taxCtrl, session.id, {
-			shippingAddress: sampleAddress,
+		await simulateUpdateWithTax({
+			ctrl,
+			taxController: taxCtrl,
+			sessionId: session.id,
+			updates: { shippingAddress: sampleAddress },
 		});
 
 		expect(taxCtrl._calls[0].lineItems).toEqual([
@@ -282,13 +287,12 @@ describe("update-session tax auto-calculation", () => {
 			makeSession({ shippingAddress: sampleAddress }),
 		);
 
-		const updated = await simulateUpdateWithTax(
+		const updated = await simulateUpdateWithTax({
 			ctrl,
-			data,
-			taxCtrl,
-			session.id,
-			{ shippingAmount: 800 },
-		);
+			taxController: taxCtrl,
+			sessionId: session.id,
+			updates: { shippingAmount: 800 },
+		});
 
 		expect(updated).not.toBeNull();
 		expect(updated?.taxAmount).toBe(400);
@@ -304,13 +308,12 @@ describe("update-session tax auto-calculation", () => {
 		const ctrl = createCheckoutController(data);
 
 		const session = await ctrl.create(makeSession());
-		const updated = await simulateUpdateWithTax(
+		const updated = await simulateUpdateWithTax({
 			ctrl,
-			data,
-			undefined,
-			session.id,
-			{ shippingAddress: sampleAddress },
-		);
+			taxController: undefined,
+			sessionId: session.id,
+			updates: { shippingAddress: sampleAddress },
+		});
 
 		expect(updated).not.toBeNull();
 		// Tax unchanged (remains 0 from creation)
@@ -325,13 +328,12 @@ describe("update-session tax auto-calculation", () => {
 
 		const session = await ctrl.create(makeSession());
 		// Only update email — no address trigger
-		const updated = await simulateUpdateWithTax(
+		const updated = await simulateUpdateWithTax({
 			ctrl,
-			data,
-			taxCtrl,
-			session.id,
-			{ guestEmail: "test@example.com" },
-		);
+			taxController: taxCtrl,
+			sessionId: session.id,
+			updates: { guestEmail: "test@example.com" },
+		});
 
 		expect(updated).not.toBeNull();
 		expect(taxCtrl._calls).toHaveLength(0);
@@ -351,13 +353,12 @@ describe("update-session tax auto-calculation", () => {
 			freeShipping: false,
 		});
 
-		const updated = await simulateUpdateWithTax(
+		const updated = await simulateUpdateWithTax({
 			ctrl,
-			data,
-			taxCtrl,
-			session.id,
-			{ shippingAddress: sampleAddress },
-		);
+			taxController: taxCtrl,
+			sessionId: session.id,
+			updates: { shippingAddress: sampleAddress },
+		});
 
 		expect(updated?.taxAmount).toBe(400);
 		// total = 4000 + 400 + 500 - 500 - 0 = 4400
@@ -383,13 +384,12 @@ describe("update-session tax auto-calculation", () => {
 			giftCardAmount: 50,
 		});
 
-		const updated = await simulateUpdateWithTax(
+		const updated = await simulateUpdateWithTax({
 			ctrl,
-			data,
-			taxCtrl,
-			session.id,
-			{ shippingAddress: sampleAddress },
-		);
+			taxController: taxCtrl,
+			sessionId: session.id,
+			updates: { shippingAddress: sampleAddress },
+		});
 
 		expect(updated).not.toBeNull();
 		expect(updated?.total).toBeGreaterThanOrEqual(0);
@@ -401,8 +401,11 @@ describe("update-session tax auto-calculation", () => {
 		const taxCtrl = createMockTaxController(0.1);
 
 		const session = await ctrl.create(makeSession({ customerId: "cust-123" }));
-		await simulateUpdateWithTax(ctrl, data, taxCtrl, session.id, {
-			shippingAddress: sampleAddress,
+		await simulateUpdateWithTax({
+			ctrl,
+			taxController: taxCtrl,
+			sessionId: session.id,
+			updates: { shippingAddress: sampleAddress },
 		});
 
 		expect(taxCtrl._calls[0].customerId).toBe("cust-123");
