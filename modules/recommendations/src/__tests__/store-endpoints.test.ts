@@ -207,9 +207,10 @@ describe("store endpoint: get personalized — auth required", () => {
 
 		expect("products" in result).toBe(true);
 		// May return empty if no co-occurrences exist yet
-		if ("products" in result) {
-			expect(Array.isArray(result.products)).toBe(true);
+		if (!("products" in result)) {
+			throw new Error("expected 'products' in result");
 		}
+		expect(Array.isArray(result.products)).toBe(true);
 	});
 
 	it("returns empty for user with no interaction history", async () => {
@@ -218,9 +219,10 @@ describe("store endpoint: get personalized — auth required", () => {
 		});
 
 		expect("products" in result).toBe(true);
-		if ("products" in result) {
-			expect(result.products).toHaveLength(0);
+		if (!("products" in result)) {
+			throw new Error("expected 'products' in result");
 		}
+		expect(result.products).toHaveLength(0);
 	});
 });
 

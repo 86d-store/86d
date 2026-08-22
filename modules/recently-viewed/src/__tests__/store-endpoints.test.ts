@@ -97,9 +97,10 @@ describe("store endpoint: track view — record product view", () => {
 		);
 
 		expect("view" in result).toBe(true);
-		if ("view" in result) {
-			expect(result.view.productId).toBe("prod_1");
+		if (!("view" in result)) {
+			throw new Error("expected 'view' in result");
 		}
+		expect(result.view.productId).toBe("prod_1");
 	});
 
 	it("tracks a view for anonymous session", async () => {
@@ -111,9 +112,10 @@ describe("store endpoint: track view — record product view", () => {
 		});
 
 		expect("view" in result).toBe(true);
-		if ("view" in result) {
-			expect(result.view.productId).toBe("prod_2");
+		if (!("view" in result)) {
+			throw new Error("expected 'view' in result");
 		}
+		expect(result.view.productId).toBe("prod_2");
 	});
 });
 
@@ -142,9 +144,10 @@ describe("store endpoint: get recent — recently viewed products", () => {
 		const result = await simulateGetRecent(data, {}, { customerId: "cust_1" });
 
 		expect("views" in result).toBe(true);
-		if ("views" in result) {
-			expect(result.views).toHaveLength(2);
+		if (!("views" in result)) {
+			throw new Error("expected 'views' in result");
 		}
+		expect(result.views).toHaveLength(2);
 	});
 
 	it("returns recently viewed for session", async () => {
@@ -159,9 +162,10 @@ describe("store endpoint: get recent — recently viewed products", () => {
 		const result = await simulateGetRecent(data, {}, { sessionId: "sess_1" });
 
 		expect("views" in result).toBe(true);
-		if ("views" in result) {
-			expect(result.views).toHaveLength(1);
+		if (!("views" in result)) {
+			throw new Error("expected 'views' in result");
 		}
+		expect(result.views).toHaveLength(1);
 	});
 
 	it("supports pagination with take", async () => {
@@ -182,9 +186,10 @@ describe("store endpoint: get recent — recently viewed products", () => {
 		);
 
 		expect("views" in result).toBe(true);
-		if ("views" in result) {
-			expect(result.views).toHaveLength(3);
+		if (!("views" in result)) {
+			throw new Error("expected 'views' in result");
 		}
+		expect(result.views).toHaveLength(3);
 	});
 
 	it("returns empty for new customer", async () => {
@@ -195,9 +200,10 @@ describe("store endpoint: get recent — recently viewed products", () => {
 		);
 
 		expect("views" in result).toBe(true);
-		if ("views" in result) {
-			expect(result.views).toHaveLength(0);
+		if (!("views" in result)) {
+			throw new Error("expected 'views' in result");
 		}
+		expect(result.views).toHaveLength(0);
 	});
 });
 
@@ -230,9 +236,11 @@ describe("store endpoint: clear history", () => {
 		expect(result.count).toBe(2);
 
 		const after = await simulateGetRecent(data, {}, { customerId: "cust_1" });
-		if ("views" in after) {
-			expect(after.views).toHaveLength(0);
+		expect("views" in after).toBeTruthy();
+		if (!("views" in after)) {
+			throw new Error("expected 'views' in after");
 		}
+		expect(after.views).toHaveLength(0);
 	});
 });
 
@@ -275,8 +283,9 @@ describe("store endpoint: merge history — session to customer", () => {
 		);
 
 		expect("count" in result).toBe(true);
-		if ("count" in result) {
-			expect(result.count).toBe(2);
+		if (!("count" in result)) {
+			throw new Error("expected 'count' in result");
 		}
+		expect(result.count).toBe(2);
 	});
 });

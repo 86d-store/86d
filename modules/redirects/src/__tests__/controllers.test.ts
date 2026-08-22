@@ -455,7 +455,7 @@ describe("redirect controllers — edge cases", () => {
 			const created = await createTestRedirect();
 			await controller.deleteRedirect(created.id);
 			// Should not throw
-			await controller.recordHit(created.id);
+			await expect(controller.recordHit(created.id)).resolves.toBeUndefined();
 		});
 	});
 

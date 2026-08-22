@@ -20,14 +20,15 @@ function recalculateTotals(items: QuoteItem[]): {
 	return { subtotal, total: subtotal };
 }
 
-async function recordStatusChange(
-	data: ModuleDataService,
-	quoteId: string,
-	fromStatus: string,
-	toStatus: string,
-	changedBy: string,
-	reason?: string,
-): Promise<void> {
+async function recordStatusChange(options: {
+	data: ModuleDataService;
+	quoteId: string;
+	fromStatus: string;
+	toStatus: string;
+	changedBy: string;
+	reason?: string;
+}): Promise<void> {
+	const { data, quoteId, fromStatus, toStatus, changedBy, reason } = options;
 	const historyId = crypto.randomUUID();
 	await data.upsert("quoteHistory", historyId, {
 		id: historyId,
@@ -115,13 +116,13 @@ export function createQuoteController(
 				id,
 				updated as unknown as Record<string, unknown>,
 			);
-			await recordStatusChange(
-				data,
-				id,
-				"draft",
-				"submitted",
-				quote.customerId,
-			);
+			await recordStatusChange({
+				data: data,
+				quoteId: id,
+				fromStatus: "draft",
+				toStatus: "submitted",
+				changedBy: quote.customerId,
+			});
 			return updated as unknown as Quote;
 		},
 
@@ -144,13 +145,13 @@ export function createQuoteController(
 				id,
 				updated as unknown as Record<string, unknown>,
 			);
-			await recordStatusChange(
-				data,
-				id,
-				"countered",
-				"accepted",
-				quote.customerId,
-			);
+			await recordStatusChange({
+				data: data,
+				quoteId: id,
+				fromStatus: "countered",
+				toStatus: "accepted",
+				changedBy: quote.customerId,
+			});
 			return updated as unknown as Quote;
 		},
 
@@ -169,14 +170,14 @@ export function createQuoteController(
 				id,
 				updated as unknown as Record<string, unknown>,
 			);
-			await recordStatusChange(
-				data,
-				id,
-				"countered",
-				"rejected",
-				quote.customerId,
-				reason,
-			);
+			await recordStatusChange({
+				data: data,
+				quoteId: id,
+				fromStatus: "countered",
+				toStatus: "rejected",
+				changedBy: quote.customerId,
+				reason: reason,
+			});
 			return updated as unknown as Quote;
 		},
 
@@ -344,7 +345,13 @@ export function createQuoteController(
 				id,
 				updated as unknown as Record<string, unknown>,
 			);
-			await recordStatusChange(data, id, "submitted", "under_review", "admin");
+			await recordStatusChange({
+				data: data,
+				quoteId: id,
+				fromStatus: "submitted",
+				toStatus: "under_review",
+				changedBy: "admin",
+			});
 			return updated as unknown as Quote;
 		},
 
@@ -398,7 +405,13 @@ export function createQuoteController(
 				id,
 				updated as unknown as Record<string, unknown>,
 			);
-			await recordStatusChange(data, id, quote.status, "countered", "admin");
+			await recordStatusChange({
+				data: data,
+				quoteId: id,
+				fromStatus: quote.status,
+				toStatus: "countered",
+				changedBy: "admin",
+			});
 			return updated as unknown as Quote;
 		},
 
@@ -430,7 +443,13 @@ export function createQuoteController(
 				id,
 				updated as unknown as Record<string, unknown>,
 			);
-			await recordStatusChange(data, id, quote.status, "countered", "admin");
+			await recordStatusChange({
+				data: data,
+				quoteId: id,
+				fromStatus: quote.status,
+				toStatus: "countered",
+				changedBy: "admin",
+			});
 			return updated as unknown as Quote;
 		},
 
@@ -456,14 +475,14 @@ export function createQuoteController(
 				id,
 				updated as unknown as Record<string, unknown>,
 			);
-			await recordStatusChange(
-				data,
-				id,
-				quote.status,
-				"rejected",
-				"admin",
-				reason,
-			);
+			await recordStatusChange({
+				data: data,
+				quoteId: id,
+				fromStatus: quote.status,
+				toStatus: "rejected",
+				changedBy: "admin",
+				reason: reason,
+			});
 			return updated as unknown as Quote;
 		},
 
@@ -483,7 +502,13 @@ export function createQuoteController(
 				id,
 				updated as unknown as Record<string, unknown>,
 			);
-			await recordStatusChange(data, id, "accepted", "converted", "admin");
+			await recordStatusChange({
+				data: data,
+				quoteId: id,
+				fromStatus: "accepted",
+				toStatus: "converted",
+				changedBy: "admin",
+			});
 			return updated as unknown as Quote;
 		},
 
@@ -502,7 +527,13 @@ export function createQuoteController(
 				id,
 				updated as unknown as Record<string, unknown>,
 			);
-			await recordStatusChange(data, id, "countered", "expired", "system");
+			await recordStatusChange({
+				data: data,
+				quoteId: id,
+				fromStatus: "countered",
+				toStatus: "expired",
+				changedBy: "system",
+			});
 			return updated as unknown as Quote;
 		},
 

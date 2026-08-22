@@ -123,10 +123,10 @@ export function RecentlyViewedAdmin() {
 			<div className="hidden md:block">
 				<table className="w-full text-left text-sm">
 					<tbody className="divide-y divide-border">
-						{Array.from({ length: 5 }, (_, i) => (
-							<tr key={`skeleton-${i}`}>
-								{Array.from({ length: 5 }, (_, j) => (
-									<td key={`skeleton-cell-${j}`} className="px-5 py-3">
+						{Array.from({ length: 5 }, (_, _i) => (
+							<tr key={rowKey}>
+								{Array.from({ length: 5 }, (_, _j) => (
+									<td key={cellKey} className="px-5 py-3">
 										<Skeleton className="h-4 rounded" />
 									</td>
 								))}
@@ -136,8 +136,8 @@ export function RecentlyViewedAdmin() {
 				</table>
 			</div>
 			<div className="space-y-3 p-4 md:hidden">
-				{Array.from({ length: 3 }, (_, i) => (
-					<Skeleton key={`mobile-skeleton-${i}`} className="h-16 rounded-lg" />
+				{Array.from({ length: 3 }, (_, _i) => (
+					<Skeleton key={key} className="h-16 rounded-lg" />
 				))}
 			</div>
 		</div>

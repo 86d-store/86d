@@ -1,5 +1,5 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { RecommendationController } from "../../service";
 
 export const getTrending = createStoreEndpoint(
@@ -15,8 +15,8 @@ export const getTrending = createStoreEndpoint(
 			.recommendations as RecommendationController;
 
 		const opts = ctx.context.options as Record<string, unknown>;
-		const defaultTake = Number(opts?.defaultTake);
-		const windowDays = Number(opts?.trendingWindowDays);
+		const defaultTake = Number(opts.defaultTake);
+		const windowDays = Number(opts.trendingWindowDays);
 		const since = Number.isFinite(windowDays)
 			? new Date(Date.now() - windowDays * 86_400_000)
 			: undefined;

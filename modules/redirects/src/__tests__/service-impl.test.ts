@@ -448,7 +448,9 @@ describe("createRedirectController", () => {
 
 		it("does nothing for non-existent id", async () => {
 			// Should not throw
-			await controller.recordHit("non-existent");
+			await expect(
+				controller.recordHit("non-existent"),
+			).resolves.toBeUndefined();
 		});
 	});
 

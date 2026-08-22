@@ -7,8 +7,8 @@ import Link from "next/link";
 
   {props.isLoading ? (
     <div className="flex gap-3 overflow-x-auto">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div key={`skeleton-${i}`} className="flex shrink-0 animate-pulse items-center gap-2">
+      {(["k0", "k1", "k2", "k3"] as const).map((key) => (
+        <div key={key} className="flex shrink-0 animate-pulse items-center gap-2">
           <div className="h-12 w-12 rounded bg-gray-200 dark:bg-gray-700" />
           <div>
             <div className="h-3 w-20 rounded bg-gray-200 dark:bg-gray-700" />

@@ -205,8 +205,8 @@ export function QuoteDetail(props: {
 	}
 
 	const quote = data.quote;
-	const items = quote.items ?? [];
-	const comments = quote.comments ?? [];
+	const items = quote.items;
+	const comments = quote.comments;
 
 	const canSubmit = quote.status === "draft";
 	const canAcceptDecline = quote.status === "countered";

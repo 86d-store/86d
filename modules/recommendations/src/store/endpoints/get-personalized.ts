@@ -1,5 +1,5 @@
 import { createStoreEndpoint } from "@86d-app/core/api";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 import type { RecommendationController } from "../../service";
 
 export const getPersonalized = createStoreEndpoint(
@@ -20,7 +20,7 @@ export const getPersonalized = createStoreEndpoint(
 		}
 
 		const defaultTake = Number(
-			(ctx.context.options as Record<string, unknown>)?.defaultTake,
+			(ctx.context.options as Record<string, unknown>).defaultTake,
 		);
 
 		const recommendations = await controller.getPersonalized(customerId, {

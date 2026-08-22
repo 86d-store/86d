@@ -18,7 +18,6 @@ export type {
 	RecommendationRule,
 	RecommendedProduct,
 } from "./service";
-export { OpenAIEmbeddingProvider };
 
 export interface RecommendationsOptions extends ModuleConfig {
 	/** Default number of recommendations to return. Default: 10. */

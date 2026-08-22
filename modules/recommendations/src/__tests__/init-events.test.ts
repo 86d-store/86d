@@ -312,10 +312,11 @@ describe("init without embeddingProvider", () => {
 
 		const init = mod.init;
 		expect(init).toBeDefined();
-		if (init) {
-			const result = await init({ ...ctx, events: undefined });
-			expect(result).toBeDefined();
+		if (!init) {
+			throw new Error("expected init");
 		}
+		const result = await init({ ...ctx, events: undefined });
+		expect(result).toBeDefined();
 	});
 });
 
