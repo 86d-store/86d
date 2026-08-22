@@ -298,14 +298,16 @@ describe("createInvoiceController", () => {
 			);
 			const sent = await controller.send(inv.id);
 			expect(sent?.dueDate).toBeDefined();
-			if (sent?.issuedAt && sent?.dueDate) {
-				const issued = new Date(sent.issuedAt);
-				const due = new Date(sent.dueDate);
-				const daysDiff = Math.round(
-					(due.getTime() - issued.getTime()) / (1000 * 60 * 60 * 24),
-				);
-				expect(daysDiff).toBe(30);
+			expect(sent?.issuedAt && sent?.dueDate).toBeTruthy();
+			if (!(sent?.issuedAt && sent?.dueDate)) {
+				throw new Error("expected sent?.issuedAt && sent?.dueDate");
 			}
+			const issued = new Date(sent.issuedAt);
+			const due = new Date(sent.dueDate);
+			const daysDiff = Math.round(
+				(due.getTime() - issued.getTime()) / (1000 * 60 * 60 * 24),
+			);
+			expect(daysDiff).toBe(30);
 		});
 
 		it("returns null for missing invoice", async () => {
@@ -443,7 +445,9 @@ describe("createInvoiceController", () => {
 		});
 
 		it("does nothing for missing line item", async () => {
-			await controller.removeLineItem("nonexistent");
+			await expect(
+				controller.removeLineItem("nonexistent"),
+			).resolves.toBeUndefined();
 		});
 	});
 
@@ -574,7 +578,9 @@ describe("createInvoiceController", () => {
 		});
 
 		it("does nothing for missing payment", async () => {
-			await controller.deletePayment("nonexistent");
+			await expect(
+				controller.deletePayment("nonexistent"),
+			).resolves.toBeUndefined();
 		});
 	});
 

@@ -159,14 +159,16 @@ describe("invoices controllers — edge cases", () => {
 			);
 			const sent = await controller.send(inv.id);
 			expect(sent).not.toBeNull();
-			if (sent?.issuedAt && sent?.dueDate) {
-				const issued = new Date(sent.issuedAt);
-				const due = new Date(sent.dueDate);
-				const diffDays = Math.round(
-					(due.getTime() - issued.getTime()) / (1000 * 60 * 60 * 24),
-				);
-				expect(diffDays).toBe(0);
+			expect(sent?.issuedAt && sent?.dueDate).toBeTruthy();
+			if (!(sent?.issuedAt && sent?.dueDate)) {
+				throw new Error("expected sent?.issuedAt && sent?.dueDate");
 			}
+			const issued = new Date(sent.issuedAt);
+			const due = new Date(sent.dueDate);
+			const diffDays = Math.round(
+				(due.getTime() - issued.getTime()) / (1000 * 60 * 60 * 24),
+			);
+			expect(diffDays).toBe(0);
 		});
 
 		it("net_7 sets dueDate 7 days after issuedAt", async () => {
@@ -174,14 +176,15 @@ describe("invoices controllers — edge cases", () => {
 				makeInvoice({ paymentTerms: "net_7" }),
 			);
 			const sent = await controller.send(inv.id);
-			if (sent?.issuedAt && sent?.dueDate) {
-				const diffDays = Math.round(
-					(new Date(sent.dueDate).getTime() -
-						new Date(sent.issuedAt).getTime()) /
-						(1000 * 60 * 60 * 24),
-				);
-				expect(diffDays).toBe(7);
+			expect(sent?.issuedAt && sent?.dueDate).toBeTruthy();
+			if (!(sent?.issuedAt && sent?.dueDate)) {
+				throw new Error("expected sent?.issuedAt && sent?.dueDate");
 			}
+			const diffDays = Math.round(
+				(new Date(sent.dueDate).getTime() - new Date(sent.issuedAt).getTime()) /
+					(1000 * 60 * 60 * 24),
+			);
+			expect(diffDays).toBe(7);
 		});
 
 		it("net_60 sets dueDate 60 days after issuedAt", async () => {
@@ -189,14 +192,15 @@ describe("invoices controllers — edge cases", () => {
 				makeInvoice({ paymentTerms: "net_60" }),
 			);
 			const sent = await controller.send(inv.id);
-			if (sent?.issuedAt && sent?.dueDate) {
-				const diffDays = Math.round(
-					(new Date(sent.dueDate).getTime() -
-						new Date(sent.issuedAt).getTime()) /
-						(1000 * 60 * 60 * 24),
-				);
-				expect(diffDays).toBe(60);
+			expect(sent?.issuedAt && sent?.dueDate).toBeTruthy();
+			if (!(sent?.issuedAt && sent?.dueDate)) {
+				throw new Error("expected sent?.issuedAt && sent?.dueDate");
 			}
+			const diffDays = Math.round(
+				(new Date(sent.dueDate).getTime() - new Date(sent.issuedAt).getTime()) /
+					(1000 * 60 * 60 * 24),
+			);
+			expect(diffDays).toBe(60);
 		});
 
 		it("defaults to due_on_receipt when paymentTerms not specified", async () => {
@@ -410,8 +414,9 @@ describe("invoices controllers — edge cases", () => {
 		});
 
 		it("does nothing for nonexistent payment id", async () => {
-			await controller.deletePayment("no-such-payment");
-			// No error thrown
+			await expect(
+				controller.deletePayment("no-such-payment"),
+			).resolves.toBeUndefined();
 		});
 	});
 

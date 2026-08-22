@@ -102,9 +102,7 @@ function EditInvoiceSheet({ invoice, onSaved, onCancel }: EditSheetProps) {
 	const api = useInvoiceDetailApi();
 	const [customerName, setCustomerName] = useState(invoice.customerName ?? "");
 	const [guestEmail, setGuestEmail] = useState(invoice.guestEmail ?? "");
-	const [paymentTerms, setPaymentTerms] = useState(
-		invoice.paymentTerms ?? "net_30",
-	);
+	const [paymentTerms, setPaymentTerms] = useState(invoice.paymentTerms);
 	const [notes, setNotes] = useState(invoice.notes ?? "");
 	const [internalNotes, setInternalNotes] = useState(
 		invoice.internalNotes ?? "",

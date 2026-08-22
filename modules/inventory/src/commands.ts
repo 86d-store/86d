@@ -1,9 +1,12 @@
-import type { ActorReference, AuthoritySnapshot } from "@86d-app/core/commands";
+import type {
+	ActorReference,
+	AuthoritySnapshot,
+} from "@86d-app/contracts/command";
 import {
 	inventoryStockAdjustedV2,
 	type LockingModuleDataTransaction,
 } from "@86d-app/core/durable-events";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 
 const resourceIdentifier = z.string().min(1).max(200);
 const traceIdentifier = z.string().min(1).max(255);

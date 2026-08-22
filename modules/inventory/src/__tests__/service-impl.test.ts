@@ -793,7 +793,9 @@ describe("event emission", () => {
 			lowStockThreshold: 5,
 		});
 		await ctrl.adjustStock({ productId: "p1", delta: -1 });
-		await ctrl.reserve({ productId: "p1", quantity: 1 });
+		await expect(
+			ctrl.reserve({ productId: "p1", quantity: 1 }),
+		).resolves.toBeUndefined();
 	});
 
 	it("includes variantId and locationId in event payloads", async () => {
@@ -1098,10 +1100,9 @@ describe("getBackInStockSubscribers", () => {
 
 		const subs = await ctrl.getBackInStockSubscribers({ productId: "p1" });
 		expect(subs).toHaveLength(2);
-		expect(subs.map((s) => s.email).sort()).toEqual([
-			"a@example.com",
-			"b@example.com",
-		]);
+		expect(subs.map((s) => s.email).sort((a, b) => a.localeCompare(b))).toEqual(
+			["a@example.com", "b@example.com"],
+		);
 	});
 });
 

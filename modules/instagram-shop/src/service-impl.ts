@@ -127,7 +127,7 @@ export function createInstagramShopController(
 				where: { localProductId },
 				take: 1,
 			});
-			return (matches[0] as unknown as Listing) ?? null;
+			return matches[0] as unknown as Listing;
 		},
 
 		async listListings(params) {
@@ -149,7 +149,7 @@ export function createInstagramShopController(
 			if (!existing) return null;
 
 			const listing = existing as unknown as Listing;
-			const mediaIds = [...(listing.instagramMediaIds ?? [])];
+			const mediaIds = [...listing.instagramMediaIds];
 			if (!mediaIds.includes(mediaId)) {
 				mediaIds.push(mediaId);
 			}
@@ -178,7 +178,7 @@ export function createInstagramShopController(
 			if (!existing) return null;
 
 			const listing = existing as unknown as Listing;
-			const mediaIds = (listing.instagramMediaIds ?? []).filter(
+			const mediaIds = listing.instagramMediaIds.filter(
 				(id: string) => id !== mediaId,
 			);
 
@@ -200,7 +200,7 @@ export function createInstagramShopController(
 			if (!existing) return [];
 
 			const listing = existing as unknown as Listing;
-			return listing.instagramMediaIds ?? [];
+			return listing.instagramMediaIds;
 		},
 
 		async syncCatalog() {
@@ -315,7 +315,7 @@ export function createInstagramShopController(
 				orderBy: { createdAt: "desc" },
 				take: 1,
 			});
-			return (all[0] as unknown as CatalogSync) ?? null;
+			return all[0] as unknown as CatalogSync;
 		},
 
 		async listSyncs(params) {
@@ -381,8 +381,10 @@ export function createInstagramShopController(
 				order.externalOrderId
 			) {
 				try {
-					const items =
-						(order.items as { retailer_id: string; quantity: number }[]) ?? [];
+					const items = order.items as {
+						retailer_id: string;
+						quantity: number;
+					}[];
 					await provider.createShipment(order.externalOrderId, {
 						trackingNumber,
 						carrier: "OTHER",
@@ -540,21 +542,21 @@ export function createInstagramShopController(
 						where: { externalProductId: product.id },
 						take: 1,
 					});
-					const existing = (existingMatches[0] as unknown as Listing) ?? null;
+					const existing = existingMatches[0] as unknown as Listing;
 
 					const now = new Date();
 					const listingData: Listing = {
-						id: existing?.id ?? crypto.randomUUID(),
-						localProductId: existing?.localProductId ?? product.retailer_id,
+						id: existing.id(),
+						localProductId: existing.localProductId,
 						externalProductId: product.id,
 						title: product.name,
 						status: product.visibility === "published" ? "active" : "draft",
 						syncStatus: "synced",
 						lastSyncedAt: now,
 						error: undefined,
-						instagramMediaIds: existing?.instagramMediaIds ?? [],
-						metadata: existing?.metadata ?? {},
-						createdAt: existing?.createdAt ?? now,
+						instagramMediaIds: existing.instagramMediaIds,
+						metadata: existing.metadata,
+						createdAt: existing.createdAt,
 						updatedAt: now,
 					};
 
@@ -585,8 +587,7 @@ export function createInstagramShopController(
 					where: { externalOrderId: metaOrder.id },
 					take: 1,
 				});
-				const existing =
-					(existingMatches[0] as unknown as ChannelOrder) ?? null;
+				const existing = existingMatches[0] as unknown as ChannelOrder;
 
 				const items =
 					metaOrder.items?.data.map((i) => ({
@@ -602,7 +603,7 @@ export function createInstagramShopController(
 				const shippingFee = parseMetaMoney(
 					metaOrder.estimated_payment_details?.shipping?.amount,
 				);
-				const tax = parseMetaMoney(
+				const _tax = parseMetaMoney(
 					metaOrder.estimated_payment_details?.tax?.amount,
 				);
 				const total = parseMetaMoney(
@@ -611,15 +612,15 @@ export function createInstagramShopController(
 
 				const now = new Date();
 				const orderData: ChannelOrder = {
-					id: existing?.id ?? crypto.randomUUID(),
+					id: existing.id(),
 					externalOrderId: metaOrder.id,
-					instagramOrderId: existing?.instagramOrderId ?? metaOrder.id,
-					igUsername: existing?.igUsername,
+					instagramOrderId: existing.instagramOrderId,
+					igUsername: existing.igUsername,
 					status: mapMetaOrderStatus(metaOrder.order_status.state),
 					items,
 					subtotal,
 					shippingFee,
-					platformFee: existing?.platformFee ?? tax,
+					platformFee: existing.platformFee,
 					total,
 					customerName: metaOrder.buyer_details?.name,
 					shippingAddress: metaOrder.shipping_address
@@ -632,10 +633,10 @@ export function createInstagramShopController(
 								postalCode: metaOrder.shipping_address.postal_code,
 								country: metaOrder.shipping_address.country,
 							}
-						: (existing?.shippingAddress ?? {}),
-					trackingNumber: existing?.trackingNumber,
-					trackingUrl: existing?.trackingUrl,
-					createdAt: existing?.createdAt ?? now,
+						: existing.shippingAddress,
+					trackingNumber: existing.trackingNumber,
+					trackingUrl: existing.trackingUrl,
+					createdAt: existing.createdAt,
 					updatedAt: now,
 				};
 

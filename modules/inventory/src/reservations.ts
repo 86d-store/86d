@@ -5,7 +5,7 @@ import type {
 	ModuleTransactionRunner,
 } from "@86d-app/core/durable-events";
 import { inventoryCheckoutV2Capability } from "@86d-app/core/inventory-reservation-capability";
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 
 export type InventoryReservationRequest = z.infer<
 	typeof inventoryCheckoutV2Capability.request
@@ -203,13 +203,18 @@ function accepted(
 	};
 }
 
+type SaveReceiptOptions = {
+	transaction: LockingModuleDataTransaction;
+	request: InventoryReservationRequest;
+	id: string;
+	result: InventoryReservationResult;
+	now: Date;
+};
+
 async function saveReceipt(
-	transaction: LockingModuleDataTransaction,
-	request: InventoryReservationRequest,
-	id: string,
-	result: InventoryReservationResult,
-	now: Date,
+	options: SaveReceiptOptions,
 ): Promise<InventoryReservationResult> {
+	const { transaction, request, id, result, now } = options;
 	const operation = {
 		id: await receiptId(id, request.idempotencyKey),
 		reservationId: id,
@@ -370,74 +375,89 @@ async function reserve(
 ): Promise<InventoryReservationResult> {
 	const storedReservation = await readReservation(transaction, id);
 	if (storedReservation.state === "invalid") {
-		return saveReceipt(
+		return saveReceipt({
 			transaction,
 			request,
 			id,
-			rejected("INVENTORY_STATE_INVALID", "The stored reservation is invalid."),
+			result: rejected(
+				"INVENTORY_STATE_INVALID",
+				"The stored reservation is invalid.",
+			),
 			now,
-		);
+		});
 	}
 	if (storedReservation.state === "present") {
 		const existing = storedReservation.reservation;
 		if (!sameReservedItem(existing, request)) {
-			return saveReceipt(
+			return saveReceipt({
 				transaction,
 				request,
 				id,
-				rejected(
+				result: rejected(
 					"RESERVATION_CONFLICT",
 					"The checkout line is already bound to different inventory.",
 				),
 				now,
-			);
+			});
 		}
 		if (existing.status !== "reserved") {
-			return saveReceipt(
+			return saveReceipt({
 				transaction,
 				request,
 				id,
-				rejected(
+				result: rejected(
 					"RESERVATION_NOT_ACTIVE",
 					"The reservation can no longer be reserved.",
 				),
 				now,
-			);
+			});
 		}
 		if (existing.leaseExpiresAt.getTime() <= now.getTime()) {
 			const expired = await expireReservationState(transaction, existing, now);
 			const result = expired.ok
 				? rejected("RESERVATION_EXPIRED", "The reservation lease expired.")
 				: expired.result;
-			return saveReceipt(transaction, request, id, result, now);
+			return saveReceipt({
+				transaction: transaction,
+				request: request,
+				id: id,
+				result: result,
+				now: now,
+			});
 		}
-		return saveReceipt(
+		return saveReceipt({
 			transaction,
 			request,
 			id,
-			accepted("reserve", existing),
+			result: accepted("reserve", existing),
 			now,
-		);
+		});
 	}
 
 	const stock = await lockInventoryItem(transaction, request);
 	if (stock.state !== "present") {
-		return saveReceipt(transaction, request, id, stockFailure(stock), now);
+		return saveReceipt({
+			transaction: transaction,
+			request: request,
+			id: id,
+			result: stockFailure(stock),
+			now: now,
+		});
 	}
 	const available = Math.max(0, stock.item.quantity - stock.item.reserved);
 	// A durable reservation represents stock held now. Backorder permission is a
 	// separate merchant policy and cannot make unavailable units reservable.
 	if (available < request.quantity) {
-		return saveReceipt(
+		return saveReceipt({
 			transaction,
 			request,
 			id,
-			rejected(
+			result: rejected(
 				"INSUFFICIENT_STOCK",
 				"Inventory cannot reserve the requested quantity.",
 			),
 			now,
-		);
+		});
 	}
 
 	const leaseExpiresAt = new Date(
@@ -468,69 +488,86 @@ async function reserve(
 	};
 	await transaction.upsert("inventoryItem", stock.item.id, updatedStock);
 	await transaction.upsert("inventoryReservation", id, reservation);
-	return saveReceipt(
+	return saveReceipt({
 		transaction,
 		request,
 		id,
-		accepted("reserve", reservation),
+		result: accepted("reserve", reservation),
 		now,
-	);
+	});
 }
 
+type CommitOptions = {
+	transaction: LockingModuleDataTransaction;
+	request: Extract<InventoryReservationRequest, { operation: "commit" }>;
+	id: string;
+	reservation: StoredReservation;
+	now: Date;
+};
+
 async function commit(
-	transaction: LockingModuleDataTransaction,
-	request: Extract<InventoryReservationRequest, { operation: "commit" }>,
-	id: string,
-	reservation: StoredReservation,
-	now: Date,
+	options: CommitOptions,
 ): Promise<InventoryReservationResult> {
+	const { transaction, request, id, reservation, now } = options;
 	if (reservation.status === "committed") {
-		return saveReceipt(
+		return saveReceipt({
 			transaction,
 			request,
 			id,
-			accepted("commit", reservation),
+			result: accepted("commit", reservation),
 			now,
-		);
+		});
 	}
 	if (reservation.status !== "reserved") {
-		return saveReceipt(
+		return saveReceipt({
 			transaction,
 			request,
 			id,
-			rejected(
+			result: rejected(
 				"RESERVATION_NOT_ACTIVE",
 				"Only an active reservation can be committed.",
 			),
 			now,
-		);
+		});
 	}
 	if (reservation.leaseExpiresAt.getTime() <= now.getTime()) {
 		const expired = await expireReservationState(transaction, reservation, now);
 		const result = expired.ok
 			? rejected("RESERVATION_EXPIRED", "The reservation lease expired.")
 			: expired.result;
-		return saveReceipt(transaction, request, id, result, now);
+		return saveReceipt({
+			transaction: transaction,
+			request: request,
+			id: id,
+			result: result,
+			now: now,
+		});
 	}
 
 	const stock = await lockInventoryItem(transaction, reservation);
 	if (stock.state !== "present") {
-		return saveReceipt(transaction, request, id, stockFailure(stock), now);
+		return saveReceipt({
+			transaction: transaction,
+			request: request,
+			id: id,
+			result: stockFailure(stock),
+			now: now,
+		});
 	}
 	if (
 		stock.item.reserved < reservation.quantity ||
 		stock.item.quantity < reservation.quantity
 	) {
-		return saveReceipt(
+		return saveReceipt({
 			transaction,
 			request,
 			id,
-			rejected(
+			result: rejected(
 				"INVENTORY_STATE_INVALID",
 				"Inventory cannot commit the reserved quantity.",
 			),
 			now,
-		);
+		});
 	}
 
 	const updatedStock = {
@@ -547,66 +584,83 @@ async function commit(
 	} satisfies StoredReservation;
 	await transaction.upsert("inventoryItem", stock.item.id, updatedStock);
 	await transaction.upsert("inventoryReservation", id, updatedReservation);
-	return saveReceipt(
+	return saveReceipt({
 		transaction,
 		request,
 		id,
-		accepted("commit", updatedReservation),
+		result: accepted("commit", updatedReservation),
 		now,
-	);
+	});
 }
 
+type ReleaseOptions = {
+	transaction: LockingModuleDataTransaction;
+	request: Extract<InventoryReservationRequest, { operation: "release" }>;
+	id: string;
+	reservation: StoredReservation;
+	now: Date;
+};
+
 async function release(
-	transaction: LockingModuleDataTransaction,
-	request: Extract<InventoryReservationRequest, { operation: "release" }>,
-	id: string,
-	reservation: StoredReservation,
-	now: Date,
+	options: ReleaseOptions,
 ): Promise<InventoryReservationResult> {
+	const { transaction, request, id, reservation, now } = options;
 	if (reservation.status === "released") {
-		return saveReceipt(
+		return saveReceipt({
 			transaction,
 			request,
 			id,
-			accepted("release", reservation),
+			result: accepted("release", reservation),
 			now,
-		);
+		});
 	}
 	if (reservation.status !== "reserved") {
-		return saveReceipt(
+		return saveReceipt({
 			transaction,
 			request,
 			id,
-			rejected(
+			result: rejected(
 				"RESERVATION_NOT_ACTIVE",
 				"Only an active reservation can be released.",
 			),
 			now,
-		);
+		});
 	}
 	if (reservation.leaseExpiresAt.getTime() <= now.getTime()) {
 		const expired = await expireReservationState(transaction, reservation, now);
 		const result = expired.ok
 			? rejected("RESERVATION_EXPIRED", "The reservation lease expired.")
 			: expired.result;
-		return saveReceipt(transaction, request, id, result, now);
+		return saveReceipt({
+			transaction: transaction,
+			request: request,
+			id: id,
+			result: result,
+			now: now,
+		});
 	}
 
 	const stock = await lockInventoryItem(transaction, reservation);
 	if (stock.state !== "present") {
-		return saveReceipt(transaction, request, id, stockFailure(stock), now);
+		return saveReceipt({
+			transaction: transaction,
+			request: request,
+			id: id,
+			result: stockFailure(stock),
+			now: now,
+		});
 	}
 	if (stock.item.reserved < reservation.quantity) {
-		return saveReceipt(
+		return saveReceipt({
 			transaction,
 			request,
 			id,
-			rejected(
+			result: rejected(
 				"INVENTORY_STATE_INVALID",
 				"Reserved stock is lower than the reservation quantity.",
 			),
 			now,
-		);
+		});
 	}
 
 	const updatedStock = {
@@ -622,58 +676,72 @@ async function release(
 	} satisfies StoredReservation;
 	await transaction.upsert("inventoryItem", stock.item.id, updatedStock);
 	await transaction.upsert("inventoryReservation", id, updatedReservation);
-	return saveReceipt(
+	return saveReceipt({
 		transaction,
 		request,
 		id,
-		accepted("release", updatedReservation),
+		result: accepted("release", updatedReservation),
 		now,
-	);
+	});
 }
 
+type ExpireOptions = {
+	transaction: LockingModuleDataTransaction;
+	request: Extract<InventoryReservationRequest, { operation: "expire" }>;
+	id: string;
+	reservation: StoredReservation;
+	now: Date;
+};
+
 async function expire(
-	transaction: LockingModuleDataTransaction,
-	request: Extract<InventoryReservationRequest, { operation: "expire" }>,
-	id: string,
-	reservation: StoredReservation,
-	now: Date,
+	options: ExpireOptions,
 ): Promise<InventoryReservationResult> {
+	const { transaction, request, id, reservation, now } = options;
 	if (reservation.status === "expired") {
-		return saveReceipt(
+		return saveReceipt({
 			transaction,
 			request,
 			id,
-			accepted("expire", reservation),
+			result: accepted("expire", reservation),
 			now,
-		);
+		});
 	}
 	if (reservation.status !== "reserved") {
-		return saveReceipt(
+		return saveReceipt({
 			transaction,
 			request,
 			id,
-			rejected(
+			result: rejected(
 				"RESERVATION_NOT_ACTIVE",
 				"Only an active reservation can expire.",
 			),
 			now,
-		);
+		});
 	}
 	if (reservation.leaseExpiresAt.getTime() > now.getTime()) {
-		return saveReceipt(
+		return saveReceipt({
 			transaction,
 			request,
 			id,
-			rejected("LEASE_ACTIVE", "The reservation lease is still active."),
+			result: rejected(
+				"LEASE_ACTIVE",
+				"The reservation lease is still active.",
+			),
 			now,
-		);
+		});
 	}
 
 	const expired = await expireReservationState(transaction, reservation, now);
 	const result = expired.ok
 		? accepted("expire", expired.reservation)
 		: expired.result;
-	return saveReceipt(transaction, request, id, result, now);
+	return saveReceipt({
+		transaction: transaction,
+		request: request,
+		id: id,
+		result: result,
+		now: now,
+	});
 }
 
 async function executeLocked(
@@ -700,37 +768,55 @@ async function executeLocked(
 
 	const storedReservation = await readReservation(transaction, id);
 	if (storedReservation.state === "missing") {
-		return saveReceipt(
+		return saveReceipt({
 			transaction,
 			request,
 			id,
-			rejected("RESERVATION_NOT_FOUND", "The reservation was not found."),
+			result: rejected(
+				"RESERVATION_NOT_FOUND",
+				"The reservation was not found.",
+			),
 			now,
-		);
+		});
 	}
 	if (storedReservation.state === "invalid") {
-		return saveReceipt(
+		return saveReceipt({
 			transaction,
 			request,
 			id,
-			rejected("INVENTORY_STATE_INVALID", "The stored reservation is invalid."),
+			result: rejected(
+				"INVENTORY_STATE_INVALID",
+				"The stored reservation is invalid.",
+			),
 			now,
-		);
+		});
 	}
 
 	if (request.operation === "commit") {
-		return commit(transaction, request, id, storedReservation.reservation, now);
-	}
-	if (request.operation === "release") {
-		return release(
+		return commit({
 			transaction,
 			request,
 			id,
-			storedReservation.reservation,
+			reservation: storedReservation.reservation,
 			now,
-		);
+		});
 	}
-	return expire(transaction, request, id, storedReservation.reservation, now);
+	if (request.operation === "release") {
+		return release({
+			transaction,
+			request,
+			id,
+			reservation: storedReservation.reservation,
+			now,
+		});
+	}
+	return expire({
+		transaction,
+		request,
+		id,
+		reservation: storedReservation.reservation,
+		now,
+	});
 }
 
 /**

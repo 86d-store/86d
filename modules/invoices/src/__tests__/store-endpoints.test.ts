@@ -97,11 +97,12 @@ describe("store endpoint: track invoice — find by number + email", () => {
 		});
 
 		expect("invoice" in result).toBe(true);
-		if ("invoice" in result) {
-			expect(result.invoice.id).toBe(invoice.id);
-			expect(result.invoice.invoiceNumber).toBe(invoice.invoiceNumber);
-			expect(result.invoice.lineItems).toHaveLength(1);
+		if (!("invoice" in result)) {
+			throw new Error("expected 'invoice' in result");
 		}
+		expect(result.invoice.id).toBe(invoice.id);
+		expect(result.invoice.invoiceNumber).toBe(invoice.invoiceNumber);
+		expect(result.invoice.lineItems).toHaveLength(1);
 	});
 
 	it("returns 404 when email does not match", async () => {
@@ -139,9 +140,10 @@ describe("store endpoint: track invoice — find by number + email", () => {
 		});
 
 		expect("invoice" in result).toBe(true);
-		if ("invoice" in result) {
-			expect(result.invoice.id).toBe(invoice.id);
+		if (!("invoice" in result)) {
+			throw new Error("expected 'invoice' in result");
 		}
+		expect(result.invoice.id).toBe(invoice.id);
 	});
 
 	it("matches email case-insensitively when lookup uses uppercase", async () => {
@@ -156,9 +158,10 @@ describe("store endpoint: track invoice — find by number + email", () => {
 		});
 
 		expect("invoice" in result).toBe(true);
-		if ("invoice" in result) {
-			expect(result.invoice.id).toBe(invoice.id);
+		if (!("invoice" in result)) {
+			throw new Error("expected 'invoice' in result");
 		}
+		expect(result.invoice.id).toBe(invoice.id);
 	});
 });
 
@@ -188,12 +191,13 @@ describe("store endpoint: list my invoices — auth required", () => {
 		});
 
 		expect("invoices" in result).toBe(true);
-		if ("invoices" in result) {
-			expect(result.invoices).toHaveLength(2);
-			expect(result.total).toBe(2);
-			for (const inv of result.invoices) {
-				expect(inv.customerId).toBe("cust_1");
-			}
+		if (!("invoices" in result)) {
+			throw new Error("expected 'invoices' in result");
+		}
+		expect(result.invoices).toHaveLength(2);
+		expect(result.total).toBe(2);
+		for (const inv of result.invoices) {
+			expect(inv.customerId).toBe("cust_1");
 		}
 	});
 
@@ -203,10 +207,11 @@ describe("store endpoint: list my invoices — auth required", () => {
 		});
 
 		expect("invoices" in result).toBe(true);
-		if ("invoices" in result) {
-			expect(result.invoices).toHaveLength(0);
-			expect(result.total).toBe(0);
+		if (!("invoices" in result)) {
+			throw new Error("expected 'invoices' in result");
 		}
+		expect(result.invoices).toHaveLength(0);
+		expect(result.total).toBe(0);
 	});
 
 	it("does not leak another customer's invoices", async () => {
@@ -219,9 +224,10 @@ describe("store endpoint: list my invoices — auth required", () => {
 		});
 
 		expect("invoices" in result).toBe(true);
-		if ("invoices" in result) {
-			expect(result.invoices).toHaveLength(0);
+		if (!("invoices" in result)) {
+			throw new Error("expected 'invoices' in result");
 		}
+		expect(result.invoices).toHaveLength(0);
 	});
 });
 
@@ -256,12 +262,13 @@ describe("store endpoint: get my invoice — auth + ownership check", () => {
 		});
 
 		expect("invoice" in result).toBe(true);
-		if ("invoice" in result) {
-			expect(result.invoice.id).toBe(invoice.id);
-			expect(result.invoice.lineItems).toBeDefined();
-			expect(result.invoice.payments).toBeDefined();
-			expect(result.invoice.creditNotes).toBeDefined();
+		if (!("invoice" in result)) {
+			throw new Error("expected 'invoice' in result");
 		}
+		expect(result.invoice.id).toBe(invoice.id);
+		expect(result.invoice.lineItems).toBeDefined();
+		expect(result.invoice.payments).toBeDefined();
+		expect(result.invoice.creditNotes).toBeDefined();
 	});
 
 	it("returns 404 for another customer's invoice", async () => {
@@ -541,9 +548,10 @@ describe("store endpoint: full lifecycle — create → send → pay → auto-tr
 			email: "jane@example.com",
 		});
 		expect("invoice" in tracked).toBe(true);
-		if ("invoice" in tracked) {
-			expect(tracked.invoice.status).toBe("sent");
+		if (!("invoice" in tracked)) {
+			throw new Error("expected 'invoice' in tracked");
 		}
+		expect(tracked.invoice.status).toBe("sent");
 
 		// Partial payment
 		await ctrl.recordPayment({
@@ -576,9 +584,10 @@ describe("store endpoint: full lifecycle — create → send → pay → auto-tr
 			customerId: "cust_1",
 		});
 		expect("invoices" in myInvoices).toBe(true);
-		if ("invoices" in myInvoices) {
-			expect(myInvoices.invoices).toHaveLength(1);
-			expect(myInvoices.invoices[0].status).toBe("paid");
+		if (!("invoices" in myInvoices)) {
+			throw new Error("expected 'invoices' in myInvoices");
 		}
+		expect(myInvoices.invoices).toHaveLength(1);
+		expect(myInvoices.invoices[0].status).toBe("paid");
 	});
 });

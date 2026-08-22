@@ -52,21 +52,21 @@ export function InvoiceList() {
 		refetch: () => void;
 	};
 
+	const deleteMutation = (
+		api.deleteInvoice as {
+			useMutation: () => {
+				mutateAsync: (p: { id: string }) => Promise<void>;
+			};
+		}
+	).useMutation();
+
 	const handleDelete = useCallback(
 		async (id: string) => {
 			if (!confirm("Delete this invoice?")) return;
-			await (
-				api.deleteInvoice as {
-					useMutation: () => {
-						mutateAsync: (p: { id: string }) => Promise<void>;
-					};
-				}
-			)
-				.useMutation()
-				.mutateAsync({ id });
+			await deleteMutation.mutateAsync({ id });
 			refetch();
 		},
-		[api.deleteInvoice, refetch],
+		[deleteMutation, refetch],
 	);
 
 	if (invoicesError) {
