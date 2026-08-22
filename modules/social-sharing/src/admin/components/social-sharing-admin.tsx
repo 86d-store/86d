@@ -346,11 +346,8 @@ export function SocialSharingAdmin() {
 	// Stats section
 	const statsContent = statsLoading ? (
 		<div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-			{Array.from({ length: 4 }).map((_, i) => (
-				<div
-					key={`stat-skeleton-${i}`}
-					className="rounded-lg border border-border bg-card p-4"
-				>
+			{(["k0", "k1", "k2", "k3"] as const).map((key) => (
+				<div key={key} className="rounded-lg border border-border bg-card p-4">
 					<div className="h-3 w-16 animate-pulse rounded bg-muted" />
 					<div className="mt-2 h-6 w-10 animate-pulse rounded bg-muted" />
 				</div>
@@ -384,9 +381,9 @@ export function SocialSharingAdmin() {
 	// Top shared content
 	const topContent = topLoading ? (
 		<div className="space-y-2">
-			{Array.from({ length: 3 }).map((_, i) => (
+			{(["k0", "k1", "k2"] as const).map((key) => (
 				<div
-					key={`top-skeleton-${i}`}
+					key={key}
 					className="flex items-center justify-between rounded-md border border-border px-4 py-3"
 				>
 					<div className="h-4 w-32 animate-pulse rounded bg-muted" />
@@ -423,10 +420,10 @@ export function SocialSharingAdmin() {
 
 	// Table body
 	const tableBody = sharesLoading ? (
-		Array.from({ length: 5 }).map((_, i) => (
-			<tr key={`skeleton-${i}`}>
-				{Array.from({ length: 6 }).map((_, j) => (
-					<td key={`skeleton-cell-${j}`} className="px-4 py-3">
+		(["k0", "k1", "k2", "k3", "k4"] as const).map((_key) => (
+			<tr key={rowKey}>
+				{(["k0", "k1", "k2", "k3", "k4", "k5"] as const).map((_key) => (
+					<td key={cellKey} className="px-4 py-3">
 						<div className="h-4 w-24 animate-pulse rounded bg-muted" />
 					</td>
 				))}

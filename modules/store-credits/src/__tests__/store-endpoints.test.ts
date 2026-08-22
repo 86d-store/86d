@@ -92,10 +92,11 @@ describe("get-balance (GET /store-credits/balance)", () => {
 			userId: "cust_1",
 		});
 		expect("balance" in result).toBe(true);
-		if ("balance" in result) {
-			expect(result.balance).toBe(0);
-			expect(result.currency).toBe("USD");
+		if (!("balance" in result)) {
+			throw new Error("expected 'balance' in result");
 		}
+		expect(result.balance).toBe(0);
+		expect(result.currency).toBe("USD");
 	});
 
 	it("returns current balance after credits", async () => {
@@ -109,10 +110,12 @@ describe("get-balance (GET /store-credits/balance)", () => {
 		const result = await simulateGetBalance(controller, {
 			userId: "cust_1",
 		});
-		if ("balance" in result) {
-			expect(result.balance).toBe(5000);
-			expect(result.lifetimeCredited).toBe(5000);
+		expect("balance" in result).toBeTruthy();
+		if (!("balance" in result)) {
+			throw new Error("expected 'balance' in result");
 		}
+		expect(result.balance).toBe(5000);
+		expect(result.lifetimeCredited).toBe(5000);
 	});
 });
 
@@ -142,9 +145,10 @@ describe("list-transactions (GET /store-credits/transactions)", () => {
 			{ userId: "cust_1" },
 		);
 		expect("transactions" in result).toBe(true);
-		if ("transactions" in result) {
-			expect(result.transactions).toHaveLength(2);
+		if (!("transactions" in result)) {
+			throw new Error("expected 'transactions' in result");
 		}
+		expect(result.transactions).toHaveLength(2);
 	});
 
 	it("returns empty for customer with no account", async () => {
@@ -153,9 +157,11 @@ describe("list-transactions (GET /store-credits/transactions)", () => {
 			{},
 			{ userId: "cust_new" },
 		);
-		if ("transactions" in result) {
-			expect(result.transactions).toHaveLength(0);
+		expect("transactions" in result).toBeTruthy();
+		if (!("transactions" in result)) {
+			throw new Error("expected 'transactions' in result");
 		}
+		expect(result.transactions).toHaveLength(0);
 	});
 
 	it("paginates with take/skip", async () => {
@@ -179,9 +185,11 @@ describe("list-transactions (GET /store-credits/transactions)", () => {
 			{ take: 2, skip: 0 },
 			{ userId: "cust_1" },
 		);
-		if ("transactions" in page1) {
-			expect(page1.transactions).toHaveLength(2);
+		expect("transactions" in page1).toBeTruthy();
+		if (!("transactions" in page1)) {
+			throw new Error("expected 'transactions' in page1");
 		}
+		expect(page1.transactions).toHaveLength(2);
 	});
 });
 
@@ -209,10 +217,11 @@ describe("apply-credit (POST /store-credits/apply)", () => {
 			{ userId: "cust_1" },
 		);
 		expect("transaction" in result).toBe(true);
-		if ("transaction" in result) {
-			expect(result.transaction.amount).toBe(2000);
-			expect(result.remainingBalance).toBe(3000);
+		if (!("transaction" in result)) {
+			throw new Error("expected 'transaction' in result");
 		}
+		expect(result.transaction.amount).toBe(2000);
+		expect(result.remainingBalance).toBe(3000);
 	});
 
 	it("rejects when insufficient balance", async () => {
@@ -273,9 +282,11 @@ describe("cross-endpoint lifecycle", () => {
 
 		// Get initial balance (auto-creates)
 		const initial = await simulateGetBalance(controller, session);
-		if ("balance" in initial) {
-			expect(initial.balance).toBe(0);
+		expect("balance" in initial).toBeTruthy();
+		if (!("balance" in initial)) {
+			throw new Error("expected 'balance' in initial");
 		}
+		expect(initial.balance).toBe(0);
 
 		// Admin issues credit
 		await controller.credit({
@@ -287,9 +298,11 @@ describe("cross-endpoint lifecycle", () => {
 
 		// Check balance
 		const afterCredit = await simulateGetBalance(controller, session);
-		if ("balance" in afterCredit) {
-			expect(afterCredit.balance).toBe(10000);
+		expect("balance" in afterCredit).toBeTruthy();
+		if (!("balance" in afterCredit)) {
+			throw new Error("expected 'balance' in afterCredit");
 		}
+		expect(afterCredit.balance).toBe(10000);
 
 		// Apply to order
 		const applied = await simulateApplyCredit(
@@ -297,21 +310,27 @@ describe("cross-endpoint lifecycle", () => {
 			{ amount: 3500, orderId: "order_42" },
 			session,
 		);
-		if ("transaction" in applied) {
-			expect(applied.remainingBalance).toBe(6500);
+		expect("transaction" in applied).toBeTruthy();
+		if (!("transaction" in applied)) {
+			throw new Error("expected 'transaction' in applied");
 		}
+		expect(applied.remainingBalance).toBe(6500);
 
 		// Verify transactions
 		const txns = await simulateListTransactions(controller, {}, session);
-		if ("transactions" in txns) {
-			expect(txns.transactions).toHaveLength(2); // credit + debit
+		expect("transactions" in txns).toBeTruthy();
+		if (!("transactions" in txns)) {
+			throw new Error("expected 'transactions' in txns");
 		}
+		expect(txns.transactions).toHaveLength(2); // credit + debit
 
 		// Verify final balance
 		const final = await simulateGetBalance(controller, session);
-		if ("balance" in final) {
-			expect(final.balance).toBe(6500);
-			expect(final.lifetimeDebited).toBe(3500);
+		expect("balance" in final).toBeTruthy();
+		if (!("balance" in final)) {
+			throw new Error("expected 'balance' in final");
 		}
+		expect(final.balance).toBe(6500);
+		expect(final.lifetimeDebited).toBe(3500);
 	});
 });

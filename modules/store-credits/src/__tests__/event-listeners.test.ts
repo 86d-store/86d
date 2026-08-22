@@ -167,7 +167,9 @@ describe("store-credits — referrals.referral_completed listener", () => {
 	});
 
 	it("does nothing when events is undefined", async () => {
-		await initModule(storeCredits(), mockData, undefined);
+		await expect(
+			initModule(storeCredits(), mockData, undefined),
+		).resolves.toBeUndefined();
 		// No error thrown — graceful no-op
 	});
 });

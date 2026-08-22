@@ -80,7 +80,7 @@ export class SquarePaymentProvider implements PaymentProvider {
 		const json: unknown = await res.json();
 		if (!res.ok) {
 			const err = json as SquareErrorResponse;
-			const detail = err.errors?.[0]?.detail ?? `HTTP ${res.status}`;
+			const detail = err.errors[0]?.detail ?? `HTTP ${res.status}`;
 			throw new Error(`Square error: ${detail}`);
 		}
 		return json as T;

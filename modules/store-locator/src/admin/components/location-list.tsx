@@ -17,7 +17,7 @@ function useStoreLocatorAdminApi() {
 function extractError(err: unknown): string {
 	if (err && typeof err === "object" && "body" in err) {
 		const body = (err as { body: { message?: string } }).body;
-		return body?.message ?? "An error occurred";
+		return body.message ?? "An error occurred";
 	}
 	return "An error occurred";
 }

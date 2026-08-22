@@ -26,8 +26,7 @@ export function StoreCreditTransactions({ limit }: { limit?: number }) {
 	});
 
 	const result = data as Record<string, unknown> | undefined;
-	const transactions: Transaction[] =
-		(result?.transactions as Transaction[]) ?? [];
+	const transactions: Transaction[] = result?.transactions as Transaction[];
 
 	return (
 		<StoreCreditTransactionsTemplate

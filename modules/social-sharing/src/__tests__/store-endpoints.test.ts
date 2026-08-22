@@ -89,10 +89,11 @@ describe("store endpoint: record share", () => {
 		});
 
 		expect("event" in result).toBe(true);
-		if ("event" in result) {
-			expect(result.event.network).toBe("twitter");
-			expect(result.event.targetId).toBe("prod_1");
+		if (!("event" in result)) {
+			throw new Error("expected 'event' in result");
 		}
+		expect(result.event.network).toBe("twitter");
+		expect(result.event.targetId).toBe("prod_1");
 	});
 });
 

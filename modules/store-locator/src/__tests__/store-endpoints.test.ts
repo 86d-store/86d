@@ -163,9 +163,10 @@ describe("store endpoint: get location by slug", () => {
 		const result = await simulateGetLocation(data, "flagship");
 
 		expect("location" in result).toBe(true);
-		if ("location" in result) {
-			expect(result.location.name).toBe("Flagship");
+		if (!("location" in result)) {
+			throw new Error("expected 'location' in result");
 		}
+		expect(result.location.name).toBe("Flagship");
 	});
 
 	it("returns 404 for inactive location", async () => {

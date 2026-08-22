@@ -19,7 +19,7 @@ function useStoreLocatorAdminApi() {
 function extractError(err: unknown): string {
 	if (err && typeof err === "object" && "body" in err) {
 		const body = (err as { body: { message?: string } }).body;
-		return body?.message ?? "An error occurred";
+		return body.message ?? "An error occurred";
 	}
 	return "An error occurred";
 }
@@ -86,21 +86,21 @@ export function LocationForm({ locationId }: { locationId?: string }) {
 		hydrated.current = true;
 		const loc = locationData.location;
 		setForm({
-			name: (loc.name as string) ?? "",
-			slug: (loc.slug as string) ?? "",
-			description: (loc.description as string) ?? "",
-			address: (loc.address as string) ?? "",
-			city: (loc.city as string) ?? "",
-			state: (loc.state as string) ?? "",
-			postalCode: (loc.postalCode as string) ?? "",
-			country: (loc.country as string) ?? "",
+			name: loc.name as string,
+			slug: loc.slug as string,
+			description: loc.description as string,
+			address: loc.address as string,
+			city: loc.city as string,
+			state: loc.state as string,
+			postalCode: loc.postalCode as string,
+			country: loc.country as string,
 			latitude: String(loc.latitude ?? ""),
 			longitude: String(loc.longitude ?? ""),
-			phone: (loc.phone as string) ?? "",
-			email: (loc.email as string) ?? "",
-			website: (loc.website as string) ?? "",
-			imageUrl: (loc.imageUrl as string) ?? "",
-			region: (loc.region as string) ?? "",
+			phone: loc.phone as string,
+			email: loc.email as string,
+			website: loc.website as string,
+			imageUrl: loc.imageUrl as string,
+			region: loc.region as string,
 			pickupEnabled: Boolean(loc.pickupEnabled),
 			isFeatured: Boolean(loc.isFeatured),
 		});

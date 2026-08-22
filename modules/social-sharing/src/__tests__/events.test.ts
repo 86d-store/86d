@@ -141,7 +141,9 @@ describe("no events without emitter", () => {
 			network: "twitter",
 			url: "https://example.com/1",
 		});
-		await ctrl.updateSettings({ enabledNetworks: ["twitter"] });
+		await expect(
+			ctrl.updateSettings({ enabledNetworks: ["twitter"] }),
+		).resolves.toBeUndefined();
 
 		// No errors thrown
 	});

@@ -689,12 +689,14 @@ describe("store-locator controllers", () => {
 			expect(brooklynMi).toBeDefined();
 
 			// Miles should be less than km (1 km = 0.621371 mi)
-			if (brooklynKm && brooklynMi) {
-				expect(brooklynMi.distance).toBeLessThan(brooklynKm.distance);
-				// Check the conversion factor is approximately correct
-				const ratio = brooklynMi.distance / brooklynKm.distance;
-				expect(ratio).toBeCloseTo(0.621371, 2);
+			expect(brooklynKm && brooklynMi).toBeTruthy();
+			if (!(brooklynKm && brooklynMi)) {
+				throw new Error("expected brooklynKm && brooklynMi");
 			}
+			expect(brooklynMi.distance).toBeLessThan(brooklynKm.distance);
+			// Check the conversion factor is approximately correct
+			const ratio = brooklynMi.distance / brooklynKm.distance;
+			expect(ratio).toBeCloseTo(0.621371, 2);
 		});
 
 		it("filters radius in miles when unit is 'mi'", async () => {
@@ -818,10 +820,11 @@ describe("store-locator controllers", () => {
 
 			const nearby = results.find((r) => r.name === "Nearby");
 			expect(nearby).toBeDefined();
-			if (nearby) {
-				const decimalPart = String(nearby.distance).split(".")[1] ?? "";
-				expect(decimalPart.length).toBeLessThanOrEqual(2);
+			if (!nearby) {
+				throw new Error("expected nearby");
 			}
+			const decimalPart = String(nearby.distance).split(".")[1] ?? "";
+			expect(decimalPart.length).toBeLessThanOrEqual(2);
 		});
 
 		it("returns empty array when no locations are within radius", async () => {
@@ -862,10 +865,11 @@ describe("store-locator controllers", () => {
 			expect(laResult).toBeDefined();
 
 			// NYC to LA is approximately 3,944 km
-			if (laResult) {
-				expect(laResult.distance).toBeGreaterThan(3800);
-				expect(laResult.distance).toBeLessThan(4100);
+			if (!laResult) {
+				throw new Error("expected laResult");
 			}
+			expect(laResult.distance).toBeGreaterThan(3800);
+			expect(laResult.distance).toBeLessThan(4100);
 		});
 	});
 

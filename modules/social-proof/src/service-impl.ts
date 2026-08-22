@@ -206,7 +206,7 @@ export function createSocialProofController(
 
 		async getBadge(id) {
 			const raw = await data.get("trustBadge", id);
-			return (raw as unknown as TrustBadge) ?? null;
+			return raw as unknown as TrustBadge;
 		},
 
 		async updateBadge(id, params) {

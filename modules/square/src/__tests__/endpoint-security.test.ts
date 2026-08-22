@@ -401,7 +401,7 @@ describe("square endpoint security", () => {
 			});
 			const call = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
 			const headers = call?.[1]?.headers as Record<string, string>;
-			expect(headers?.Authorization).toBe("Bearer sq_secret_token");
+			expect(headers.Authorization).toBe("Bearer sq_secret_token");
 		});
 
 		it("derives deterministic idempotency_key from nonce for retry safety", async () => {

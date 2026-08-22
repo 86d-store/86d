@@ -29,7 +29,7 @@
   {props.recentPurchases?.length > 0 && (
     <div className="text-muted-foreground text-xs">
       {props.recentPurchases.map((purchase, i) => (
-        <span key={i} className="after:content-['_·_'] last:after:content-none">
+        <span key={purchase.id} className="after:content-['_·_'] last:after:content-none">
           Someone{purchase.city ? ` in ${purchase.city}` : ""} purchased{purchase.quantity > 1 ? ` ${purchase.quantity}` : ""}
         </span>
       ))}

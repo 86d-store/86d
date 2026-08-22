@@ -17,9 +17,9 @@ export function StoreCreditBalance() {
 
 	return (
 		<StoreCreditBalanceTemplate
-			balance={(result?.balance as number) ?? 0}
-			currency={(result?.currency as string) ?? "USD"}
-			status={(result?.status as string) ?? "active"}
+			balance={result?.balance as number}
+			currency={result?.currency as string}
+			status={result?.status as string}
 			isLoading={isLoading}
 			error={error ? "Unable to load store credit balance." : ""}
 			formatCurrency={formatCurrency}

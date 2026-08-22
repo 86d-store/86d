@@ -1,10 +1,6 @@
 import type { Module, ModuleConfig } from "@86d-app/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
-import { SquarePaymentProvider } from "./provider";
 import { createStoreEndpoints } from "./store/endpoints/routes";
-
-export { SquarePaymentProvider };
-
 export interface SquareOptions extends ModuleConfig {
 	accessToken: string;
 	webhookSignatureKey?: string | undefined;

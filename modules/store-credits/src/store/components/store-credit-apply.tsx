@@ -28,9 +28,9 @@ export function StoreCreditApply({
 	);
 
 	const balanceResult = balanceData as Record<string, unknown> | undefined;
-	const balance: number = (balanceResult?.balance as number) ?? 0;
-	const currency: string = (balanceResult?.currency as string) ?? "USD";
-	const status: string = (balanceResult?.status as string) ?? "active";
+	const balance: number = balanceResult?.balance as number;
+	const currency: string = balanceResult?.currency as string;
+	const status: string = balanceResult?.status as string;
 
 	const applyMutation = api.apply.useMutation({
 		onError: (err: Error) => {
@@ -40,8 +40,8 @@ export function StoreCreditApply({
 			const transaction = data.transaction as
 				| Record<string, unknown>
 				| undefined;
-			const amountApplied = (transaction?.amount as number) ?? 0;
-			const remainingBalance = (data.remainingBalance as number) ?? 0;
+			const amountApplied = transaction?.amount as number;
+			const remainingBalance = data.remainingBalance as number;
 			setApplied({ amount: amountApplied, remaining: remainingBalance });
 			onApplied?.(amountApplied, remainingBalance);
 		},

@@ -70,13 +70,20 @@ function createTestContext() {
 }
 
 /** Seed a payment intent with a specific providerIntentId. */
-async function seedIntent(
-	data: ReturnType<typeof createMockDataService>,
-	payments: ReturnType<typeof createPaymentController>,
-	providerIntentId: string,
-	amount = 2000,
-	status = "pending",
-) {
+async function seedIntent(options: {
+	data: ReturnType<typeof createMockDataService>;
+	payments: ReturnType<typeof createPaymentController>;
+	providerIntentId: string;
+	amount?: number;
+	status?: string;
+}) {
+	const {
+		data,
+		payments,
+		providerIntentId,
+		amount = 2000,
+		status = "pending",
+	} = options;
 	const intent = await payments.createIntent({ amount });
 	await data.upsert("paymentIntent", intent.id, {
 		...intent,
@@ -183,7 +190,11 @@ describe("createSquareWebhook — event handling", () => {
 
 	it("handles payment.completed and emits payment.completed", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(data, payments, "SQ_PAY_123");
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "SQ_PAY_123",
+		});
 
 		const body = JSON.stringify({
 			type: "payment.completed",
@@ -209,7 +220,11 @@ describe("createSquareWebhook — event handling", () => {
 
 	it("handles payment.failed and emits payment.failed", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(data, payments, "SQ_FAIL_123");
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "SQ_FAIL_123",
+		});
 
 		const body = JSON.stringify({
 			type: "payment.failed",
@@ -230,13 +245,13 @@ describe("createSquareWebhook — event handling", () => {
 
 	it("handles refund.completed and emits payment.refunded", async () => {
 		const { data, payments, context } = createTestContext();
-		const intent = await seedIntent(
-			data,
-			payments,
-			"SQ_REFUND_PAY",
-			4000,
-			"succeeded",
-		);
+		const intent = await seedIntent({
+			data: data,
+			payments: payments,
+			providerIntentId: "SQ_REFUND_PAY",
+			amount: 4000,
+			status: "succeeded",
+		});
 
 		const body = JSON.stringify({
 			type: "refund.completed",
