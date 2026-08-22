@@ -5,11 +5,12 @@ import {
 	PayPalScriptProvider,
 	usePayPalScriptReducer,
 } from "@paypal/react-paypal-js";
+import { getProcessEnv } from "env/process-env";
 
 // ─── Check if PayPal is configured ──────────────────────────────────
 
 export function isPayPalConfigured(): boolean {
-	return !!process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+	return !!getProcessEnv("NEXT_PUBLIC_PAYPAL_CLIENT_ID");
 }
 
 // ─── Inner buttons (must be inside PayPalScriptProvider) ────────────
@@ -89,7 +90,7 @@ export function PayPalPaymentForm({
 	setProcessing,
 	onBack,
 }: PayPalPaymentFormProps) {
-	const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? "";
+	const clientId = getProcessEnv("NEXT_PUBLIC_PAYPAL_CLIENT_ID") ?? "";
 
 	return (
 		<div className="mb-6 rounded-lg border border-border/40 p-5">

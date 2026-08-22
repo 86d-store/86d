@@ -1,5 +1,6 @@
 "use client";
 
+import { getProcessEnv } from "env/process-env";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // ─── Square Web Payments SDK type declarations ───────────────────────
@@ -61,8 +62,8 @@ function loadSquareScript(sandbox: boolean): Promise<void> {
 
 export function isSquareConfigured(): boolean {
 	return (
-		!!process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID &&
-		!!process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID
+		!!getProcessEnv("NEXT_PUBLIC_SQUARE_APPLICATION_ID") &&
+		!!getProcessEnv("NEXT_PUBLIC_SQUARE_LOCATION_ID")
 	);
 }
 
@@ -83,17 +84,19 @@ export function SquarePaymentForm({
 	setProcessing,
 	onBack,
 }: SquarePaymentFormProps) {
-	const containerRef = useRef<HTMLDivElement>(null);
-	const cardRef = useRef<SquareCard | null>(null);
+	const containerRef = useRef<HTMLDivElement | null>(null);
+	const [card, setCard] = useState<SquareCard | null>(null);
 	const [ready, setReady] = useState(false);
 	const [loading, setLoading] = useState(true);
 
-	const applicationId = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID ?? "";
-	const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID ?? "";
+	const applicationId =
+		getProcessEnv("NEXT_PUBLIC_SQUARE_APPLICATION_ID") ?? "";
+	const locationId = getProcessEnv("NEXT_PUBLIC_SQUARE_LOCATION_ID") ?? "";
 	const isSandbox = applicationId.startsWith("sandbox-");
 
 	useEffect(() => {
 		let cancelled = false;
+		let active: SquareCard | null = null;
 
 		async function init() {
 			if (!applicationId || !locationId) {
@@ -118,7 +121,8 @@ export function SquarePaymentForm({
 				}
 
 				await card.attach(containerRef.current);
-				cardRef.current = card;
+				active = card;
+				setCard(card);
 				setReady(true);
 			} catch (err) {
 				if (!cancelled) {
@@ -139,15 +143,16 @@ export function SquarePaymentForm({
 
 		return () => {
 			cancelled = true;
-			if (cardRef.current) {
-				void cardRef.current.destroy();
-				cardRef.current = null;
+			if (active) {
+				void active.destroy();
+				active = null;
 			}
+			setCard(null);
 		};
 	}, [applicationId, locationId, isSandbox, onError]);
 
 	const handleSubmit = useCallback(async () => {
-		if (!cardRef.current) {
+		if (!card) {
 			onError("Payment form is not ready. Please wait.");
 			return;
 		}
@@ -155,7 +160,7 @@ export function SquarePaymentForm({
 		setProcessing(true);
 
 		try {
-			const result = await cardRef.current.tokenize();
+			const result = await card.tokenize();
 			if (result.status === "OK" && result.token) {
 				onNonce(result.token);
 			} else {
@@ -173,7 +178,7 @@ export function SquarePaymentForm({
 			onError(message);
 			setProcessing(false);
 		}
-	}, [onNonce, onError, setProcessing]);
+	}, [card, onNonce, onError, setProcessing]);
 
 	return (
 		<div className="mb-6 rounded-lg border border-border/40 p-5">

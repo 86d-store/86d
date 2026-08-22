@@ -5,7 +5,7 @@ import { createMockTransactionRunner } from "@86d-app/core/test-utils";
 import {
 	type CatalogRevisionContent,
 	digestCatalogRevisionContent,
-} from "@86d-app/products";
+} from "@86d-app/products/catalog-revisions";
 import {
 	createInMemoryCommandPersistence,
 	type MemoryCommandTransaction,

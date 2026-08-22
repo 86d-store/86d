@@ -1,7 +1,6 @@
 "use client";
 
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
-
 import {
 	type ButtonVariantProps,
 	buttonVariants,
@@ -23,4 +22,4 @@ function Button({
 	);
 }
 
-export { Button, buttonVariants };
+export { Button };

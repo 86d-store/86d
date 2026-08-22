@@ -27,7 +27,7 @@ export function SignUpForm() {
 			if (!res.ok) {
 				const data = await res.json().catch(() => null);
 				throw new Error(
-					(data as { message?: string })?.message ?? "Could not create account",
+					(data as { message?: string }).message ?? "Could not create account",
 				);
 			}
 

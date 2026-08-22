@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { getProcessEnv, setProcessEnv } from "env/process-env";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 const secretCanary = "sk_live_remote_settings_must_not_be_applied";
@@ -133,17 +134,17 @@ vi.mock("lib/notification-settings", () => ({
 }));
 
 describe("Store Runtime remote config containment", () => {
-	const originalResendApiKey = process.env.RESEND_API_KEY;
+	const originalResendApiKey = getProcessEnv("RESEND_API_KEY");
 
 	beforeAll(() => {
-		process.env.RESEND_API_KEY = "configured-for-test";
+		setProcessEnv("RESEND_API_KEY", "configured-for-test");
 	});
 
 	afterAll(() => {
 		if (originalResendApiKey === undefined) {
-			delete process.env.RESEND_API_KEY;
+			setProcessEnv("RESEND_API_KEY", undefined);
 		} else {
-			process.env.RESEND_API_KEY = originalResendApiKey;
+			setProcessEnv("RESEND_API_KEY", originalResendApiKey);
 		}
 	});
 

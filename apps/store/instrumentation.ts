@@ -1,13 +1,14 @@
-import { captureRequestError as onRequestError } from "@sentry/nextjs";
+import { captureRequestError } from "@sentry/nextjs";
+import { getProcessEnv } from "env/process-env";
+
+export const onRequestError = captureRequestError;
 
 export async function register() {
-	if (process.env.NEXT_RUNTIME === "nodejs") {
+	if (getProcessEnv("NEXT_RUNTIME") === "nodejs") {
 		await import("./sentry.server.config");
 	}
 
-	if (process.env.NEXT_RUNTIME === "edge") {
+	if (getProcessEnv("NEXT_RUNTIME") === "edge") {
 		await import("./sentry.edge.config");
 	}
 }
-
-export { onRequestError };

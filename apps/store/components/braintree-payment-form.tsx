@@ -82,6 +82,7 @@ export function BraintreePaymentForm({
 
 	useEffect(() => {
 		let cancelled = false;
+		let instance: BraintreeDropin | null = null;
 
 		async function init() {
 			try {
@@ -89,15 +90,16 @@ export function BraintreePaymentForm({
 				if (cancelled || !containerRef.current || !window.braintree?.dropin) {
 					return;
 				}
-				const instance = await window.braintree.dropin.create({
+				const created = await window.braintree.dropin.create({
 					authorization: clientToken,
 					container: containerRef.current,
 				});
 				if (cancelled) {
-					void instance.teardown();
+					void created.teardown();
 					return;
 				}
-				dropinRef.current = instance;
+				instance = created;
+				dropinRef.current = created;
 				setReady(true);
 			} catch (err) {
 				if (!cancelled) {
@@ -118,15 +120,15 @@ export function BraintreePaymentForm({
 
 		return () => {
 			cancelled = true;
-			if (dropinRef.current) {
-				void dropinRef.current.teardown();
+			if (instance) {
+				void instance.teardown();
 				dropinRef.current = null;
 			}
 		};
 	}, [clientToken, onError]);
 
 	const handleSubmit = useCallback(async () => {
-		if (!dropinRef.current) {
+		if (!ready || !dropinRef.current) {
 			onError("Payment form is not ready. Please wait.");
 			return;
 		}
@@ -144,7 +146,7 @@ export function BraintreePaymentForm({
 			onError(message);
 			setProcessing(false);
 		}
-	}, [onNonce, onError, setProcessing]);
+	}, [onNonce, onError, setProcessing, ready]);
 
 	return (
 		<div className="mb-6 rounded-lg border border-border/40 p-5">

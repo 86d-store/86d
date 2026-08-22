@@ -7,6 +7,7 @@ import {
 	useStripe,
 } from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
+import { getProcessEnv } from "env/process-env";
 import { useTheme } from "next-themes";
 import { useCallback, useRef, useState } from "react";
 
@@ -16,7 +17,7 @@ let stripePromise: Promise<Stripe | null> | null = null;
 
 function getStripe(): Promise<Stripe | null> {
 	if (!stripePromise) {
-		const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+		const key = getProcessEnv("NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY");
 		if (!key) return Promise.resolve(null);
 		stripePromise = loadStripe(key);
 	}
@@ -28,7 +29,7 @@ function getStripe(): Promise<Stripe | null> {
  * Use this to decide whether to render StripePaymentForm or the demo fallback.
  */
 export function isStripeConfigured(): boolean {
-	return !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+	return !!getProcessEnv("NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY");
 }
 
 // ─── Inner form (must be inside <Elements>) ─────────────────────────

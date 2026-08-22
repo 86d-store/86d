@@ -3,6 +3,7 @@
 import { useModuleClient } from "@86d-app/core/client/provider";
 import { STORE_SEARCH_CONTRIBUTORS } from "generated/api";
 import { useAnalytics } from "hooks/use-analytics";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -93,12 +94,37 @@ function groupByGroup(
 
 // ── Component ────────────────────────────────────────────────────────────────
 
+function ContributorQueryBridge({
+	moduleId,
+	path,
+	searchParams,
+	onUpdate,
+}: {
+	moduleId: string;
+	path: string;
+	searchParams: { q: string; limit: string };
+	onUpdate: (
+		moduleId: string,
+		state: { data: unknown; isLoading: boolean; isError: boolean },
+	) => void;
+}) {
+	const client = useModuleClient();
+	const query = client.module(moduleId).store[path].useQuery(searchParams);
+	useEffect(() => {
+		onUpdate(moduleId, {
+			data: query.data,
+			isLoading: query.isLoading,
+			isError: query.isError,
+		});
+	}, [moduleId, onUpdate, query.data, query.isError, query.isLoading]);
+	return null;
+}
+
 export function StoreSearchCommand() {
 	const [open, setOpen] = useState(false);
 	const [search, setSearch] = useState("");
 	const [debouncedSearch, setDebouncedSearch] = useState("");
 	const router = useRouter();
-	const client = useModuleClient();
 	const { track } = useAnalytics();
 	const lastTracked = useRef("");
 
@@ -107,22 +133,46 @@ export function StoreSearchCommand() {
 		[debouncedSearch],
 	);
 
-	const contributorQueries = STORE_SEARCH_CONTRIBUTORS.map(
-		({ moduleId, path }) =>
-			client.module(moduleId).store[path].useQuery(searchParams),
+	const [contributorState, setContributorState] = useState<
+		Record<string, { data: unknown; isLoading: boolean; isError: boolean }>
+	>({});
+	const onContributorUpdate = useCallback(
+		(
+			moduleId: string,
+			state: { data: unknown; isLoading: boolean; isError: boolean },
+		) => {
+			setContributorState((prev) => {
+				const existing = prev[moduleId];
+				if (
+					existing &&
+					existing.data === state.data &&
+					existing.isLoading === state.isLoading &&
+					existing.isError === state.isError
+				) {
+					return prev;
+				}
+				return { ...prev, [moduleId]: state };
+			});
+		},
+		[],
 	);
-
-	const isLoading = contributorQueries.some((q) => q.isLoading);
-	const isError = contributorQueries.some((q) => q.isError);
-
+	const isLoading = STORE_SEARCH_CONTRIBUTORS.some(({ moduleId }) => {
+		const q = contributorState[moduleId];
+		return q?.isLoading ?? true;
+	});
+	const isError = STORE_SEARCH_CONTRIBUTORS.some(
+		({ moduleId }) => contributorState[moduleId]?.isError ?? false,
+	);
 	const { results, grouped } = useMemo(() => {
 		const r: StoreSearchResult[] = [];
-		for (const q of contributorQueries) {
-			const data = q.data as { results?: StoreSearchResult[] } | undefined;
+		for (const { moduleId } of STORE_SEARCH_CONTRIBUTORS) {
+			const data = contributorState[moduleId]?.data as
+				| { results?: StoreSearchResult[] }
+				| undefined;
 			if (data?.results) r.push(...data.results);
 		}
 		return { results: r, grouped: groupByGroup(r) };
-	}, [contributorQueries]);
+	}, [contributorState]);
 
 	// Debounce search input (300ms)
 	useEffect(() => {
@@ -186,6 +236,15 @@ export function StoreSearchCommand() {
 
 	return (
 		<>
+			{STORE_SEARCH_CONTRIBUTORS.map(({ moduleId, path }) => (
+				<ContributorQueryBridge
+					key={`${moduleId}:${path}`}
+					moduleId={moduleId}
+					path={path}
+					searchParams={searchParams}
+					onUpdate={onContributorUpdate}
+				/>
+			))}
 			{/* Desktop: full search trigger */}
 			<InputGroup
 				className="hidden max-w-[10rem] transition-all duration-300 md:flex md:max-w-xs dark:hover:bg-input/60!"
@@ -254,9 +313,12 @@ export function StoreSearchCommand() {
 												className="gap-3 py-2"
 											>
 												{item.image ? (
-													<img
+													<Image
 														src={item.image}
 														alt=""
+														width={40}
+														height={40}
+														unoptimized
 														className="size-10 shrink-0 rounded-md bg-muted object-cover"
 													/>
 												) : (
