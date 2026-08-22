@@ -143,12 +143,13 @@ describe("store endpoint: list notifications — auth required", () => {
 		});
 
 		expect("notifications" in result).toBe(true);
-		if ("notifications" in result) {
-			expect(result.notifications).toHaveLength(1);
-			expect((result.notifications[0] as Notification).title).toBe(
-				"Order shipped",
-			);
+		if (!("notifications" in result)) {
+			throw new Error("expected 'notifications' in result");
 		}
+		expect(result.notifications).toHaveLength(1);
+		expect((result.notifications[0] as Notification).title).toBe(
+			"Order shipped",
+		);
 	});
 
 	it("returns empty for customer with no notifications", async () => {
@@ -157,9 +158,10 @@ describe("store endpoint: list notifications — auth required", () => {
 		});
 
 		expect("notifications" in result).toBe(true);
-		if ("notifications" in result) {
-			expect(result.notifications).toHaveLength(0);
+		if (!("notifications" in result)) {
+			throw new Error("expected 'notifications' in result");
 		}
+		expect(result.notifications).toHaveLength(0);
 	});
 
 	it("filters by notification type", async () => {
@@ -183,10 +185,11 @@ describe("store endpoint: list notifications — auth required", () => {
 		});
 
 		expect("notifications" in result).toBe(true);
-		if ("notifications" in result) {
-			expect(result.notifications).toHaveLength(1);
-			expect((result.notifications[0] as Notification).type).toBe("order");
+		if (!("notifications" in result)) {
+			throw new Error("expected 'notifications' in result");
 		}
+		expect(result.notifications).toHaveLength(1);
+		expect((result.notifications[0] as Notification).type).toBe("order");
 	});
 });
 
@@ -225,9 +228,10 @@ describe("store endpoint: unread count — auth required", () => {
 		});
 
 		expect("count" in result).toBe(true);
-		if ("count" in result) {
-			expect(result.count).toBe(2);
+		if (!("count" in result)) {
+			throw new Error("expected 'count' in result");
 		}
+		expect(result.count).toBe(2);
 	});
 
 	it("returns zero when all are read", async () => {
@@ -245,9 +249,10 @@ describe("store endpoint: unread count — auth required", () => {
 		});
 
 		expect("count" in result).toBe(true);
-		if ("count" in result) {
-			expect(result.count).toBe(0);
+		if (!("count" in result)) {
+			throw new Error("expected 'count' in result");
 		}
+		expect(result.count).toBe(0);
 	});
 });
 
@@ -281,9 +286,13 @@ describe("store endpoint: mark read — auth + ownership", () => {
 		});
 
 		expect("notification" in result).toBe(true);
-		if ("notification" in result && result.notification) {
-			expect(result.notification.read).toBe(true);
+		expect("notification" in result && result.notification).toBeTruthy();
+		if (!("notification" in result && result.notification)) {
+			throw new Error(
+				"expected 'notification' in result && result.notification",
+			);
 		}
+		expect(result.notification.read).toBe(true);
 	});
 
 	it("returns 404 for another customer's notification", async () => {
@@ -401,10 +410,12 @@ describe("store endpoint: get preferences — auth required", () => {
 		});
 
 		expect("preferences" in result).toBe(true);
-		if ("preferences" in result && result.preferences) {
-			expect(result.preferences.orderUpdates).toBe(true);
-			expect(result.preferences.promotions).toBe(false);
+		expect("preferences" in result && result.preferences).toBeTruthy();
+		if (!("preferences" in result && result.preferences)) {
+			throw new Error("expected 'preferences' in result && result.preferences");
 		}
+		expect(result.preferences.orderUpdates).toBe(true);
+		expect(result.preferences.promotions).toBe(false);
 	});
 
 	it("returns default preferences for customer without custom settings", async () => {
@@ -413,11 +424,13 @@ describe("store endpoint: get preferences — auth required", () => {
 		});
 
 		expect("preferences" in result).toBe(true);
-		if ("preferences" in result && result.preferences) {
-			// Default preferences have all channels enabled
-			expect(result.preferences.orderUpdates).toBe(true);
-			expect(result.preferences.promotions).toBe(true);
+		expect("preferences" in result && result.preferences).toBeTruthy();
+		if (!("preferences" in result && result.preferences)) {
+			throw new Error("expected 'preferences' in result && result.preferences");
 		}
+		// Default preferences have all channels enabled
+		expect(result.preferences.orderUpdates).toBe(true);
+		expect(result.preferences.promotions).toBe(true);
 	});
 });
 
@@ -446,10 +459,11 @@ describe("store endpoint: update preferences — auth required", () => {
 		);
 
 		expect("preferences" in result).toBe(true);
-		if ("preferences" in result) {
-			expect(result.preferences.orderUpdates).toBe(true);
-			expect(result.preferences.promotions).toBe(false);
+		if (!("preferences" in result)) {
+			throw new Error("expected 'preferences' in result");
 		}
+		expect(result.preferences.orderUpdates).toBe(true);
+		expect(result.preferences.promotions).toBe(false);
 	});
 
 	it("updates existing preferences", async () => {
@@ -466,8 +480,9 @@ describe("store endpoint: update preferences — auth required", () => {
 		);
 
 		expect("preferences" in result).toBe(true);
-		if ("preferences" in result) {
-			expect(result.preferences.promotions).toBe(false);
+		if (!("preferences" in result)) {
+			throw new Error("expected 'preferences' in result");
 		}
+		expect(result.preferences.promotions).toBe(false);
 	});
 });

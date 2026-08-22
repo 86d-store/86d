@@ -121,11 +121,12 @@ describe("store endpoint: add note — customer note on order", () => {
 		);
 
 		expect("note" in result).toBe(true);
-		if ("note" in result) {
-			expect(result.note.content).toBe("Leave at the front door");
-			expect(result.note.orderId).toBe("order_1");
-			expect(result.note.isInternal).toBe(false);
+		if (!("note" in result)) {
+			throw new Error("expected 'note' in result");
 		}
+		expect(result.note.content).toBe("Leave at the front door");
+		expect(result.note.orderId).toBe("order_1");
+		expect(result.note.isInternal).toBe(false);
 	});
 });
 
@@ -168,10 +169,11 @@ describe("store endpoint: list by order — non-internal notes", () => {
 		});
 
 		expect("notes" in result).toBe(true);
-		if ("notes" in result) {
-			expect(result.notes).toHaveLength(1);
-			expect(result.notes[0].content).toBe("Customer note");
+		if (!("notes" in result)) {
+			throw new Error("expected 'notes' in result");
 		}
+		expect(result.notes).toHaveLength(1);
+		expect(result.notes[0].content).toBe("Customer note");
 	});
 
 	it("returns empty for order with no notes", async () => {
@@ -180,9 +182,10 @@ describe("store endpoint: list by order — non-internal notes", () => {
 		});
 
 		expect("notes" in result).toBe(true);
-		if ("notes" in result) {
-			expect(result.notes).toHaveLength(0);
+		if (!("notes" in result)) {
+			throw new Error("expected 'notes' in result");
 		}
+		expect(result.notes).toHaveLength(0);
 	});
 });
 
@@ -217,9 +220,10 @@ describe("store endpoint: get note — single note", () => {
 		});
 
 		expect("note" in result).toBe(true);
-		if ("note" in result) {
-			expect(result.note.content).toBe("Delivery instructions");
+		if (!("note" in result)) {
+			throw new Error("expected 'note' in result");
 		}
+		expect(result.note.content).toBe("Delivery instructions");
 	});
 
 	it("returns 404 for internal note", async () => {
@@ -277,10 +281,11 @@ describe("store endpoint: update note — customer edits own note", () => {
 		});
 
 		expect("note" in result).toBe(true);
-		if ("note" in result) {
-			expect(result.note.content).toBe("Updated message");
-			expect(result.note.id).toBe(note.id);
+		if (!("note" in result)) {
+			throw new Error("expected 'note' in result");
 		}
+		expect(result.note.content).toBe("Updated message");
+		expect(result.note.id).toBe(note.id);
 	});
 
 	it("returns 404 for nonexistent note", async () => {

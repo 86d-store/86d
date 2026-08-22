@@ -296,9 +296,10 @@ describe("store endpoint: get order", () => {
 		const result = await simulateGetOrder(controller, order.id, "cust_1");
 
 		expect("order" in result).toBe(true);
-		if ("order" in result) {
-			expect(result.order.id).toBe(order.id);
+		if (!("order" in result)) {
+			throw new Error("expected 'order' in result");
 		}
+		expect(result.order.id).toBe(order.id);
 	});
 
 	it("includes storeCreditAmount in order response", async () => {
@@ -316,10 +317,11 @@ describe("store endpoint: get order", () => {
 		const result = await simulateGetOrder(controller, order.id, "cust_1");
 
 		expect("order" in result).toBe(true);
-		if ("order" in result) {
-			expect(result.order.storeCreditAmount).toBe(2000);
-			expect(result.order.total).toBe(3000);
+		if (!("order" in result)) {
+			throw new Error("expected 'order' in result");
 		}
+		expect(result.order.storeCreditAmount).toBe(2000);
+		expect(result.order.total).toBe(3000);
 	});
 
 	it("returns 404 when order belongs to a different customer", async () => {
@@ -356,9 +358,10 @@ describe("store endpoint: confirm order (guest)", () => {
 		);
 
 		expect("order" in result).toBe(true);
-		if ("order" in result) {
-			expect(result.order.id).toBe(order.id);
+		if (!("order" in result)) {
+			throw new Error("expected 'order' in result");
 		}
+		expect(result.order.id).toBe(order.id);
 	});
 
 	it("matches guestEmail case-insensitively", async () => {
@@ -386,9 +389,10 @@ describe("store endpoint: confirm order (guest)", () => {
 		);
 
 		expect("order" in result).toBe(true);
-		if ("order" in result) {
-			expect(result.order.id).toBe(order.id);
+		if (!("order" in result)) {
+			throw new Error("expected 'order' in result");
 		}
+		expect(result.order.id).toBe(order.id);
 	});
 
 	it("returns 404 when email does not match guestEmail", async () => {
@@ -462,10 +466,11 @@ describe("store endpoint: list orders", () => {
 
 		const result = await simulateListOrders(controller, "cust_1");
 		expect("orders" in result).toBe(true);
-		if ("orders" in result) {
-			expect(result.orders).toHaveLength(2);
-			expect(result.total).toBe(2);
+		if (!("orders" in result)) {
+			throw new Error("expected 'orders' in result");
 		}
+		expect(result.orders).toHaveLength(2);
+		expect(result.total).toBe(2);
 	});
 
 	it("paginates correctly", async () => {
@@ -478,22 +483,24 @@ describe("store endpoint: list orders", () => {
 			limit: 2,
 		});
 		expect("orders" in page1).toBe(true);
-		if ("orders" in page1) {
-			expect(page1.orders).toHaveLength(2);
-			expect(page1.total).toBe(5);
-			expect(page1.pages).toBe(3);
-			expect(page1.page).toBe(1);
+		if (!("orders" in page1)) {
+			throw new Error("expected 'orders' in page1");
 		}
+		expect(page1.orders).toHaveLength(2);
+		expect(page1.total).toBe(5);
+		expect(page1.pages).toBe(3);
+		expect(page1.page).toBe(1);
 	});
 
 	it("returns empty list for customer with no orders", async () => {
 		const result = await simulateListOrders(controller, "cust_new");
 		expect("orders" in result).toBe(true);
-		if ("orders" in result) {
-			expect(result.orders).toHaveLength(0);
-			expect(result.total).toBe(0);
-			expect(result.pages).toBe(0);
+		if (!("orders" in result)) {
+			throw new Error("expected 'orders' in result");
 		}
+		expect(result.orders).toHaveLength(0);
+		expect(result.total).toBe(0);
+		expect(result.pages).toBe(0);
 	});
 });
 
@@ -516,9 +523,10 @@ describe("store endpoint: cancel order", () => {
 		const result = await simulateCancelOrder(controller, order.id, "cust_1");
 
 		expect("order" in result).toBe(true);
-		if ("order" in result) {
-			expect(result.order.status).toBe("cancelled");
+		if (!("order" in result)) {
+			throw new Error("expected 'order' in result");
 		}
+		expect(result.order.status).toBe("cancelled");
 	});
 
 	it("cancels a processing order", async () => {
@@ -529,9 +537,10 @@ describe("store endpoint: cancel order", () => {
 		const result = await simulateCancelOrder(controller, order.id, "cust_1");
 
 		expect("order" in result).toBe(true);
-		if ("order" in result) {
-			expect(result.order.status).toBe("cancelled");
+		if (!("order" in result)) {
+			throw new Error("expected 'order' in result");
 		}
+		expect(result.order.status).toBe("cancelled");
 	});
 
 	it("cancels an on_hold order", async () => {
@@ -542,9 +551,10 @@ describe("store endpoint: cancel order", () => {
 		const result = await simulateCancelOrder(controller, order.id, "cust_1");
 
 		expect("order" in result).toBe(true);
-		if ("order" in result) {
-			expect(result.order.status).toBe("cancelled");
+		if (!("order" in result)) {
+			throw new Error("expected 'order' in result");
 		}
+		expect(result.order.status).toBe("cancelled");
 	});
 
 	it("rejects cancellation of a completed order", async () => {
@@ -606,10 +616,11 @@ describe("store endpoint: track order (guest)", () => {
 		);
 
 		expect("order" in result).toBe(true);
-		if ("order" in result) {
-			expect(result.order.id).toBe(order.id);
-			expect(result.fulfillments).toBeDefined();
+		if (!("order" in result)) {
+			throw new Error("expected 'order' in result");
 		}
+		expect(result.order.id).toBe(order.id);
+		expect(result.fulfillments).toBeDefined();
 	});
 
 	it("returns 404 when email does not match", async () => {
@@ -648,9 +659,10 @@ describe("store endpoint: track order (guest)", () => {
 		);
 
 		expect("fulfillments" in result).toBe(true);
-		if ("fulfillments" in result) {
-			expect(result.fulfillments).toHaveLength(0);
+		if (!("fulfillments" in result)) {
+			throw new Error("expected 'fulfillments' in result");
 		}
+		expect(result.fulfillments).toHaveLength(0);
 	});
 });
 
@@ -680,12 +692,13 @@ describe("store endpoint: reorder", () => {
 		const result = await simulateReorder(controller, order.id, "cust_1");
 
 		expect("items" in result).toBe(true);
-		if ("items" in result) {
-			expect(result.items).toHaveLength(2);
-			expect(result.items[0].productId).toBe("prod_a");
-			expect(result.items[0].quantity).toBe(2);
-			expect(result.items[1].productId).toBe("prod_b");
+		if (!("items" in result)) {
+			throw new Error("expected 'items' in result");
 		}
+		expect(result.items).toHaveLength(2);
+		expect(result.items[0].productId).toBe("prod_a");
+		expect(result.items[0].quantity).toBe(2);
+		expect(result.items[1].productId).toBe("prod_b");
 	});
 
 	it("enriches items with product slug and image from registry", async () => {
@@ -714,10 +727,11 @@ describe("store endpoint: reorder", () => {
 		);
 
 		expect("items" in result).toBe(true);
-		if ("items" in result) {
-			expect(result.items[0].slug).toBe("widget-a");
-			expect(result.items[0].image).toBe("https://img.example.com/a.jpg");
+		if (!("items" in result)) {
+			throw new Error("expected 'items' in result");
 		}
+		expect(result.items[0].slug).toBe("widget-a");
+		expect(result.items[0].image).toBe("https://img.example.com/a.jpg");
 	});
 
 	it("uses productId as slug fallback when product not in registry", async () => {
@@ -744,10 +758,11 @@ describe("store endpoint: reorder", () => {
 		);
 
 		expect("items" in result).toBe(true);
-		if ("items" in result) {
-			expect(result.items[0].slug).toBe("prod_gone");
-			expect(result.items[0].image).toBeUndefined();
+		if (!("items" in result)) {
+			throw new Error("expected 'items' in result");
 		}
+		expect(result.items[0].slug).toBe("prod_gone");
+		expect(result.items[0].image).toBeUndefined();
 	});
 
 	it("returns 404 for another customer's order", async () => {
@@ -788,10 +803,11 @@ describe("store endpoint: create return", () => {
 		});
 
 		expect("returnRequest" in result).toBe(true);
-		if ("returnRequest" in result) {
-			expect(result.returnRequest.reason).toBe("defective");
-			expect(result.returnRequest.status).toBe("requested");
+		if (!("returnRequest" in result)) {
+			throw new Error("expected 'returnRequest' in result");
 		}
+		expect(result.returnRequest.reason).toBe("defective");
+		expect(result.returnRequest.status).toBe("requested");
 	});
 
 	it("creates return for a processing order", async () => {
@@ -872,10 +888,11 @@ describe("store endpoint: create return", () => {
 		});
 
 		expect("error" in result).toBe(true);
-		if ("error" in result) {
-			expect(result.error).toContain("does not belong to this order");
-			expect(result.status).toBe(400);
+		if (!("error" in result)) {
+			throw new Error("expected 'error' in result");
 		}
+		expect(result.error).toContain("does not belong to this order");
+		expect(result.status).toBe(400);
 	});
 
 	it("returns 404 for another customer's order", async () => {

@@ -20,10 +20,6 @@ import { buildQuoteStatusEmail } from "./emails/quote-status";
 import { buildReviewApprovedEmail } from "./emails/review-approved";
 import { buildSubscriptionStatusEmail } from "./emails/subscription-status";
 import { buildWarrantyRegisteredEmail } from "./emails/warranty-registered";
-import {
-	createNotificationIntentStore,
-	notificationIntentInputSchema,
-} from "./intents";
 import { ResendProvider, TwilioProvider } from "./provider";
 import { notificationsStorage } from "./schema";
 import { createNotificationsController } from "./service-impl";
@@ -46,7 +42,6 @@ export type {
 	NotificationTemplate,
 	NotificationType,
 } from "./service";
-export { createNotificationIntentStore, notificationIntentInputSchema };
 
 export interface NotificationsOptions extends ModuleConfig {
 	/** Max notifications per customer before auto-cleanup (default: "500") */

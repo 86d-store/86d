@@ -227,9 +227,11 @@ describe("ResendProvider", () => {
 			const result = await provider.verifyConnection();
 
 			expect(result.ok).toBe(false);
-			if (!result.ok) {
-				expect(result.error).toContain("API key is invalid");
+			expect(!result.ok).toBeTruthy();
+			if (result.ok) {
+				throw new Error("expected !result.ok");
 			}
+			expect(result.error).toContain("API key is invalid");
 		});
 
 		it("returns error on network failure", async () => {
@@ -400,9 +402,11 @@ describe("TwilioProvider", () => {
 			const result = await provider.verifyConnection();
 
 			expect(result.ok).toBe(false);
-			if (!result.ok) {
-				expect(result.error).toContain("Authenticate");
+			expect(!result.ok).toBeTruthy();
+			if (result.ok) {
+				throw new Error("expected !result.ok");
 			}
+			expect(result.error).toContain("Authenticate");
 		});
 
 		it("returns error on network failure", async () => {

@@ -108,7 +108,7 @@ export class ResendProvider {
 			}))) as ResendErrorResponse;
 			return {
 				success: false,
-				error: `Resend error: ${errBody.message ?? `HTTP ${res.status}`}`,
+				error: `Resend error: ${errBody.message}`,
 			};
 		}
 
@@ -133,7 +133,7 @@ export class ResendProvider {
 				}))) as ResendErrorResponse;
 				return {
 					ok: false,
-					error: `Resend error: ${errBody.message ?? `HTTP ${res.status}`}`,
+					error: `Resend error: ${errBody.message}`,
 				};
 			}
 			return {
@@ -196,7 +196,7 @@ export class TwilioProvider {
 			}))) as TwilioErrorResponse;
 			return {
 				success: false,
-				error: `Twilio error: ${errBody.message ?? `HTTP ${res.status}`}`,
+				error: `Twilio error: ${errBody.message}`,
 			};
 		}
 
@@ -231,7 +231,7 @@ export class TwilioProvider {
 				}))) as TwilioErrorResponse;
 				return {
 					ok: false,
-					error: `Twilio error: ${errBody.message ?? `HTTP ${res.status}`}`,
+					error: `Twilio error: ${errBody.message}`,
 				};
 			}
 			const data = (await res.json()) as {

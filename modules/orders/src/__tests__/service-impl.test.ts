@@ -1257,7 +1257,9 @@ describe("createOrderController", () => {
 
 			const notes = await controller.listNotes(order.id);
 			expect(notes).toHaveLength(2);
-			const contents = notes.map((n) => n.content).sort();
+			const contents = notes
+				.map((n) => n.content)
+				.sort((a, b) => a.localeCompare(b));
 			expect(contents).toEqual(["First note", "Second note"]);
 		});
 

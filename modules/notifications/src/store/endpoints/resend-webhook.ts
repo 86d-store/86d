@@ -18,13 +18,18 @@ import { createStoreEndpoint } from "@86d-app/core/api";
 
 const FIVE_MINUTES_MS = 5 * 60 * 1000;
 
+type VerifySvixSignatureOptions = {
+	rawBody: string;
+	svixId: string;
+	svixTimestamp: string;
+	svixSignature: string;
+	secret: string;
+};
+
 async function verifySvixSignature(
-	rawBody: string,
-	svixId: string,
-	svixTimestamp: string,
-	svixSignature: string,
-	secret: string,
+	options: VerifySvixSignatureOptions,
 ): Promise<boolean> {
+	const { rawBody, svixId, svixTimestamp, svixSignature, secret } = options;
 	// Replay-attack guard: reject events older than 5 minutes
 	const ts = Number(svixTimestamp) * 1000;
 	if (Number.isNaN(ts) || Math.abs(Date.now() - ts) > FIVE_MINUTES_MS) {
@@ -89,13 +94,13 @@ export function createResendWebhook(opts: {
 				);
 			}
 
-			const valid = await verifySvixSignature(
+			const valid = await verifySvixSignature({
 				rawBody,
 				svixId,
 				svixTimestamp,
 				svixSignature,
-				webhookSecret,
-			);
+				secret: webhookSecret,
+			});
 			if (!valid) {
 				return Response.json(
 					{ error: "Invalid or expired webhook signature." },

@@ -378,8 +378,7 @@ export function createNotificationsController(
 			for (const n of notifications) {
 				if (!n.read) stats.unread++;
 				stats.byType[n.type] = (stats.byType[n.type] ?? 0) + 1;
-				stats.byPriority[n.priority ?? "normal"] =
-					(stats.byPriority[n.priority ?? "normal"] ?? 0) + 1;
+				stats.byPriority[n.priority] = (stats.byPriority[n.priority] ?? 0) + 1;
 			}
 
 			return stats;
