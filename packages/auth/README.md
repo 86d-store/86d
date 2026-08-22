@@ -75,18 +75,20 @@ if (result.hasAccess) {
 The better-auth instance configured with:
 
 - **Database**: Drizzle adapter with PostgreSQL provider
-- **Secret**: The validated `BETTER_AUTH_SECRET`, passed explicitly
+- **Secret**: The validated `BETTER_AUTH_SECRET` when auth is enabled
 - **Email/Password**: Enabled
 - **Session**: Cookie caching with 5-minute TTL
 - **Plugins**: Admin (role-based access)
 
+When `BETTER_AUTH_SECRET` is missing or production-unsafe, `auth` is `null` and `isAuthEnabled` is `false`.
+
 ### `handler`
 
-Next.js route handler — destructure `GET` and `POST` for your auth route.
+Next.js route handler — destructure `GET` and `POST` for your auth route. Returns HTTP 503 with `AUTH_DISABLED` when authentication is not configured.
 
 ### `getSession(): Promise<Session | null>`
 
-Server-side function that reads the current session from Next.js request headers. Returns `null` if no active session.
+Server-side function that reads the current session from Next.js request headers. Returns `null` if auth is disabled or no active session.
 
 ### `verifyStoreAdminAccess(user): StoreAccessResult`
 
@@ -113,6 +115,6 @@ interface StoreAccessResult {
 ## Notes
 
 - Only the `"admin"` role grants store admin access.
-- Production startup rejects a missing or weak `BETTER_AUTH_SECRET`. Development and test use the environment package's explicit local-only fallback.
+- Missing or production-unsafe `BETTER_AUTH_SECRET` disables authentication; it does not fail Store boot or build.
 - Session cookie cache reduces database lookups for 5 minutes per session.
 - The `db` workspace package provides the Drizzle client used by the auth adapter.

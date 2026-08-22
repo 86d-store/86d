@@ -17,7 +17,7 @@ env:
   FORCE_COLOR: 3
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  # Production builds reject short/placeholder secrets from .env.example.
+  # Optional: enables auth in CI. Builds succeed without it (auth stays disabled).
   BETTER_AUTH_SECRET: ci-test-secret-not-for-production
 
 jobs:

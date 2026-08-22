@@ -65,8 +65,9 @@ export function status() {
 	if (existsSync(envPath)) {
 		const vars = parseEnvFile(envPath);
 
-		const required = ["DATABASE_URL", "STORE_ID", "BETTER_AUTH_SECRET"];
+		const required = ["DATABASE_URL", "STORE_ID"];
 		const optional = [
+			"BETTER_AUTH_SECRET",
 			"RESEND_API_KEY",
 			"NEXT_PUBLIC_STORE_URL",
 			"NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID",
@@ -80,12 +81,23 @@ export function status() {
 		);
 
 		const setOptional = optional.filter((k) => k in vars && vars[k] !== "");
+		const authSecret = vars.BETTER_AUTH_SECRET;
+		const authEnabled =
+			typeof authSecret === "string" &&
+			authSecret !== "" &&
+			authSecret !== "change-me-to-a-random-string";
 
 		if (missingRequired.length === 0) {
 			writeLine(`  ${c.dim("Env:")}       ${c.green("all required vars set")}`);
 		} else {
 			writeLine(
 				`  ${c.dim("Env:")}       ${c.yellow(`missing: ${missingRequired.join(", ")}`)}`,
+			);
+		}
+
+		if (!authEnabled) {
+			writeLine(
+				`  ${c.dim("Auth:")}      ${c.yellow("disabled (set BETTER_AUTH_SECRET to enable)")}`,
 			);
 		}
 

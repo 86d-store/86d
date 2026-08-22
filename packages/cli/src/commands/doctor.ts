@@ -216,13 +216,18 @@ export async function doctor(options: DoctorOptions = {}) {
 	if (existsSync(envPath)) {
 		const vars = parseEnvFile(envPath);
 
-		const required = ["DATABASE_URL", "STORE_ID", "BETTER_AUTH_SECRET"];
+		const required = ["DATABASE_URL", "STORE_ID"];
 		const missing = required.filter(
 			(k) =>
 				!(k in vars) ||
 				vars[k] === "" ||
 				vars[k] === "change-me-to-a-random-string",
 		);
+		const authSecret = vars.BETTER_AUTH_SECRET;
+		const authEnabled =
+			typeof authSecret === "string" &&
+			authSecret !== "" &&
+			authSecret !== "change-me-to-a-random-string";
 
 		if (missing.length === 0) {
 			checks.push({
@@ -238,6 +243,21 @@ export async function doctor(options: DoctorOptions = {}) {
 				fix: `Set these in .env — run 86d init to get started`,
 			});
 		}
+
+		checks.push(
+			authEnabled
+				? {
+						label: "Authentication",
+						status: "pass",
+						message: "BETTER_AUTH_SECRET configured",
+					}
+				: {
+						label: "Authentication",
+						status: "warn",
+						message: "disabled until BETTER_AUTH_SECRET is set",
+						fix: "Generate one with: openssl rand -base64 32",
+					},
+		);
 
 		// Optional env checks
 		const optional: [string, string][] = [

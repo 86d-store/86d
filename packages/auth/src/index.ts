@@ -97,40 +97,70 @@ const socialProviders = managedAdminOAuth
 		]
 	: [];
 
-export const auth = betterAuth({
-	database: drizzleAdapter(db, {
-		provider: "pg",
-		schema: {
-			user,
-			session,
-			account,
-			verification,
-			passkey,
-			invitation,
+function createAuth(secret: string) {
+	return betterAuth({
+		database: drizzleAdapter(db, {
+			provider: "pg",
+			schema: {
+				user,
+				session,
+				account,
+				verification,
+				passkey,
+				invitation,
+			},
+		}),
+		secret,
+		emailAndPassword: { enabled: true },
+		session: {
+			cookieCache: { enabled: true, maxAge: 60 * 5 },
 		},
-	}),
-	secret: env.BETTER_AUTH_SECRET,
-	emailAndPassword: { enabled: true },
-	session: {
-		cookieCache: { enabled: true, maxAge: 60 * 5 },
-	},
-	rateLimit: {
-		window: 60,
-		max: 100,
-		customRules: {
-			"/sign-in/email": {
-				window: 60,
-				max: 40,
+		rateLimit: {
+			window: 60,
+			max: 100,
+			customRules: {
+				"/sign-in/email": {
+					window: 60,
+					max: 40,
+				},
 			},
 		},
-	},
-	advanced: {
-		database: {
-			generateId: () => randomUUID(),
+		advanced: {
+			database: {
+				generateId: () => randomUUID(),
+			},
 		},
-	},
-	plugins: [admin(), ...socialProviders],
-});
+		plugins: [admin(), ...socialProviders],
+	});
+}
 
-export const handler = toNextJsHandler(auth);
-export type Session = typeof auth.$Infer.Session;
+type AuthInstance = ReturnType<typeof createAuth>;
+
+/** True when `BETTER_AUTH_SECRET` is set and safe for the current NODE_ENV. */
+export const isAuthEnabled = env.BETTER_AUTH_SECRET !== undefined;
+
+export const auth: AuthInstance | null = env.BETTER_AUTH_SECRET
+	? createAuth(env.BETTER_AUTH_SECRET)
+	: null;
+
+export type Session = AuthInstance["$Infer"]["Session"];
+
+function authDisabledResponse(): Response {
+	return Response.json(
+		{
+			error: "AUTH_DISABLED",
+			message:
+				"Authentication is disabled until BETTER_AUTH_SECRET is configured.",
+		},
+		{ status: 503 },
+	);
+}
+
+const nextHandler = auth ? toNextJsHandler(auth) : null;
+
+export const handler = {
+	GET: (request: Request) =>
+		nextHandler ? nextHandler.GET(request) : authDisabledResponse(),
+	POST: (request: Request) =>
+		nextHandler ? nextHandler.POST(request) : authDisabledResponse(),
+};

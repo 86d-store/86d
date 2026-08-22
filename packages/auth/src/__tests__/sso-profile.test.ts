@@ -2,13 +2,16 @@ import env from "env";
 import { describe, expect, it } from "vitest";
 import {
 	auth,
+	isAuthEnabled,
 	mapSsoProfileToUser,
 	resolveManagedAdminOAuthConfig,
 } from "../index";
 
 describe("auth configuration", () => {
-	it("passes the validated auth secret explicitly to Better Auth", () => {
-		expect(auth.options.secret).toBe(env.BETTER_AUTH_SECRET);
+	it("keeps isAuthEnabled aligned with whether auth was constructed", () => {
+		expect(isAuthEnabled).toBe(env.BETTER_AUTH_SECRET !== undefined);
+		expect(auth === null).toBe(!isAuthEnabled);
+		expect(auth?.options.secret).toBe(env.BETTER_AUTH_SECRET);
 	});
 });
 

@@ -37,7 +37,7 @@ src/
 ## Patterns
 
 - Session uses cookie caching with 5-minute TTL (`cookieCache.maxAge: 300`)
-- Better Auth receives the validated `BETTER_AUTH_SECRET` explicitly; production validation fails closed before auth is created
+- Better Auth is created only when `BETTER_AUTH_SECRET` is set and safe; otherwise `auth` is `null`, `isAuthEnabled` is false, and handlers return 503
 - Admin plugin from better-auth provides role-based access
 - `verifyStoreAdminAccess` only checks for `"admin"` role — no other roles grant store access
 - `StoreAccessResult.role` uses `string | undefined` (not `null`) to satisfy `exactOptionalPropertyTypes`

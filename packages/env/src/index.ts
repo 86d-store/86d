@@ -16,6 +16,49 @@ function estimateSecretEntropyBits(secret: string): number {
 		: secret.length * Math.log2(uniqueCharacters);
 }
 
+/**
+ * Resolve whether a candidate auth secret is safe to enable Better Auth.
+ * Missing or production-unsafe values disable auth rather than failing boot
+ * or build — no environment variables are required to start the Store.
+ */
+export function resolveBetterAuthSecret(
+	secret: string | undefined,
+	nodeEnv: ParsedEnv["NODE_ENV"],
+): string | undefined {
+	if (!secret) return undefined;
+
+	if (nodeEnv !== "production") {
+		return secret;
+	}
+
+	if (secret.length < 32) {
+		console.warn(
+			"BETTER_AUTH_SECRET is shorter than 32 characters; authentication is disabled.",
+		);
+		return undefined;
+	}
+	if (secret === LOCAL_BETTER_AUTH_SECRET) {
+		console.warn(
+			"BETTER_AUTH_SECRET uses the local-only development value; authentication is disabled.",
+		);
+		return undefined;
+	}
+	if (KNOWN_AUTH_SECRET_PLACEHOLDERS.has(secret)) {
+		console.warn(
+			"BETTER_AUTH_SECRET uses a known placeholder; authentication is disabled.",
+		);
+		return undefined;
+	}
+	if (estimateSecretEntropyBits(secret) < MINIMUM_AUTH_SECRET_ENTROPY_BITS) {
+		console.warn(
+			"BETTER_AUTH_SECRET has unacceptably low entropy; authentication is disabled.",
+		);
+		return undefined;
+	}
+
+	return secret;
+}
+
 const envSchema = z.object({
 	NODE_ENV: z
 		.enum(["development", "production", "test"])
@@ -53,7 +96,8 @@ const envSchema = z.object({
 
 type ParsedEnv = z.infer<typeof envSchema>;
 export type Env = Omit<ParsedEnv, "BETTER_AUTH_SECRET"> & {
-	BETTER_AUTH_SECRET: string;
+	/** Present only when auth is enabled; otherwise authentication is disabled. */
+	BETTER_AUTH_SECRET: string | undefined;
 };
 
 export function parseEnvironment(
@@ -74,47 +118,12 @@ export function parseEnvironment(
 		throw new Error("Invalid environment variables");
 	}
 
-	if (
-		parsed.data.NODE_ENV === "production" &&
-		(!parsed.data.BETTER_AUTH_SECRET ||
-			parsed.data.BETTER_AUTH_SECRET.length < 32)
-	) {
-		throw new Error(
-			"Invalid environment variables: BETTER_AUTH_SECRET must be set to at least 32 characters in production",
-		);
-	}
-	if (
-		parsed.data.NODE_ENV === "production" &&
-		parsed.data.BETTER_AUTH_SECRET === LOCAL_BETTER_AUTH_SECRET
-	) {
-		throw new Error(
-			"Invalid environment variables: BETTER_AUTH_SECRET cannot use the local-only development secret in production",
-		);
-	}
-	if (
-		parsed.data.NODE_ENV === "production" &&
-		parsed.data.BETTER_AUTH_SECRET !== undefined &&
-		KNOWN_AUTH_SECRET_PLACEHOLDERS.has(parsed.data.BETTER_AUTH_SECRET)
-	) {
-		throw new Error(
-			"Invalid environment variables: BETTER_AUTH_SECRET cannot use a known placeholder or default in production",
-		);
-	}
-	if (
-		parsed.data.NODE_ENV === "production" &&
-		parsed.data.BETTER_AUTH_SECRET &&
-		estimateSecretEntropyBits(parsed.data.BETTER_AUTH_SECRET) <
-			MINIMUM_AUTH_SECRET_ENTROPY_BITS
-	) {
-		throw new Error(
-			"Invalid environment variables: BETTER_AUTH_SECRET has unacceptably low entropy for production",
-		);
-	}
-
 	return {
 		...parsed.data,
-		BETTER_AUTH_SECRET:
-			parsed.data.BETTER_AUTH_SECRET ?? LOCAL_BETTER_AUTH_SECRET,
+		BETTER_AUTH_SECRET: resolveBetterAuthSecret(
+			parsed.data.BETTER_AUTH_SECRET,
+			parsed.data.NODE_ENV,
+		),
 	};
 }
 

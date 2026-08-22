@@ -27,16 +27,16 @@ src/
 | `NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID` | `string` | No | — |
 | `VERCEL_BLOB_STORAGE_HOSTNAME` | `string` | No | — |
 | `RESEND_API_KEY` | `string` | No | — |
-| `BETTER_AUTH_SECRET` | `string` | Production only | Local-only deterministic value in development and test |
+| `BETTER_AUTH_SECRET` | `string \| undefined` | No | — (auth disabled when unset) |
 
 ## Patterns
 
-- Uses `z.safeParse(process.env)` and explicit production security checks
-- Production rejects a missing, short, known-placeholder, or low-entropy `BETTER_AUTH_SECRET`
-- Development and test use a deterministic local-only auth secret when none is set
+- Uses `z.safeParse(process.env)` plus `resolveBetterAuthSecret`
+- Missing or production-unsafe `BETTER_AUTH_SECRET` disables auth; it does not throw
+- Production still rejects short, known-placeholder, local-only, and low-entropy secrets by disabling auth
 - Import as `import env from "env"` for validated, typed access
 
 ## Gotchas
 
-- Validation runs at import time — importing this module in a context with invalid env will throw
+- Schema validation still throws for malformed required-shape fields (for example an invalid URL). Auth secret quality never throws.
 - `86D_API_URL` uses `z.url()` which validates full URL format (not just string)

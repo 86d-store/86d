@@ -2,82 +2,108 @@ import { describe, expect, it, vi } from "vitest";
 import { getProcessEnv, setProcessEnv } from "../process-env";
 
 describe("env", () => {
-	it("rejects production without an auth secret", async () => {
+	it("disables auth in production when BETTER_AUTH_SECRET is missing", async () => {
 		const mod = await import("../index");
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-		expect(() =>
-			mod.parseEnvironment({
-				NODE_ENV: "production",
-			}),
-		).toThrow(/BETTER_AUTH_SECRET/);
+		const parsed = mod.parseEnvironment({
+			NODE_ENV: "production",
+		});
+
+		expect(parsed.BETTER_AUTH_SECRET).toBeUndefined();
+		warn.mockRestore();
 	});
 
-	it("rejects a production auth secret shorter than 32 characters", async () => {
+	it("disables auth when a production auth secret is shorter than 32 characters", async () => {
 		const mod = await import("../index");
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-		expect(() =>
-			mod.parseEnvironment({
-				NODE_ENV: "production",
-				BETTER_AUTH_SECRET: "short-production-secret",
-			}),
-		).toThrow(/at least 32 characters/);
+		const parsed = mod.parseEnvironment({
+			NODE_ENV: "production",
+			BETTER_AUTH_SECRET: "short-production-secret",
+		});
+
+		expect(parsed.BETTER_AUTH_SECRET).toBeUndefined();
+		expect(warn).toHaveBeenCalled();
+		warn.mockRestore();
 	});
 
-	it("rejects Better Auth's predictable production default", async () => {
+	it("disables auth when Better Auth's predictable production default is set", async () => {
 		const mod = await import("../index");
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-		expect(() =>
-			mod.parseEnvironment({
-				NODE_ENV: "production",
-				BETTER_AUTH_SECRET: "better-auth-secret-12345678901234567890",
-			}),
-		).toThrow(/placeholder or default/);
+		const parsed = mod.parseEnvironment({
+			NODE_ENV: "production",
+			BETTER_AUTH_SECRET: "better-auth-secret-12345678901234567890",
+		});
+
+		expect(parsed.BETTER_AUTH_SECRET).toBeUndefined();
+		expect(warn).toHaveBeenCalled();
+		warn.mockRestore();
 	});
 
-	it("rejects the repository's Docker development secret in production", async () => {
+	it("disables auth when the repository's Docker development secret is used in production", async () => {
 		const mod = await import("../index");
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-		expect(() =>
-			mod.parseEnvironment({
-				NODE_ENV: "production",
-				BETTER_AUTH_SECRET: "docker-dev-secret-change-in-production",
-			}),
-		).toThrow(/placeholder or default/);
+		const parsed = mod.parseEnvironment({
+			NODE_ENV: "production",
+			BETTER_AUTH_SECRET: "docker-dev-secret-change-in-production",
+		});
+
+		expect(parsed.BETTER_AUTH_SECRET).toBeUndefined();
+		expect(warn).toHaveBeenCalled();
+		warn.mockRestore();
 	});
 
 	it.each(["development", "test"] as const)(
-		"uses an explicit local-only auth secret in %s",
+		"leaves auth disabled in %s when BETTER_AUTH_SECRET is unset",
 		async (nodeEnv) => {
 			const mod = await import("../index");
 
 			const parsed = mod.parseEnvironment({ NODE_ENV: nodeEnv });
 
-			expect(parsed.BETTER_AUTH_SECRET).toBe(
-				"86d-local-development-only-better-auth-secret",
-			);
+			expect(parsed.BETTER_AUTH_SECRET).toBeUndefined();
 		},
 	);
 
-	it("rejects the local-only auth secret in production", async () => {
+	it("accepts an explicit auth secret outside production", async () => {
 		const mod = await import("../index");
 
-		expect(() =>
-			mod.parseEnvironment({
-				NODE_ENV: "production",
-				BETTER_AUTH_SECRET: "86d-local-development-only-better-auth-secret",
-			}),
-		).toThrow(/local-only/);
+		const parsed = mod.parseEnvironment({
+			NODE_ENV: "development",
+			BETTER_AUTH_SECRET: "dev-secret-any-length",
+		});
+
+		expect(parsed.BETTER_AUTH_SECRET).toBe("dev-secret-any-length");
 	});
 
-	it("rejects a low-entropy production auth secret", async () => {
+	it("disables auth when the local-only auth secret is used in production", async () => {
 		const mod = await import("../index");
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-		expect(() =>
-			mod.parseEnvironment({
-				NODE_ENV: "production",
-				BETTER_AUTH_SECRET: "a".repeat(64),
-			}),
-		).toThrow(/low entropy/);
+		const parsed = mod.parseEnvironment({
+			NODE_ENV: "production",
+			BETTER_AUTH_SECRET: "86d-local-development-only-better-auth-secret",
+		});
+
+		expect(parsed.BETTER_AUTH_SECRET).toBeUndefined();
+		expect(warn).toHaveBeenCalled();
+		warn.mockRestore();
+	});
+
+	it("disables auth when a production auth secret has low entropy", async () => {
+		const mod = await import("../index");
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+		const parsed = mod.parseEnvironment({
+			NODE_ENV: "production",
+			BETTER_AUTH_SECRET: "a".repeat(64),
+		});
+
+		expect(parsed.BETTER_AUTH_SECRET).toBeUndefined();
+		expect(warn).toHaveBeenCalled();
+		warn.mockRestore();
 	});
 
 	it("preserves an acceptable production auth secret", async () => {

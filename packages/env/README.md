@@ -52,7 +52,7 @@ console.log(env.DATABASE_URL);  // string | undefined
 | `NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID` | `string` | — | GTM container ID |
 | `VERCEL_BLOB_STORAGE_HOSTNAME` | `string` | — | Vercel Blob storage host |
 | `RESEND_API_KEY` | `string` | — | Resend email API key |
-| `BETTER_AUTH_SECRET` | `string` | Local-only value outside production | Secret for Better Auth sessions. Production requires at least 32 characters, rejects known defaults, and fails on low entropy. |
+| `BETTER_AUTH_SECRET` | `string \| undefined` | — | When set and safe for the current `NODE_ENV`, enables Better Auth. Missing or production-unsafe values leave authentication disabled; they do not fail boot or build. |
 
 ## API Reference
 
@@ -66,7 +66,7 @@ A validated object containing all environment variables. Throws at import time i
 
 ### `parseEnvironment(environment)`
 
-Validates an explicit environment through the same exported seam used at process startup. Production fails closed when `BETTER_AUTH_SECRET` is missing or weak. Development and test receive a deterministic local-only value when the variable is absent.
+Validates an explicit environment through the same exported seam used at process startup. Missing or production-unsafe `BETTER_AUTH_SECRET` values disable authentication (`undefined`) instead of throwing. No environment variables are required to import this package or build the Store.
 
 ### `Env`
 
