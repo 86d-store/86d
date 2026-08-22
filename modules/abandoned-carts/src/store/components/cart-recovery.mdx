@@ -24,7 +24,7 @@
 
     <div className="mt-6 divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-900">
       {props.items.map((item, idx) => (
-        <div key={`${item.productId}-${idx}`} className="flex items-center gap-4 p-4">
+        <div key={item.id} className="flex items-center gap-4 p-4">
           {item.imageUrl && (
             <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800">
               <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />

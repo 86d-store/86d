@@ -36,9 +36,9 @@ export function CartRecovery({ token }: { token: string }) {
 	if (isLoading) {
 		return (
 			<div className="space-y-4 py-4">
-				{Array.from({ length: 2 }).map((_, i) => (
+				{(["k0", "k1"] as const).map((key) => (
 					<div
-						key={`skel-${i}`}
+						key={key}
 						className="flex items-center gap-4 rounded-lg border border-border p-4"
 					>
 						<div className="h-16 w-16 flex-shrink-0 animate-pulse rounded-md bg-muted" />

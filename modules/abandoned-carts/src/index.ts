@@ -53,13 +53,13 @@ export default function abandonedCarts(options?: AbandonedCartOptions): Module {
 		init: async (ctx: ModuleContext) => {
 			const opts = ctx.options as Record<string, unknown>;
 			const controllerOpts: Record<string, number> = {};
-			if (typeof opts?.maxRecoveryAttempts === "number") {
+			if (typeof opts.maxRecoveryAttempts === "number") {
 				controllerOpts.maxRecoveryAttempts = opts.maxRecoveryAttempts;
 			}
-			if (typeof opts?.expirationDays === "number") {
+			if (typeof opts.expirationDays === "number") {
 				controllerOpts.expirationDays = opts.expirationDays;
 			}
-			if (typeof opts?.abandonmentThresholdMinutes === "number") {
+			if (typeof opts.abandonmentThresholdMinutes === "number") {
 				controllerOpts.abandonmentThresholdMinutes =
 					opts.abandonmentThresholdMinutes;
 			}

@@ -222,8 +222,8 @@ function DetailPanel({
 						<div className="h-3 w-32 rounded bg-muted" />
 					</div>
 					<div className="mt-4 grid grid-cols-2 gap-4">
-						{Array.from({ length: 4 }).map((_, i) => (
-							<div key={i}>
+						{(["k0", "k1", "k2", "k3"] as const).map((key) => (
+							<div key={key}>
 								<div className="h-3 w-16 rounded bg-muted" />
 								<div className="mt-1.5 h-4 w-28 rounded bg-muted" />
 							</div>
@@ -235,9 +235,9 @@ function DetailPanel({
 						<div className="h-4 w-24 rounded bg-muted" />
 					</div>
 					<div className="divide-y divide-border">
-						{Array.from({ length: 3 }).map((_, i) => (
+						{(["k0", "k1", "k2"] as const).map((key) => (
 							<div
-								key={i}
+								key={key}
 								className="flex items-center justify-between px-5 py-3"
 							>
 								<div className="h-4 w-32 rounded bg-muted" />
@@ -356,9 +356,9 @@ function DetailPanel({
 					</div>
 				) : (
 					<div className="divide-y divide-border">
-						{cart.items.map((item: CartItemSnapshot, idx: number) => (
+						{cart.items.map((item: CartItemSnapshot, _idx: number) => (
 							<div
-								key={`${item.productId}-${idx}`}
+								key={key}
 								className="flex items-center justify-between px-5 py-3"
 							>
 								<div>

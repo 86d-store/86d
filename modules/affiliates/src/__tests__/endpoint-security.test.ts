@@ -242,12 +242,13 @@ describe("affiliates endpoint security", () => {
 			const conversion = await createConversion(affiliate.id);
 			expect(conversion).not.toBeNull();
 
-			if (conversion) {
-				await controller.approveConversion(conversion.id);
-				// Second approval fails
-				const second = await controller.approveConversion(conversion.id);
-				expect(second).toBeNull();
+			if (!conversion) {
+				throw new Error("expected conversion");
 			}
+			await controller.approveConversion(conversion.id);
+			// Second approval fails
+			const second = await controller.approveConversion(conversion.id);
+			expect(second).toBeNull();
 		});
 
 		it("only pending conversions can be rejected", async () => {
@@ -257,11 +258,13 @@ describe("affiliates endpoint security", () => {
 			);
 			const conversion = await createConversion(affiliate.id);
 
-			if (conversion) {
-				await controller.approveConversion(conversion.id);
-				const rejected = await controller.rejectConversion(conversion.id);
-				expect(rejected).toBeNull();
+			expect(conversion).toBeTruthy();
+			if (!conversion) {
+				throw new Error("expected conversion");
 			}
+			await controller.approveConversion(conversion.id);
+			const rejected = await controller.rejectConversion(conversion.id);
+			expect(rejected).toBeNull();
 		});
 
 		it("rejected conversion does not affect balance", async () => {
@@ -328,10 +331,12 @@ describe("affiliates endpoint security", () => {
 				method: "bank_transfer",
 			});
 
-			if (payout) {
-				const completed = await controller.completePayout(payout.id);
-				expect(completed?.status).toBe("completed");
+			expect(payout).toBeTruthy();
+			if (!payout) {
+				throw new Error("expected payout");
 			}
+			const completed = await controller.completePayout(payout.id);
+			expect(completed?.status).toBe("completed");
 		});
 
 		it("failed payout does not reduce balance", async () => {
@@ -387,13 +392,15 @@ describe("affiliates endpoint security", () => {
 				targetUrl: "https://store.com/product",
 			});
 
-			if (link) {
-				await controller.deactivateLink(link.id);
-
-				const found = await controller.getLink(link.id);
-				expect(found).not.toBeNull();
-				expect(found?.active).toBe(false);
+			expect(link).toBeTruthy();
+			if (!link) {
+				throw new Error("expected link");
 			}
+			await controller.deactivateLink(link.id);
+
+			const found = await controller.getLink(link.id);
+			expect(found).not.toBeNull();
+			expect(found?.active).toBe(false);
 		});
 
 		it("click recording works on active links", async () => {
@@ -406,11 +413,13 @@ describe("affiliates endpoint security", () => {
 				targetUrl: "https://store.com/product",
 			});
 
-			if (link) {
-				const clicked = await controller.recordClick(link.id);
-				expect(clicked).not.toBeNull();
-				expect(clicked?.clicks).toBe(1);
+			expect(link).toBeTruthy();
+			if (!link) {
+				throw new Error("expected link");
 			}
+			const clicked = await controller.recordClick(link.id);
+			expect(clicked).not.toBeNull();
+			expect(clicked?.clicks).toBe(1);
 		});
 
 		it("non-existent link returns null", async () => {

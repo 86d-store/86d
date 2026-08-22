@@ -233,9 +233,9 @@ export function PayoutList() {
 			{/* Payout list */}
 			{isLoading ? (
 				<div className="space-y-3">
-					{Array.from({ length: 4 }).map((_, i) => (
+					{(["k0", "k1", "k2", "k3"] as const).map((key) => (
 						<div
-							key={`skel-${i}`}
+							key={key}
 							className="h-14 animate-pulse rounded-lg border border-border bg-muted/30"
 						/>
 					))}

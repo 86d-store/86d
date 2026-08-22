@@ -145,7 +145,9 @@ describe("abandoned-carts admin workflows", () => {
 
 			const attempts = await controller.listAttempts(cart.id);
 			expect(attempts).toHaveLength(3);
-			const channels = attempts.map((a) => a.channel).sort();
+			const channels = attempts
+				.map((a) => a.channel)
+				.sort((a, b) => a.localeCompare(b));
 			expect(channels).toEqual(["email", "push", "sms"]);
 		});
 	});
