@@ -469,13 +469,13 @@ export function QuestionDetail({
 							<div>
 								<dt className="text-muted-foreground">Answers</dt>
 								<dd className="font-medium text-foreground">
-									{question.answerCount ?? answers.length}
+									{question.answerCount}
 								</dd>
 							</div>
 							<div>
 								<dt className="text-muted-foreground">Upvotes</dt>
 								<dd className="font-medium text-foreground">
-									{question.upvoteCount ?? 0}
+									{question.upvoteCount}
 								</dd>
 							</div>
 							<div>

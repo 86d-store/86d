@@ -176,10 +176,12 @@ describe("store endpoint: get-feed-by-slug", () => {
 		const result = await simulateGetFeedBySlug(data, "custom-feed");
 
 		expect("feed" in result && "output" in result).toBe(true);
-		if ("feed" in result && result.output != null) {
-			expect(result.feed.slug).toBe("custom-feed");
-			expect(typeof result.output).toBe("string");
-			expect(result.output.length).toBeGreaterThan(0);
+		expect("feed" in result && result.output != null).toBeTruthy();
+		if (!("feed" in result && result.output != null)) {
+			throw new Error("expected 'feed' in result && result.output != null");
 		}
+		expect(result.feed.slug).toBe("custom-feed");
+		expect(typeof result.output).toBe("string");
+		expect(result.output.length).toBeGreaterThan(0);
 	});
 });

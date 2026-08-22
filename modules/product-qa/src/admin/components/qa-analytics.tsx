@@ -44,9 +44,9 @@ export function QaAnalytics() {
 
 			{isLoading ? (
 				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-					{Array.from({ length: 4 }).map((_, i) => (
+					{(["k0", "k1", "k2", "k3"] as const).map((key) => (
 						<div
-							key={`skel-${i}`}
+							key={key}
 							className="h-24 animate-pulse rounded-lg border border-border bg-muted/30"
 						/>
 					))}

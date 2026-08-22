@@ -314,9 +314,10 @@ describe("store endpoint: upvote question", () => {
 		const result = await simulateUpvoteQuestion(data, q.id);
 
 		expect("question" in result).toBe(true);
-		if ("question" in result) {
-			expect(result.question.upvoteCount).toBe(1);
+		if (!("question" in result)) {
+			throw new Error("expected 'question' in result");
 		}
+		expect(result.question.upvoteCount).toBe(1);
 	});
 
 	it("accumulates votes", async () => {
@@ -333,9 +334,10 @@ describe("store endpoint: upvote question", () => {
 		const result = await simulateUpvoteQuestion(data, q.id);
 
 		expect("question" in result).toBe(true);
-		if ("question" in result) {
-			expect(result.question.upvoteCount).toBe(3);
+		if (!("question" in result)) {
+			throw new Error("expected 'question' in result");
 		}
+		expect(result.question.upvoteCount).toBe(3);
 	});
 
 	it("returns 404 for nonexistent question", async () => {
@@ -371,9 +373,10 @@ describe("store endpoint: upvote answer", () => {
 		const result = await simulateUpvoteAnswer(data, a.id);
 
 		expect("answer" in result).toBe(true);
-		if ("answer" in result) {
-			expect(result.answer.upvoteCount).toBe(1);
+		if (!("answer" in result)) {
+			throw new Error("expected 'answer' in result");
 		}
+		expect(result.answer.upvoteCount).toBe(1);
 	});
 
 	it("returns 404 for nonexistent answer", async () => {

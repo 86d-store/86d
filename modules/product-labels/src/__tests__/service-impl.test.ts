@@ -478,7 +478,9 @@ describe("createProductLabelController", () => {
 			const products = await controller.getProductsForLabel({
 				labelId: label.id,
 			});
-			const productIds = products.map((p) => p.productId).sort();
+			const productIds = products
+				.map((p) => p.productId)
+				.sort((a, b) => a.localeCompare(b));
 			expect(productIds).toEqual(["prod_1", "prod_2"]);
 		});
 

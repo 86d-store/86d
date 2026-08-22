@@ -72,7 +72,7 @@ export function createPriceListController(
 
 		async getPriceList(id) {
 			const raw = await data.get("priceList", id);
-			return (raw as unknown as PriceList) ?? null;
+			return raw as unknown as PriceList;
 		},
 
 		async getPriceListBySlug(slug) {

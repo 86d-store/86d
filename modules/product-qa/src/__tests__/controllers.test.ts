@@ -540,9 +540,11 @@ describe("product-qa controllers — edge cases", () => {
 			const officialId = officialAnswers[0]?.id;
 			await controller.deleteQuestion(q1.id);
 			expect(await controller.getQuestion(q1.id)).toBeNull();
-			if (officialId) {
-				expect(await controller.getAnswer(officialId)).toBeNull();
+			expect(officialId).toBeTruthy();
+			if (!officialId) {
+				throw new Error("expected officialId");
 			}
+			expect(await controller.getAnswer(officialId)).toBeNull();
 		});
 	});
 });

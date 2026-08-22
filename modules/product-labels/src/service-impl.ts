@@ -39,7 +39,7 @@ export function createProductLabelController(
 
 		async getLabel(id) {
 			const raw = await data.get("label", id);
-			return (raw as unknown as Label) ?? null;
+			return raw as unknown as Label;
 		},
 
 		async getLabelBySlug(slug) {

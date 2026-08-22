@@ -189,10 +189,11 @@ describe("store endpoint: get label by slug — single label lookup", () => {
 		const result = await simulateGetLabel(data, "flash-sale");
 
 		expect("label" in result).toBe(true);
-		if ("label" in result) {
-			expect(result.label.slug).toBe("flash-sale");
-			expect(result.label.displayText).toBe("FLASH");
+		if (!("label" in result)) {
+			throw new Error("expected 'label' in result");
 		}
+		expect(result.label.slug).toBe("flash-sale");
+		expect(result.label.displayText).toBe("FLASH");
 	});
 
 	it("returns 404 for nonexistent slug", async () => {
