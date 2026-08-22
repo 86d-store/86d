@@ -150,7 +150,9 @@ describe("no events without emitter", () => {
 			price: 5,
 			quantity: 1,
 		});
-		await ctrl.completeSession(session?.id as string, "cash");
+		await expect(
+			ctrl.completeSession(session?.id as string, "cash"),
+		).resolves.toBeUndefined();
 	});
 });
 

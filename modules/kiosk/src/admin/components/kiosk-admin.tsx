@@ -77,11 +77,8 @@ export function KioskAdmin() {
 		<KioskAdminTemplate>
 			{loading ? (
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-					{Array.from({ length: 4 }, (_, i) => (
-						<div
-							key={`sk-${i}`}
-							className="rounded-md border border-border p-4"
-						>
+					{Array.from({ length: 4 }, (_, _i) => (
+						<div key={key} className="rounded-md border border-border p-4">
 							<Skeleton className="mb-2 h-3 w-14" />
 							<Skeleton className="h-7 w-20" />
 						</div>

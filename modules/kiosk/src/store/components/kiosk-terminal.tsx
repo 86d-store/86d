@@ -119,7 +119,7 @@ export function KioskTerminal(props: KioskTerminalProps) {
 
 	// Reset idle timer on any interaction
 	const resetIdleTimer = useCallback(() => {
-		if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+		clearTimeout(idleTimerRef.current ?? undefined);
 		if (session && !isCompleted) {
 			idleTimerRef.current = setTimeout(() => {
 				setSession(null);
@@ -131,7 +131,7 @@ export function KioskTerminal(props: KioskTerminalProps) {
 	useEffect(() => {
 		resetIdleTimer();
 		return () => {
-			if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+			clearTimeout(idleTimerRef.current ?? undefined);
 		};
 	}, [resetIdleTimer]);
 
@@ -205,7 +205,7 @@ export function KioskTerminal(props: KioskTerminalProps) {
 			if (result.session) {
 				setSession(result.session);
 				setIsCompleted(true);
-				if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+				clearTimeout(idleTimerRef.current ?? undefined);
 				setTimeout(() => {
 					setSession(null);
 					setIsCompleted(false);

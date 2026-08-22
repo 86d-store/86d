@@ -104,11 +104,12 @@ describe("get-balance (GET /loyalty/balance)", () => {
 			userId: "cust_1",
 		});
 		expect("balance" in result).toBe(true);
-		if ("balance" in result) {
-			expect(result.balance).toBe(0);
-			expect(result.tier).toBe("bronze");
-			expect(result.status).toBe("active");
+		if (!("balance" in result)) {
+			throw new Error("expected 'balance' in result");
 		}
+		expect(result.balance).toBe(0);
+		expect(result.tier).toBe("bronze");
+		expect(result.status).toBe("active");
 	});
 
 	it("returns current balance after earning points", async () => {
@@ -121,11 +122,13 @@ describe("get-balance (GET /loyalty/balance)", () => {
 		const result = await simulateGetBalance(controller, {
 			userId: "cust_1",
 		});
-		if ("balance" in result) {
-			expect(result.balance).toBe(500);
-			expect(result.lifetimeEarned).toBe(500);
-			expect(result.tier).toBe("silver");
+		expect("balance" in result).toBeTruthy();
+		if (!("balance" in result)) {
+			throw new Error("expected 'balance' in result");
 		}
+		expect(result.balance).toBe(500);
+		expect(result.lifetimeEarned).toBe(500);
+		expect(result.tier).toBe("silver");
 	});
 });
 
@@ -153,9 +156,10 @@ describe("list-transactions (GET /loyalty/transactions)", () => {
 			{ userId: "cust_1" },
 		);
 		expect("transactions" in result).toBe(true);
-		if ("transactions" in result) {
-			expect(result.transactions).toHaveLength(2);
+		if (!("transactions" in result)) {
+			throw new Error("expected 'transactions' in result");
 		}
+		expect(result.transactions).toHaveLength(2);
 	});
 
 	it("returns empty list for new customer", async () => {
@@ -164,9 +168,11 @@ describe("list-transactions (GET /loyalty/transactions)", () => {
 			{},
 			{ userId: "cust_new" },
 		);
-		if ("transactions" in result) {
-			expect(result.transactions).toHaveLength(0);
+		expect("transactions" in result).toBeTruthy();
+		if (!("transactions" in result)) {
+			throw new Error("expected 'transactions' in result");
 		}
+		expect(result.transactions).toHaveLength(0);
 	});
 
 	it("filters by transaction type", async () => {
@@ -186,10 +192,12 @@ describe("list-transactions (GET /loyalty/transactions)", () => {
 			{ type: "earn" },
 			{ userId: "cust_1" },
 		);
-		if ("transactions" in earns) {
-			expect(earns.transactions).toHaveLength(1);
-			expect(earns.transactions[0].type).toBe("earn");
+		expect("transactions" in earns).toBeTruthy();
+		if (!("transactions" in earns)) {
+			throw new Error("expected 'transactions' in earns");
 		}
+		expect(earns.transactions).toHaveLength(1);
+		expect(earns.transactions[0].type).toBe("earn");
 	});
 });
 
@@ -212,18 +220,21 @@ describe("redeem (POST /loyalty/redeem)", () => {
 			{ userId: "cust_1" },
 		);
 		expect("transaction" in result).toBe(true);
-		if ("transaction" in result) {
-			expect(result.transaction.type).toBe("redeem");
-			expect(result.transaction.points).toBe(200);
+		if (!("transaction" in result)) {
+			throw new Error("expected 'transaction' in result");
 		}
+		expect(result.transaction.type).toBe("redeem");
+		expect(result.transaction.points).toBe(200);
 
 		// Verify balance decreased
 		const balance = await simulateGetBalance(controller, {
 			userId: "cust_1",
 		});
-		if ("balance" in balance) {
-			expect(balance.balance).toBe(300);
+		expect("balance" in balance).toBeTruthy();
+		if (!("balance" in balance)) {
+			throw new Error("expected 'balance' in balance");
 		}
+		expect(balance.balance).toBe(300);
 	});
 
 	it("rejects redemption with insufficient points", async () => {
@@ -334,10 +345,12 @@ describe("cross-endpoint lifecycle", () => {
 
 		// Check balance
 		const balance = await simulateGetBalance(controller, session);
-		if ("balance" in balance) {
-			expect(balance.balance).toBe(1000);
-			expect(balance.tier).toBe("silver");
+		expect("balance" in balance).toBeTruthy();
+		if (!("balance" in balance)) {
+			throw new Error("expected 'balance' in balance");
 		}
+		expect(balance.balance).toBe(1000);
+		expect(balance.tier).toBe("silver");
 
 		// Redeem
 		const redeemed = await simulateRedeem(
@@ -349,15 +362,19 @@ describe("cross-endpoint lifecycle", () => {
 
 		// Verify balance
 		const after = await simulateGetBalance(controller, session);
-		if ("balance" in after) {
-			expect(after.balance).toBe(700);
-			expect(after.lifetimeRedeemed).toBe(300);
+		expect("balance" in after).toBeTruthy();
+		if (!("balance" in after)) {
+			throw new Error("expected 'balance' in after");
 		}
+		expect(after.balance).toBe(700);
+		expect(after.lifetimeRedeemed).toBe(300);
 
 		// Verify transactions list
 		const txns = await simulateListTransactions(controller, {}, session);
-		if ("transactions" in txns) {
-			expect(txns.transactions).toHaveLength(2);
+		expect("transactions" in txns).toBeTruthy();
+		if (!("transactions" in txns)) {
+			throw new Error("expected 'transactions' in txns");
 		}
+		expect(txns.transactions).toHaveLength(2);
 	});
 });

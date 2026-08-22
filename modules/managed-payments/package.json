@@ -45,7 +45,8 @@
 	},
 	"dependencies": {
 		"@86d-app/core": "workspace:*",
-		"@86d-app/sdk": "workspace:*"
+		"@86d-app/sdk": "workspace:*",
+		"env": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

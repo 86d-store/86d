@@ -1,4 +1,4 @@
-import { z } from "@86d-app/core/zod";
+import { z } from "zod";
 
 export const STORE_RUNTIME_WORKLOAD_AUDIENCE =
 	"https://86d.app/api/store-runtime" as const;

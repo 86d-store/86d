@@ -1,16 +1,8 @@
 import type { PaymentOutcomeRecorderPort } from "@86d-app/core/payment-checkout-ports";
 import type { Module, ModuleContext } from "@86d-app/core/types/module";
 import { readManagedWorkloadConfig } from "@86d-app/sdk/workload-token-client";
+import { createManagedPaymentClient } from "./managed-payment-client";
 import {
-	MANAGED_PAYMENT_WORKLOAD_SCOPES,
-	STORE_RUNTIME_WORKLOAD_AUDIENCE,
-} from "./contracts";
-import {
-	createManagedPaymentClient,
-	type ManagedPaymentClient,
-} from "./managed-payment-client";
-import {
-	consumeManagedPaymentOutcomes,
 	createManagedPaymentOutcomeConsumer,
 	type ManagedPaymentOutcomeConsumer,
 } from "./outcome-consumer";
@@ -24,14 +16,6 @@ export type {
 	SubmitManagedPaymentOperationInput,
 } from "./contracts";
 export type { ManagedPaymentOutcomeConsumerResult } from "./outcome-consumer";
-export type { ManagedPaymentClient };
-export {
-	consumeManagedPaymentOutcomes,
-	createManagedPaymentClient,
-	createManagedPaymentOutcomeConsumer,
-	MANAGED_PAYMENT_WORKLOAD_SCOPES,
-	STORE_RUNTIME_WORKLOAD_AUDIENCE,
-};
 
 export interface ManagedPaymentsOptions {
 	/** Override managed workload configuration instead of reading env vars. */
@@ -78,3 +62,5 @@ export default function managedPayments(
 		},
 	};
 }
+
+export type { ManagedPaymentClient } from "./managed-payment-client";

@@ -37,30 +37,27 @@ export function InvoiceTracker() {
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 
+	const trackMutation = (
+		api.track as {
+			useMutation: () => {
+				mutateAsync: (p: { invoiceNumber: string; email: string }) => Promise<{
+					invoice?: TrackedInvoice;
+					error?: string;
+				}>;
+			};
+		}
+	).useMutation();
+
 	const handleTrack = useCallback(async () => {
 		if (!invoiceNumber.trim() || !email.trim()) return;
 		setLoading(true);
 		setError("");
 		setInvoice(null);
 
-		const result = (await (
-			api.track as {
-				useMutation: () => {
-					mutateAsync: (p: {
-						invoiceNumber: string;
-						email: string;
-					}) => Promise<{
-						invoice?: TrackedInvoice;
-						error?: string;
-					}>;
-				};
-			}
-		)
-			.useMutation()
-			.mutateAsync({
-				invoiceNumber: invoiceNumber.trim(),
-				email: email.trim(),
-			})) as { invoice?: TrackedInvoice; error?: string };
+		const result = (await trackMutation.mutateAsync({
+			invoiceNumber: invoiceNumber.trim(),
+			email: email.trim(),
+		})) as { invoice?: TrackedInvoice; error?: string };
 
 		if (result.error) {
 			setError(
@@ -70,7 +67,7 @@ export function InvoiceTracker() {
 			setInvoice(result.invoice);
 		}
 		setLoading(false);
-	}, [invoiceNumber, email, api.track]);
+	}, [invoiceNumber, email, trackMutation]);
 
 	return (
 		<InvoiceTrackerTemplate

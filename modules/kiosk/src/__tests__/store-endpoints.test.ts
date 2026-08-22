@@ -137,10 +137,11 @@ describe("store endpoint: start session", () => {
 		const result = await simulateStartSession(data, station.id);
 
 		expect("session" in result).toBe(true);
-		if ("session" in result) {
-			expect(result.session.stationId).toBe(station.id);
-			expect(result.session.status).toBe("active");
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.stationId).toBe(station.id);
+		expect(result.session.status).toBe("active");
 	});
 
 	it("returns 404 for nonexistent station", async () => {
@@ -173,9 +174,10 @@ describe("store endpoint: add/remove items", () => {
 		});
 
 		expect("session" in result).toBe(true);
-		if ("session" in result) {
-			expect(result.session.items.length).toBeGreaterThanOrEqual(1);
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.items.length).toBeGreaterThanOrEqual(1);
 	});
 });
 
@@ -203,9 +205,10 @@ describe("store endpoint: complete session", () => {
 		const result = await simulateCompleteSession(data, session.id, "card");
 
 		expect("session" in result).toBe(true);
-		if ("session" in result) {
-			expect(result.session.status).toBe("completed");
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.status).toBe("completed");
 	});
 });
 
@@ -228,9 +231,10 @@ describe("store endpoint: abandon session", () => {
 		const result = await simulateAbandonSession(data, session.id);
 
 		expect("session" in result).toBe(true);
-		if ("session" in result) {
-			expect(result.session.status).toBe("abandoned");
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.status).toBe("abandoned");
 	});
 });
 
@@ -253,10 +257,11 @@ describe("store endpoint: get session", () => {
 		const result = await simulateGetSession(data, session.id);
 
 		expect("session" in result).toBe(true);
-		if ("session" in result) {
-			expect(result.session.id).toBe(session.id);
-			expect(result.session.status).toBe("active");
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.id).toBe(session.id);
+		expect(result.session.status).toBe("active");
 	});
 
 	it("returns 404 for nonexistent session", async () => {
@@ -276,9 +281,11 @@ describe("store endpoint: get session", () => {
 
 		const result = await simulateGetSession(data, session.id);
 
-		if ("session" in result) {
-			expect(result.session.stationId).toBe(station.id);
+		expect("session" in result).toBeTruthy();
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.stationId).toBe(station.id);
 	});
 });
 
@@ -309,10 +316,11 @@ describe("store endpoint: remove item", () => {
 		const result = await simulateRemoveItem(data, session.id, itemId);
 
 		expect("session" in result).toBe(true);
-		if ("session" in result) {
-			expect(result.session.items).toHaveLength(0);
-			expect(result.session.subtotal).toBe(0);
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.items).toHaveLength(0);
+		expect(result.session.subtotal).toBe(0);
 	});
 
 	it("returns 404 for nonexistent item", async () => {
@@ -360,10 +368,12 @@ describe("store endpoint: remove item", () => {
 
 		const result = await simulateRemoveItem(data, session.id, sodaId);
 
-		if ("session" in result) {
-			expect(result.session.items).toHaveLength(1);
-			expect(result.session.subtotal).toBe(800);
+		expect("session" in result).toBeTruthy();
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.items).toHaveLength(1);
+		expect(result.session.subtotal).toBe(800);
 	});
 });
 
@@ -394,10 +404,11 @@ describe("store endpoint: update item quantity", () => {
 		const result = await simulateUpdateItem(data, session.id, itemId, 3);
 
 		expect("session" in result).toBe(true);
-		if ("session" in result) {
-			expect(result.session.items[0].quantity).toBe(3);
-			expect(result.session.subtotal).toBe(2700);
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.items[0].quantity).toBe(3);
+		expect(result.session.subtotal).toBe(2700);
 	});
 
 	it("removes item when quantity is set to 0", async () => {
@@ -420,10 +431,11 @@ describe("store endpoint: update item quantity", () => {
 		const result = await simulateUpdateItem(data, session.id, itemId, 0);
 
 		expect("session" in result).toBe(true);
-		if ("session" in result) {
-			expect(result.session.items).toHaveLength(0);
-			expect(result.session.subtotal).toBe(0);
+		if (!("session" in result)) {
+			throw new Error("expected 'session' in result");
 		}
+		expect(result.session.items).toHaveLength(0);
+		expect(result.session.subtotal).toBe(0);
 	});
 
 	it("returns 404 for nonexistent item", async () => {
@@ -469,10 +481,11 @@ describe("store endpoint: heartbeat", () => {
 		const result = await simulateHeartbeat(data, station.id);
 
 		expect("station" in result).toBe(true);
-		if ("station" in result) {
-			expect(result.station.isOnline).toBe(true);
-			expect(result.station.lastHeartbeat).toBeDefined();
+		if (!("station" in result)) {
+			throw new Error("expected 'station' in result");
 		}
+		expect(result.station.isOnline).toBe(true);
+		expect(result.station.lastHeartbeat).toBeDefined();
 	});
 
 	it("returns 404 for nonexistent station", async () => {
@@ -492,10 +505,14 @@ describe("store endpoint: heartbeat", () => {
 		const result = await simulateHeartbeat(data, station.id);
 		const after = new Date();
 
-		if ("station" in result && result.station.lastHeartbeat) {
-			const hb = new Date(result.station.lastHeartbeat);
-			expect(hb.getTime()).toBeGreaterThanOrEqual(before.getTime());
-			expect(hb.getTime()).toBeLessThanOrEqual(after.getTime() + 100);
+		expect("station" in result && result.station.lastHeartbeat).toBeTruthy();
+		if (!("station" in result && result.station.lastHeartbeat)) {
+			throw new Error(
+				"expected 'station' in result && result.station.lastHeartbeat",
+			);
 		}
+		const hb = new Date(result.station.lastHeartbeat);
+		expect(hb.getTime()).toBeGreaterThanOrEqual(before.getTime());
+		expect(hb.getTime()).toBeLessThanOrEqual(after.getTime() + 100);
 	});
 });
