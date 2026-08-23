@@ -1,19 +1,17 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
-import { Inter, Zalando_Sans } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "~/components/ui/sonner";
+import "./_brand-fonts";
 import "./globals.css";
 import { GoogleTagManager } from "@next/third-parties/google";
 import { StoreQueryProvider } from "components/providers";
 import { ThemePreloadRelease } from "components/theme-preload-release";
 import env from "env";
 import { getProcessEnv } from "env/process-env";
-import { IBM_Plex_Mono, Merriweather } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { getBaseUrl } from "utils/url";
-import { cn } from "~/lib/utils";
 import { buildWebSiteJsonLd } from "../lib/seo";
 
 export const metadata: Metadata = {
@@ -40,32 +38,6 @@ export const viewport: Viewport = {
 		{ media: "(prefers-color-scheme: dark)", color: "black" },
 	],
 };
-
-const display = Zalando_Sans({
-	subsets: ["latin"],
-	variable: "--font-display",
-	weight: ["400", "700", "900"],
-	style: ["normal", "italic"],
-	adjustFontFallback: false,
-});
-
-const inter = Inter({
-	subsets: ["latin"],
-	variable: "--font-sans",
-	weight: ["400", "500", "700", "800", "900"],
-});
-
-const merriweather = Merriweather({
-	subsets: ["latin"],
-	variable: "--font-serif",
-	weight: ["400", "700"],
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-	subsets: ["latin"],
-	variable: "--font-mono",
-	weight: ["400", "600"],
-});
 
 /** Matches `globals.css` :root / .dark --background for first paint before Tailwind vars apply. */
 const THEME_BG_LIGHT = "oklch(1 0 0)";
@@ -111,13 +83,7 @@ export default async function RootLayout({
 			lang="en"
 			suppressHydrationWarning
 			data-theme-preload={themePreload}
-			className={cn(
-				merriweather.variable,
-				ibmPlexMono.variable,
-				display.variable,
-				"font-sans",
-				inter.variable,
-			)}
+			className="font-sans"
 		>
 			<head>
 				<meta httpEquiv="Accept-CH" content="Sec-CH-Prefers-Color-Scheme" />

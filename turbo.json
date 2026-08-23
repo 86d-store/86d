@@ -90,9 +90,7 @@
             "cache": false
         },
         "typecheck": {
-            "dependsOn": [
-                "^build"
-            ],
+            "dependsOn": [],
             "outputs": []
         },
         "check": {
@@ -103,9 +101,7 @@
             "outputs": []
         },
         "test": {
-            "dependsOn": [
-                "^build"
-            ],
+            "dependsOn": [],
             "outputs": []
         }
     }

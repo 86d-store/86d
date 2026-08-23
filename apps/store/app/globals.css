@@ -11,6 +11,15 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
+	:root {
+		--font-display: "Zalando Sans", ui-sans-serif, system-ui, sans-serif;
+		--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+		--font-serif: "Merriweather", ui-serif, Georgia, "Times New Roman", serif;
+		--font-mono:
+			"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+			"Liberation Mono", "Courier New", monospace;
+	}
+
 	* {
 		@apply border-border outline-ring/50;
 	}
