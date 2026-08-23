@@ -8,7 +8,7 @@ This is a strict TypeScript Bun monorepo orchestrated by Turborepo.
 
 1. **Route the context.** Read workspace `../AGENTS.md` when it exists, then this guide, then every nearer `AGENTS.md` down to the files you will touch.
    - Product behavior, authority, payments, Checkout, Fulfillment, managed credentials, Modules, and agent surfaces: start at `../prd/README.md` and follow every reading route it names for the branch.
-   - Visual or interaction work: also read `../prd/experience.md` before implementation. It owns UI/UX law; this guide owns repository mechanics.
+   - Visual or interaction work: also read `../prd/experience.md`, especially [Composition](../prd/experience.md#composition), before implementation. It owns UI/UX law; this guide owns repository mechanics.
    - Maturity or shipment claims: also read `../prd/current-state.md`, `../prd/launch.md`, and the relevant evidence. Code, endpoints, packages, and generated metadata do not prove maturity.
    - The PRD is target authority; code is current implementation. Resolve a difference through an explicit migration — never by silently treating either as the other.
    - Done when every named route for this branch is loaded and the authority boundary below is clear.
@@ -112,6 +112,14 @@ The canonical registry manifest is the published `apps/registry/registry.json` f
 - Derive `customerId`, email, and other identity from `ctx.context.session.user`, never request input. Reject client-supplied trust-elevation flags.
 - Verify ownership before mutating user-scoped resources. Return 404 rather than 403 when revealing existence would leak data.
 - Money, Shipping, tax, webhook, and destructive paths execute only through a complete Workflow with evidence; otherwise they fail closed.
+
+## UI and composition
+
+Visual and interaction law lives in [`experience.md#composition`](../prd/experience.md#composition).
+
+- Preserve existing UI composed from `@86d-app/ui`, Module `admin/components/` and `store/components/`, route `_components/`, or template `.tsx` + `.mdx` pairs. Wire data, loading, and error states through what exists.
+- The only replacement agents should make is substituting ad hoc `div`/`span`/`p` or heavily classNamed layout/text for the matching `@86d-app/ui` primitive or Module component when one exists.
+- Do not replace one composed surface with another unless `experience.md` and the active plan explicitly require it.
 
 ## Product language
 
