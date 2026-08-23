@@ -58,6 +58,7 @@
 		"@biomejs/biome": "catalog:",
 		"@electric-sql/pglite": "0.4.1",
 		"@types/node": "catalog:node",
+		"@types/pg": "8.23.1",
 		"drizzle-kit": "0.31.10",
 		"sharp": "0.35.3",
 		"tsx": "catalog:",

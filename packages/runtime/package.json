@@ -93,6 +93,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "catalog:",
 		"@electric-sql/pglite": "0.4.1",
+		"@types/pg": "8.23.1",
 		"db": "workspace:*",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"

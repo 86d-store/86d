@@ -1,6 +1,6 @@
 {
   "lockfileVersion": 1,
-  "generatedAt": "2026-08-22T23:19:32.066Z",
+  "generatedAt": "2026-08-23T18:54:42.651Z",
   "modules": {
     "abandoned-carts": {
       "source": "local",
@@ -34,7 +34,7 @@
       "source": "local",
       "packageName": "@86d-app/announcements",
       "version": "0.0.42",
-      "integrity": "sha256-2a7274faf5ba248864930707bd073fde538c363f77044f0dea525fa2b8e9cb0c",
+      "integrity": "sha256-663285b7cb45b263295a27ab4438e2a602dfe3c8c3ac560c4500d459f37ae844",
       "localPath": "modules/announcements"
     },
     "appointments": {
@@ -55,14 +55,14 @@
       "source": "local",
       "packageName": "@86d-app/audit-log",
       "version": "0.0.42",
-      "integrity": "sha256-f987fa73a6a2cacf28cf4e860b637d17ae51e9b0719bb8b61172a1ad83e691d3",
+      "integrity": "sha256-3a44066d7b3c61eb6c68d1f2d3e86011c6bb1c36d564915b4622423846ce22cb",
       "localPath": "modules/audit-log"
     },
     "automations": {
       "source": "local",
       "packageName": "@86d-app/automations",
       "version": "0.0.42",
-      "integrity": "sha256-740ab33a84c77a084fd587d8235ea5bcaadc9176577b02dbd507be45fb6a35c2",
+      "integrity": "sha256-e8b80232578eacd012e8276fa8e22001ee1092a0ef415619d889327fb521ed8f",
       "localPath": "modules/automations"
     },
     "backorders": {
@@ -181,7 +181,7 @@
       "source": "local",
       "packageName": "@86d-app/ebay",
       "version": "0.0.42",
-      "integrity": "sha256-451d93b93e35df23ad6930fa0a6cf2e7b5f22fa27f5bfcad5c2b3451d3c5e46b",
+      "integrity": "sha256-33e777d1d535b85b099015cc5efae0b67a41a26b8068dfffdb49ac63137a1d1c",
       "localPath": "modules/ebay"
     },
     "etsy": {
@@ -216,7 +216,7 @@
       "source": "local",
       "packageName": "@86d-app/flash-sales",
       "version": "0.0.42",
-      "integrity": "sha256-b1cb44f1643753029d83d86523441a7a4fa4045a66307e3910ef83a9a61f6da2",
+      "integrity": "sha256-05ab96e82498f7bb9622388f0a474b7935789c3d71ce82fec02fa687ab038f6e",
       "localPath": "modules/flash-sales"
     },
     "forms": {
@@ -272,7 +272,7 @@
       "source": "local",
       "packageName": "@86d-app/import-export",
       "version": "0.0.42",
-      "integrity": "sha256-ec6e37fab3edf1c49374361572426fe1147552afbaaf14dfe41b4230c0bd931d",
+      "integrity": "sha256-36d7f9314372de8d368195e87f9e2414612362f4cf19eb85c209db22370bbdd1",
       "localPath": "modules/import-export"
     },
     "instagram-shop": {
@@ -517,7 +517,7 @@
       "source": "local",
       "packageName": "@86d-app/search",
       "version": "0.0.42",
-      "integrity": "sha256-b1dcf85f8e19b91cb516b51b1c5f1c17fae122ca91c801f9bd4413d12d786b60",
+      "integrity": "sha256-0e959ab9206cf076023b401ed51865fc46dac6d763201334ab02b1de8d504d81",
       "localPath": "modules/search"
     },
     "seo": {
@@ -531,7 +531,7 @@
       "source": "local",
       "packageName": "@86d-app/settings",
       "version": "0.0.42",
-      "integrity": "sha256-a504f491c347f4ae2eb1e341e9feea4a707b5e8e31c915b8a0ae8012ac623194",
+      "integrity": "sha256-b717e6fbc55e6f52f4fb6229fd75ce190a8edd852771c5e2207ee74753cc5b1e",
       "localPath": "modules/settings"
     },
     "shipping": {
