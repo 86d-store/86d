@@ -61,7 +61,7 @@ Rules:
 - Keep the subject under 72 characters when possible (100 max)
 - One logical change per commit
 
-Hooks install automatically on `bun install`. To bypass hooks in an emergency, use `git commit --no-verify` (CI will still enforce the format on pull requests).
+Hooks install automatically on `bun install`. If a hook fails, fix the cause and commit again.
 
 ## Pull requests
 

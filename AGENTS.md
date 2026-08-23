@@ -170,7 +170,7 @@ Commit guardrails:
 
    The frozen registry check and typecheck come first. A green lint pass cannot waive any later failure.
 3. Keep one logical change per commit. Split unrelated Store UI, Module, and package changes.
-4. Let Husky and lint-staged run; pre-commit applies Biome to staged files and runs repository typecheck. Use `git commit --no-verify` only when the user explicitly requests it.
+4. Let Husky and lint-staged run; pre-commit applies Biome to staged files and runs repository typecheck. Never use `git commit --no-verify`. If a hook fails, fix the cause and commit again.
 5. When a published package or Module API changes, run `bunx changeset` and place the generated file in its own `chore(repo): add changeset` commit when appropriate.
 
 ## Version and release guardrails
