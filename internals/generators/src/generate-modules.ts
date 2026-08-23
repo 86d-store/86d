@@ -1771,14 +1771,6 @@ async function runGenerators() {
 	await generateAdminLoaders();
 	await generateStoreLoaders();
 	generateTranspilePackages();
-
-	// Auto-format generated files so biome check passes
-	try {
-		execSync(`bun biome check --write ${GENERATED_DIR}`, { stdio: "pipe" });
-	} catch {
-		// Non-fatal: formatting may not be available in all environments
-		console.warn("⚠ Could not format generated files with biome");
-	}
 }
 
 runGenerators().catch((error) => {

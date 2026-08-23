@@ -251,8 +251,8 @@ async function main(): Promise<void> {
 			readFileSync(privilegeMatrixPath, "utf8"),
 		) as PrivilegeMatrix;
 		assert.deepEqual(
-			matrix.storeRoles.sort(),
-			[STORE_LOGIN_ROLE, STORE_OWNER_ROLE].sort(),
+			matrix.storeRoles.sort((a, b) => a.localeCompare(b)),
+			[STORE_LOGIN_ROLE, STORE_OWNER_ROLE].sort((a, b) => a.localeCompare(b)),
 		);
 
 		const roles = await queryRows<{ rolname: string }>(
@@ -263,8 +263,8 @@ async function main(): Promise<void> {
 			[[STORE_LOGIN_ROLE, STORE_OWNER_ROLE]],
 		);
 		assert.deepEqual(
-			roles.map((r) => r.rolname).sort(),
-			[STORE_LOGIN_ROLE, STORE_OWNER_ROLE].sort(),
+			roles.map((r) => r.rolname).sort((a, b) => a.localeCompare(b)),
+			[STORE_LOGIN_ROLE, STORE_OWNER_ROLE].sort((a, b) => a.localeCompare(b)),
 		);
 		results.push({ check: "store roles exist", result: "pass" });
 
@@ -460,7 +460,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-	// biome-ignore lint/suspicious/noConsole: proof script reports fatal failures.
 	console.error(error);
 	cleanupContainer();
 	process.exit(1);

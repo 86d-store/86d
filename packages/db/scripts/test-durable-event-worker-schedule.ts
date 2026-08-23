@@ -363,7 +363,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-	// biome-ignore lint/suspicious/noConsole: proof script reports fatal failures.
 	console.error(error);
 	cleanupContainer();
 	process.exit(1);
