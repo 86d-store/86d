@@ -191,8 +191,7 @@ describe("analytics — admin workflows", () => {
 		});
 
 		it("computes period-over-period comparison", async () => {
-			const now = new Date();
-			const twoDaysAgo = new Date(now.getTime() - 2 * 86400000);
+			const twoDaysAgo = new Date(Date.now() - 2 * 86400000);
 
 			// Previous period purchase (tracked now, but we test with date boundaries)
 			// Since the mock tracks at "now", we test that the boundary logic works
@@ -201,7 +200,7 @@ describe("analytics — admin workflows", () => {
 
 			const summary = await controller.getRevenueSummary({
 				since: twoDaysAgo,
-				until: now,
+				until: new Date(),
 			});
 			// All events tracked at "now", so they fall in current period
 			expect(summary.totalRevenue).toBe(5000);

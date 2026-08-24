@@ -1,6 +1,6 @@
 {
   "lockfileVersion": 1,
-  "generatedAt": "2026-08-23T18:54:42.651Z",
+  "generatedAt": "2026-08-24T22:00:24.634Z",
   "modules": {
     "abandoned-carts": {
       "source": "local",
@@ -27,7 +27,7 @@
       "source": "local",
       "packageName": "@86d-app/analytics",
       "version": "0.0.42",
-      "integrity": "sha256-333bd04b5d4a94ededb480992a41b9f20c651c9405ac73127af15597ed53a519",
+      "integrity": "sha256-18a53fe159fe286d6cf75722280c0ee1466398917990b9bf2044e67bc79b4087",
       "localPath": "modules/analytics"
     },
     "announcements": {
