@@ -4,10 +4,12 @@
 
 ## Checklist
 
-- [ ] `bun run check`
+- [ ] `bun run generate:modules -- --frozen`
 - [ ] `bun run typecheck`
+- [ ] `bun run check`
 - [ ] `bun run test`
-- [ ] `bun run build`
+- [ ] `bun run docker:build`
+- [ ] `bun run docker:verify`
 - [ ] Commits use [Conventional Commits](https://www.conventionalcommits.org/) with a **required scope** (`type(scope): subject`)
 - [ ] Tests updated for behavior changes (Vitest; Playwright where UI is affected)
 - [ ] Changeset added when a published package or Module API changes (`bunx changeset`)

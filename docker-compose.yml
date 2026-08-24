@@ -73,9 +73,14 @@ services:
 
   # ── 86d Store Application ────────────────────────────────────────────────
   store:
+    image: "${STORE_IMAGE:-86d-store:local}"
     build:
       context: .
       dockerfile: Dockerfile
+      additional_contexts:
+        workspace-modules: ./modules
+      args:
+        MODULE_SOURCE: workspace
     restart: unless-stopped
     ports:
       - "${STORE_PUBLISH_PORT:-3000}:3000"

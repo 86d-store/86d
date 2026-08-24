@@ -34,5 +34,5 @@ jobs:
       - name: Setup
         uses: ./internals/github/setup
 
-      - name: Commitlint, lint, typecheck, test, build
+      - name: Commitlint, frozen registry, typecheck, lint, test, image build and smoke
         uses: ./internals/github/ci-cd

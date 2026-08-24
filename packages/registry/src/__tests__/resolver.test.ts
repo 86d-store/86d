@@ -283,6 +283,77 @@ describe("resolveModules", () => {
 		expect(results[0].specifier.source).toBe("local");
 	});
 
+	it("uses registry provenance instead of local workspace modules in registry-only mode", async () => {
+		const results = await resolveModules(
+			{
+				modules: ["@86d-app/products"],
+				advanced: { version: 1, allowExperimentalModules: true },
+			},
+			{
+				root: TMP_ROOT,
+				manifest: testManifest,
+				mode: "registry-only",
+			},
+		);
+
+		expect(results).toEqual([
+			expect.objectContaining({
+				status: "missing",
+				specifier: expect.objectContaining({ source: "registry" }),
+			}),
+		]);
+	});
+
+	it("fails closed when registry-only mode has no local manifest", async () => {
+		await expect(
+			resolveModules(
+				{
+					modules: ["@86d-app/products"],
+					advanced: { version: 1, allowExperimentalModules: true },
+				},
+				{
+					root: join(TMP_ROOT, "missing-registry-manifest"),
+					mode: "registry-only",
+				},
+			),
+		).rejects.toThrow("requires a local registry manifest");
+	});
+
+	it("fails closed when the exact local manifest is invalid", async () => {
+		const root = join(TMP_ROOT, "invalid-registry-manifest");
+		mkdirSync(join(root, "apps", "registry"), { recursive: true });
+		writeFileSync(
+			join(root, "apps", "registry", "registry.json"),
+			JSON.stringify({ version: 999, modules: {} }),
+		);
+
+		await expect(
+			resolveModules(
+				{
+					modules: ["@86d-app/products"],
+					advanced: { version: 1, allowExperimentalModules: true },
+				},
+				{ root, mode: "registry-only" },
+			),
+		).rejects.toThrow("invalid local registry manifest");
+	});
+
+	it("does not discover local-only modules from a registry-only wildcard", async () => {
+		const results = await resolveModules(
+			{ modules: "*" },
+			{ root: TMP_ROOT, manifest: testManifest, mode: "registry-only" },
+		);
+
+		expect(results.map((result) => result.specifier.name)).toEqual([
+			"products",
+			"cart",
+			"shipping",
+		]);
+		expect(results.some((result) => result.specifier.name === "blog")).toBe(
+			false,
+		);
+	});
+
 	it("parses GitHub specifiers", async () => {
 		const config: StoreConfig = {
 			modules: ["github:owner/repo/modules/custom"],

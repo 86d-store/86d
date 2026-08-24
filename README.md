@@ -27,9 +27,10 @@
 
 ## Prerequisites
 
-- [Bun](https://bun.sh) v1.3.14+
+- [Bun](https://bun.sh) v1.4.0+
 - [Node.js](https://nodejs.org) 23, 24, or 25
 - [PostgreSQL](https://www.postgresql.org) v15+
+- [Docker](https://docs.docker.com/get-docker/) with Buildx named build contexts, plus Compose `additional_contexts`, ephemeral published ports, and `up --wait` / `--wait-timeout`
 
 ## Quick Start
 
@@ -56,11 +57,36 @@ This starts PostgreSQL, a MinIO S3-compatible bucket, and the store app.
 
 In Docker, uploads are stored in MinIO and returned as same-origin `/uploads/...` URLs, so the browser never needs the raw bucket URL.
 
+Build and smoke-test the production 86d.store Store Runtime image from your local workspace:
+
+```bash
+bun run docker:build
+bun run docker:verify
+```
+
+After an operator completes a release, pull its immutable version tag from either registry:
+
+```bash
+docker pull ghcr.io/86d-app/store:VERSION
+# or
+docker pull docker.io/86dapp/store:VERSION
+```
+
+Replace `VERSION` with the exact release version, then start that image with the repository's Compose services:
+
+```bash
+STORE_IMAGE=ghcr.io/86d-app/store:VERSION docker compose up -d --no-build
+# or
+STORE_IMAGE=docker.io/86dapp/store:VERSION docker compose up -d --no-build
+```
+
+`latest` is promoted only after both registries expose the same immutable multi-platform image, but production deployments should stay pinned to a version or digest.
+
 ## Repository Structure
 
 ```
 apps/store/          Next.js storefront + admin
-modules/             22 business modules (products, cart, orders, etc.)
+modules/             First-party commerce Module packages
 packages/
   core/              Module system foundation
   runtime/           Store runtime engine
@@ -87,7 +113,9 @@ bun run 86d generate               # Run code generation
 
 ```bash
 bun run dev              # Dev server for the store
-bun run build            # Build everything
+bun run build            # Build publishable workspace artifacts
+bun run docker:build     # Build the production Store Runtime image
+bun run docker:verify    # Smoke-test the image with Compose
 bun run typecheck        # TypeScript check
 bun run check            # Biome lint/format
 bun run test             # Unit tests

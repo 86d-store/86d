@@ -7,13 +7,16 @@
 	"scripts": {
 		"check": "biome check .",
 		"check:fix": "biome check --write --unsafe .",
-		"clean": "git clean -xdf .cache .turbo dist node_modules"
+		"clean": "git clean -xdf .cache .turbo dist node_modules",
+		"test": "vitest run"
 	},
 	"dependencies": {
-		"@86d-app/registry": "workspace:*"
+		"@86d-app/registry": "workspace:*",
+		"env": "workspace:*"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "catalog:",
-		"tsx": "catalog:"
+		"tsx": "catalog:",
+		"vitest": "catalog:vite"
 	}
 }

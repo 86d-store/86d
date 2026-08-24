@@ -1,0 +1,526 @@
+name: Docker release
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Exact Store Runtime release commit
+        required: true
+        type: string
+      published_packages:
+        description: JSON output from the successful Changesets publish
+        required: true
+        type: string
+      version:
+        description: Empty during automatic publication
+        required: false
+        default: ""
+        type: string
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Full release commit SHA from main
+        required: true
+        type: string
+      version:
+        description: Exact root release version at that commit
+        required: true
+        type: string
+
+concurrency:
+  # Serialize every Store image release so an older run cannot promote latest
+  # after a newer release has already completed.
+  group: docker-release
+  cancel-in-progress: false
+
+env:
+  FORCE_COLOR: 3
+  GHCR_IMAGE: ghcr.io/86d-app/store
+  DOCKERHUB_IMAGE: docker.io/86dapp/store
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+
+jobs:
+  publish:
+    name: Publish immutable tags, then latest
+    runs-on: ubuntu-latest
+    # Configure required reviewers and DOCKERHUB_USERNAME / DOCKERHUB_TOKEN
+    # in Settings > Environments > docker-publish. The operator also creates
+    # docker.io/86dapp/store, protects version and sha-* tags with Docker Hub's
+    # "Specific tags are immutable" setting, restricts GHCR package write access
+    # to this repository, and makes the GHCR package public after its first push.
+    # Docker Hub immutable-tag regex (leave latest mutable):
+    # ^(sha-[0-9a-f]{7}|(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?)$
+    environment: docker-publish
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Validate release ref format
+        env:
+          EXPECTED_SHA: ${{ inputs.ref }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Release ref must be a full lowercase commit SHA." >&2
+            exit 1
+          fi
+
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+
+      - name: Validate release coordinates
+        id: release
+        env:
+          EXPECTED_SHA: ${{ inputs.ref }}
+          PUBLISHED_PACKAGES: ${{ inputs.published_packages || '[]' }}
+          RECOVERY_MODE: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
+          REQUESTED_VERSION: ${{ inputs.version || '' }}
+        run: |
+          set -euo pipefail
+          revision="$(git rev-parse HEAD)"
+          if [ "$revision" != "$EXPECTED_SHA" ]; then
+            echo "Checkout revision $revision does not match release revision $EXPECTED_SHA." >&2
+            exit 1
+          fi
+
+          version="$(jq -er '.version' package.json)"
+          semver_pattern='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?$'
+          if [[ ! "$version" =~ $semver_pattern ]]; then
+            echo "Root version is not a container-tag-safe semantic version: $version" >&2
+            exit 1
+          fi
+
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          if ! git merge-base --is-ancestor "$revision" refs/remotes/origin/main; then
+            echo "Release revision $revision is not an ancestor of origin/main." >&2
+            exit 1
+          fi
+
+          if [ "$RECOVERY_MODE" = "true" ]; then
+            if [ "$version" != "$REQUESTED_VERSION" ]; then
+              echo "Requested version $REQUESTED_VERSION does not match root version $version." >&2
+              exit 1
+            fi
+
+            git fetch --force --tags origin
+            registry_tag="@86d-app/registry@$version"
+            if ! tag_revision="$(git rev-parse "refs/tags/$registry_tag^{commit}" 2>/dev/null)"; then
+              echo "Changesets tag $registry_tag does not exist." >&2
+              exit 1
+            fi
+            if [ "$tag_revision" != "$revision" ]; then
+              echo "Changesets tag $registry_tag resolves to $tag_revision, not $revision." >&2
+              exit 1
+            fi
+
+            published_version=""
+            for attempt in 1 2 3 4 5 6; do
+              response="$(npm view \
+                --registry=https://registry.npmjs.org/ \
+                "@86d-app/registry@$version" version --json 2>/dev/null || true)"
+              published_version="$(jq -er \
+                'if type == "string" then . elif type == "array" and length == 1 then .[0] else empty end' \
+                <<<"$response" 2>/dev/null || true)"
+              if [ "$published_version" = "$version" ]; then
+                break
+              fi
+              if [ "$attempt" -lt 6 ]; then
+                sleep "$((attempt * 2))"
+              fi
+            done
+            if [ "$published_version" != "$version" ]; then
+              echo "@86d-app/registry@$version is not published on npm after bounded retries." >&2
+              exit 1
+            fi
+          else
+            if [ -n "$REQUESTED_VERSION" ]; then
+              echo "Automatic publication does not accept a recovery version input." >&2
+              exit 1
+            fi
+            if ! jq -e --arg version "$version" \
+              'type == "array" and length > 0 and all(.[]; type == "object" and .version == $version)' \
+              <<<"$PUBLISHED_PACKAGES" >/dev/null; then
+              echo "Changesets did not publish a nonempty package set entirely on root version $version." >&2
+              exit 1
+            fi
+          fi
+
+          shared_line_errors=()
+          for package_file in apps/*/package.json internals/*/package.json modules/*/package.json packages/*/package.json; do
+            package_name="$(jq -er '.name' "$package_file")"
+            package_version="$(jq -er '.version' "$package_file")"
+            if [ "$package_version" = "0.0.0" ] && \
+              { [ "$package_name" = "github" ] || [ "$package_name" = "@86d-app/internals-generators" ]; }; then
+              continue
+            fi
+            if [ "$package_version" != "$version" ]; then
+              shared_line_errors+=("$package_file ($package_name): $package_version")
+            fi
+          done
+          if [ "${#shared_line_errors[@]}" -ne 0 ]; then
+            echo "Workspace packages diverge from shared version $version:" >&2
+            printf '  %s\n' "${shared_line_errors[@]}" >&2
+            exit 1
+          fi
+
+          {
+            echo "revision=$revision"
+            echo "short_sha=${revision:0:7}"
+            echo "version=$version"
+          } >>"$GITHUB_OUTPUT"
+
+      - name: Setup
+        uses: ./internals/github/setup
+
+      - name: Prepare release registry manifest
+        env:
+          REVISION: ${{ steps.release.outputs.revision }}
+        run: |
+          set -euo pipefail
+          checkout_state="$(git status --porcelain=v1 --untracked-files=all)"
+          if [ -n "$checkout_state" ]; then
+            echo "Checkout is not clean before registry generation." >&2
+            printf '%s\n' "$checkout_state" >&2
+            exit 1
+          fi
+          bun run generate:registry
+          if ! jq -e --arg revision "$REVISION" \
+            '.modules | length > 0 and all(.[]; .commit == $revision)' \
+            apps/registry/registry.json >/dev/null; then
+            echo "Generated registry entries are not pinned to release revision $REVISION." >&2
+            exit 1
+          fi
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Preflight immutable tag state
+        id: tags
+        env:
+          RECOVERY_MODE: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
+          SHORT_SHA: ${{ steps.release.outputs.short_sha }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          inspect_digest_or_absent() {
+            local reference="$1"
+            local result_file
+            local digest
+            local attempt
+            result_file="$(mktemp)"
+            for attempt in 1 2 3; do
+              if docker buildx imagetools inspect "$reference" >"$result_file" 2>&1; then
+                digest="$(awk '$1 == "Digest:" { print $2; exit }' "$result_file")"
+                rm -f "$result_file"
+                if [[ ! "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+                  echo "$reference resolved without a valid top-level manifest digest." >&2
+                  return 1
+                fi
+                printf '%s\n' "$digest"
+                return 0
+              fi
+              if grep -Eiq 'manifest[ _]unknown|name[ _]unknown' "$result_file" || \
+                grep -Fiqx "ERROR: $reference: not found" "$result_file"; then
+                rm -f "$result_file"
+                printf '%s\n' absent
+                return 0
+              fi
+              if [ "$attempt" -lt 3 ]; then
+                sleep "$((attempt * 2))"
+              fi
+            done
+            echo "Could not determine immutable tag state for $reference:" >&2
+            cat "$result_file" >&2
+            rm -f "$result_file"
+            return 1
+          }
+
+          immutable_refs=(
+            "$GHCR_IMAGE:sha-$SHORT_SHA"
+            "$DOCKERHUB_IMAGE:sha-$SHORT_SHA"
+            "$GHCR_IMAGE:$VERSION"
+            "$DOCKERHUB_IMAGE:$VERSION"
+          )
+          existing_digest=""
+          present_count=0
+          sha_present_count=0
+          for reference in "${immutable_refs[@]}"; do
+            state="$(inspect_digest_or_absent "$reference")"
+            if [ "$state" = "absent" ]; then
+              continue
+            fi
+            present_count=$((present_count + 1))
+            if [[ "$reference" == *":sha-$SHORT_SHA" ]]; then
+              sha_present_count=$((sha_present_count + 1))
+            fi
+            if [ -z "$existing_digest" ]; then
+              existing_digest="$state"
+            elif [ "$state" != "$existing_digest" ]; then
+              echo "Existing immutable tags do not resolve to one digest." >&2
+              echo "$reference resolves to $state; expected $existing_digest." >&2
+              exit 1
+            fi
+          done
+
+          if [ "$RECOVERY_MODE" != "true" ] && [ "$present_count" -ne 0 ]; then
+            echo "Automatic publication requires all four immutable tags to be absent; use approved recovery for a partial release." >&2
+            exit 1
+          fi
+          if [ "$present_count" -ne 0 ]; then
+            if [ "$sha_present_count" -eq 0 ]; then
+              echo "Recovery requires at least one exact short-SHA tag as its immutable anchor." >&2
+              exit 1
+            fi
+            for digest_reference in \
+              "$GHCR_IMAGE@$existing_digest" \
+              "$DOCKERHUB_IMAGE@$existing_digest"; do
+              state="$(inspect_digest_or_absent "$digest_reference")"
+              if [ "$state" != "$existing_digest" ]; then
+                echo "$digest_reference is not addressable as the recovery digest in both registries." >&2
+                exit 1
+              fi
+            done
+          fi
+          {
+            echo "build_required=$([ "$present_count" -eq 0 ] && echo true || echo false)"
+            echo "existing_digest=$existing_digest"
+          } >>"$GITHUB_OUTPUT"
+
+      - name: Stage multi-platform image by digest
+        id: image
+        if: steps.tags.outputs.build_required == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          build-contexts: workspace-modules=./internals/docker/empty-context
+          platforms: linux/amd64,linux/arm64
+          outputs: type=image,"name=${{ env.GHCR_IMAGE }},${{ env.DOCKERHUB_IMAGE }}",push=true,push-by-digest=true
+          labels: |
+            org.opencontainers.image.source=https://github.com/86d-app/86d
+            org.opencontainers.image.revision=${{ steps.release.outputs.revision }}
+            org.opencontainers.image.version=${{ steps.release.outputs.version }}
+          build-args: |
+            MODULE_SOURCE=registry
+            SOURCE_REVISION=${{ steps.release.outputs.revision }}
+            TURBO_TEAM=${{ env.TURBO_TEAM }}
+          secrets: |
+            github_token=${{ github.token }}
+          secret-envs: |
+            turbo_token=TURBO_TOKEN
+          cache-from: type=gha,scope=store-main
+
+      - name: Complete immutable tags, then promote latest
+        env:
+          PREEXISTING_DIGEST: ${{ steps.tags.outputs.existing_digest }}
+          SHORT_SHA: ${{ steps.release.outputs.short_sha }}
+          STAGED_DIGEST: ${{ steps.image.outputs.digest }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          inspect_digest_or_absent() {
+            local reference="$1"
+            local result_file
+            local digest
+            local attempt
+            result_file="$(mktemp)"
+            for attempt in 1 2 3; do
+              if docker buildx imagetools inspect "$reference" >"$result_file" 2>&1; then
+                digest="$(awk '$1 == "Digest:" { print $2; exit }' "$result_file")"
+                rm -f "$result_file"
+                if [[ ! "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+                  echo "$reference resolved without a valid top-level manifest digest." >&2
+                  return 1
+                fi
+                printf '%s\n' "$digest"
+                return 0
+              fi
+              if grep -Eiq 'manifest[ _]unknown|name[ _]unknown' "$result_file" || \
+                grep -Fiqx "ERROR: $reference: not found" "$result_file"; then
+                rm -f "$result_file"
+                printf '%s\n' absent
+                return 0
+              fi
+              if [ "$attempt" -lt 3 ]; then
+                sleep "$((attempt * 2))"
+              fi
+            done
+            echo "Could not determine immutable tag state for $reference:" >&2
+            cat "$result_file" >&2
+            rm -f "$result_file"
+            return 1
+          }
+
+          require_digest() {
+            local reference="$1"
+            local state
+            local attempt
+            for attempt in 1 2 3 4 5; do
+              state="$(inspect_digest_or_absent "$reference")"
+              if [ "$state" != "absent" ]; then
+                printf '%s\n' "$state"
+                return 0
+              fi
+              sleep "$((attempt * 2))"
+            done
+            echo "Could not resolve a manifest digest for $reference." >&2
+            return 1
+          }
+
+          require_linux_platforms() {
+            local reference="$1"
+            local result_file
+            local attempt
+            result_file="$(mktemp)"
+            for attempt in 1 2 3 4 5; do
+              if docker buildx imagetools inspect --raw "$reference" >"$result_file" 2>&1 && \
+                jq -e \
+                  '[.manifests[]? | select(((.platform.os == "unknown" and .platform.architecture == "unknown") and .annotations["vnd.docker.reference.type"] == "attestation-manifest") | not) | "\(.platform.os)/\(.platform.architecture)"] | sort == ["linux/amd64", "linux/arm64"]' \
+                  "$result_file" >/dev/null 2>&1; then
+                rm -f "$result_file"
+                return 0
+              fi
+              if [ "$attempt" -lt 5 ]; then
+                sleep "$((attempt * 2))"
+              fi
+            done
+            echo "$reference does not expose exactly linux/amd64 and linux/arm64 runnable manifests." >&2
+            cat "$result_file" >&2
+            rm -f "$result_file"
+            return 1
+          }
+
+          if [ -n "$PREEXISTING_DIGEST" ]; then
+            expected_digest="$PREEXISTING_DIGEST"
+          else
+            expected_digest="$STAGED_DIGEST"
+          fi
+          if [[ ! "$expected_digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "Release did not provide a valid staged or recovery manifest digest." >&2
+            exit 1
+          fi
+          for digest_reference in \
+            "$GHCR_IMAGE@$expected_digest" \
+            "$DOCKERHUB_IMAGE@$expected_digest"; do
+            digest="$(require_digest "$digest_reference")"
+            if [ "$digest" != "$expected_digest" ]; then
+              echo "$digest_reference resolves to $digest, expected $expected_digest." >&2
+              exit 1
+            fi
+            require_linux_platforms "$digest_reference"
+          done
+
+          sha_refs=(
+            "$GHCR_IMAGE:sha-$SHORT_SHA"
+            "$DOCKERHUB_IMAGE:sha-$SHORT_SHA"
+          )
+          version_refs=(
+            "$GHCR_IMAGE:$VERSION"
+            "$DOCKERHUB_IMAGE:$VERSION"
+          )
+          immutable_refs=("${sha_refs[@]}" "${version_refs[@]}")
+          missing_sha_refs=()
+          missing_version_refs=()
+          for reference in "${immutable_refs[@]}"; do
+            state="$(inspect_digest_or_absent "$reference")"
+            if [ "$state" = "absent" ]; then
+              if [[ "$reference" == *":sha-$SHORT_SHA" ]]; then
+                missing_sha_refs+=("$reference")
+              else
+                missing_version_refs+=("$reference")
+              fi
+            elif [ "$state" != "$expected_digest" ]; then
+              echo "$reference resolves to $state, expected release digest $expected_digest." >&2
+              exit 1
+            fi
+          done
+
+          # Inspect the complete set before creating any tag. Recheck each missing
+          # tag immediately before creation; registry-side immutability closes the
+          # remaining inspect/create race for protected Docker Hub tags.
+          create_missing_ref() {
+            local reference="$1"
+            local source
+            local state
+            state="$(inspect_digest_or_absent "$reference")"
+            if [ "$state" = "$expected_digest" ]; then
+              return 0
+            fi
+            if [ "$state" != "absent" ]; then
+              echo "$reference appeared with digest $state; refusing to overwrite it." >&2
+              return 1
+            fi
+            if [[ "$reference" == "$GHCR_IMAGE:"* ]]; then
+              source="$GHCR_IMAGE@$expected_digest"
+            else
+              source="$DOCKERHUB_IMAGE@$expected_digest"
+            fi
+            docker buildx imagetools create --tag "$reference" "$source"
+          }
+
+          for reference in "${missing_sha_refs[@]}"; do
+            create_missing_ref "$reference"
+          done
+          for reference in "${sha_refs[@]}"; do
+            digest="$(require_digest "$reference")"
+            if [ "$digest" != "$expected_digest" ]; then
+              echo "$reference resolves to $digest, expected $expected_digest." >&2
+              exit 1
+            fi
+          done
+          for reference in "${missing_version_refs[@]}"; do
+            create_missing_ref "$reference"
+          done
+
+          for reference in "${immutable_refs[@]}"; do
+            digest="$(require_digest "$reference")"
+            if [ "$digest" != "$expected_digest" ]; then
+              echo "$reference resolves to $digest, expected $expected_digest." >&2
+              exit 1
+            fi
+          done
+
+          docker buildx imagetools create \
+            --tag "$GHCR_IMAGE:latest" \
+            "$GHCR_IMAGE@$expected_digest"
+          docker buildx imagetools create \
+            --tag "$DOCKERHUB_IMAGE:latest" \
+            "$DOCKERHUB_IMAGE@$expected_digest"
+
+          for image in "$GHCR_IMAGE" "$DOCKERHUB_IMAGE"; do
+            digest="$(require_digest "$image:latest")"
+            if [ "$digest" != "$expected_digest" ]; then
+              echo "$image:latest resolved to $digest, expected $expected_digest." >&2
+              exit 1
+            fi
+          done
+
+          {
+            echo "### Store Runtime container release"
+            echo
+            echo "- Version: \`$VERSION\`"
+            echo "- Revision: \`${{ steps.release.outputs.revision }}\`"
+            echo "- Digest: \`$expected_digest\`"
+            echo "- Registries: \`$GHCR_IMAGE\`, \`$DOCKERHUB_IMAGE\`"
+          } >>"$GITHUB_STEP_SUMMARY"

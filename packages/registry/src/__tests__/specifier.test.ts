@@ -22,6 +22,18 @@ describe("parseSpecifier", () => {
 			expect(spec.name).toBe("digital-downloads");
 			expect(spec.packageName).toBe("@86d-app/digital-downloads");
 		});
+
+		it.each([
+			"",
+			".",
+			"..",
+			"../outside",
+			"products/../../outside",
+			"@86d-app/../outside",
+			"@other/cart",
+		])("rejects non-canonical official name %j", (raw) => {
+			expect(() => parseSpecifier(raw)).toThrow(/Invalid official specifier/);
+		});
 	});
 
 	describe("GitHub specifiers", () => {
@@ -56,6 +68,17 @@ describe("parseSpecifier", () => {
 				/expected at least "owner\/repo"/,
 			);
 		});
+
+		it.each([
+			"github:../repo/modules/custom",
+			"github:-owner/repo/modules/custom",
+			"github:owner/../modules/custom",
+			"github:owner/repo/modules/..#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			"github:owner/repo/modules/../custom",
+			"github:owner/repo/modules//custom",
+		])("rejects non-canonical GitHub specifier %j", (raw) => {
+			expect(() => parseSpecifier(raw)).toThrow(/Invalid GitHub specifier/);
+		});
 	});
 
 	describe("npm specifiers", () => {
@@ -87,6 +110,18 @@ describe("parseSpecifier", () => {
 			expect(spec.source).toBe("npm");
 			expect(spec.packageName).toBe("my-module");
 			expect(spec.version).toBe("2.0.0");
+		});
+
+		it.each([
+			"npm:",
+			"npm:.",
+			"npm:..",
+			"npm:../outside@1.2.3",
+			"npm:@scope/../outside@1.2.3",
+			"npm:@scope/name/extra@1.2.3",
+			"npm:@scope/..@1.2.3",
+		])("rejects non-canonical npm package %j", (raw) => {
+			expect(() => parseSpecifier(raw)).toThrow(/Invalid npm specifier/);
 		});
 	});
 

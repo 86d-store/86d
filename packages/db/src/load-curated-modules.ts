@@ -11,6 +11,10 @@ const repoRoot = join(import.meta.dirname, "../../..");
 const modulesDir = join(repoRoot, "modules");
 const TIER_NONE = new Set<string>(TIER_NONE_CURATED_MODULES);
 
+export interface CuratedModuleLoadOptions {
+	modulesRoot?: string;
+}
+
 function storageExportName(moduleId: string): string {
 	return `${moduleId.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())}Storage`;
 }
@@ -20,7 +24,10 @@ function storageExportName(moduleId: string): string {
  * Production images do not ship Module endpoint graphs or core UI deps, so the
  * factory `index.ts` path is intentionally avoided here.
  */
-export async function loadCuratedModule(moduleId: string): Promise<Module> {
+export async function loadCuratedModule(
+	moduleId: string,
+	options: CuratedModuleLoadOptions = {},
+): Promise<Module> {
 	if (TIER_NONE.has(moduleId)) {
 		return {
 			id: moduleId,
@@ -29,7 +36,11 @@ export async function loadCuratedModule(moduleId: string): Promise<Module> {
 		};
 	}
 
-	const schemaPath = join(modulesDir, moduleId, "src/schema.ts");
+	const schemaPath = join(
+		options.modulesRoot ?? modulesDir,
+		moduleId,
+		"src/schema.ts",
+	);
 	if (!existsSync(schemaPath)) {
 		throw new Error(
 			`Curated Module "${moduleId}" has no schema.ts at ${schemaPath}`,
@@ -60,10 +71,12 @@ export async function loadCuratedModule(moduleId: string): Promise<Module> {
 	};
 }
 
-export async function loadCuratedModules(): Promise<Module[]> {
+export async function loadCuratedModules(
+	options: CuratedModuleLoadOptions = {},
+): Promise<Module[]> {
 	const loaded: Module[] = [];
 	for (const moduleId of CURATED_STORE_MODULES) {
-		loaded.push(await loadCuratedModule(moduleId));
+		loaded.push(await loadCuratedModule(moduleId, options));
 	}
 	return loaded;
 }

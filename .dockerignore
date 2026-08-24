@@ -1,12 +1,16 @@
 node_modules
 .next
 .turbo
+.86d
+# The default context carries only workspace manifests for Turbo prune. Local
+# source builds opt into the independent `workspace-modules` named context.
+modules/*/**
+!modules/*/package.json
 .git
 .github
 .changeset
-.env
-.env.local
-.env.*.local
+# Environment files never enter BuildKit context or cache layers.
+.env*
 *.log
 logs/
 coverage/

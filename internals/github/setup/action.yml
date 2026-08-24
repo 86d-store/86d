@@ -6,7 +6,7 @@ runs:
   steps:
     - uses: oven-sh/setup-bun@v2
       with:
-        bun-version: latest
+        bun-version: 1.4.0
 
     - uses: actions/setup-node@v5
       with:
@@ -15,7 +15,7 @@ runs:
         package-manager-cache: false
 
     - shell: bash
-      run: bun install
+      run: bun install --frozen-lockfile
 
     # public/biome.json is root:false (extends the 86d composite root). When this
     # repo is checked out alone, create a minimal parent root so Biome still loads.

@@ -16,7 +16,15 @@ env:
 jobs:
   release:
     name: Release
-    if: github.event.workflow_run.conclusion == 'success'
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    outputs:
+      head_sha: ${{ github.event.workflow_run.head_sha }}
+      published: ${{ steps.changesets.outputs.published }}
+      published_packages: ${{ steps.changesets.outputs.publishedPackages }}
     runs-on: ubuntu-latest
     # Pin publish to this environment; set the same name on each npm trusted publisher.
     # Create Settings → Environments → npm-publish with required reviewers before relying on OIDC.
@@ -31,6 +39,26 @@ jobs:
           # changesets needs full history for changelogs and publish decisions
           fetch-depth: 0
           ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Validate triggering CI revision
+        env:
+          EXPECTED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Triggering CI revision must be a full lowercase commit SHA." >&2
+            exit 1
+          fi
+          revision="$(git rev-parse HEAD)"
+          if [ "$revision" != "$EXPECTED_SHA" ]; then
+            echo "Checkout revision $revision does not match triggering CI revision $EXPECTED_SHA." >&2
+            exit 1
+          fi
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          if ! git merge-base --is-ancestor "$revision" refs/remotes/origin/main; then
+            echo "Triggering CI revision $revision is not an ancestor of origin/main." >&2
+            exit 1
+          fi
 
       - name: Setup
         uses: ./internals/github/setup
@@ -49,3 +77,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Publish auth is npm trusted publishing (OIDC) against environment npm-publish.
           NPM_CONFIG_PROVENANCE: "true"
+
+  publish-store-image:
+    name: Publish Store Runtime image
+    needs: release
+    if: needs.release.outputs.published == 'true'
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/docker-release.yml
+    with:
+      ref: ${{ needs.release.outputs.head_sha }}
+      published_packages: ${{ needs.release.outputs.published_packages }}
+    secrets: inherit

@@ -9,6 +9,8 @@
 		"build:apps": "turbo run build --filter=./apps/*",
 		"build:packages": "turbo run build --filter=./packages/*",
 		"build:store": "turbo run build --filter=./apps/store",
+		"docker:build": "sh internals/docker/build.sh",
+		"docker:verify": "sh internals/docker/verify.sh",
 		"typecheck": "turbo run typecheck",
 		"check": "biome check --error-on-warnings .",
 		"check:fix": "biome check --write --unsafe --error-on-warnings .",
@@ -16,7 +18,7 @@
 		"dev": "dotenv -- turbo run dev --filter=store",
 		"dev:store": "dotenv -- turbo run dev --filter=store",
 		"start": "turbo run start",
-		"test": "turbo run test -- --exclude='**/dist/**'",
+		"test": "turbo run test -- --exclude='**/dist/**' && vitest run internals/docker/__tests__",
 		"test:coverage": "vitest run --coverage --config tests/vitest.config.ts",
 		"test:e2e": "playwright test --config tests/playwright.config.ts",
 		"test:e2e:store": "playwright test --config tests/playwright.config.ts --project=store-chromium",
@@ -131,5 +133,5 @@
 			"vitest": "4.1.11"
 		}
 	},
-	"packageManager": "bun@1.3.14"
+	"packageManager": "bun@1.4.0"
 }

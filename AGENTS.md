@@ -149,7 +149,7 @@ Commits use Conventional Commits with a required scope: `type(scope): subject`. 
 
 `CONTRIBUTING.md` is the contributor reference, but this guide's frozen-lock requirement and gate order are stricter and take precedence for agents.
 
-Before changing CI triggers or gate selection, read `.github/workflows/ci.yml`, `.github/workflows/e2e.yml`, `.github/workflows/release.yml`, and `internals/github/ci-cd/action.yml`.
+Before changing CI triggers or gate selection, read `.github/workflows/ci.yml`, `.github/workflows/e2e.yml`, `.github/workflows/release.yml`, `.github/workflows/docker-release.yml`, and `internals/github/ci-cd/action.yml`.
 
 - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
 - Scopes: `store`, `cli`, `core`, `runtime`, `sdk`, `registry`, `db`, `emails`, `env`, `lib`, `storage`, `ui`, `utils`, `modules`, `ci`, `deps`, `config`, `docs`, `repo`.
@@ -165,10 +165,11 @@ Commit guardrails:
    bun run typecheck
    bun run check
    bun run test
-   bun run build
+   bun run docker:build
+   bun run docker:verify
    ```
 
-   The frozen registry check and typecheck come first. A green lint pass cannot waive any later failure.
+   The frozen registry check and typecheck come first. The Docker image build and smoke verification are the production Store Runtime proof. `bun run build` remains package-authoring and Release work; e2e keeps its separate `bun run build:store` browser proof. A green lint pass cannot waive any later failure.
 3. Keep one logical change per commit. Split unrelated Store UI, Module, and package changes.
 4. Let Husky and lint-staged run; pre-commit applies Biome to staged files and runs repository typecheck. Never use `git commit --no-verify`. If a hook fails, fix the cause and commit again.
 5. When a published package or Module API changes, run `bunx changeset` and place the generated file in its own `chore(repo): add changeset` commit when appropriate.
@@ -181,6 +182,9 @@ One shared version line covers the root, CLI, publishable packages and Modules, 
 - The bump updates every package on the shared line plus `apps/registry/registry.json` and `apps/registry/registry.lock.json`. Commit it as `chore(repo): bump version to X.Y.Z`. Refresh generated contracts and the private vendor pin when contracts changed.
 - A new package joins the current shared version when created.
 - Before changing release mechanics, read `.github/workflows/release.yml`, `internals/github/ci-cd/action.yml`, and the publish scripts instead of copying their matrix here. Release follows successful CI on `main`; e2e is separate. Publish only with no pending Changesets and versions ahead of npm.
+- Container publication follows only a successful same-repository `push` CI run on `main`, uses that run's exact head SHA, and remains behind the operator-approved `docker-publish` environment. Recovery also requires the exact `@86d-app/registry@<version>` Changesets tag at that SHA and the matching npm publication; it never invents a release from user input, a branch name, or a mutable tag.
+- Treat container version and `sha-<7>` tags as write-once. Before the first release, protect the `docker-publish` environment with required reviewers; add `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`; create `docker.io/86dapp/store`; apply the Docker Hub immutable-tag regex recorded in `.github/workflows/docker-release.yml`; leave `latest` mutable; restrict GHCR package write access to this repository; and make the GHCR package public after its first push. First publication stages content by digest and creates SHA tags before version tags. Partial recovery requires a matching SHA tag and the same digest to remain directly addressable in both registries; it reuses that digest instead of rebuilding. Registry inspection and GHCR tag creation are not an atomic compare-and-set, so environment approval, global release serialization, and exclusive package write authority bound that race.
+- Rollback uses approved manual recovery for a previously verified exact SHA and version to repoint only `latest`; retain immutable version and SHA tags, and append evidence instead of rewriting it.
 - Preserve npm trusted publishing through OIDC, package 2FA, and disabled token publishing. Never restore a long-lived publish token.
 - `@86d-app/contracts`, `@86d-app/registry`, `@86d-app/storage`, and `@86d-app/ui` remain publishable on the shared version line and publish whenever that version is ahead of npm, including a first publish.
 - Published packages resolve to compiled `dist/` JavaScript, declarations, and required non-TS assets. Tarballs exclude `src`, `__tests__`, `.turbo`, `vitest.config.ts`, `AGENTS.md`, and `tsconfig.json`. `prepare-publish --check` and `verify-publish-packs` are release gates.

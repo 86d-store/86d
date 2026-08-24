@@ -40,7 +40,10 @@ function rewriteGeneratedProcessEnvAccess(source: string): string {
 }
 
 import { readStoreConfig } from "@86d-app/registry/config";
-import { fetchModule } from "@86d-app/registry/fetcher";
+import {
+	type FetchModulesOptions,
+	fetchModules,
+} from "@86d-app/registry/fetcher";
 import {
 	generateLockfile,
 	isLockfileSatisfied,
@@ -51,9 +54,18 @@ import {
 import { registryManifestPath } from "@86d-app/registry/paths";
 import {
 	detectCircularDependencies,
+	readLocalManifest,
 	resolveModules,
 } from "@86d-app/registry/resolver";
 import type { ResolvedModule } from "@86d-app/registry/types";
+import {
+	captureRegistryOnlyPackageMetadata,
+	type RegistryOnlyPolicy,
+	readRegistryOnlyPolicy,
+	validateRegistryOnlyFetchCandidates,
+	validateRegistryOnlyInputs,
+	validateRegistryOnlyResolvedModules,
+} from "./registry-only-policy.js";
 
 interface PackageJson {
 	dependencies?: Record<string, string>;
@@ -259,22 +271,75 @@ function writePackageJson(pkg: PackageJson) {
  * 2. For missing modules: attempt buildtime fetch from remote sources
  * 3. Return only successfully resolved modules as package name strings
  */
-async function resolveModulesFromRegistry(): Promise<ResolvedModule[]> {
+async function resolveModulesFromRegistry(
+	policy: RegistryOnlyPolicy,
+	frozen: boolean,
+): Promise<ResolvedModule[]> {
 	const config = readStoreConfig(CONFIG_PATH);
+	const manifestPath = registryManifestPath(WORKSPACE_ROOT);
+	const manifest = readLocalManifest(manifestPath);
+	let strictSelection:
+		| ReturnType<typeof validateRegistryOnlyInputs>
+		| undefined;
+	let strictPackageMetadata:
+		| ReturnType<typeof captureRegistryOnlyPackageMetadata>
+		| undefined;
+	let strictLock: ReturnType<typeof readLockfile>;
+	if (policy.enabled) {
+		if (!manifest) {
+			throw new Error(
+				`Registry-only module generation requires a valid local registry manifest at ${manifestPath}.`,
+			);
+		}
+		strictLock = readLockfile(WORKSPACE_ROOT);
+		if (!strictLock) {
+			throw new Error(
+				"Registry-only module generation requires a valid apps/registry/registry.lock.json.",
+			);
+		}
+		strictSelection = validateRegistryOnlyInputs({
+			frozen,
+			config,
+			manifest,
+			lockfile: strictLock,
+			sourceRevision: policy.sourceRevision,
+		});
+		strictPackageMetadata = captureRegistryOnlyPackageMetadata(
+			WORKSPACE_ROOT,
+			strictSelection,
+			strictLock,
+		);
+	}
 
 	// Resolve specifiers against local workspace + registry manifest
-	const resolved = await resolveModules(config, { root: WORKSPACE_ROOT });
+	const resolved = await resolveModules(config, {
+		root: WORKSPACE_ROOT,
+		...(manifest ? { manifest } : {}),
+		mode: policy.enabled ? "registry-only" : "prefer-local",
+	});
+	if (policy.enabled) {
+		const failures = resolved.filter(
+			(module) => module.status === "error" || Boolean(module.error),
+		);
+		if (failures.length > 0) {
+			throw new Error(
+				`Registry-only module resolution failed:\n${failures
+					.map(
+						(module) =>
+							`  ${module.specifier.raw}: ${module.error ?? module.status}`,
+					)
+					.join("\n")}`,
+			);
+		}
+	}
 
-	const found: ResolvedModule[] = [];
 	const toFetch: ResolvedModule[] = [];
 
 	for (const mod of resolved) {
-		if (mod.status === "found") {
-			found.push(mod);
-		} else if (mod.status === "missing" && !mod.error) {
+		if (mod.status === "missing" && !mod.error) {
 			// Module exists in registry/github/npm but not locally — can be fetched
 			toFetch.push(mod);
-		} else {
+		} else if (mod.status !== "found") {
 			// Truly missing (not in registry, or has error) — skip with warning
 			console.warn(
 				`⚠ Module "${mod.specifier.raw}" not found — skipping${mod.error ? `: ${mod.error}` : ""}`,
@@ -282,32 +347,95 @@ async function resolveModulesFromRegistry(): Promise<ResolvedModule[]> {
 		}
 	}
 
-	// Fetch missing modules at buildtime
+	let strictFetchOptions: FetchModulesOptions | undefined;
+	if (policy.enabled) {
+		if (
+			!manifest ||
+			!strictLock ||
+			!strictSelection ||
+			!strictPackageMetadata
+		) {
+			throw new Error("Registry-only validation state was not initialized.");
+		}
+		const selectionForFetch = strictSelection;
+		const lockForFetch = strictLock;
+		const metadataForFetch = strictPackageMetadata;
+		strictFetchOptions = {
+			replaceExisting: true,
+			allowPackageManagerMutation: false,
+			validateBeforeCommit: (candidates) =>
+				validateRegistryOnlyFetchCandidates(
+					{
+						root: WORKSPACE_ROOT,
+						selected: selectionForFetch,
+						resolved,
+						manifest,
+						lockfile: lockForFetch,
+						expectedPackageMetadata: metadataForFetch,
+					},
+					candidates,
+				),
+		};
+	}
+
+	let fetchResults: Awaited<ReturnType<typeof fetchModules>> = [];
 	if (toFetch.length > 0) {
-		// Load manifest for fetch operations
-		const { readLocalManifest } = await import("@86d-app/registry/resolver");
-		const manifest = readLocalManifest(registryManifestPath(WORKSPACE_ROOT));
-
-		for (const mod of toFetch) {
-			const { specifier } = mod;
-
-			const result = await fetchModule(specifier, WORKSPACE_ROOT, manifest);
-			if (result.success && result.localPath) {
-				found.push({
-					...mod,
-					status: "found",
-					localPath: result.localPath,
-				});
-			} else {
-				console.warn(
-					`  ⚠ Failed to fetch ${specifier.packageName}: ${result.error ?? "unknown error"} — skipping`,
-				);
-			}
+		fetchResults = await fetchModules(
+			toFetch.map((module) => module.specifier),
+			WORKSPACE_ROOT,
+			manifest,
+			strictFetchOptions,
+		);
+		if (policy.enabled && fetchResults.some((result) => !result.success)) {
+			throw new Error(
+				`Registry-only module fetch failed:\n${fetchResults
+					.map((result, index) => ({ result, module: toFetch[index] }))
+					.filter(({ result }) => !result.success)
+					.map(
+						({ result, module }) =>
+							`  ${module?.specifier.raw ?? "unknown"}: ${result.error ?? "unknown error"}`,
+					)
+					.join("\n")}`,
+			);
 		}
 	}
 
-	const localCount = found.filter((m) => m.specifier.source === "local").length;
-	const _remoteCount = found.length - localCount;
+	let fetchIndex = 0;
+	const found: ResolvedModule[] = [];
+	for (const module of resolved) {
+		if (module.status === "found") {
+			found.push(module);
+			continue;
+		}
+		if (module.status !== "missing" || module.error) continue;
+		const result = fetchResults[fetchIndex++];
+		if (result?.success && result.localPath) {
+			found.push({ ...module, status: "found", localPath: result.localPath });
+		} else if (!policy.enabled) {
+			console.warn(
+				`  ⚠ Failed to fetch ${module.specifier.packageName}: ${result?.error ?? "unknown error"} — skipping`,
+			);
+		}
+	}
+
+	if (policy.enabled) {
+		if (
+			!manifest ||
+			!strictLock ||
+			!strictSelection ||
+			!strictPackageMetadata
+		) {
+			throw new Error("Registry-only validation state was not initialized.");
+		}
+		validateRegistryOnlyResolvedModules({
+			root: WORKSPACE_ROOT,
+			selected: strictSelection,
+			resolved: found,
+			manifest,
+			lockfile: strictLock,
+			expectedPackageMetadata: strictPackageMetadata,
+		});
+	}
 
 	return found;
 }
@@ -377,7 +505,10 @@ async function checkModuleHasComponents(
 	}
 }
 
-async function ensureModuleDependencies(modules: string[]) {
+async function ensureModuleDependencies(
+	modules: string[],
+	allowMutation: boolean,
+) {
 	const packageJson = readPackageJson();
 	const dependencies = packageJson.dependencies || {};
 	let modified = false;
@@ -401,6 +532,11 @@ async function ensureModuleDependencies(modules: string[]) {
 	}
 
 	if (modified) {
+		if (!allowMutation) {
+			throw new Error(
+				"Registry-only module generation will not update apps/store/package.json or run a package manager. Add every selected Module dependency before the frozen build.",
+			);
+		}
 		packageJson.dependencies = dependencies;
 		writePackageJson(packageJson);
 		try {
@@ -1431,7 +1567,7 @@ function readAdminComponentFiles(componentsDir: string): Map<string, string> {
 	return out;
 }
 
-async function generateAdminLoaders() {
+async function generateAdminLoaders(allowManifestMutation: boolean) {
 	const entries: Array<{ key: string; specifier: string }> = [];
 	const problems: string[] = [];
 
@@ -1510,7 +1646,7 @@ ${loadersEntries}
 	ensureDir(GENERATED_DIR);
 	writeFileSync(ADMIN_LOADERS_PATH, content);
 
-	writeAdminComponentExports(entries);
+	writeAdminComponentExports(entries, allowManifestMutation);
 }
 
 /**
@@ -1527,6 +1663,7 @@ ${loadersEntries}
  */
 function writeAdminComponentExports(
 	entries: Array<{ key: string; specifier: string }>,
+	allowMutation: boolean,
 ) {
 	const wanted = new Map<string, Set<string>>();
 	for (const { specifier } of entries) {
@@ -1563,6 +1700,11 @@ function writeAdminComponentExports(
 			changed = true;
 		}
 		if (!changed) continue;
+		if (!allowMutation) {
+			throw new Error(
+				`Registry-only module generation will not update ${relative(WORKSPACE_ROOT, manifestPath)}. Commit the required admin component exports before the frozen build.`,
+			);
+		}
 		manifest.exports = Object.fromEntries(
 			Object.entries(exportsMap).sort(([a], [b]) => a.localeCompare(b)),
 		);
@@ -1693,13 +1835,16 @@ const isFrozen = process.argv.includes("--frozen");
 
 // Run all generators
 async function runGenerators() {
-	_cachedResolved = await resolveModulesFromRegistry();
+	const registryOnlyPolicy = readRegistryOnlyPolicy();
+	_cachedResolved = await resolveModulesFromRegistry(
+		registryOnlyPolicy,
+		isFrozen,
+	);
 	_cachedModules = resolvedToPackageNames(_cachedResolved);
 	const resolvedModules = getCachedResolved();
 	const moduleNames = getCachedModules();
 
 	// Check for circular dependencies in the registry manifest
-	const { readLocalManifest } = await import("@86d-app/registry/resolver");
 	const manifest = readLocalManifest(registryManifestPath(WORKSPACE_ROOT));
 	if (manifest) {
 		const cycles = detectCircularDependencies(manifest);
@@ -1738,7 +1883,7 @@ async function runGenerators() {
 		writeLockfile(WORKSPACE_ROOT, lockfile);
 	}
 
-	await ensureModuleDependencies(moduleNames);
+	await ensureModuleDependencies(moduleNames, !registryOnlyPolicy.enabled);
 
 	_cachedPathSources = await collectModulePathSources(
 		moduleNames,
@@ -1768,7 +1913,7 @@ async function runGenerators() {
 	await generateModulesFile();
 	await generateApiRouter();
 	await generateClient();
-	await generateAdminLoaders();
+	await generateAdminLoaders(!registryOnlyPolicy.enabled);
 	await generateStoreLoaders();
 	generateTranspilePackages();
 }

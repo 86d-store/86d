@@ -6,9 +6,10 @@ By participating, you agree to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Prerequisites
 
-- [Bun](https://bun.sh) v1.3.14+
+- [Bun](https://bun.sh) v1.4.0+
 - [Node.js](https://nodejs.org) 23, 24, or 25
 - [PostgreSQL](https://www.postgresql.org) v15+
+- [Docker](https://docs.docker.com/get-docker/) with Buildx named build contexts, plus Compose `additional_contexts`, ephemeral published ports, and `up --wait` / `--wait-timeout`
 
 ## Setup
 
@@ -23,16 +24,18 @@ Run `86d doctor` to verify the project is healthy before you make changes.
 
 ## Development loop
 
-Four health gates must pass before a pull request can merge (CI `ci/cd` job, after commitlint):
+Six health gates must pass before a pull request can merge (CI `ci/cd` job, after commitlint):
 
 ```bash
-bun run check       # Biome lint + format
-bun run typecheck   # TypeScript
-bun run test        # Vitest unit tests
-bun run build       # Production build
+bun run generate:modules -- --frozen # Generated registry integrity
+bun run typecheck                      # TypeScript
+bun run check                          # Biome lint + format
+bun run test                           # Vitest unit tests
+bun run docker:build                   # Production Store Runtime image
+bun run docker:verify                  # Container boot and health smoke
 ```
 
-Run them locally and fix everything they flag. The same `ci/cd` job also runs on pushes to `main` (commitlint first) and must pass before Release. Playwright E2E (`bun run test:e2e`) runs in a separate workflow only on `main`; it does not block publish.
+Run them locally in that order and fix everything they flag. The Docker build and smoke gates are the production Store Runtime proof. `bun run build` remains available for package and Module authoring, and Release builds publishable packages before npm publication. The same `ci/cd` job also runs on pushes to `main` (commitlint first) and must pass before Release. Playwright E2E (`bun run test:e2e`) uses its own Store build in a separate workflow only on `main`; it does not block publish.
 
 ## Commit messages
 
@@ -68,7 +71,7 @@ Hooks install automatically on `bun install`. If a hook fails, fix the cause and
 - **One coherent change per PR.** A bug fix, a new endpoint, a new module, a docs improvement. Not all four at once.
 - **Tests for every code change.** New endpoint -> add Vitest tests. UI change -> update Playwright snapshots. Bug fix -> add a regression test.
 - **A real description.** What problem the PR solves, why this approach, what alternatives you considered, what is not yet covered.
-- **Changesets entry.** For changes that affect a published package, run `bunx changeset` and commit the generated file. CI will reject PRs without one when one is needed.
+- **Changesets entry.** For changes that affect a published package, run `bunx changeset` and commit the generated file. Release uses Changesets to decide whether package and container publication can proceed.
 
 ## Coding standards
 

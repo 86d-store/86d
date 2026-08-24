@@ -1,5 +1,5 @@
 name: ci/cd
-description: Commitlint, lint, typecheck, unit test, then production build
+description: Commitlint, frozen registry, typecheck, lint, unit test, then Store Runtime image build and smoke
 
 runs:
   using: composite
@@ -24,30 +24,66 @@ runs:
       shell: bash
       run: cp .env.example .env
 
-    - name: Lint and format (Biome)
+    - name: Verify generated modules
       shell: bash
-      run: bun check
-
-    - name: Generate modules
-      shell: bash
-      run: bun run generate:modules
+      run: bun run generate:modules -- --frozen
 
     - name: Typecheck
       shell: bash
-      run: bun typecheck
+      run: bun run typecheck
+
+    - name: Lint and format (Biome)
+      shell: bash
+      run: bun run check
 
     - name: Unit tests
       shell: bash
       run: bun run test
 
-    - name: Build
-      shell: bash
-      run: bun run build
-
-    - name: Verify npm pack hygiene
+    - name: Prepare image registry manifest
       shell: bash
       run: |
-        bun run prepare-publish
-        bun run prepare-publish --check
-        bun run verify-publish-packs
-        bun run prepare-publish --restore
+        set -euo pipefail
+        revision="$(git rev-parse HEAD)"
+        if [ "$revision" != "${{ github.sha }}" ]; then
+          echo "Checkout revision $revision does not match workflow revision ${{ github.sha }}." >&2
+          exit 1
+        fi
+        checkout_state="$(git status --porcelain=v1 --untracked-files=all)"
+        if [ -n "$checkout_state" ]; then
+          echo "Checkout is not clean before registry generation." >&2
+          printf '%s\n' "$checkout_state" >&2
+          exit 1
+        fi
+        bun run generate:registry
+        jq -e --arg revision "$revision" \
+          '.modules | length > 0 and all(.[]; .commit == $revision)' \
+          apps/registry/registry.json >/dev/null
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+
+    - name: Build Store Runtime image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        build-contexts: workspace-modules=./internals/docker/empty-context
+        push: false
+        load: true
+        tags: 86d-store:ci
+        build-args: |
+          MODULE_SOURCE=registry
+          SOURCE_REVISION=${{ github.sha }}
+          TURBO_TEAM=${{ env.TURBO_TEAM }}
+        secrets: |
+          github_token=${{ github.token }}
+        secret-envs: |
+          turbo_token=TURBO_TOKEN
+        cache-from: |
+          type=gha,scope=store-main
+          type=gha,scope=${{ github.event_name == 'push' && 'store-main' || format('store-untrusted-{0}', github.run_id) }}
+        cache-to: type=gha,mode=max,ignore-error=true,scope=${{ github.event_name == 'push' && 'store-main' || format('store-untrusted-{0}', github.run_id) }}
+
+    - name: Verify Store Runtime image
+      shell: bash
+      run: STORE_IMAGE=86d-store:ci bun run docker:verify

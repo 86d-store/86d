@@ -92,6 +92,8 @@ for (const mod of resolved) {
 }
 ```
 
+Production image generation uses `mode: "registry-only"` with a validated local manifest. That mode ignores workspace Module source and fails instead of falling back to a mutable remote registry.
+
 ### Building the Registry Manifest
 
 ```ts
@@ -107,10 +109,13 @@ const manifest = buildManifest("/path/to/project", {
 ### Fetching Remote Modules
 
 ```ts
-import { fetchModule, parseSpecifier } from "@86d-app/registry";
+import { fetchModules } from "@86d-app/registry/fetcher";
+import { parseSpecifier } from "@86d-app/registry/specifier";
 
-const spec = parseSpecifier("github:owner/repo/modules/loyalty");
-const result = await fetchModule(spec, "/path/to/project");
+const specs = [
+  parseSpecifier("github:owner/repo/modules/loyalty#0123456789abcdef0123456789abcdef01234567"),
+];
+const [result] = await fetchModules(specs, "/path/to/project");
 
 if (result.success) {
   console.log(`Installed to: ${result.localPath}`);
@@ -238,6 +243,9 @@ Apply selection and maturity rules to one resolved or generated Module. Import i
 
 ### `fetchModule(spec, root, manifest?): Promise<FetchResult>`
 Download a module from its remote source (GitHub tarball or npm) and install it locally.
+
+### `fetchModules(specs, root, manifest?, options?): Promise<FetchResult[]>`
+Fetch a batch with one archive download per repository and revision. When replacement is enabled, every staged Module is verified before the target directories are changed.
 
 ### `buildManifest(root, options?): RegistryManifest`
 Scan the `modules/` directory and build a registry manifest with full metadata for each module.

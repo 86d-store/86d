@@ -221,10 +221,12 @@
       "version": "0.0.0",
       "dependencies": {
         "@86d-app/registry": "workspace:*",
+        "env": "workspace:*",
       },
       "devDependencies": {
         "@biomejs/biome": "catalog:",
         "tsx": "catalog:",
+        "vitest": "catalog:vite",
       },
     },
     "internals/github": {

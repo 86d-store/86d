@@ -12,11 +12,15 @@ import type {
 } from "./types.js";
 import { registryManifestSchema } from "./types.js";
 
+export type ModuleResolutionMode = "prefer-local" | "registry-only";
+
 export interface ResolverOptions {
 	/** Absolute path to the monorepo / project root. */
 	root: string;
 	/** Optional pre-loaded registry manifest (avoids network fetch). */
 	manifest?: RegistryManifest;
+	/** Whether official modules may resolve from the local workspace. */
+	mode?: ModuleResolutionMode;
 }
 
 /**
@@ -30,16 +34,24 @@ export async function resolveModules(
 	config: StoreConfig,
 	options: ResolverOptions,
 ): Promise<ResolvedModule[]> {
-	const { root } = options;
+	const { root, mode = "prefer-local" } = options;
 
 	// Load manifest (from options, local file, or remote)
 	const manifest =
-		options.manifest ?? (await loadManifest(root, config.registry));
+		options.manifest ??
+		(mode === "registry-only"
+			? loadRequiredLocalManifest(root)
+			: await loadManifest(root, config.registry));
 
 	const resolved =
 		config.modules === "*" || config.modules === undefined
-			? resolveAllModules(root, manifest)
-			: resolveSpecifiers(config.modules.map(parseSpecifier), root, manifest);
+			? resolveAllModules(root, manifest, mode)
+			: resolveSpecifiers(
+					config.modules.map(parseSpecifier),
+					root,
+					manifest,
+					mode,
+				);
 
 	return applyModuleAdmission(resolved, config, manifest);
 }
@@ -69,13 +81,14 @@ function applyModuleAdmission(
 function resolveAllModules(
 	root: string,
 	manifest: RegistryManifest | undefined,
+	mode: ModuleResolutionMode,
 ): ResolvedModule[] {
 	const seen = new Set<string>();
 	const results: ResolvedModule[] = [];
 
 	// 1. All local workspace modules
 	const modulesDir = join(root, "modules");
-	if (existsSync(modulesDir)) {
+	if (mode === "prefer-local" && existsSync(modulesDir)) {
 		const dirs = readdirSync(modulesDir, { withFileTypes: true })
 			.filter((d) => d.isDirectory())
 			.map((d) => d.name);
@@ -124,8 +137,9 @@ function resolveSpecifiers(
 	specifiers: ModuleSpecifier[],
 	root: string,
 	manifest: RegistryManifest | undefined,
+	mode: ModuleResolutionMode,
 ): ResolvedModule[] {
-	return specifiers.map((spec) => resolveOne(spec, root, manifest));
+	return specifiers.map((spec) => resolveOne(spec, root, manifest, mode));
 }
 
 /**
@@ -140,15 +154,16 @@ function resolveOne(
 	spec: ModuleSpecifier,
 	root: string,
 	manifest: RegistryManifest | undefined,
+	mode: ModuleResolutionMode,
 ): ResolvedModule {
 	const modulesDir = join(root, "modules");
 
 	switch (spec.source) {
-		case "local":
 		case "registry": {
 			// Check local workspace first
 			const localPath = join(modulesDir, spec.name);
 			if (
+				mode === "prefer-local" &&
 				existsSync(localPath) &&
 				existsSync(join(localPath, "package.json"))
 			) {
@@ -175,10 +190,28 @@ function resolveOne(
 			};
 		}
 
+		case "local": {
+			const localPath = join(modulesDir, spec.name);
+			if (
+				mode === "prefer-local" &&
+				existsSync(localPath) &&
+				existsSync(join(localPath, "package.json"))
+			) {
+				return { specifier: spec, status: "found", localPath };
+			}
+
+			return {
+				specifier: spec,
+				status: "missing",
+				error: `Local module "${spec.name}" is unavailable in ${mode} mode.`,
+			};
+		}
+
 		case "github": {
 			// Check if already downloaded locally
 			const localPath = join(modulesDir, spec.name);
 			if (
+				mode === "prefer-local" &&
 				existsSync(localPath) &&
 				existsSync(join(localPath, "package.json"))
 			) {
@@ -239,6 +272,26 @@ async function loadManifest(
 		return registryManifestSchema.parse(raw);
 	} catch {
 		return undefined;
+	}
+}
+
+function loadRequiredLocalManifest(root: string): RegistryManifest {
+	const localPath = registryManifestPath(root);
+	if (!existsSync(localPath)) {
+		throw new Error(
+			`Registry-only module resolution requires a local registry manifest at ${localPath}.`,
+		);
+	}
+
+	try {
+		const raw = JSON.parse(readFileSync(localPath, "utf-8"));
+		return registryManifestSchema.parse(raw);
+	} catch (error) {
+		const detail = error instanceof Error ? ` ${error.message}` : "";
+		throw new Error(
+			`Registry-only module resolution found an invalid local registry manifest at ${localPath}.${detail}`,
+			{ cause: error },
+		);
 	}
 }
 
