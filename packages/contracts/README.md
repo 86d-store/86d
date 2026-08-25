@@ -35,7 +35,7 @@ Private Command catalogs and plane-specific authorization stay outside this pack
 
 Consumers pin an exact package version and verify `CONFORMANCE_DIGEST` at build and startup via `assertConformancePin`. A mismatch fails closed as `contract_version_mismatch`.
 
-Publication uses a signed `contracts-v{version}` tag, provenance-bearing npm release, and byte-equivalent GitHub `.tgz` fallback. Until that operator gate lands, local development may use a commit-pinned packed artifact; that path cannot satisfy clean-install or release evidence.
+Publication uses a signed `contracts-v{version}` tag, provenance-bearing npm release, and byte-equivalent GitHub `.tgz` fallback. Until that operator gate lands, local development may use a commit-pinned packed artifact from `bun run pack:release`; that path cannot satisfy clean-install or release evidence.
 
 ## Regeneration
 
@@ -44,3 +44,11 @@ bun run generate:conformance
 ```
 
 Run twice and compare digests byte-for-byte before cutting a release.
+
+## Release pack
+
+```bash
+bun run pack:release
+```
+
+Stages a dist-only package with concrete `zod` (no `catalog:`) and `publishConfig` exports, then packs it. Use that tarball for vendor pins and for the operator npm/GitHub publish — never a raw workspace `bun pm pack`.

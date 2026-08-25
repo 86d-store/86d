@@ -14,6 +14,24 @@ import {
 } from "./json-value";
 
 export type { JsonValue } from "./json-value";
+// Public command entry intentionally re-exports wire helpers used by both planes.
+// biome-ignore lint/performance/noBarrelFile: stable @86d-app/contracts/command surface
+export {
+	currencySchema,
+	dateTimeSchema,
+	digestSchema,
+	identifierSchema,
+	jsonValueSchema,
+	minorAmountSchema,
+	permissionSchema,
+	versionSchema,
+} from "./json-value";
+export {
+	assertCanonicalJson,
+	canonicalJson,
+	parseCanonicalJson,
+	toJsonValue,
+} from "./serialize";
 export const authoritativePlaneSchema = z.enum([
 	"control_plane",
 	"store_runtime",

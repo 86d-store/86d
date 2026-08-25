@@ -49,3 +49,7 @@ uploads/
 bak/
 tmp 
 claude.sh.version-bump-timestamp
+
+# Contracts release staging / local tarballs
+packages/contracts/.release-pack/
+packages/contracts/*.tgz
