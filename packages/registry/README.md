@@ -247,6 +247,8 @@ Download a module from its remote source (GitHub tarball or npm) and install it 
 ### `fetchModules(specs, root, manifest?, options?): Promise<FetchResult[]>`
 Fetch a batch with one archive download per repository and revision. When replacement is enabled, every staged Module is verified before the target directories are changed.
 
+Strict frozen builds may provide the set of official staged targets whose existing `node_modules` links must survive replacement after candidate verification. This requires replacement mode and pre-existing frozen install state; every link is checked against the Module's declared dependencies and canonical workspace or Bun install targets, while install state remains deliberately outside Module source integrity.
+
 ### `buildManifest(root, options?): RegistryManifest`
 Scan the `modules/` directory and build a registry manifest with full metadata for each module.
 

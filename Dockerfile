@@ -22,20 +22,6 @@ COPY --from=prepare /app/out/json/ ./
 COPY --from=prepare /app/out/bun.lock ./bun.lock
 RUN bun install --frozen-lockfile --ignore-scripts
 
-# Export only the module-local frozen dependency links. Registry generation
-# replaces each Module directory, so these links are restored afterward without
-# copying local source or package manifests over the verified archive.
-FROM deps AS module-deps
-RUN set -eu; \
-	for module_manifest in modules/*/package.json; do \
-		module_path="${module_manifest%/package.json}"; \
-		if [ ! -d "${module_path}/node_modules" ]; then \
-			echo "Missing frozen dependency state for Module ${module_path##*/}" >&2; \
-			exit 1; \
-		fi; \
-	done; \
-	tar -cf /module-node-modules.tar modules/*/node_modules
-
 FROM deps AS source-base
 COPY --from=prepare /app/out/full/ ./
 # Templates are runtime inputs, not a package dependency, so Turbo does not
@@ -61,22 +47,16 @@ RUN set -eu; \
 		echo "SOURCE_REVISION is required when MODULE_SOURCE=registry" >&2; \
 		exit 1; \
 	fi; \
+	# Module directories span lower Docker layers after prune and install. Copy
+	# them up before the registry fetch transaction so sibling renames remain
+	# atomic on overlayfs instead of failing with EXDEV. \
+	cp -a /app/modules /app/.registry-modules; \
+	rm -rf /app/modules; \
+	mv /app/.registry-modules /app/modules; \
 	env \
 		"86D_REGISTRY_ONLY_MODULES=true" \
 		"86D_REGISTRY_SOURCE_REVISION=${SOURCE_REVISION}" \
 		bun internals/generators/src/generate-modules.ts --frozen
-# Registry fetch replaces each local target directory. Restore only the
-# exact frozen-install module-local dependency links, never source or manifests.
-COPY --from=module-deps /module-node-modules.tar /tmp/module-node-modules.tar
-RUN set -eu; \
-	for module_path in modules/*; do \
-		if [ -e "${module_path}/node_modules" ]; then \
-			echo "Registry Module ${module_path##*/} unexpectedly contains node_modules" >&2; \
-			exit 1; \
-		fi; \
-	done; \
-	tar -xf /tmp/module-node-modules.tar; \
-	rm /tmp/module-node-modules.tar
 
 # Select exactly one source stage. Valid values are `workspace` and `registry`.
 FROM module-source-${MODULE_SOURCE} AS builder

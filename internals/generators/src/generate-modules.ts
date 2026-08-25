@@ -348,6 +348,7 @@ async function resolveModulesFromRegistry(
 	}
 
 	let strictFetchOptions: FetchModulesOptions | undefined;
+	const prevalidatedPreservedNodeModules = new Set<string>();
 	if (policy.enabled) {
 		if (
 			!manifest ||
@@ -360,10 +361,14 @@ async function resolveModulesFromRegistry(
 		const selectionForFetch = strictSelection;
 		const lockForFetch = strictLock;
 		const metadataForFetch = strictPackageMetadata;
+		const modulesWithFrozenDependencyState = new Set(
+			Object.keys(metadataForFetch),
+		);
 		strictFetchOptions = {
 			replaceExisting: true,
+			preserveExistingNodeModules: modulesWithFrozenDependencyState,
 			allowPackageManagerMutation: false,
-			validateBeforeCommit: (candidates) =>
+			validateBeforeCommit: (candidates) => {
 				validateRegistryOnlyFetchCandidates(
 					{
 						root: WORKSPACE_ROOT,
@@ -374,7 +379,16 @@ async function resolveModulesFromRegistry(
 						expectedPackageMetadata: metadataForFetch,
 					},
 					candidates,
-				),
+				);
+				for (const candidate of candidates) {
+					if (
+						candidate.staged &&
+						modulesWithFrozenDependencyState.has(candidate.specifier.name)
+					) {
+						prevalidatedPreservedNodeModules.add(candidate.specifier.name);
+					}
+				}
+			},
 		};
 	}
 
@@ -434,6 +448,7 @@ async function resolveModulesFromRegistry(
 			manifest,
 			lockfile: strictLock,
 			expectedPackageMetadata: strictPackageMetadata,
+			prevalidatedPreservedNodeModules,
 		});
 	}
 

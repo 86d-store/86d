@@ -389,6 +389,36 @@ describe("Docker context contract", () => {
 
 		expect(dockerfile).not.toContain("COPY --from=deps /app/modules ./modules");
 	});
+
+	it("does not restore Module dependency links after strict generation", async () => {
+		const dockerfile = await readFile(
+			join(import.meta.dirname, "../../../Dockerfile"),
+			"utf8",
+		);
+
+		expect(dockerfile).not.toContain("AS module-deps");
+		expect(dockerfile).not.toContain("module-node-modules.tar");
+	});
+
+	it("copies registry Module stubs into the writable layer before replacement", async () => {
+		const dockerfile = await readFile(
+			join(import.meta.dirname, "../../../Dockerfile"),
+			"utf8",
+		);
+		const registryStage = dockerfile.slice(
+			dockerfile.indexOf("FROM source-base AS module-source-registry"),
+			dockerfile.indexOf("# Select exactly one source stage"),
+		);
+
+		expect(registryStage).toContain(
+			"cp -a /app/modules /app/.registry-modules",
+		);
+		expect(registryStage).toContain("rm -rf /app/modules");
+		expect(registryStage).toContain("mv /app/.registry-modules /app/modules");
+		expect(registryStage.indexOf("cp -a /app/modules")).toBeLessThan(
+			registryStage.indexOf("generate-modules.ts --frozen"),
+		);
+	});
 });
 
 describe("Next standalone output contract", () => {

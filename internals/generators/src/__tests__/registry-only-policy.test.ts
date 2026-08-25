@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import {
 	mkdirSync,
 	readFileSync,
+	realpathSync,
 	rmSync,
 	symlinkSync,
 	writeFileSync,
@@ -311,6 +312,193 @@ describe("validateRegistryOnlyResolvedModules", () => {
 			).toEqual(stubBytes);
 		},
 	);
+
+	it("accepts only dependency links preserved after staged validation", async () => {
+		const modulePath = join(POLICY_TMP_ROOT, "modules", "products");
+		const remoteModule = join(
+			POLICY_TMP_ROOT,
+			"fixture",
+			"86d-archive",
+			"modules",
+			"products",
+		);
+		const corePath = join(POLICY_TMP_ROOT, "packages", "core");
+		const packageJson = JSON.stringify({
+			name: "@86d-app/products",
+			version: "0.0.42",
+			dependencies: { "@86d-app/core": "workspace:*" },
+		});
+		mkdirSync(POLICY_TMP_ROOT, { recursive: true });
+		writeFileSync(
+			join(POLICY_TMP_ROOT, "package.json"),
+			JSON.stringify({ workspaces: ["modules/*", "packages/*"] }),
+		);
+		writeFileSync(
+			join(POLICY_TMP_ROOT, "bun.lock"),
+			JSON.stringify({
+				lockfileVersion: 2,
+				configVersion: 1,
+				workspaces: {
+					"modules/products": {
+						name: "@86d-app/products",
+						version: "0.0.42",
+						dependencies: { "@86d-app/core": "workspace:*" },
+					},
+					"packages/core": {
+						name: "@86d-app/core",
+						version: "0.0.42",
+					},
+				},
+				packages: {},
+			}),
+		);
+		mkdirSync(join(modulePath, "src"), { recursive: true });
+		mkdirSync(join(modulePath, "node_modules", "@86d-app"), {
+			recursive: true,
+		});
+		mkdirSync(join(corePath, "src"), { recursive: true });
+		writeFileSync(join(modulePath, "package.json"), packageJson);
+		writeFileSync(join(modulePath, "src", "index.ts"), "local source\n");
+		writeFileSync(
+			join(corePath, "package.json"),
+			JSON.stringify({
+				name: "@86d-app/core",
+				version: "0.0.42",
+				type: "module",
+				exports: { "./api": "./src/api.ts" },
+			}),
+		);
+		writeFileSync(
+			join(corePath, "src", "api.ts"),
+			'export const dependencyMarker = "core-api";\n',
+		);
+		symlinkSync(
+			"../../../../packages/core",
+			join(modulePath, "node_modules", "@86d-app", "core"),
+			"dir",
+		);
+
+		mkdirSync(join(remoteModule, "src"), { recursive: true });
+		writeFileSync(join(remoteModule, "package.json"), packageJson);
+		writeFileSync(
+			join(remoteModule, "src", "index.ts"),
+			'import { dependencyMarker } from "@86d-app/core/api";\nconsole.log(dependencyMarker);\n',
+		);
+		const integrity = computeIntegrity(remoteModule);
+		if (!integrity) throw new Error("archive integrity fixture missing");
+		const inputs = officialInputs();
+		const manifestEntry = inputs.manifest.modules.products;
+		const lockEntry = inputs.lockfile.modules.products;
+		if (!manifestEntry || !lockEntry) throw new Error("fixture missing");
+		manifestEntry.subtreeIntegrity = integrity;
+		lockEntry.integrity = integrity;
+		const selected = validateRegistryOnlyInputs(inputs);
+		const expectedPackageMetadata = captureRegistryOnlyPackageMetadata(
+			POLICY_TMP_ROOT,
+			selected,
+			inputs.lockfile,
+		);
+		const missing = selected.map((specifier) => ({
+			specifier,
+			status: "missing" as const,
+		}));
+		const archivePath = join(POLICY_TMP_ROOT, "fixture", "archive.tar.gz");
+		expect(
+			spawnSync(
+				"tar",
+				[
+					"czf",
+					archivePath,
+					"-C",
+					join(POLICY_TMP_ROOT, "fixture"),
+					"86d-archive",
+				],
+				{ stdio: "pipe" },
+			).status,
+		).toBe(0);
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(
+				async () => new Response(readFileSync(archivePath), { status: 200 }),
+			),
+		);
+
+		const prevalidatedPreservedNodeModules = new Set<string>();
+		const results = await fetchModules(
+			selected,
+			POLICY_TMP_ROOT,
+			inputs.manifest,
+			{
+				replaceExisting: true,
+				preserveExistingNodeModules: new Set(["products"]),
+				allowPackageManagerMutation: false,
+				validateBeforeCommit: (candidates) => {
+					validateRegistryOnlyFetchCandidates(
+						{
+							root: POLICY_TMP_ROOT,
+							selected,
+							resolved: missing,
+							manifest: inputs.manifest,
+							lockfile: inputs.lockfile,
+							expectedPackageMetadata,
+						},
+						candidates,
+					);
+					for (const candidate of candidates) {
+						if (candidate.staged) {
+							prevalidatedPreservedNodeModules.add(candidate.specifier.name);
+						}
+					}
+				},
+			},
+		);
+		expect(results.every((result) => result.success)).toBe(true);
+		const found = selected.map((specifier, index) => ({
+			specifier,
+			status: "found" as const,
+			localPath: results[index]?.localPath,
+		}));
+		const resolvedInputs = {
+			root: POLICY_TMP_ROOT,
+			selected,
+			resolved: found,
+			manifest: inputs.manifest,
+			lockfile: inputs.lockfile,
+			expectedPackageMetadata,
+		};
+
+		expect(() => validateRegistryOnlyResolvedModules(resolvedInputs)).toThrow(
+			/integrity-excluded directory "node_modules"/i,
+		);
+
+		expect(() =>
+			validateRegistryOnlyResolvedModules({
+				...resolvedInputs,
+				prevalidatedPreservedNodeModules,
+			}),
+		).not.toThrow();
+		expect(
+			realpathSync(join(modulePath, "node_modules", "@86d-app", "core")),
+		).toBe(realpathSync(corePath));
+		const imported = spawnSync("bun", [join(modulePath, "src", "index.ts")], {
+			cwd: POLICY_TMP_ROOT,
+			encoding: "utf8",
+		});
+		expect(imported.status, imported.stderr).toBe(0);
+		expect(imported.stdout.trim()).toBe("core-api");
+
+		mkdirSync(join(modulePath, "src", "node_modules"), { recursive: true });
+		writeFileSync(
+			join(modulePath, "src", "node_modules", "unverified.js"),
+			"unverified();\n",
+		);
+		expect(() =>
+			validateRegistryOnlyResolvedModules({
+				...resolvedInputs,
+				prevalidatedPreservedNodeModules,
+			}),
+		).toThrow(/integrity-excluded directory "src\/node_modules"/i);
+	});
 
 	it("accepts an exact npm package when its lock omits a workspace localPath", () => {
 		const packagePath = join(

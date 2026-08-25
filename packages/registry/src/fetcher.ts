@@ -6,6 +6,7 @@ import {
 	lstatSync,
 	mkdirSync,
 	readdirSync,
+	readFileSync,
 	realpathSync,
 	renameSync,
 	rmSync,
@@ -77,6 +78,13 @@ export async function fetchWithRetry(
 export interface FetchModulesOptions {
 	/** Replace an existing module directory with the fetched, verified bytes. */
 	replaceExisting?: boolean;
+	/**
+	 * Module names whose existing frozen `node_modules` directory must survive a
+	 * staged source replacement. Preservation happens only after candidate
+	 * validation, validates every declared link against the frozen workspace
+	 * install, and completes before the atomic batch commit.
+	 */
+	preserveExistingNodeModules?: ReadonlySet<string>;
 	/** Allow npm sources to update package manifests and the package-manager lock. */
 	allowPackageManagerMutation?: boolean;
 	/**
@@ -114,6 +122,7 @@ interface PreparedArchive {
 }
 
 interface PendingInstall {
+	moduleName: string;
 	stagingDir: string;
 	targetDir: string;
 	parentDir: string;
@@ -134,6 +143,16 @@ export async function fetchModules(
 	manifest?: RegistryManifest,
 	options: FetchModulesOptions = {},
 ): Promise<FetchResult[]> {
+	if (
+		(options.preserveExistingNodeModules?.size ?? 0) > 0 &&
+		options.replaceExisting !== true
+	) {
+		return specs.map(() => ({
+			success: false,
+			error:
+				"Frozen dependency preservation requires target replacement to be enabled",
+		}));
+	}
 	const specifierErrors = specs.map((specifier): string | undefined => {
 		try {
 			assertValidModuleSpecifier(specifier);
@@ -148,6 +167,23 @@ export async function fetchModules(
 			error:
 				error ?? "Batch fetch aborted because another specifier was invalid",
 		}));
+	}
+	let frozenInstallState: FrozenInstallState | undefined;
+	if ((options.preserveExistingNodeModules?.size ?? 0) > 0) {
+		try {
+			// Snapshot canonical workspace targets before remote staging directories
+			// exist, so transaction artifacts can never become dependency roots.
+			frozenInstallState = readFrozenInstallState(
+				root,
+				options.preserveExistingNodeModules ?? new Set(),
+			);
+		} catch (error) {
+			const reason = error instanceof Error ? error.message : String(error);
+			return specs.map(() => ({
+				success: false,
+				error: `Batch fetch failed to validate frozen dependency state: ${reason}`,
+			}));
+		}
 	}
 
 	const context: FetchContext = {
@@ -199,6 +235,23 @@ export async function fetchModules(
 			return specs.map(() => ({
 				success: false,
 				error: `Batch fetch failed pre-commit validation: ${reason}`,
+			}));
+		}
+	}
+	if ((options.preserveExistingNodeModules?.size ?? 0) > 0) {
+		try {
+			preserveExistingNodeModules(
+				context.pendingInstalls,
+				root,
+				options.preserveExistingNodeModules ?? new Set(),
+				frozenInstallState,
+			);
+		} catch (error) {
+			discardPendingInstalls(context.pendingInstalls);
+			const reason = error instanceof Error ? error.message : String(error);
+			return specs.map(() => ({
+				success: false,
+				error: `Batch fetch failed to preserve frozen dependency state: ${reason}`,
 			}));
 		}
 	}
@@ -551,6 +604,7 @@ async function fetchFromGitHub(
 		}
 
 		context.pendingInstalls.push({
+			moduleName: name,
 			stagingDir,
 			targetDir,
 			parentDir: installTarget.parentDir,
@@ -630,6 +684,761 @@ function discardPendingInstalls(installs: PendingInstall[]): void {
 			install.stagingDir,
 		);
 	}
+}
+
+function preserveExistingNodeModules(
+	installs: PendingInstall[],
+	root: string,
+	moduleNames: ReadonlySet<string>,
+	frozenInstallState: FrozenInstallState | undefined,
+): void {
+	if (!frozenInstallState) {
+		throw new Error("Frozen Bun install state was not snapshotted");
+	}
+	for (const install of installs) {
+		if (!moduleNames.has(install.moduleName)) continue;
+		assertContainedSibling(
+			install.parentDir,
+			install.physicalParentDir,
+			install.targetDir,
+		);
+		assertContainedSibling(
+			install.parentDir,
+			install.physicalParentDir,
+			install.stagingDir,
+		);
+		const source = join(install.targetDir, "node_modules");
+		const destination = join(install.stagingDir, "node_modules");
+		if (!pathEntryExists(source)) {
+			throw new Error(
+				`Missing frozen dependency state for Module ${install.targetDir}`,
+			);
+		}
+		const sourceEntry = lstatSync(source);
+		if (
+			sourceEntry.isSymbolicLink() ||
+			!sourceEntry.isDirectory() ||
+			dirname(realpathSync(source)) !== realpathSync(install.targetDir)
+		) {
+			throw new Error(
+				`Frozen dependency state escapes Module target ${install.targetDir}`,
+			);
+		}
+		if (pathEntryExists(destination)) {
+			throw new Error(
+				`Fetched Module unexpectedly contains dependency state: ${install.stagingDir}`,
+			);
+		}
+		validateFrozenNodeModules({
+			root,
+			modulePath: install.stagingDir,
+			workspacePath: install.targetDir,
+			nodeModulesPath: source,
+			frozenInstallState,
+		});
+		cpSync(source, destination, {
+			recursive: true,
+			dereference: false,
+			verbatimSymlinks: true,
+		});
+	}
+}
+
+const DEPENDENCY_FIELDS = [
+	"dependencies",
+	"devDependencies",
+	"peerDependencies",
+	"optionalDependencies",
+] as const;
+
+interface FrozenNodeModulesValidationInput {
+	root: string;
+	modulePath: string;
+	workspacePath: string;
+	nodeModulesPath: string;
+	frozenInstallState: FrozenInstallState;
+}
+
+interface LockedWorkspace {
+	packageName: string;
+	dependencySpecifiers: ReadonlyMap<string, string>;
+	dependencyTargets: ReadonlyMap<string, string>;
+}
+
+interface FrozenInstallState {
+	workspacePackages: ReadonlyMap<string, string>;
+	lockedWorkspaces: ReadonlyMap<string, LockedWorkspace>;
+	lockedPackages: ReadonlyMap<string, readonly unknown[]>;
+	bunPackageRoots: ReadonlyMap<string, readonly string[]>;
+}
+
+function validateFrozenNodeModules(
+	input: FrozenNodeModulesValidationInput,
+): void {
+	const packageJson = readJsonObject(
+		join(input.modulePath, "package.json"),
+		"fetched Module package metadata",
+	);
+	const declared = new Map<string, string>();
+	const required = new Set<string>();
+	for (const field of DEPENDENCY_FIELDS) {
+		const value = packageJson[field];
+		if (value === undefined) continue;
+		if (!isJsonObject(value)) {
+			throw new Error(`Fetched Module ${field} must be an object`);
+		}
+		for (const [packageName, specifier] of Object.entries(value)) {
+			if (typeof specifier !== "string") {
+				throw new Error(
+					`Fetched Module dependency "${packageName}" must use a string specifier`,
+				);
+			}
+			declared.set(packageName, specifier);
+			if (field === "dependencies" || field === "devDependencies") {
+				required.add(packageName);
+			}
+		}
+	}
+	const physicalWorkspacePath = realpathSync(input.workspacePath);
+	const lockedWorkspace = input.frozenInstallState.lockedWorkspaces.get(
+		physicalWorkspacePath,
+	);
+	if (!lockedWorkspace) {
+		throw new Error(
+			`Frozen Bun lock has no workspace entry for ${input.workspacePath}`,
+		);
+	}
+	if (packageJson.name !== lockedWorkspace.packageName) {
+		throw new Error(
+			`Fetched Module package ${String(packageJson.name)} does not match frozen workspace ${lockedWorkspace.packageName}`,
+		);
+	}
+
+	const physicalRoot = realpathSync(input.root);
+	const bunStorePath = join(input.root, "node_modules", ".bun");
+	let physicalBunStore: string | undefined;
+	const linkedTargets = new Map<string, string>();
+	let binPath: string | undefined;
+
+	const validatePackageLink = (linkPath: string, packageName: string): void => {
+		const specifier = declared.get(packageName);
+		if (!specifier) {
+			throw new Error(
+				`Frozen dependency link "${packageName}" is not declared by the fetched Module`,
+			);
+		}
+		const linkEntry = lstatSync(linkPath);
+		if (!linkEntry.isSymbolicLink()) {
+			throw new Error(
+				`Frozen dependency entry "${packageName}" is not a symbolic link`,
+			);
+		}
+		const physicalTarget = realpathSync(linkPath);
+		if (lockedWorkspace.dependencyTargets.get(packageName) !== physicalTarget) {
+			throw new Error(
+				`Frozen dependency "${packageName}" changed peer context after the frozen workspace snapshot`,
+			);
+		}
+		if (specifier.startsWith("workspace:")) {
+			if (
+				input.frozenInstallState.workspacePackages.get(packageName) !==
+				physicalTarget
+			) {
+				throw new Error(
+					`Frozen workspace dependency "${packageName}" resolves outside its declared workspace package`,
+				);
+			}
+		} else {
+			if (!physicalBunStore) {
+				physicalBunStore = realpathSync(bunStorePath);
+				if (
+					physicalBunStore !== resolve(physicalRoot, "node_modules", ".bun")
+				) {
+					throw new Error(
+						"Frozen Bun dependency store resolves outside the workspace",
+					);
+				}
+			}
+			if (!isPathInside(physicalBunStore, physicalTarget)) {
+				throw new Error(
+					`Frozen dependency "${packageName}" resolves outside the Bun install store`,
+				);
+			}
+			const installedPackage = readJsonObject(
+				join(physicalTarget, "package.json"),
+				`frozen dependency ${packageName}`,
+			);
+			if (installedPackage.name !== packageName) {
+				throw new Error(
+					`Frozen dependency "${packageName}" resolves to package ${String(installedPackage.name)}`,
+				);
+			}
+			validateLockedExternalPackage({
+				packageName,
+				specifier,
+				physicalTarget,
+				installedPackage,
+				lockedWorkspace,
+				frozenInstallState: input.frozenInstallState,
+			});
+		}
+		linkedTargets.set(packageName, physicalTarget);
+	};
+
+	for (const entry of readdirSync(input.nodeModulesPath, {
+		withFileTypes: true,
+	})) {
+		const entryPath = join(input.nodeModulesPath, entry.name);
+		if (entry.name === ".bin") {
+			if (!entry.isDirectory() || entry.isSymbolicLink()) {
+				throw new Error("Frozen dependency .bin entry must be a directory");
+			}
+			binPath = entryPath;
+			continue;
+		}
+		if (entry.name.startsWith("@")) {
+			if (!entry.isDirectory() || entry.isSymbolicLink()) {
+				throw new Error(`Frozen dependency scope "${entry.name}" is invalid`);
+			}
+			for (const scopedEntry of readdirSync(entryPath, {
+				withFileTypes: true,
+			})) {
+				validatePackageLink(
+					join(entryPath, scopedEntry.name),
+					`${entry.name}/${scopedEntry.name}`,
+				);
+			}
+			continue;
+		}
+		validatePackageLink(entryPath, entry.name);
+	}
+
+	for (const packageName of required) {
+		if (!linkedTargets.has(packageName)) {
+			throw new Error(
+				`Missing frozen dependency link for declared package "${packageName}"`,
+			);
+		}
+	}
+
+	if (binPath) {
+		for (const entry of readdirSync(binPath, { withFileTypes: true })) {
+			const linkPath = join(binPath, entry.name);
+			if (!entry.isSymbolicLink()) {
+				throw new Error(
+					`Frozen dependency binary "${entry.name}" is not a link`,
+				);
+			}
+			const physicalTarget = realpathSync(linkPath);
+			if (
+				![...linkedTargets.values()].some(
+					(packageRoot) =>
+						physicalTarget === packageRoot ||
+						isPathInside(packageRoot, physicalTarget),
+				)
+			) {
+				throw new Error(
+					`Frozen dependency binary "${entry.name}" resolves outside declared dependencies`,
+				);
+			}
+		}
+	}
+}
+
+interface LockedExternalPackageValidationInput {
+	packageName: string;
+	specifier: string;
+	physicalTarget: string;
+	installedPackage: Record<string, unknown>;
+	lockedWorkspace: LockedWorkspace;
+	frozenInstallState: FrozenInstallState;
+}
+
+function validateLockedExternalPackage(
+	input: LockedExternalPackageValidationInput,
+): void {
+	const lockedSpecifier = input.lockedWorkspace.dependencySpecifiers.get(
+		input.packageName,
+	);
+	if (lockedSpecifier !== input.specifier) {
+		throw new Error(
+			`Frozen dependency "${input.packageName}" does not match its declaring workspace in bun.lock`,
+		);
+	}
+	const contextualKey = `${input.lockedWorkspace.packageName}/${input.packageName}`;
+	const packageKey = input.frozenInstallState.lockedPackages.has(contextualKey)
+		? contextualKey
+		: input.packageName;
+	const packageEntry = input.frozenInstallState.lockedPackages.get(packageKey);
+	if (!packageEntry) {
+		throw new Error(
+			`Frozen dependency "${input.packageName}" has no direct package resolution in bun.lock`,
+		);
+	}
+	const resolution = packageEntry[0];
+	const integrity = packageEntry[3];
+	if (typeof resolution !== "string" || typeof integrity !== "string") {
+		throw new Error(
+			`Frozen dependency "${input.packageName}" has no immutable resolution and integrity in bun.lock`,
+		);
+	}
+	const separator = resolution.lastIndexOf("@");
+	if (separator <= 0 || separator === resolution.length - 1) {
+		throw new Error(
+			`Frozen dependency "${input.packageName}" has unsupported resolution ${resolution}`,
+		);
+	}
+	const lockedName = resolution.slice(0, separator);
+	const lockedVersion = resolution.slice(separator + 1);
+	if (
+		input.installedPackage.name !== lockedName ||
+		input.installedPackage.version !== lockedVersion
+	) {
+		throw new Error(
+			`Frozen dependency "${input.packageName}" installed name/version does not match locked resolution ${resolution}`,
+		);
+	}
+	const identity = frozenPackageIdentity(lockedName, lockedVersion);
+	const packageRoots =
+		input.frozenInstallState.bunPackageRoots.get(identity) ?? [];
+	if (!packageRoots.includes(input.physicalTarget)) {
+		throw new Error(
+			`Frozen dependency "${input.packageName}" does not resolve to a Bun package root for locked resolution ${resolution}`,
+		);
+	}
+}
+
+function readFrozenInstallState(
+	root: string,
+	moduleNames: ReadonlySet<string>,
+): FrozenInstallState {
+	const workspacePackages = readWorkspacePackageTargets(root);
+	const lock = readJsoncObject(join(root, "bun.lock"), "Bun lockfile");
+	if (lock.lockfileVersion !== 2) {
+		throw new Error("Bun lockfile must use lockfileVersion 2");
+	}
+	if (!isJsonObject(lock.workspaces) || !isJsonObject(lock.packages)) {
+		throw new Error("Bun lockfile is missing workspaces or packages");
+	}
+
+	const physicalRoot = realpathSync(root);
+	const modulesRoot = resolve(root, "modules");
+	const physicalModulesRoot = realpathSync(modulesRoot);
+	const preservedWorkspacePaths = new Set<string>();
+	for (const moduleName of moduleNames) {
+		const modulePath = resolve(modulesRoot, moduleName);
+		if (
+			dirname(modulePath) !== modulesRoot ||
+			!pathEntryExists(modulePath) ||
+			lstatSync(modulePath).isSymbolicLink()
+		) {
+			throw new Error(`Frozen Module workspace "${moduleName}" is invalid`);
+		}
+		const physicalModulePath = realpathSync(modulePath);
+		if (dirname(physicalModulePath) !== physicalModulesRoot) {
+			throw new Error(
+				`Frozen Module workspace "${moduleName}" resolves outside modules`,
+			);
+		}
+		preservedWorkspacePaths.add(physicalModulePath);
+	}
+	const lockedWorkspaces = new Map<string, LockedWorkspace>();
+	for (const [relativePath, value] of Object.entries(lock.workspaces)) {
+		if (!isJsonObject(value) || typeof value.name !== "string") continue;
+		const workspacePath = resolve(root, relativePath);
+		const expectedWorkspacePath = resolve(physicalRoot, relativePath);
+		if (
+			(relativePath !== "" &&
+				!isPathInside(physicalRoot, expectedWorkspacePath)) ||
+			!pathEntryExists(workspacePath) ||
+			lstatSync(workspacePath).isSymbolicLink() ||
+			realpathSync(workspacePath) !== expectedWorkspacePath
+		) {
+			throw new Error(
+				`Bun lock workspace "${relativePath}" resolves outside the workspace`,
+			);
+		}
+		if (
+			relativePath !== "" &&
+			workspacePackages.get(value.name) !== expectedWorkspacePath
+		) {
+			throw new Error(
+				`Bun lock workspace "${relativePath}" does not match package ${value.name}`,
+			);
+		}
+		const dependencySpecifiers = new Map<string, string>();
+		for (const field of DEPENDENCY_FIELDS) {
+			const dependencies = value[field];
+			if (dependencies === undefined) continue;
+			if (!isJsonObject(dependencies)) {
+				throw new Error(
+					`Bun lock workspace ${relativePath} ${field} is invalid`,
+				);
+			}
+			for (const [packageName, specifier] of Object.entries(dependencies)) {
+				if (typeof specifier !== "string") {
+					throw new Error(
+						`Bun lock workspace dependency "${packageName}" is invalid`,
+					);
+				}
+				const existing = dependencySpecifiers.get(packageName);
+				if (existing !== undefined && existing !== specifier) {
+					throw new Error(
+						`Bun lock workspace dependency "${packageName}" has conflicting specifiers`,
+					);
+				}
+				dependencySpecifiers.set(packageName, specifier);
+			}
+		}
+		if (lockedWorkspaces.has(expectedWorkspacePath)) {
+			throw new Error(`Duplicate Bun lock workspace "${relativePath}"`);
+		}
+		lockedWorkspaces.set(expectedWorkspacePath, {
+			packageName: value.name,
+			dependencySpecifiers,
+			dependencyTargets: preservedWorkspacePaths.has(expectedWorkspacePath)
+				? readWorkspaceDependencyTargets(workspacePath)
+				: new Map(),
+		});
+	}
+	for (const workspacePath of preservedWorkspacePaths) {
+		if (!lockedWorkspaces.has(workspacePath)) {
+			throw new Error(
+				`Bun lockfile has no workspace entry for preserved Module ${workspacePath}`,
+			);
+		}
+	}
+
+	const lockedPackages = new Map<string, readonly unknown[]>();
+	for (const [packageKey, value] of Object.entries(lock.packages)) {
+		if (!Array.isArray(value)) {
+			throw new Error(`Bun lock package "${packageKey}" is invalid`);
+		}
+		lockedPackages.set(packageKey, value);
+	}
+	return {
+		workspacePackages,
+		lockedWorkspaces,
+		lockedPackages,
+		bunPackageRoots: readBunPackageRoots(root),
+	};
+}
+
+function readWorkspaceDependencyTargets(
+	workspacePath: string,
+): ReadonlyMap<string, string> {
+	const nodeModulesPath = join(workspacePath, "node_modules");
+	if (!pathEntryExists(nodeModulesPath)) return new Map();
+	if (
+		lstatSync(nodeModulesPath).isSymbolicLink() ||
+		realpathSync(nodeModulesPath) !==
+			resolve(realpathSync(workspacePath), "node_modules")
+	) {
+		throw new Error(
+			`Frozen dependency state escapes workspace ${workspacePath}`,
+		);
+	}
+
+	const targets = new Map<string, string>();
+	const addPackageLink = (packageName: string, linkPath: string): void => {
+		if (!lstatSync(linkPath).isSymbolicLink()) {
+			throw new Error(
+				`Frozen dependency entry "${packageName}" is not a symbolic link`,
+			);
+		}
+		targets.set(packageName, realpathSync(linkPath));
+	};
+	for (const entry of readdirSync(nodeModulesPath, { withFileTypes: true })) {
+		if (entry.name === ".bin") continue;
+		const entryPath = join(nodeModulesPath, entry.name);
+		if (!entry.name.startsWith("@")) {
+			addPackageLink(entry.name, entryPath);
+			continue;
+		}
+		if (
+			!entry.isDirectory() ||
+			entry.isSymbolicLink() ||
+			realpathSync(entryPath) !== resolve(nodeModulesPath, entry.name)
+		) {
+			throw new Error(`Frozen dependency scope "${entry.name}" is invalid`);
+		}
+		for (const scopedEntry of readdirSync(entryPath, {
+			withFileTypes: true,
+		})) {
+			addPackageLink(
+				`${entry.name}/${scopedEntry.name}`,
+				join(entryPath, scopedEntry.name),
+			);
+		}
+	}
+	return targets;
+}
+
+function readBunPackageRoots(
+	root: string,
+): ReadonlyMap<string, readonly string[]> {
+	const bunStorePath = join(root, "node_modules", ".bun");
+	if (!pathEntryExists(bunStorePath)) return new Map();
+	const physicalRoot = realpathSync(root);
+	const physicalBunStore = realpathSync(bunStorePath);
+	if (physicalBunStore !== resolve(physicalRoot, "node_modules", ".bun")) {
+		throw new Error(
+			"Frozen Bun dependency store resolves outside the workspace",
+		);
+	}
+
+	const roots = new Map<string, Set<string>>();
+	const addPackageRoot = (packagePath: string): void => {
+		if (
+			lstatSync(packagePath).isSymbolicLink() ||
+			realpathSync(packagePath) !== resolve(packagePath)
+		) {
+			return;
+		}
+		const packageJsonPath = join(packagePath, "package.json");
+		if (!pathEntryExists(packageJsonPath)) return;
+		const packageJson = readJsonObject(
+			packageJsonPath,
+			`frozen Bun package ${packagePath}`,
+		);
+		if (
+			typeof packageJson.name !== "string" ||
+			typeof packageJson.version !== "string"
+		) {
+			throw new Error(
+				`Frozen Bun package metadata is incomplete at ${packagePath}`,
+			);
+		}
+		const identity = frozenPackageIdentity(
+			packageJson.name,
+			packageJson.version,
+		);
+		const identityRoots = roots.get(identity) ?? new Set<string>();
+		identityRoots.add(realpathSync(packagePath));
+		roots.set(identity, identityRoots);
+	};
+
+	for (const storeEntry of readdirSync(bunStorePath, { withFileTypes: true })) {
+		if (!storeEntry.isDirectory() || storeEntry.isSymbolicLink()) continue;
+		const packageParent = join(bunStorePath, storeEntry.name, "node_modules");
+		if (!pathEntryExists(packageParent)) continue;
+		for (const packageEntry of readdirSync(packageParent, {
+			withFileTypes: true,
+		})) {
+			if (!packageEntry.isDirectory() || packageEntry.isSymbolicLink())
+				continue;
+			const packagePath = join(packageParent, packageEntry.name);
+			if (!packageEntry.name.startsWith("@")) {
+				addPackageRoot(packagePath);
+				continue;
+			}
+			for (const scopedEntry of readdirSync(packagePath, {
+				withFileTypes: true,
+			})) {
+				if (!scopedEntry.isDirectory() || scopedEntry.isSymbolicLink())
+					continue;
+				addPackageRoot(join(packagePath, scopedEntry.name));
+			}
+		}
+	}
+	return new Map(
+		[...roots].map(([identity, identityRoots]) => [
+			identity,
+			[...identityRoots],
+		]),
+	);
+}
+
+function frozenPackageIdentity(packageName: string, version: string): string {
+	return `${packageName}\0${version}`;
+}
+
+function readWorkspacePackageTargets(
+	root: string,
+): ReadonlyMap<string, string> {
+	const rootPackage = readJsonObject(
+		join(root, "package.json"),
+		"workspace package metadata",
+	);
+	if (!Array.isArray(rootPackage.workspaces)) {
+		throw new Error("Workspace package metadata is missing workspaces");
+	}
+	const physicalRoot = realpathSync(root);
+	const targets = new Map<string, string>();
+	const addWorkspacePackage = (relativePath: string): void => {
+		const packagePath = resolve(root, relativePath);
+		const expectedPhysicalPath = resolve(physicalRoot, relativePath);
+		if (
+			!isPathInside(physicalRoot, expectedPhysicalPath) ||
+			!pathEntryExists(packagePath) ||
+			lstatSync(packagePath).isSymbolicLink() ||
+			realpathSync(packagePath) !== expectedPhysicalPath
+		) {
+			throw new Error(
+				`Workspace package "${relativePath}" resolves outside the workspace`,
+			);
+		}
+		const packageJsonPath = join(packagePath, "package.json");
+		if (!pathEntryExists(packageJsonPath)) return;
+		const packageJson = readJsonObject(
+			packageJsonPath,
+			`workspace package ${relativePath}`,
+		);
+		if (typeof packageJson.name !== "string") return;
+		const existing = targets.get(packageJson.name);
+		if (existing && existing !== expectedPhysicalPath) {
+			throw new Error(`Duplicate workspace package name "${packageJson.name}"`);
+		}
+		targets.set(packageJson.name, expectedPhysicalPath);
+	};
+
+	for (const pattern of rootPackage.workspaces) {
+		if (typeof pattern !== "string") {
+			throw new Error("Workspace package paths must be strings");
+		}
+		if (!pattern.includes("*")) {
+			addWorkspacePackage(pattern);
+			continue;
+		}
+		if (!pattern.endsWith("/*") || pattern.slice(0, -2).includes("*")) {
+			throw new Error(`Unsupported workspace package pattern "${pattern}"`);
+		}
+		const parentName = pattern.slice(0, -2);
+		const parentPath = join(root, parentName);
+		if (!pathEntryExists(parentPath)) continue;
+		const physicalParent = realpathSync(parentPath);
+		if (physicalParent !== resolve(physicalRoot, parentName)) {
+			throw new Error(
+				`Workspace package parent "${parentName}" resolves outside the workspace`,
+			);
+		}
+		for (const entry of readdirSync(parentPath, { withFileTypes: true })) {
+			if (!entry.isDirectory() || entry.isSymbolicLink()) continue;
+			addWorkspacePackage(`${parentName}/${entry.name}`);
+		}
+	}
+	return targets;
+}
+
+function readJsonObject(path: string, label: string): Record<string, unknown> {
+	try {
+		const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
+		if (!isJsonObject(parsed)) throw new Error("root must be an object");
+		return parsed;
+	} catch (error) {
+		throw new Error(`${label} is invalid at ${path}`, { cause: error });
+	}
+}
+
+function readJsoncObject(path: string, label: string): Record<string, unknown> {
+	try {
+		const parsed: unknown = JSON.parse(
+			normalizeJsonc(readFileSync(path, "utf8")),
+		);
+		if (!isJsonObject(parsed)) throw new Error("root must be an object");
+		return parsed;
+	} catch (error) {
+		throw new Error(`${label} is invalid at ${path}`, { cause: error });
+	}
+}
+
+function normalizeJsonc(source: string): string {
+	let withoutComments = "";
+	let inString = false;
+	let escaped = false;
+	for (let index = 0; index < source.length; index++) {
+		const character = source[index] ?? "";
+		const next = source[index + 1] ?? "";
+		if (inString) {
+			withoutComments += character;
+			if (escaped) {
+				escaped = false;
+			} else if (character === "\\") {
+				escaped = true;
+			} else if (character === '"') {
+				inString = false;
+			}
+			continue;
+		}
+		if (character === '"') {
+			inString = true;
+			withoutComments += character;
+			continue;
+		}
+		if (character === "/" && next === "/") {
+			withoutComments += "  ";
+			index += 2;
+			while (index < source.length && source[index] !== "\n") {
+				withoutComments += " ";
+				index++;
+			}
+			if (index < source.length) withoutComments += "\n";
+			continue;
+		}
+		if (character === "/" && next === "*") {
+			withoutComments += "  ";
+			index += 2;
+			let closed = false;
+			while (index < source.length) {
+				const commentCharacter = source[index] ?? "";
+				const commentNext = source[index + 1] ?? "";
+				if (commentCharacter === "*" && commentNext === "/") {
+					withoutComments += "  ";
+					index++;
+					closed = true;
+					break;
+				}
+				withoutComments += commentCharacter === "\n" ? "\n" : " ";
+				index++;
+			}
+			if (!closed) throw new Error("Unterminated JSONC block comment");
+			continue;
+		}
+		withoutComments += character;
+	}
+	if (inString) throw new Error("Unterminated JSONC string");
+
+	let normalized = "";
+	inString = false;
+	escaped = false;
+	for (let index = 0; index < withoutComments.length; index++) {
+		const character = withoutComments[index] ?? "";
+		if (inString) {
+			normalized += character;
+			if (escaped) {
+				escaped = false;
+			} else if (character === "\\") {
+				escaped = true;
+			} else if (character === '"') {
+				inString = false;
+			}
+			continue;
+		}
+		if (character === '"') {
+			inString = true;
+			normalized += character;
+			continue;
+		}
+		if (character === ",") {
+			let nextIndex = index + 1;
+			while (/\s/.test(withoutComments[nextIndex] ?? "")) nextIndex++;
+			const nextCharacter = withoutComments[nextIndex];
+			if (nextCharacter === "}" || nextCharacter === "]") {
+				normalized += " ";
+				continue;
+			}
+		}
+		normalized += character;
+	}
+	return normalized;
+}
+
+function isJsonObject(value: unknown): value is Record<string, unknown> {
+	return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isPathInside(parent: string, candidate: string): boolean {
+	return candidate !== parent && candidate.startsWith(`${parent}${sep}`);
 }
 
 function commitPendingInstalls(installs: PendingInstall[]): void {

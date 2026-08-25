@@ -40,6 +40,11 @@ export interface RegistryOnlyResolvedInputs {
 	expectedPackageMetadata?: RegistryOnlyPackageMetadataByModule;
 	/** Candidate bytes to inspect while their stable localPath still names a stub. */
 	inspectionPaths?: Readonly<Record<string, string>>;
+	/**
+	 * Staged candidates that passed strict validation before the fetch transaction
+	 * grafted their existing frozen root `node_modules` directory.
+	 */
+	prevalidatedPreservedNodeModules?: ReadonlySet<string>;
 }
 
 /** Complete semantic package.json content, independent of key order/spacing. */
@@ -301,7 +306,23 @@ export function validateRegistryOnlyResolvedModules(
 				);
 			}
 		}
-		const authenticatedTree = validateFetchedSubtree(authenticatedPath);
+		const allowsPreservedNodeModules =
+			inputs.prevalidatedPreservedNodeModules?.has(specifier.name) ?? false;
+		if (allowsPreservedNodeModules) {
+			if (specifier.source === "npm") {
+				throw new Error(
+					`Registry npm package "${specifier.name}" cannot use preserved workspace dependency state.`,
+				);
+			}
+			if (!existsSync(join(authenticatedPath, "node_modules"))) {
+				throw new Error(
+					`Registry Module "${specifier.name}" is missing its prevalidated frozen dependency state.`,
+				);
+			}
+		}
+		const authenticatedTree = validateFetchedSubtree(authenticatedPath, {
+			allowRootNodeModules: allowsPreservedNodeModules,
+		});
 		if (!authenticatedTree.ok) {
 			throw new Error(
 				`Registry package tree validation failed for "${specifier.name}": ${authenticatedTree.reason}`,

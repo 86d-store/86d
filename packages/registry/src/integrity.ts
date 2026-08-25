@@ -34,6 +34,14 @@ export type FetchedSubtreeVerdict =
 	| { ok: true }
 	| { ok: false; reason: string };
 
+export interface ValidateFetchedSubtreeOptions {
+	/**
+	 * Permit only the root install-state directory after separately verified
+	 * source has received frozen dependency links from its existing target.
+	 */
+	allowRootNodeModules?: boolean;
+}
+
 /**
  * Reject fetched entries that the integrity hash cannot authenticate.
  *
@@ -43,6 +51,7 @@ export type FetchedSubtreeVerdict =
  */
 export function validateFetchedSubtree(
 	modulePath: string,
+	options: ValidateFetchedSubtreeOptions = {},
 ): FetchedSubtreeVerdict {
 	if (!existsSync(modulePath)) {
 		return { ok: false, reason: "Fetched Module directory is missing." };
@@ -70,6 +79,13 @@ export function validateFetchedSubtree(
 			}
 			if (entry.isDirectory()) {
 				if (EXCLUDED_DIRECTORIES.has(entry.name)) {
+					if (
+						options.allowRootNodeModules &&
+						directory === modulePath &&
+						entry.name === "node_modules"
+					) {
+						continue;
+					}
 					return {
 						ok: false,
 						reason: `Fetched Module contains integrity-excluded directory "${relativePath}".`,

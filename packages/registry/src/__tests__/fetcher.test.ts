@@ -1,7 +1,10 @@
 import { spawnSync } from "node:child_process";
 import {
+	existsSync,
 	mkdirSync,
+	readdirSync,
 	readFileSync,
+	realpathSync,
 	renameSync,
 	rmSync,
 	symlinkSync,
@@ -28,6 +31,176 @@ import type { ModuleSpecifier, RegistryManifest } from "../types.js";
 
 const TMP_ROOT = join(import.meta.dirname, ".tmp-fetcher-test");
 
+function writeTestBunLock(
+	root: string,
+	workspaces: Record<string, Record<string, unknown>>,
+	packages: Record<string, readonly unknown[]> = {},
+): void {
+	writeFileSync(
+		join(root, "bun.lock"),
+		JSON.stringify({
+			lockfileVersion: 2,
+			configVersion: 1,
+			workspaces,
+			packages,
+		}),
+	);
+}
+
+interface ExternalPreservationFixtureOptions {
+	slug: string;
+	specifier: string;
+	packages: Record<string, readonly unknown[]>;
+	installed: ReadonlyArray<{ directory: string; version: string }>;
+	jsonc?: boolean;
+	retargetToInstalledIndex?: number;
+}
+
+async function runExternalPreservationFixture(
+	options: ExternalPreservationFixtureOptions,
+) {
+	const root = join(TMP_ROOT, options.slug);
+	rmSync(root, { recursive: true, force: true });
+	const archiveRoot = join(root, "fixture", "86d-archive");
+	const remoteModule = join(archiveRoot, "modules", "alpha");
+	const localModule = join(root, "modules", "alpha");
+	const modulePackage = JSON.stringify({
+		name: "@86d-app/alpha",
+		version: "1.0.0",
+		dependencies: { external: options.specifier },
+	});
+	mkdirSync(root, { recursive: true });
+	writeFileSync(
+		join(root, "package.json"),
+		JSON.stringify({ workspaces: ["modules/alpha"] }),
+	);
+	writeTestBunLock(
+		root,
+		{
+			"modules/alpha": {
+				name: "@86d-app/alpha",
+				version: "1.0.0",
+				dependencies: { external: options.specifier },
+			},
+		},
+		options.packages,
+	);
+	if (options.jsonc) {
+		writeFileSync(
+			join(root, "bun.lock"),
+			`{
+				// Bun emits JSONC with trailing commas.
+				"lockfileVersion": 2,
+				"configVersion": 1,
+				"workspaces": {
+					"modules/alpha": {
+						"name": "@86d-app/alpha",
+						"version": "1.0.0",
+						"dependencies": { "external": "${options.specifier}", },
+					},
+				},
+				"packages": ${JSON.stringify(options.packages)},
+			}\n`,
+		);
+	}
+
+	mkdirSync(join(remoteModule, "src"), { recursive: true });
+	writeFileSync(join(remoteModule, "package.json"), modulePackage);
+	writeFileSync(join(remoteModule, "src", "index.ts"), "remote source\n");
+	mkdirSync(join(localModule, "src"), { recursive: true });
+	mkdirSync(join(localModule, "node_modules"), { recursive: true });
+	writeFileSync(join(localModule, "package.json"), modulePackage);
+	writeFileSync(join(localModule, "src", "index.ts"), "local source\n");
+	const installedRoots = options.installed.map(({ directory, version }) => {
+		const packageRoot = join(
+			root,
+			"node_modules",
+			".bun",
+			directory,
+			"node_modules",
+			"external",
+		);
+		mkdirSync(packageRoot, { recursive: true });
+		writeFileSync(
+			join(packageRoot, "package.json"),
+			JSON.stringify({ name: "external", version }),
+		);
+		return packageRoot;
+	});
+	const linkedRoot = installedRoots[0];
+	if (!linkedRoot) throw new Error("Fixture requires an installed dependency");
+	const dependencyLink = join(localModule, "node_modules", "external");
+	symlinkSync(linkedRoot, dependencyLink, "dir");
+
+	const archivePath = join(root, "fixture", "archive.tar.gz");
+	expect(
+		spawnSync(
+			"tar",
+			["czf", archivePath, "-C", join(root, "fixture"), "86d-archive"],
+			{ stdio: "pipe" },
+		).status,
+	).toBe(0);
+	vi.stubGlobal(
+		"fetch",
+		vi.fn(async () => new Response(readFileSync(archivePath), { status: 200 })),
+	);
+	const manifest: RegistryManifest = {
+		version: 1,
+		baseUrl: "https://github.com/86d-app/86d",
+		defaultRef: "main",
+		templates: {},
+		modules: {
+			alpha: {
+				name: "@86d-app/alpha",
+				description: "",
+				version: "1.0.0",
+				category: "general",
+				path: "modules/alpha",
+				requires: [],
+				hasStoreComponents: false,
+				hasAdminComponents: false,
+				hasStorePages: false,
+				commit: "7".repeat(40),
+				subtreeIntegrity: computeIntegrity(remoteModule),
+				maturity: "experimental",
+				maturityEvidence: [],
+				providesCapabilities: [],
+				acceptsCapabilities: [],
+				emitsDurableEvents: [],
+				handlesDurableEvents: [],
+			},
+		},
+	};
+	const [result] = await fetchModules(
+		[
+			{
+				raw: "@86d-app/alpha",
+				source: "registry",
+				name: "alpha",
+				packageName: "@86d-app/alpha",
+			},
+		],
+		root,
+		manifest,
+		{
+			replaceExisting: true,
+			preserveExistingNodeModules: new Set(["alpha"]),
+			...(options.retargetToInstalledIndex === undefined
+				? {}
+				: {
+						validateBeforeCommit: () => {
+							const retarget =
+								installedRoots[options.retargetToInstalledIndex ?? -1];
+							if (!retarget) throw new Error("Fixture retarget is missing");
+							rmSync(dependencyLink);
+							symlinkSync(retarget, dependencyLink, "dir");
+						},
+					}),
+		},
+	);
+	return { result, localModule, linkedRoot };
+}
+
 beforeAll(() => {
 	// Create a fake project structure with a local module
 	mkdirSync(join(TMP_ROOT, "modules", "products", "src"), {
@@ -49,6 +222,33 @@ afterEach(() => {
 });
 
 describe("fetchModules", () => {
+	it("rejects dependency preservation unless target replacement is enabled", async () => {
+		const root = join(TMP_ROOT, "preserve-without-replacement");
+		rmSync(root, { recursive: true, force: true });
+		mkdirSync(join(root, "modules", "alpha"), { recursive: true });
+
+		const [result] = await fetchModules(
+			[
+				{
+					raw: "alpha",
+					source: "local",
+					name: "alpha",
+					packageName: "@86d-app/alpha",
+				},
+			],
+			root,
+			undefined,
+			{ preserveExistingNodeModules: new Set(["alpha"]) },
+		);
+
+		expect(result).toEqual(
+			expect.objectContaining({
+				success: false,
+				error: expect.stringMatching(/requires target replacement/i),
+			}),
+		);
+	});
+
 	it.each([
 		{
 			label: "official",
@@ -371,7 +571,23 @@ describe("fetchModules", () => {
 			prepare(source, join(root, "fixture", "86d-archive"), root);
 			const stub = join(root, "modules", "alpha");
 			mkdirSync(stub, { recursive: true });
-			writeFileSync(join(stub, "package.json"), "original stub\n");
+			const originalStub =
+				slug === "directory-node_modules"
+					? JSON.stringify({ name: "@86d-app/alpha", version: "1.0.0" })
+					: "original stub\n";
+			writeFileSync(join(stub, "package.json"), originalStub);
+			if (slug === "directory-node_modules") {
+				writeFileSync(
+					join(root, "package.json"),
+					JSON.stringify({ workspaces: ["modules/alpha"] }),
+				);
+				writeTestBunLock(root, {
+					"modules/alpha": {
+						name: "@86d-app/alpha",
+						version: "1.0.0",
+					},
+				});
+			}
 
 			const archivePath = join(root, "fixture", "archive.tar.gz");
 			expect(
@@ -426,7 +642,11 @@ describe("fetchModules", () => {
 				],
 				root,
 				manifest,
-				{ replaceExisting: true },
+				{
+					replaceExisting: true,
+					preserveExistingNodeModules:
+						slug === "directory-node_modules" ? new Set(["alpha"]) : undefined,
+				},
 			);
 
 			expect(result).toEqual(
@@ -436,7 +656,7 @@ describe("fetchModules", () => {
 				}),
 			);
 			expect(readFileSync(join(stub, "package.json"), "utf8")).toBe(
-				"original stub\n",
+				originalStub,
 			);
 		},
 	);
@@ -598,7 +818,10 @@ describe("fetchModules", () => {
 			})),
 			root,
 			manifest,
-			{ replaceExisting: true },
+			{
+				replaceExisting: true,
+				preserveExistingNodeModules: new Set(),
+			},
 		);
 
 		expect(results.every((result) => result.success)).toBe(true);
@@ -609,6 +832,535 @@ describe("fetchModules", () => {
 		expect(fetchMock.mock.calls[0]?.[0]).toContain(commit);
 		const headers = new Headers(fetchMock.mock.calls[0]?.[1]?.headers);
 		expect(headers.has("Authorization")).toBe(false);
+	});
+
+	it("preserves frozen dependency links while replacing verified source", async () => {
+		const root = join(TMP_ROOT, "batch-fetch-frozen-links");
+		rmSync(root, { recursive: true, force: true });
+		const archiveRoot = join(root, "fixture", "86d-archive");
+		const remoteModule = join(archiveRoot, "modules", "alpha");
+		const localModule = join(root, "modules", "alpha");
+		const localCore = join(root, "packages", "core");
+		const commit = "f".repeat(40);
+		const modulePackage = JSON.stringify({
+			name: "@86d-app/alpha",
+			version: "1.0.0",
+			dependencies: { "@86d-app/core": "workspace:*" },
+		});
+		mkdirSync(root, { recursive: true });
+		writeFileSync(
+			join(root, "package.json"),
+			JSON.stringify({ workspaces: ["modules/alpha", "packages/core"] }),
+		);
+
+		mkdirSync(join(remoteModule, "src"), { recursive: true });
+		writeFileSync(join(remoteModule, "package.json"), modulePackage);
+		writeFileSync(join(remoteModule, "src", "index.ts"), "remote source\n");
+
+		mkdirSync(join(localModule, "src"), { recursive: true });
+		mkdirSync(join(localModule, "node_modules", "@86d-app"), {
+			recursive: true,
+		});
+		mkdirSync(localCore, { recursive: true });
+		writeFileSync(join(localModule, "package.json"), modulePackage);
+		writeFileSync(join(localModule, "src", "index.ts"), "local source\n");
+		writeFileSync(
+			join(localCore, "package.json"),
+			JSON.stringify({ name: "@86d-app/core", version: "1.0.0" }),
+		);
+		writeTestBunLock(root, {
+			"modules/alpha": {
+				name: "@86d-app/alpha",
+				version: "1.0.0",
+				dependencies: { "@86d-app/core": "workspace:*" },
+			},
+			"packages/core": { name: "@86d-app/core", version: "1.0.0" },
+		});
+		symlinkSync(
+			localCore,
+			join(localModule, "node_modules", "@86d-app", "core"),
+			"dir",
+		);
+
+		const archivePath = join(root, "fixture", "archive.tar.gz");
+		expect(
+			spawnSync(
+				"tar",
+				["czf", archivePath, "-C", join(root, "fixture"), "86d-archive"],
+				{ stdio: "pipe" },
+			).status,
+		).toBe(0);
+		const manifest: RegistryManifest = {
+			version: 1,
+			baseUrl: "https://github.com/86d-app/86d",
+			defaultRef: "main",
+			templates: {},
+			modules: {
+				alpha: {
+					name: "@86d-app/alpha",
+					description: "",
+					version: "1.0.0",
+					category: "general",
+					path: "modules/alpha",
+					requires: [],
+					hasStoreComponents: false,
+					hasAdminComponents: false,
+					hasStorePages: false,
+					commit,
+					subtreeIntegrity: computeIntegrity(remoteModule),
+					maturity: "experimental",
+					maturityEvidence: [],
+					providesCapabilities: [],
+					acceptsCapabilities: [],
+					emitsDurableEvents: [],
+					handlesDurableEvents: [],
+				},
+			},
+		};
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(
+				async () => new Response(readFileSync(archivePath), { status: 200 }),
+			),
+		);
+
+		const [result] = await fetchModules(
+			[
+				{
+					raw: "@86d-app/alpha",
+					source: "registry",
+					name: "alpha",
+					packageName: "@86d-app/alpha",
+				},
+			],
+			root,
+			manifest,
+			{
+				replaceExisting: true,
+				preserveExistingNodeModules: new Set(["alpha"]),
+			},
+		);
+
+		expect(result?.success).toBe(true);
+		expect(readFileSync(join(localModule, "src", "index.ts"), "utf8")).toBe(
+			"remote source\n",
+		);
+		const preservedCore = join(localModule, "node_modules", "@86d-app", "core");
+		expect(existsSync(preservedCore)).toBe(true);
+		expect(realpathSync(preservedCore)).toBe(realpathSync(localCore));
+
+		const externalCore = join(TMP_ROOT, "external-core-alpha");
+		mkdirSync(externalCore, { recursive: true });
+		writeFileSync(
+			join(externalCore, "package.json"),
+			JSON.stringify({ name: "@86d-app/rogue", version: "1.0.0" }),
+		);
+		symlinkSync(
+			externalCore,
+			join(localModule, "node_modules", "@86d-app", "rogue"),
+			"dir",
+		);
+		const [rejected] = await fetchModules(
+			[
+				{
+					raw: "@86d-app/alpha",
+					source: "registry",
+					name: "alpha",
+					packageName: "@86d-app/alpha",
+				},
+			],
+			root,
+			manifest,
+			{
+				replaceExisting: true,
+				preserveExistingNodeModules: new Set(["alpha"]),
+			},
+		);
+		expect(rejected).toEqual(
+			expect.objectContaining({
+				success: false,
+				error: expect.stringMatching(/declared|frozen dependency/i),
+			}),
+		);
+		expect(realpathSync(preservedCore)).toBe(realpathSync(localCore));
+		expect(
+			realpathSync(join(localModule, "node_modules", "@86d-app", "rogue")),
+		).toBe(realpathSync(externalCore));
+	});
+
+	it("rejects a preserved external link whose installed version differs from the Bun lock", async () => {
+		const root = join(TMP_ROOT, "batch-fetch-frozen-lock-version");
+		rmSync(root, { recursive: true, force: true });
+		const archiveRoot = join(root, "fixture", "86d-archive");
+		const remoteModule = join(archiveRoot, "modules", "alpha");
+		const localModule = join(root, "modules", "alpha");
+		const installedDependency = join(
+			root,
+			"node_modules",
+			".bun",
+			"left-pad@2.0.0",
+			"node_modules",
+			"left-pad",
+		);
+		const commit = "8".repeat(40);
+		const modulePackage = JSON.stringify({
+			name: "@86d-app/alpha",
+			version: "1.0.0",
+			dependencies: { "left-pad": "1.0.0" },
+		});
+		mkdirSync(root, { recursive: true });
+		writeFileSync(
+			join(root, "package.json"),
+			JSON.stringify({ workspaces: ["modules/alpha"] }),
+		);
+		writeFileSync(
+			join(root, "bun.lock"),
+			JSON.stringify({
+				lockfileVersion: 2,
+				configVersion: 1,
+				workspaces: {
+					"modules/alpha": {
+						name: "@86d-app/alpha",
+						version: "1.0.0",
+						dependencies: { "left-pad": "1.0.0" },
+					},
+				},
+				packages: {
+					"left-pad": ["left-pad@1.0.0", "", {}, "sha512-locked-integrity"],
+				},
+			}),
+		);
+
+		mkdirSync(join(remoteModule, "src"), { recursive: true });
+		writeFileSync(join(remoteModule, "package.json"), modulePackage);
+		writeFileSync(join(remoteModule, "src", "index.ts"), "remote source\n");
+
+		mkdirSync(join(localModule, "src"), { recursive: true });
+		mkdirSync(join(localModule, "node_modules"), { recursive: true });
+		writeFileSync(join(localModule, "package.json"), modulePackage);
+		writeFileSync(join(localModule, "src", "index.ts"), "local source\n");
+		mkdirSync(installedDependency, { recursive: true });
+		writeFileSync(
+			join(installedDependency, "package.json"),
+			JSON.stringify({ name: "left-pad", version: "2.0.0" }),
+		);
+		symlinkSync(
+			installedDependency,
+			join(localModule, "node_modules", "left-pad"),
+			"dir",
+		);
+
+		const archivePath = join(root, "fixture", "archive.tar.gz");
+		expect(
+			spawnSync(
+				"tar",
+				["czf", archivePath, "-C", join(root, "fixture"), "86d-archive"],
+				{ stdio: "pipe" },
+			).status,
+		).toBe(0);
+		const manifest: RegistryManifest = {
+			version: 1,
+			baseUrl: "https://github.com/86d-app/86d",
+			defaultRef: "main",
+			templates: {},
+			modules: {
+				alpha: {
+					name: "@86d-app/alpha",
+					description: "",
+					version: "1.0.0",
+					category: "general",
+					path: "modules/alpha",
+					requires: [],
+					hasStoreComponents: false,
+					hasAdminComponents: false,
+					hasStorePages: false,
+					commit,
+					subtreeIntegrity: computeIntegrity(remoteModule),
+					maturity: "experimental",
+					maturityEvidence: [],
+					providesCapabilities: [],
+					acceptsCapabilities: [],
+					emitsDurableEvents: [],
+					handlesDurableEvents: [],
+				},
+			},
+		};
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(
+				async () => new Response(readFileSync(archivePath), { status: 200 }),
+			),
+		);
+
+		const [result] = await fetchModules(
+			[
+				{
+					raw: "@86d-app/alpha",
+					source: "registry",
+					name: "alpha",
+					packageName: "@86d-app/alpha",
+				},
+			],
+			root,
+			manifest,
+			{
+				replaceExisting: true,
+				preserveExistingNodeModules: new Set(["alpha"]),
+			},
+		);
+
+		expect(result).toEqual(
+			expect.objectContaining({
+				success: false,
+				error: expect.stringMatching(/locked.*version|version.*lock/i),
+			}),
+		);
+		expect(readFileSync(join(localModule, "src", "index.ts"), "utf8")).toBe(
+			"local source\n",
+		);
+	});
+
+	it("uses the declaring workspace lock key from Bun JSONC", async () => {
+		const { result, localModule, linkedRoot } =
+			await runExternalPreservationFixture({
+				slug: "batch-fetch-frozen-context-lock",
+				specifier: "2.0.0",
+				packages: {
+					external: ["external@1.0.0", "", {}, "sha512-global-integrity"],
+					"@86d-app/alpha/external": [
+						"external@2.0.0",
+						"",
+						{},
+						"sha512-context-integrity",
+					],
+				},
+				installed: [
+					{ directory: "external@2.0.0+peer-context", version: "2.0.0" },
+				],
+				jsonc: true,
+			});
+
+		expect(result?.success).toBe(true);
+		expect(realpathSync(join(localModule, "node_modules", "external"))).toBe(
+			realpathSync(linkedRoot),
+		);
+	});
+
+	it("preserves the workspace-selected peer context when another context has the same version", async () => {
+		const { result, localModule, linkedRoot } =
+			await runExternalPreservationFixture({
+				slug: "batch-fetch-frozen-peer-context-normal",
+				specifier: "2.0.0",
+				packages: {
+					external: ["external@2.0.0", "", {}, "sha512-locked-integrity"],
+				},
+				installed: [
+					{ directory: "external@2.0.0+peer-a", version: "2.0.0" },
+					{ directory: "external@2.0.0+peer-b", version: "2.0.0" },
+				],
+			});
+
+		expect(result?.success).toBe(true);
+		expect(realpathSync(join(localModule, "node_modules", "external"))).toBe(
+			realpathSync(linkedRoot),
+		);
+	});
+
+	it("rejects a peer-context retarget after the frozen snapshot", async () => {
+		const { result, localModule } = await runExternalPreservationFixture({
+			slug: "batch-fetch-frozen-peer-context",
+			specifier: "2.0.0",
+			packages: {
+				external: ["external@2.0.0", "", {}, "sha512-locked-integrity"],
+			},
+			installed: [
+				{ directory: "external@2.0.0+peer-a", version: "2.0.0" },
+				{ directory: "external@2.0.0+peer-b", version: "2.0.0" },
+			],
+			retargetToInstalledIndex: 1,
+		});
+
+		expect(result).toEqual(
+			expect.objectContaining({
+				success: false,
+				error: expect.stringMatching(/frozen snapshot|peer context/i),
+			}),
+		);
+		expect(readFileSync(join(localModule, "src", "index.ts"), "utf8")).toBe(
+			"local source\n",
+		);
+	});
+
+	it("rejects a preserved external link without locked integrity", async () => {
+		const { result } = await runExternalPreservationFixture({
+			slug: "batch-fetch-frozen-missing-integrity",
+			specifier: "2.0.0",
+			packages: { external: ["external@2.0.0", "", {}] },
+			installed: [{ directory: "external@2.0.0", version: "2.0.0" }],
+		});
+
+		expect(result).toEqual(
+			expect.objectContaining({
+				success: false,
+				error: expect.stringMatching(/resolution and integrity/i),
+			}),
+		);
+	});
+
+	it("leaves the full batch untouched when frozen dependency preservation fails", async () => {
+		const root = join(TMP_ROOT, "batch-fetch-frozen-links-atomic");
+		rmSync(root, { recursive: true, force: true });
+		const archiveRoot = join(root, "fixture", "86d-archive");
+		const corePath = join(root, "packages", "core");
+		const commit = "9".repeat(40);
+		mkdirSync(root, { recursive: true });
+		writeFileSync(
+			join(root, "package.json"),
+			JSON.stringify({ workspaces: ["modules/*", "packages/*"] }),
+		);
+		mkdirSync(corePath, { recursive: true });
+		writeFileSync(
+			join(corePath, "package.json"),
+			JSON.stringify({ name: "@86d-app/core", version: "1.0.0" }),
+		);
+
+		const originalBytes: Record<
+			string,
+			{ packageJson: Buffer; source: Buffer }
+		> = {};
+		const manifestModules: RegistryManifest["modules"] = {};
+		for (const name of ["alpha", "beta"]) {
+			const remoteModule = join(archiveRoot, "modules", name);
+			mkdirSync(join(remoteModule, "src"), { recursive: true });
+			writeFileSync(
+				join(remoteModule, "package.json"),
+				JSON.stringify({
+					name: `@86d-app/${name}`,
+					version: "1.0.0",
+					dependencies: { "@86d-app/core": "workspace:*" },
+				}),
+			);
+			writeFileSync(join(remoteModule, "src", "index.ts"), `remote ${name}\n`);
+
+			const localModule = join(root, "modules", name);
+			mkdirSync(join(localModule, "src"), { recursive: true });
+			writeFileSync(
+				join(localModule, "package.json"),
+				JSON.stringify({
+					name: `@86d-app/${name}`,
+					version: "1.0.0",
+					dependencies: { "@86d-app/core": "workspace:*" },
+				}),
+			);
+			writeFileSync(join(localModule, "src", "index.ts"), `local ${name}\n`);
+			originalBytes[name] = {
+				packageJson: readFileSync(join(localModule, "package.json")),
+				source: readFileSync(join(localModule, "src", "index.ts")),
+			};
+			if (name === "alpha") {
+				mkdirSync(join(localModule, "node_modules", "@86d-app"), {
+					recursive: true,
+				});
+				symlinkSync(
+					"../../../../packages/core",
+					join(localModule, "node_modules", "@86d-app", "core"),
+					"dir",
+				);
+			}
+			manifestModules[name] = {
+				name: `@86d-app/${name}`,
+				description: "",
+				version: "1.0.0",
+				category: "general",
+				path: `modules/${name}`,
+				requires: [],
+				hasStoreComponents: false,
+				hasAdminComponents: false,
+				hasStorePages: false,
+				commit,
+				subtreeIntegrity: computeIntegrity(remoteModule),
+				maturity: "experimental",
+				maturityEvidence: [],
+				providesCapabilities: [],
+				acceptsCapabilities: [],
+				emitsDurableEvents: [],
+				handlesDurableEvents: [],
+			};
+		}
+		writeTestBunLock(root, {
+			"modules/alpha": {
+				name: "@86d-app/alpha",
+				version: "1.0.0",
+				dependencies: { "@86d-app/core": "workspace:*" },
+			},
+			"modules/beta": {
+				name: "@86d-app/beta",
+				version: "1.0.0",
+				dependencies: { "@86d-app/core": "workspace:*" },
+			},
+			"packages/core": { name: "@86d-app/core", version: "1.0.0" },
+		});
+
+		const archivePath = join(root, "fixture", "archive.tar.gz");
+		expect(
+			spawnSync(
+				"tar",
+				["czf", archivePath, "-C", join(root, "fixture"), "86d-archive"],
+				{ stdio: "pipe" },
+			).status,
+		).toBe(0);
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(
+				async () => new Response(readFileSync(archivePath), { status: 200 }),
+			),
+		);
+		const manifest: RegistryManifest = {
+			version: 1,
+			baseUrl: "https://github.com/86d-app/86d",
+			defaultRef: "main",
+			templates: {},
+			modules: manifestModules,
+		};
+
+		const results = await fetchModules(
+			["alpha", "beta"].map((name) => ({
+				raw: `@86d-app/${name}`,
+				source: "registry" as const,
+				name,
+				packageName: `@86d-app/${name}`,
+			})),
+			root,
+			manifest,
+			{
+				replaceExisting: true,
+				preserveExistingNodeModules: new Set(["alpha", "beta"]),
+			},
+		);
+
+		expect(results.every((result) => !result.success)).toBe(true);
+		expect(results[0]?.error).toMatch(/missing frozen dependency state/i);
+		for (const name of ["alpha", "beta"]) {
+			expect(readFileSync(join(root, "modules", name, "package.json"))).toEqual(
+				originalBytes[name]?.packageJson,
+			);
+			expect(
+				readFileSync(join(root, "modules", name, "src", "index.ts")),
+			).toEqual(originalBytes[name]?.source);
+		}
+		expect(
+			realpathSync(
+				join(root, "modules", "alpha", "node_modules", "@86d-app", "core"),
+			),
+		).toBe(realpathSync(corePath));
+		expect(existsSync(join(root, "modules", "beta", "node_modules"))).toBe(
+			false,
+		);
+		expect(
+			readdirSync(join(root, "modules")).filter((entry) =>
+				entry.includes(".86d-"),
+			),
+		).toEqual([]);
 	});
 
 	it("leaves every existing stub untouched when one module fails integrity", async () => {
