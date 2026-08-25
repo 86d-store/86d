@@ -339,6 +339,15 @@ describe("Docker context contract", () => {
 		}
 	});
 
+	it("uses a commitlint-compatible Changesets version commit", async () => {
+		const workflow = await readFile(
+			join(repoRoot, ".github/workflows/release.yml"),
+			"utf8",
+		);
+
+		expect(workflow).toContain('commit: "chore(repo): version packages"');
+	});
+
 	it("excludes every dotenv credential variant from the default context", async () => {
 		const dockerignore = await readFile(
 			join(import.meta.dirname, "../../../.dockerignore"),

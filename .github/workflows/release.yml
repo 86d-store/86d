@@ -72,6 +72,7 @@ jobs:
           # with none pending, this step publishes any versions ahead of npm.
           version: bun run version-packages
           publish: bun run release
+          commit: "chore(repo): version packages"
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
