@@ -29,7 +29,7 @@
 		"generate:registry": "tsx apps/registry/src/generate-manifest.ts",
 		"generate:docs": "tsx internals/generators/src/generate-component-docs.ts",
 		"changeset": "changeset",
-		"version-packages": "changeset version",
+		"version-packages": "changeset version && bun run generate:modules",
 		"prepare-publish": "tsx internals/generators/src/prepare-publish.ts",
 		"verify-publish-packs": "tsx internals/generators/src/verify-publish-packs.ts",
 		"copy-package-assets": "tsx internals/generators/src/copy-package-assets.ts",
