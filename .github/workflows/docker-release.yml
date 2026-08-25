@@ -37,8 +37,6 @@ env:
   FORCE_COLOR: 3
   GHCR_IMAGE: ghcr.io/86d-app/store
   DOCKERHUB_IMAGE: docker.io/86dapp/store
-  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
 
 jobs:
   publish:
@@ -313,7 +311,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          build-contexts: workspace-modules=./internals/docker/empty-context
           platforms: linux/amd64,linux/arm64
           outputs: type=image,"name=${{ env.GHCR_IMAGE }},${{ env.DOCKERHUB_IMAGE }}",push=true,push-by-digest=true
           labels: |
@@ -323,11 +320,6 @@ jobs:
           build-args: |
             MODULE_SOURCE=registry
             SOURCE_REVISION=${{ steps.release.outputs.revision }}
-            TURBO_TEAM=${{ env.TURBO_TEAM }}
-          secrets: |
-            github_token=${{ github.token }}
-          secret-envs: |
-            turbo_token=TURBO_TOKEN
           cache-from: type=gha,scope=store-main
 
       - name: Complete immutable tags, then promote latest

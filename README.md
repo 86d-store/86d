@@ -30,7 +30,7 @@
 - [Bun](https://bun.sh) v1.4.0+
 - [Node.js](https://nodejs.org) 23, 24, or 25
 - [PostgreSQL](https://www.postgresql.org) v15+
-- [Docker](https://docs.docker.com/get-docker/) with Buildx named build contexts, plus Compose `additional_contexts`, ephemeral published ports, and `up --wait` / `--wait-timeout`
+- [Docker](https://docs.docker.com/get-docker/) with Buildx, plus Compose support for ephemeral published ports and `up --wait` / `--wait-timeout`
 
 ## Quick Start
 

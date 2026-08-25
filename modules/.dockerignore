@@ -1,7 +1,0 @@
-**/node_modules
-**/.turbo
-**/dist
-**/coverage
-**/*.tsbuildinfo
-.DS_Store
-managed-payments

@@ -67,18 +67,12 @@ runs:
       uses: docker/build-push-action@v6
       with:
         context: .
-        build-contexts: workspace-modules=./internals/docker/empty-context
         push: false
         load: true
         tags: 86d-store:ci
         build-args: |
           MODULE_SOURCE=registry
           SOURCE_REVISION=${{ github.sha }}
-          TURBO_TEAM=${{ env.TURBO_TEAM }}
-        secrets: |
-          github_token=${{ github.token }}
-        secret-envs: |
-          turbo_token=TURBO_TOKEN
         cache-from: |
           type=gha,scope=store-main
           type=gha,scope=${{ github.event_name == 'push' && 'store-main' || format('store-untrusted-{0}', github.run_id) }}

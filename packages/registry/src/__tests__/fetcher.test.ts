@@ -45,6 +45,7 @@ afterAll(() => {
 
 afterEach(() => {
 	vi.unstubAllGlobals();
+	vi.unstubAllEnvs();
 });
 
 describe("fetchModules", () => {
@@ -581,8 +582,10 @@ describe("fetchModules", () => {
 				]),
 			),
 		};
+		vi.stubEnv("GITHUB_TOKEN", "");
 		const fetchMock = vi.fn(
-			async () => new Response(readFileSync(archivePath), { status: 200 }),
+			async (_input: string | URL | Request, _init?: RequestInit) =>
+				new Response(readFileSync(archivePath), { status: 200 }),
 		);
 		vi.stubGlobal("fetch", fetchMock);
 
@@ -604,6 +607,8 @@ describe("fetchModules", () => {
 		).toBe("export const alpha = 1;\n");
 		expect(fetchMock).toHaveBeenCalledTimes(1);
 		expect(fetchMock.mock.calls[0]?.[0]).toContain(commit);
+		const headers = new Headers(fetchMock.mock.calls[0]?.[1]?.headers);
+		expect(headers.has("Authorization")).toBe(false);
 	});
 
 	it("leaves every existing stub untouched when one module fails integrity", async () => {

@@ -77,8 +77,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      additional_contexts:
-        workspace-modules: ./modules
       args:
         MODULE_SOURCE: workspace
     restart: unless-stopped

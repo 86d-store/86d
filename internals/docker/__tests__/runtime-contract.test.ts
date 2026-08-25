@@ -19,6 +19,7 @@ import {
 	writeModulePackageManifest,
 } from "../verify-runtime-contract";
 
+const repoRoot = join(import.meta.dirname, "../../..");
 const temporaryRoots: string[] = [];
 
 async function temporaryRoot(): Promise<string> {
@@ -300,6 +301,44 @@ describe("resolved Module package manifest", () => {
 });
 
 describe("Docker context contract", () => {
+	it("uses only Railway-supported cache mounts", async () => {
+		const dockerfile = await readFile(
+			join(import.meta.dirname, "../../../Dockerfile"),
+			"utf8",
+		);
+		const unsupportedMounts = dockerfile
+			.split("\n")
+			.filter(
+				(line) =>
+					line.includes("--mount=type=") &&
+					!line.includes("--mount=type=cache"),
+			);
+
+		expect(unsupportedMounts).toEqual([]);
+	});
+
+	it("loads workspace Modules from the ordinary Docker context", async () => {
+		const dockerfile = await readFile(
+			join(import.meta.dirname, "../../../Dockerfile"),
+			"utf8",
+		);
+
+		expect(dockerfile).not.toContain("--from=workspace-modules");
+	});
+
+	it("keeps CI and release image builds free of secret and named contexts", async () => {
+		for (const relativePath of [
+			"internals/github/ci-cd/action.yml",
+			".github/workflows/docker-release.yml",
+		]) {
+			const workflow = await readFile(join(repoRoot, relativePath), "utf8");
+
+			expect(workflow).not.toContain("build-contexts:");
+			expect(workflow).not.toMatch(/^\s+secrets:\s*$/m);
+			expect(workflow).not.toContain("secret-envs:");
+		}
+	});
+
 	it("excludes every dotenv credential variant from the default context", async () => {
 		const dockerignore = await readFile(
 			join(import.meta.dirname, "../../../.dockerignore"),
@@ -311,6 +350,35 @@ describe("Docker context contract", () => {
 			.filter((line) => line && !line.startsWith("#"));
 
 		expect(rules).toContain(".env*");
+	});
+
+	it("recursively excludes host dependency and authoring artifacts", async () => {
+		const dockerignore = await readFile(
+			join(import.meta.dirname, "../../../.dockerignore"),
+			"utf8",
+		);
+		const rules = dockerignore
+			.split("\n")
+			.map((line) => line.trim())
+			.filter((line) => line && !line.startsWith("#"));
+
+		for (const recursiveRule of [
+			"**/node_modules",
+			"**/.next",
+			"**/.turbo",
+			"**/.86d",
+			"**/.env*",
+			"**/*.log",
+			"**/logs",
+			"**/coverage",
+			"**/playwright-report",
+			"**/test-results",
+			"**/dist",
+			"**/build",
+			"**/*.tsbuildinfo",
+		]) {
+			expect(rules).toContain(recursiveRule);
+		}
 	});
 
 	it("never overlays dependency-stage Module source trees", async () => {

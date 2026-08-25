@@ -1,21 +1,34 @@
 node_modules
+**/node_modules
 .next
+**/.next
 .turbo
+**/.turbo
 .86d
-# The default context carries only workspace manifests for Turbo prune. Local
-# source builds opt into the independent `workspace-modules` named context.
-modules/*/**
-!modules/*/package.json
+**/.86d
+# The public Store intentionally excludes the managed-only Module. All other
+# Module source stays in the ordinary context so Dockerfile builders that do not
+# support named contexts can build the workspace image.
+modules/managed-payments/**
 .git
 .github
 .changeset
 # Environment files never enter BuildKit context or cache layers.
 .env*
+**/.env*
 *.log
+**/*.log
 logs/
+**/logs
 coverage/
+**/coverage
 playwright-report/
+**/playwright-report
 test-results/
+**/test-results
 dist/
+**/dist
 build/
+**/build
 *.tsbuildinfo
+**/*.tsbuildinfo

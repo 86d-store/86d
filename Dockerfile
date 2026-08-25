@@ -6,9 +6,9 @@ ARG MODULE_SOURCE=workspace
 FROM oven/bun:${BUN_VERSION} AS base
 WORKDIR /app
 
-# Prune from the ordinary build context. In registry builds `.dockerignore`
-# sends Module package manifests but no Module source; the generator stage
-# restores source from the revision-pinned registry.
+# Prune from the ordinary build context. Workspace builds use these Module
+# bytes; registry builds replace them transactionally from the revision-pinned
+# public archive before the Store build begins.
 FROM base AS prepare
 COPY . .
 RUN bunx turbo@2.10.11 prune \
@@ -22,6 +22,20 @@ COPY --from=prepare /app/out/json/ ./
 COPY --from=prepare /app/out/bun.lock ./bun.lock
 RUN bun install --frozen-lockfile --ignore-scripts
 
+# Export only the module-local frozen dependency links. Registry generation
+# replaces each Module directory, so these links are restored afterward without
+# copying local source or package manifests over the verified archive.
+FROM deps AS module-deps
+RUN set -eu; \
+	for module_manifest in modules/*/package.json; do \
+		module_path="${module_manifest%/package.json}"; \
+		if [ ! -d "${module_path}/node_modules" ]; then \
+			echo "Missing frozen dependency state for Module ${module_path##*/}" >&2; \
+			exit 1; \
+		fi; \
+	done; \
+	tar -cf /module-node-modules.tar modules/*/node_modules
+
 FROM deps AS source-base
 COPY --from=prepare /app/out/full/ ./
 # Templates are runtime inputs, not a package dependency, so Turbo does not
@@ -34,60 +48,39 @@ COPY --from=prepare /app/tsconfig.base.json ./tsconfig.base.json
 # Docker build and runner layout assertions are not workspace dependencies.
 COPY --from=prepare /app/internals/docker/verify-runtime-contract.ts ./internals/docker/verify-runtime-contract.ts
 
-# Local builds provide `workspace-modules=./modules`; registry builds bind that
-# required named context to the tracked empty context below. The sentinel COPY
-# fails immediately if registry mode accidentally selects the workspace stage.
 FROM source-base AS module-source-workspace
-# Make the empty registry context fail at source selection, before generation.
-COPY --from=workspace-modules abandoned-carts/package.json ./modules/abandoned-carts/package.json
-COPY --from=workspace-modules . ./modules
-# The source-base stage already carries Bun's frozen container-native workspace
-# links. The named context excludes client-side node_modules state.
 RUN bun internals/generators/src/generate-modules.ts --frozen
 
 # Production builds fetch every selected official Module from the injected,
-# revision-pinned manifest. Credentials are scoped to this RUN and never enter
-# image metadata or later stages.
+# revision-pinned public manifest. The grouped fetch downloads one public
+# archive for the repository and needs no build-time credential.
 FROM source-base AS module-source-registry
 ARG SOURCE_REVISION
-RUN --mount=type=secret,id=github_token,required=true \
-	set -eu; \
+RUN set -eu; \
 	if [ -z "${SOURCE_REVISION}" ]; then \
 		echo "SOURCE_REVISION is required when MODULE_SOURCE=registry" >&2; \
 		exit 1; \
 	fi; \
-	github_token="$(cat /run/secrets/github_token)"; \
-	if [ -z "${github_token}" ]; then \
-		echo "The github_token BuildKit secret must not be empty" >&2; \
-		exit 1; \
-	fi; \
 	env \
-		"GITHUB_TOKEN=${github_token}" \
 		"86D_REGISTRY_ONLY_MODULES=true" \
 		"86D_REGISTRY_SOURCE_REVISION=${SOURCE_REVISION}" \
 		bun internals/generators/src/generate-modules.ts --frozen
-# Registry fetch replaces each manifest-only target directory. Restore only the
+# Registry fetch replaces each local target directory. Restore only the
 # exact frozen-install module-local dependency links, never source or manifests.
-RUN --mount=type=bind,from=deps,source=/app/modules,target=/deps-modules,ro \
-	set -eu; \
+COPY --from=module-deps /module-node-modules.tar /tmp/module-node-modules.tar
+RUN set -eu; \
 	for module_path in modules/*; do \
-		module_id="${module_path##*/}"; \
-		deps_node_modules="/deps-modules/${module_id}/node_modules"; \
-		if [ ! -d "${deps_node_modules}" ]; then \
-			echo "Missing frozen dependency state for Module ${module_id}" >&2; \
-			exit 1; \
-		fi; \
 		if [ -e "${module_path}/node_modules" ]; then \
-			echo "Registry Module ${module_id} unexpectedly contains node_modules" >&2; \
+			echo "Registry Module ${module_path##*/} unexpectedly contains node_modules" >&2; \
 			exit 1; \
 		fi; \
-		cp -a "${deps_node_modules}" "${module_path}/node_modules"; \
-	done
+	done; \
+	tar -xf /tmp/module-node-modules.tar; \
+	rm /tmp/module-node-modules.tar
 
 # Select exactly one source stage. Valid values are `workspace` and `registry`.
 FROM module-source-${MODULE_SOURCE} AS builder
 ARG TARGETARCH
-ARG TURBO_TEAM
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV DOCKER_BUILD=true
@@ -97,29 +90,16 @@ ENV DOCKER_BUILD=true
 RUN bun internals/docker/verify-runtime-contract.ts \
 	module-manifest modules runtime/module-package-names.json
 
-# A Turbo token is optional for local builds and is supplied only as a BuildKit
-# secret. Bun on Linux arm64 can return 139 after Next has fully emitted its
-# output; accept only that exact case and only with a complete standalone tree.
-RUN --mount=type=secret,id=turbo_token \
-	set +e; \
+# Bun on Linux arm64 can return 139 after Next has fully emitted its output;
+# accept only that exact case and only with a complete standalone tree.
+RUN set +e; \
 	better_auth_secret="$(bun -e 'console.log(Buffer.from(crypto.getRandomValues(new Uint8Array(48))).toString("base64"))')"; \
-	if [ -s /run/secrets/turbo_token ]; then \
-		TURBO_TOKEN="$(cat /run/secrets/turbo_token)" \
-		TURBO_TEAM="${TURBO_TEAM}" \
-		BETTER_AUTH_SECRET="${better_auth_secret}" \
-		BETTER_AUTH_URL="http://127.0.0.1:3000" \
-		APP_URL="http://127.0.0.1:3000" \
-		NODE_OPTIONS="--max-old-space-size=4096" \
-		bun run build:store; \
-		status=$?; \
-	else \
-		BETTER_AUTH_SECRET="${better_auth_secret}" \
-		BETTER_AUTH_URL="http://127.0.0.1:3000" \
-		APP_URL="http://127.0.0.1:3000" \
-		NODE_OPTIONS="--max-old-space-size=4096" \
-		bun run build:store; \
-		status=$?; \
-	fi; \
+	BETTER_AUTH_SECRET="${better_auth_secret}" \
+	BETTER_AUTH_URL="http://127.0.0.1:3000" \
+	APP_URL="http://127.0.0.1:3000" \
+	NODE_OPTIONS="--max-old-space-size=4096" \
+	bun run build:store; \
+	status=$?; \
 	set -e; \
 	if ! bun internals/docker/verify-runtime-contract.ts next-build apps/store/.next; then \
 		if [ "${status}" -ne 0 ]; then exit "${status}"; fi; \
@@ -232,7 +212,7 @@ RUN set -eu; \
 		-name '*.test.*' -o -name '*.test-*' \
 	\) -delete
 
-FROM oven/bun:${BUN_VERSION}-slim AS runner
+FROM oven/bun:${BUN_VERSION}-slim AS runner-base
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -275,10 +255,9 @@ COPY --from=prepare --chown=nextjs:nodejs /app/internals/lib ./internals/lib
 COPY --from=prepare --chown=nextjs:nodejs /app/internals/docker/init.sql ./internals/docker/init.sql
 COPY --from=prepare --chown=nextjs:nodejs /app/package.json ./package.json
 
-# Replace any traced copies with the exact migration/seed runtime closure. The
-# read-only mount avoids a temporary duplicate dependency layer in the image.
-RUN --mount=type=bind,from=runtime-deps,source=/export,target=/runtime-node-modules,ro \
-	set -eu; \
+# Fail before copying if Next unexpectedly traced a dependency that belongs to
+# the exact migration/seed runtime closure.
+RUN set -eu; \
 	mkdir -p ./node_modules; \
 	for dependency in \
 		drizzle-kit drizzle-orm pg pg-cloudflare pg-connection-string pg-int8 pg-pool \
@@ -288,8 +267,12 @@ RUN --mount=type=bind,from=runtime-deps,source=/export,target=/runtime-node-modu
 			echo "Standalone unexpectedly contains runtime dependency ${dependency}" >&2; \
 			exit 1; \
 		fi; \
-	done; \
-	cp -a /runtime-node-modules/. ./node_modules/; \
+	done
+
+# Copy the frozen migration/seed closure directly into its final location so it
+# enters the image once and does not need a temporary bind or cleanup layer.
+COPY --from=runtime-deps --chown=nextjs:nodejs /export/ ./node_modules/
+RUN set -eu; \
 	mkdir -p ./node_modules/@86d-app; \
 	for dependency in \
 		@86d-app/core @86d-app/db @86d-app/storage db env; do \
@@ -305,13 +288,21 @@ RUN --mount=type=bind,from=runtime-deps,source=/export,target=/runtime-node-modu
 	ln -s ../packages/env ./node_modules/env
 
 COPY --from=prepare --chown=nextjs:nodejs --chmod=755 /app/internals/docker/entrypoint.sh /app/entrypoint.sh
-RUN --mount=type=bind,from=prepare,source=/app/internals/docker/verify-runtime-contract.ts,target=/app/internals/docker/verify-runtime-contract.ts,ro \
-	--mount=type=bind,from=builder,source=/app/runtime/module-package-names.json,target=/app/internals/docker/module-package-names.json,ro \
-	set -eu; \
-	mkdir -p /app/uploads; \
-	chown nextjs:nodejs /app/uploads && \
+RUN mkdir -p /app/uploads && chown nextjs:nodejs /app/uploads
+
+# Audit in a throwaway descendant so the verifier and package-name manifest do
+# not enter any layer of the final runtime image. The final stage depends only
+# on the zero-content success marker emitted after the audit passes.
+FROM runner-base AS runner-audit
+COPY --from=prepare /app/internals/docker/verify-runtime-contract.ts /app/internals/docker/verify-runtime-contract.ts
+COPY --from=builder /app/runtime/module-package-names.json /app/internals/docker/module-package-names.json
+RUN set -eu; \
 	bun internals/docker/verify-runtime-contract.ts \
-		runner /app /app/internals/docker/module-package-names.json
+		runner /app /app/internals/docker/module-package-names.json; \
+	touch /runtime-layout-verified
+
+FROM runner-base AS runner
+COPY --from=runner-audit /runtime-layout-verified /runtime-layout-verified
 
 USER nextjs
 EXPOSE 3000
