@@ -65,7 +65,7 @@ function ProductRowActions({
 }) {
 	const [open, setOpen] = useState(false);
 	return (
-		<div className="relative sticky right-0">
+		<div className="relative">
 			<button
 				type="button"
 				aria-label={`Actions for ${product.name}`}
@@ -254,8 +254,8 @@ export function ProductDataTable({
 					</div>
 				</details>
 			</div>
-			<div className="overflow-hidden rounded-md border border-border">
-				<table className="w-full table-fixed text-sm">
+			<div className="overflow-x-auto rounded-md border border-border">
+				<table className="w-max min-w-full text-sm">
 					<thead>
 						{table.getHeaderGroups().map((headerGroup) => (
 							<tr key={headerGroup.id} className="border-border border-b">

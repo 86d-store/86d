@@ -39,7 +39,7 @@ vi.mock("db", () => ({
 vi.mock("@86d-app/runtime/compiled-schema-boot", () => ({
 	compileInstalledModules: vi.fn(() => ({ compiled: [], sql: "" })),
 	compiledForModule: vi.fn(() => []),
-	applyCompiledModuleSchema: vi.fn(),
+	applyCompiledModuleSchema: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("env", () => ({

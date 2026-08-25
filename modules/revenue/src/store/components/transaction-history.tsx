@@ -3,25 +3,7 @@
 import { useState } from "react";
 import { useRevenueStoreApi } from "./_hooks";
 import TransactionHistoryTemplate from "./transaction-history.mdx";
-
-type PaymentIntentStatus =
-	| "pending"
-	| "processing"
-	| "succeeded"
-	| "failed"
-	| "cancelled"
-	| "refunded";
-
-interface Transaction {
-	id: string;
-	providerIntentId?: string | undefined;
-	orderId?: string | undefined;
-	amount: number;
-	currency: string;
-	status: PaymentIntentStatus;
-	createdAt: string;
-	updatedAt: string;
-}
+import { resolveTransactionHistoryQuery } from "./transaction-history-state";
 
 export function TransactionHistory({
 	isAuthenticated,
@@ -40,28 +22,29 @@ export function TransactionHistory({
 	if (statusFilter) query.status = statusFilter;
 
 	const { data, isLoading, isError } = api.listTransactions.useQuery(query) as {
-		data:
-			| { transactions: Transaction[]; total: number }
-			| { status: number }
-			| undefined;
+		data: unknown;
 		isLoading: boolean;
 		isError: boolean;
 	};
 
-	const isUnauthorized =
-		!isLoading && (data as { status?: number } | undefined)?.status === 401;
-	const successData = data as
-		| { transactions: Transaction[]; total: number }
-		| undefined;
-	const transactions = successData?.transactions ?? [];
-	const total = successData?.total ?? 0;
+	const queryState = resolveTransactionHistoryQuery({
+		data,
+		isError,
+		isLoading,
+	});
+	const transactionPage =
+		queryState.status === "ready" ? queryState.data : undefined;
+	const transactions = transactionPage?.transactions ?? [];
+	const total = transactionPage?.total ?? 0;
 	const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
 	return (
 		<TransactionHistoryTemplate
-			isAuthenticated={isAuthenticated ?? !isUnauthorized}
-			isLoading={isLoading}
-			isError={isError}
+			isAuthenticated={
+				isAuthenticated ?? queryState.status !== "unauthenticated"
+			}
+			isLoading={queryState.status === "loading"}
+			isError={queryState.status === "unavailable"}
 			transactions={transactions}
 			total={total}
 			page={page}

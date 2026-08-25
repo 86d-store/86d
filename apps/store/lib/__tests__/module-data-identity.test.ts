@@ -77,7 +77,7 @@ vi.mock("@86d-app/runtime/compiled-module-data-service", () => ({
 vi.mock("@86d-app/runtime/compiled-schema-boot", () => ({
 	compileInstalledModules: vi.fn(() => ({ compiled: [], sql: "" })),
 	compiledForModule: vi.fn(() => []),
-	applyCompiledModuleSchema: vi.fn(),
+	applyCompiledModuleSchema: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@86d-app/sdk/get-store-config", () => ({

@@ -741,7 +741,7 @@ export function ProductList() {
 	const content = (
 		<div>
 			{/* Header */}
-			<div className="mb-6 flex items-center justify-between">
+			<div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 				<div>
 					<h1 className="font-semibold text-foreground text-lg">Products</h1>
 					{total > 0 && (
@@ -750,7 +750,7 @@ export function ProductList() {
 						</p>
 					)}
 				</div>
-				<div className="flex items-center gap-2">
+				<div className="flex flex-wrap items-center gap-2">
 					<button
 						type="button"
 						onClick={() => setShowImport(true)}

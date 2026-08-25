@@ -1457,7 +1457,7 @@ export function AnalyticsAdmin() {
 	const [tab, setTab] = useState<Tab>("overview");
 	const [range, setRange] = useState<DateRange>("30d");
 
-	const since = sinceDate(range);
+	const since = useMemo(() => sinceDate(range), [range]);
 
 	const statsInput: Record<string, string> = {};
 	if (since) statsInput.since = since;

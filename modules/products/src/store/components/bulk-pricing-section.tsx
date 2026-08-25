@@ -26,7 +26,7 @@ export function BulkPricingSection({
 
 	const { data, isLoading, isError } = api.getProductTiers.useQuery({
 		params: { productId },
-		query: { basePrice: basePriceInCents },
+		basePrice: basePriceInCents,
 	}) as {
 		data: { tiers?: TierPreview[] } | undefined;
 		isLoading: boolean;

@@ -1,5 +1,71 @@
 import { expect } from "@playwright/test";
+import {
+	ADMIN_VISUAL_ENDPOINT_CONTRACTS,
+	type AdminVisualEndpointContract,
+	type AdminVisualEnvelopeValueKind,
+} from "./admin-visual-api-contract";
+import { createAdminQueryRecorder } from "./fixtures/admin-query-recorder";
 import { test } from "./fixtures/test-fixtures";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function matchesEnvelopeValueKind(
+	value: unknown,
+	kind: AdminVisualEnvelopeValueKind,
+): boolean {
+	switch (kind) {
+		case "array":
+			return Array.isArray(value);
+		case "number":
+			return typeof value === "number" && Number.isFinite(value);
+		case "object":
+			return isRecord(value);
+		case "string":
+			return typeof value === "string";
+	}
+}
+
+function endpointBodyIssues(
+	endpoint: AdminVisualEndpointContract,
+	body: unknown,
+): string[] {
+	if (!isRecord(body)) return ["response body is not a JSON object"];
+	if (endpoint.expected.kind === "unavailable") {
+		const expectedBody = {
+			code: endpoint.expected.code,
+			error: endpoint.expected.error,
+			status: endpoint.expected.status,
+		};
+		const fieldIssues = Object.entries(expectedBody).flatMap(
+			([field, expected]) =>
+				body[field] === expected
+					? []
+					: [`${field} must be ${JSON.stringify(expected)}`],
+		);
+		const unexpectedFields = Object.keys(body).filter(
+			(field) => !(field in expectedBody),
+		);
+		return [
+			...fieldIssues,
+			...unexpectedFields.map(
+				(field) => `${field} is not part of the envelope`,
+			),
+		];
+	}
+
+	const issues =
+		body.error === undefined
+			? []
+			: [`unexpected API error ${String(body.error)}`];
+	for (const [field, kind] of Object.entries(endpoint.expected.fields)) {
+		if (!matchesEnvelopeValueKind(body[field], kind)) {
+			issues.push(`${field} must be ${kind}`);
+		}
+	}
+	return issues;
+}
 
 test.describe("Store Admin — Authentication", () => {
 	test("redirects unauthenticated users to sign-in", async ({ admin }) => {
@@ -135,6 +201,306 @@ test.describe("Store Admin — Navigation", () => {
 			.filter({ hasText: /Customers/i })
 			.first();
 		await expect(heading).toBeVisible({ timeout: 10_000 });
+	});
+});
+
+test.describe("Store Admin — Deterministic visual API contract", () => {
+	test.beforeEach(async ({ admin }) => {
+		await admin.applyStoredAdminSession();
+	});
+
+	for (const endpoint of ADMIN_VISUAL_ENDPOINT_CONTRACTS) {
+		test(`${endpoint.path} satisfies its live response contract`, async ({
+			admin,
+		}) => {
+			const response = await admin.page.request.get(endpoint.requestPath);
+			const responseText = await response.text();
+			expect(
+				response.ok(),
+				`GET ${endpoint.requestPath} returned HTTP ${response.status()}: ${responseText}`,
+			).toBe(true);
+
+			const body: unknown = JSON.parse(responseText);
+			expect(
+				endpointBodyIssues(endpoint, body),
+				`GET ${endpoint.requestPath} returned an invalid envelope: ${responseText}`,
+			).toEqual([]);
+		});
+	}
+
+	test("Revenue renders its unavailable state without a Module boundary", async ({
+		admin,
+	}) => {
+		await admin.page.goto("/admin/revenue");
+
+		await expect(
+			admin.page.getByRole("alert").filter({
+				hasText: "Failed to load revenue stats",
+			}),
+		).toBeVisible();
+		await expect(
+			admin.page.getByText(/^Module "[^"]+" encountered an error$/),
+		).toHaveCount(0);
+	});
+});
+
+test.describe("Store Admin — Stable reporting queries", () => {
+	test.beforeEach(async ({ admin }) => {
+		await admin.signIn();
+	});
+
+	test("Analytics requests each selected range exactly once", async ({
+		admin,
+	}) => {
+		const recorder = createAdminQueryRecorder();
+		let advancedClockForResponse = false;
+		let allowedRequestsPerPath = 1;
+		const thirtyDayStats = new URLSearchParams({
+			since: "2026-07-26T12:00:00.000Z",
+		});
+		const thirtyDayProducts = new URLSearchParams({
+			limit: "10",
+			since: "2026-07-26T12:00:00.000Z",
+		});
+		const sevenDayStats = new URLSearchParams({
+			since: "2026-08-18T14:00:00.000Z",
+		});
+		const sevenDayProducts = new URLSearchParams({
+			limit: "10",
+			since: "2026-08-18T14:00:00.000Z",
+		});
+
+		await admin.page.clock.setFixedTime(new Date("2026-08-25T12:00:00.000Z"));
+		await admin.page.route(
+			/\/api\/admin\/analytics\/(stats|top-products)(?:\?|$)/,
+			async (route) => {
+				const requestUrl = route.request().url();
+				recorder.record(requestUrl);
+				if (
+					recorder.countPath(new URL(requestUrl).pathname) >
+					allowedRequestsPerPath
+				) {
+					await route.abort();
+					return;
+				}
+				if (!advancedClockForResponse) {
+					advancedClockForResponse = true;
+					await admin.page.clock.setFixedTime(
+						new Date("2026-08-25T13:00:00.000Z"),
+					);
+				}
+				await route.fulfill({
+					json:
+						new URL(requestUrl).pathname === "/api/admin/analytics/stats"
+							? { stats: [] }
+							: { products: [] },
+				});
+			},
+		);
+
+		await admin.page.goto("/admin/analytics");
+		await expect(
+			admin.page.getByText("Total Events", { exact: true }),
+		).toBeVisible();
+		await expect(
+			admin.page.getByText("Loading…", { exact: true }),
+		).toBeHidden();
+
+		expect(recorder.countPath("/api/admin/analytics/stats")).toBe(1);
+		expect(recorder.countPath("/api/admin/analytics/top-products")).toBe(1);
+		expect(
+			recorder.countExact("/api/admin/analytics/stats", thirtyDayStats),
+		).toBe(1);
+		expect(
+			recorder.countExact(
+				"/api/admin/analytics/top-products",
+				thirtyDayProducts,
+			),
+		).toBe(1);
+
+		await admin.page.clock.setFixedTime(new Date("2026-08-25T14:00:00.000Z"));
+		allowedRequestsPerPath = 2;
+		const nextStatsResponse = admin.page.waitForResponse((response) =>
+			response.url().includes("/api/admin/analytics/stats?"),
+		);
+		const nextProductsResponse = admin.page.waitForResponse((response) =>
+			response.url().includes("/api/admin/analytics/top-products?"),
+		);
+		await admin.page.getByRole("button", { name: "7d", exact: true }).click();
+		await Promise.all([nextStatsResponse, nextProductsResponse]);
+		await expect(
+			admin.page.getByText("Loading…", { exact: true }),
+		).toBeHidden();
+
+		expect(recorder.countPath("/api/admin/analytics/stats")).toBe(2);
+		expect(recorder.countPath("/api/admin/analytics/top-products")).toBe(2);
+		expect(
+			recorder.countExact("/api/admin/analytics/stats", sevenDayStats),
+		).toBe(1);
+		expect(
+			recorder.countExact(
+				"/api/admin/analytics/top-products",
+				sevenDayProducts,
+			),
+		).toBe(1);
+	});
+
+	test("Revenue requests each selected range exactly once", async ({
+		admin,
+	}) => {
+		const recorder = createAdminQueryRecorder();
+		let advancedStatsClockForResponse = false;
+		let advancedTransactionsClockForResponse = false;
+		let allowedStatsRequests = 1;
+		let allowedTransactionRequests = 1;
+		const thirtyDayStats = new URLSearchParams({
+			from: "2026-07-26T12:00:00.000Z",
+			to: "2026-08-25T12:00:00.000Z",
+		});
+		const sevenDayStats = new URLSearchParams({
+			from: "2026-08-18T14:00:00.000Z",
+			to: "2026-08-25T14:00:00.000Z",
+		});
+		const sevenDayTransactions = new URLSearchParams({
+			page: "1",
+			limit: "20",
+			from: "2026-08-18T14:00:00.000Z",
+			to: "2026-08-25T14:00:00.000Z",
+		});
+		const ninetyDayTransactions = new URLSearchParams({
+			page: "1",
+			limit: "20",
+			from: "2026-05-27T16:00:00.000Z",
+			to: "2026-08-25T16:00:00.000Z",
+		});
+
+		await admin.page.clock.setFixedTime(new Date("2026-08-25T12:00:00.000Z"));
+		await admin.page.route(
+			/\/api\/admin\/revenue\/(stats|transactions)(?:\?|$)/,
+			async (route) => {
+				const requestUrl = route.request().url();
+				const path = new URL(requestUrl).pathname;
+				recorder.record(requestUrl);
+				const allowedRequests =
+					path === "/api/admin/revenue/stats"
+						? allowedStatsRequests
+						: allowedTransactionRequests;
+				if (recorder.countPath(path) > allowedRequests) {
+					await route.abort();
+					return;
+				}
+
+				if (path === "/api/admin/revenue/stats") {
+					if (!advancedStatsClockForResponse) {
+						advancedStatsClockForResponse = true;
+						await admin.page.clock.setFixedTime(
+							new Date("2026-08-25T13:00:00.000Z"),
+						);
+					}
+					await route.fulfill({
+						json: {
+							totalVolume: 0,
+							transactionCount: 0,
+							averageValue: 0,
+							currency: "USD",
+							byStatus: {
+								pending: 0,
+								processing: 0,
+								succeeded: 0,
+								failed: 0,
+								cancelled: 0,
+								refunded: 0,
+							},
+							refundVolume: 0,
+							refundCount: 0,
+						},
+					});
+					return;
+				}
+
+				if (!advancedTransactionsClockForResponse) {
+					advancedTransactionsClockForResponse = true;
+					await admin.page.clock.setFixedTime(
+						new Date("2026-08-25T15:00:00.000Z"),
+					);
+				}
+				await route.fulfill({ json: { transactions: [], total: 0 } });
+			},
+		);
+
+		await admin.page.goto("/admin/revenue");
+		await expect(
+			admin.page.getByText("Total Revenue", { exact: true }),
+		).toBeVisible();
+		await expect(admin.page.locator("main .animate-pulse")).toHaveCount(0);
+		await expect(
+			admin.page.getByText("Failed to load revenue stats", { exact: true }),
+		).toHaveCount(0);
+		expect(recorder.countPath("/api/admin/revenue/stats")).toBe(1);
+		expect(
+			recorder.countExact("/api/admin/revenue/stats", thirtyDayStats),
+		).toBe(1);
+
+		await admin.page.clock.setFixedTime(new Date("2026-08-25T14:00:00.000Z"));
+		allowedStatsRequests = 2;
+		const sevenDayStatsResponse = admin.page.waitForResponse((response) =>
+			response.url().includes("/api/admin/revenue/stats?"),
+		);
+		await admin.page
+			.getByRole("button", { name: "Last 7 days", exact: true })
+			.click();
+		await sevenDayStatsResponse;
+		await expect(
+			admin.page.getByText("Total Revenue", { exact: true }),
+		).toBeVisible();
+		await expect(admin.page.locator("main .animate-pulse")).toHaveCount(0);
+		await expect(
+			admin.page.getByText("Failed to load revenue stats", { exact: true }),
+		).toHaveCount(0);
+		expect(recorder.countPath("/api/admin/revenue/stats")).toBe(2);
+		expect(recorder.countExact("/api/admin/revenue/stats", sevenDayStats)).toBe(
+			1,
+		);
+
+		await admin.page
+			.getByRole("button", { name: "transactions", exact: true })
+			.click();
+		await expect(
+			admin.page.getByText("No transactions found", { exact: true }),
+		).toBeVisible();
+		await expect(
+			admin.page.getByText("Failed to load transactions", { exact: true }),
+		).toHaveCount(0);
+		expect(recorder.countPath("/api/admin/revenue/transactions")).toBe(1);
+		expect(
+			recorder.countExact(
+				"/api/admin/revenue/transactions",
+				sevenDayTransactions,
+			),
+		).toBe(1);
+
+		await admin.page.clock.setFixedTime(new Date("2026-08-25T16:00:00.000Z"));
+		allowedTransactionRequests = 2;
+		const ninetyDayTransactionsResponse = admin.page.waitForResponse(
+			(response) => response.url().includes("/api/admin/revenue/transactions?"),
+		);
+		await admin.page
+			.getByRole("button", { name: "Last 90 days", exact: true })
+			.click();
+		await ninetyDayTransactionsResponse;
+		await expect(
+			admin.page.getByText("No transactions found", { exact: true }),
+		).toBeVisible();
+		await expect(
+			admin.page.getByText("Failed to load transactions", { exact: true }),
+		).toHaveCount(0);
+		expect(recorder.countPath("/api/admin/revenue/transactions")).toBe(2);
+		expect(
+			recorder.countExact(
+				"/api/admin/revenue/transactions",
+				ninetyDayTransactions,
+			),
+		).toBe(1);
 	});
 });
 

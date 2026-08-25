@@ -20,7 +20,7 @@ jobs:
     name: e2e
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     services:
       postgres:
         image: postgres:16
@@ -41,6 +41,10 @@ jobs:
       # Force IPv4 in CI (some runners resolve `localhost` to ::1 first).
       E2E_STORE_URL: http://127.0.0.1:3000
       E2E_ADMIN_PASSWORD: abc12321
+      E2E_MERCHANT_UI_FIXTURES: "true"
+      # Seed and Store actions run from different workspace directories.
+      STORAGE_CLIENT: local
+      STORAGE_LOCAL_DIR: ${{ github.workspace }}/uploads
       APP_URL: http://127.0.0.1:3000
       NEXT_PUBLIC_STORE_URL: http://127.0.0.1:3000
       BETTER_AUTH_URL: http://127.0.0.1:3000
@@ -53,9 +57,6 @@ jobs:
       - name: Copy env
         uses: ./internals/github/copy-env
 
-      - name: Generate modules
-        run: bun run generate:modules
-
       - name: Bootstrap database
         uses: ./internals/github/e2e-database
 
@@ -64,29 +65,7 @@ jobs:
         uses: ./internals/github/e2e-store
 
       - name: E2E tests
-        id: e2e-tests
-        continue-on-error: true
         run: bun test:e2e
-
-      # Refresh Linux CI baselines when visuals drift, then prove green in-job.
-      # Only when Playwright browsers were installed (e2e-store).
-      - name: Update visual snapshots
-        id: update-snapshots
-        if: steps.e2e-store.outcome == 'success' && steps.e2e-tests.outcome == 'failure'
-        uses: ./internals/github/update-visual-snapshots
-
-      - name: Re-run E2E after snapshot update
-        id: e2e-retest
-        if: steps.update-snapshots.outcome == 'success'
-        run: bun test:e2e
-
-      - name: Fail if E2E did not recover
-        if: >
-          steps.e2e-tests.outcome == 'failure' &&
-          steps.e2e-retest.outcome != 'success'
-        run: |
-          echo "E2E failed and snapshot recovery did not produce a green re-run."
-          exit 1
 
       - uses: actions/upload-artifact@v5
         if: failure()

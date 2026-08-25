@@ -2,6 +2,11 @@ import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
 import { col } from "@86d-app/core/schema/col";
 import { z } from "zod";
 
+const reviewsReviewImageShape = z.object({
+	url: z.string().url().max(2000),
+	caption: z.string().max(500).optional(),
+});
+
 export const reviewsReviewShape = z.object({
 	id: z.string().register(col, { pk: true }),
 	productId: z.string(),
@@ -14,7 +19,7 @@ export const reviewsReviewShape = z.object({
 	status: z.string().default("pending"),
 	isVerifiedPurchase: z.boolean().default(false),
 	helpfulCount: z.int().default(0),
-	images: z.record(z.string(), z.unknown()).optional(),
+	images: z.array(reviewsReviewImageShape).max(5).optional(),
 	merchantResponse: z.string().optional(),
 	merchantResponseAt: z.coerce.date().optional(),
 	moderationNote: z.string().optional(),

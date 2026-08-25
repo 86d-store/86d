@@ -1,3 +1,4 @@
+import { env as nodeProcessEnv } from "node:process";
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -65,6 +66,7 @@ describe("POST /api/86d/workload-identity/prove", () => {
 		expect(second.status).toBe(200);
 		expect(await first.json()).toEqual({ status: "ok" });
 		expect(await second.json()).toEqual({ status: "ok" });
+		expect(mocks.readConfig).toHaveBeenCalledWith(nodeProcessEnv);
 		expect(mocks.createBridge).toHaveBeenCalledTimes(1);
 		expect(mocks.createBridge).toHaveBeenCalledWith({ config: managedConfig });
 		expect(mocks.prove).toHaveBeenCalledTimes(2);

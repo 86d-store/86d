@@ -1,4 +1,5 @@
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
+import { test } from "./fixtures/test-fixtures";
 
 const screenshotOpts = {
 	threshold: 0.15,
@@ -21,9 +22,13 @@ test.describe("merchant UI fixtures", () => {
 	] as const) {
 		test(`products ${state} @desktop`, async ({ page }) => {
 			await page.setViewportSize({ width: 1280, height: 720 });
-			await page.goto(`/__merchant_ui_fixtures__?state=${state}`, {
-				waitUntil: "load",
-			});
+			const response = await page.goto(
+				`/__merchant_ui_fixtures__?state=${state}`,
+				{
+					waitUntil: "load",
+				},
+			);
+			expect(response?.ok()).toBe(true);
 			await page.evaluate(() => document.fonts.ready);
 			await expect(page.getByTestId(`merchant-state-${state}`)).toBeVisible();
 			await expect(page).toHaveScreenshot(
@@ -33,14 +38,60 @@ test.describe("merchant UI fixtures", () => {
 		});
 	}
 
+	test("products header actions remain reachable @mobile", async ({
+		page,
+		admin,
+	}) => {
+		await page.setViewportSize({ width: 375, height: 667 });
+		await admin.applyStoredAdminSession();
+		await page.goto("/admin/products");
+		await expect(page.getByRole("heading", { name: "Products" })).toBeVisible();
+		await expect(
+			page.getByRole("link", { name: "New product", exact: true }),
+		).toBeInViewport({ ratio: 1 });
+		await expect
+			.poll(() =>
+				page.evaluate(
+					() => document.documentElement.scrollWidth <= window.innerWidth,
+				),
+			)
+			.toBe(true);
+	});
+
 	test("products table fixture @mobile dark", async ({ page }) => {
 		await page.setViewportSize({ width: 375, height: 667 });
 		await page.emulateMedia({ colorScheme: "dark" });
-		await page.goto("/__merchant_ui_fixtures__?surface=products", {
-			waitUntil: "load",
-		});
+		const response = await page.goto(
+			"/__merchant_ui_fixtures__?surface=products",
+			{
+				waitUntil: "load",
+			},
+		);
+		expect(response?.ok()).toBe(true);
 		await page.evaluate(() => document.fonts.ready);
-		await expect(page.getByTestId("products-data-table")).toBeVisible();
+		const productTable = page.getByTestId("products-data-table");
+		await expect(productTable).toBeVisible();
+		const horizontalScroller = productTable.locator(".overflow-x-auto");
+		expect(
+			await horizontalScroller.evaluate(
+				(element) => element.scrollWidth > element.clientWidth,
+			),
+		).toBe(true);
+		await horizontalScroller.evaluate((element) => {
+			element.scrollLeft = element.scrollWidth;
+		});
+		await expect
+			.poll(() => horizontalScroller.evaluate((element) => element.scrollLeft))
+			.toBeGreaterThan(0);
+		await expect(
+			productTable.getByRole("columnheader", { name: "SKU" }),
+		).toBeInViewport();
+		await expect(
+			productTable.getByRole("columnheader", { name: "Actions" }),
+		).toBeVisible();
+		await horizontalScroller.evaluate((element) => {
+			element.scrollLeft = 0;
+		});
 		await expect(page).toHaveScreenshot(
 			"products-table-mobile-dark.png",
 			screenshotOpts,

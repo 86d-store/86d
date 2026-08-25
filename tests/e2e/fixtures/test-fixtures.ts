@@ -59,7 +59,13 @@ export class StorefrontPage {
 	}
 
 	get allProductCards() {
-		return this.page.locator("a.group");
+		return this.page.locator('main a.group[href^="/products/"]');
+	}
+
+	get addToCartButton() {
+		return this.page
+			.locator("main")
+			.getByRole("button", { name: "Add to cart", exact: true });
 	}
 
 	get searchInput() {
@@ -78,6 +84,36 @@ export class StorefrontPage {
 
 	async navigateToProducts() {
 		await this.page.goto("/products");
+	}
+
+	async navigateToFirstInStockProduct() {
+		await this.navigateToProducts();
+		await expect(this.allProductCards.first()).toBeVisible({ timeout: 15_000 });
+		const productCard = this.allProductCards
+			.filter({ hasNotText: "Sold out" })
+			.first();
+		await expect(productCard).toBeVisible({ timeout: 15_000 });
+		await productCard.click();
+		await this.page.waitForURL(/\/products\/.+/);
+		await expect(this.addToCartButton).toBeVisible({ timeout: 15_000 });
+	}
+
+	async addFirstInStockProductToCart() {
+		await this.navigateToFirstInStockProduct();
+		const cartResponsePromise = this.page.waitForResponse(
+			(response) =>
+				response.url().includes("/api/cart") &&
+				response.request().method() === "POST",
+			{ timeout: 10_000 },
+		);
+		await this.addToCartButton.click();
+		const cartResponse = await cartResponsePromise;
+		expect(
+			cartResponse.status(),
+			`Cart POST returned ${cartResponse.status()}: ${await cartResponse.text()}`,
+		).toBe(200);
+		await expect(this.cartDrawer).toBeVisible({ timeout: 5_000 });
+		await expect(this.cartItems.first()).toBeVisible({ timeout: 15_000 });
 	}
 
 	async navigateToProduct(slug: string) {
@@ -111,7 +147,7 @@ export class AdminPage {
 		if (
 			email === ADMIN_EMAIL &&
 			password === ADMIN_PASSWORD &&
-			(await this.applyStoredAdminSession())
+			(await this.tryApplyStoredAdminSession())
 		) {
 			await this.page.goto("/admin");
 			await this.page.waitForURL((url) => url.pathname.startsWith("/admin"), {
@@ -120,6 +156,13 @@ export class AdminPage {
 			return;
 		}
 		await this.signInWithForm(email, password);
+	}
+
+	async applyStoredAdminSession() {
+		if (await this.tryApplyStoredAdminSession()) return;
+		throw new Error(
+			`Stored admin session is unavailable at ${ADMIN_STORAGE_STATE_PATH}. Run E2E global setup first.`,
+		);
 	}
 
 	async signInWithForm(email = ADMIN_EMAIL, password = ADMIN_PASSWORD) {
@@ -136,7 +179,7 @@ export class AdminPage {
 		});
 	}
 
-	private async applyStoredAdminSession(): Promise<boolean> {
+	private async tryApplyStoredAdminSession(): Promise<boolean> {
 		if (!existsSync(ADMIN_STORAGE_STATE_PATH)) return false;
 		const state = JSON.parse(
 			readFileSync(ADMIN_STORAGE_STATE_PATH, "utf8"),

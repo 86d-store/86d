@@ -17,6 +17,7 @@ import { getStoreConfig } from "@86d-app/sdk/get-store-config";
 import { loadFromTemplate } from "@86d-app/sdk/load-from-template";
 import type { Config } from "@86d-app/sdk/types";
 import { db, getPool } from "db";
+import { createPostgresTransactionalExecutor } from "db/schema/apply-disposable-ddl";
 import { module } from "db/schema/tables";
 import { and, eq } from "drizzle-orm";
 import env from "env";
@@ -52,7 +53,7 @@ let bootPromise: Promise<void> | null = null;
 let subscribersRegistered = false;
 let storeOwnedConfig: Config | null = null;
 let compiledSchema: CompiledSchemaBundle | null = null;
-let compiledSchemaApplied = false;
+let compiledSchemaApplyPromise: Promise<void> | null = null;
 
 const moduleDataServices = new Map<string, CompiledModuleDataService>();
 
@@ -60,18 +61,17 @@ async function ensureCompiledSchema(): Promise<CompiledSchemaBundle> {
 	if (!compiledSchema) {
 		compiledSchema = compileInstalledModules(modules as Module[]);
 	}
-	if (!compiledSchemaApplied) {
+	if (!compiledSchemaApplyPromise) {
 		const pool = getPool();
-		await applyCompiledModuleSchema(
-			{
-				exec: async (statement) => {
-					await pool.query(statement);
-				},
-			},
+		compiledSchemaApplyPromise = applyCompiledModuleSchema(
+			createPostgresTransactionalExecutor(pool),
 			compiledSchema,
-		);
-		compiledSchemaApplied = true;
+		).catch((error) => {
+			compiledSchemaApplyPromise = null;
+			throw error;
+		});
 	}
+	await compiledSchemaApplyPromise;
 	return compiledSchema;
 }
 
@@ -211,7 +211,7 @@ export async function ensureBooted(): Promise<ModuleRegistry> {
 							NOTIFICATION_EVENT_TYPES,
 						},
 					] = await Promise.all([
-						import("./notifications"),
+						import("~/lib/notifications"),
 						import("emails"),
 						import("lib/notification-settings"),
 					]);
@@ -269,7 +269,7 @@ export async function ensureBooted(): Promise<ModuleRegistry> {
 				const storeId = env.STORE_ID;
 				if (storeId) {
 					const { registerWebhookHandlers } = await import(
-						"./webhook-subscriber"
+						"~/lib/webhook-subscriber"
 					);
 					registerWebhookHandlers(bus, db, storeId);
 				}

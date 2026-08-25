@@ -1,3 +1,4 @@
+import { env as nodeProcessEnv } from "node:process";
 import { createWorkloadIdentityProofBridge } from "@86d-app/sdk/workload-identity-proof";
 import { readManagedWorkloadConfig } from "@86d-app/sdk/workload-token-client";
 import { type NextRequest, NextResponse } from "next/server";
@@ -56,7 +57,9 @@ export async function POST(request: NextRequest) {
 
 	let config: ReturnType<typeof readManagedWorkloadConfig>;
 	try {
-		config = readManagedWorkloadConfig();
+		// Pass the live Node env explicitly so Next standalone bundling cannot
+		// hide Railway-injected managed identity variables.
+		config = readManagedWorkloadConfig(nodeProcessEnv);
 	} catch {
 		return status("unavailable", 503);
 	}

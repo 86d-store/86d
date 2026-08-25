@@ -54,9 +54,11 @@ export function LocationPicker() {
 	};
 
 	const { data: winData, isLoading: loadingWindows } = api.windows.useQuery(
-		selectedLocation
-			? { locationId: selectedLocation, date: selectedDate }
-			: null,
+		{
+			params: { locationId: selectedLocation },
+			date: selectedDate,
+		},
+		{ enabled: Boolean(selectedLocation && selectedDate) },
 	) as {
 		data: { windows: WindowItem[] } | undefined;
 		isLoading: boolean;

@@ -431,10 +431,22 @@ async function applySeedModuleSchema(client: pg.PoolClient) {
 	}
 
 	const sql = emitSql(report.transcoded);
+	const exec = async (statement: string) => {
+		await client.query(statement);
+	};
 	await applyModuleDdl(
 		{
-			exec: async (statement) => {
-				await client.query(statement);
+			exec,
+			async transaction(run) {
+				await client.query("SAVEPOINT module_schema_ddl");
+				try {
+					const result = await run({ exec });
+					await client.query("RELEASE SAVEPOINT module_schema_ddl");
+					return result;
+				} catch (error) {
+					await client.query("ROLLBACK TO SAVEPOINT module_schema_ddl");
+					throw error;
+				}
 			},
 		},
 		sql,

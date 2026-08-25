@@ -18,7 +18,7 @@
 		"dev": "dotenv -- turbo run dev --filter=store",
 		"dev:store": "dotenv -- turbo run dev --filter=store",
 		"start": "turbo run start",
-		"test": "turbo run test -- --exclude='**/dist/**' && vitest run internals/docker/__tests__",
+		"test": "turbo run test -- --exclude='**/dist/**' && vitest run internals/docker/__tests__ tests/e2e/__tests__",
 		"test:coverage": "vitest run --coverage --config tests/vitest.config.ts",
 		"test:e2e": "playwright test --config tests/playwright.config.ts",
 		"test:e2e:store": "playwright test --config tests/playwright.config.ts --project=store-chromium",

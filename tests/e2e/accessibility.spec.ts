@@ -249,7 +249,12 @@ test.describe("Admin — Accessibility (axe-core)", () => {
 	test("admin products page passes axe", async ({ page }) => {
 		await page.goto("/admin/products");
 		await page.waitForLoadState("load");
-		await page.locator("table, h1, h2").waitFor({ timeout: 15_000 });
+		await expect(
+			page.getByRole("heading", { name: "Products", exact: true }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(
+			page.getByText("Loading products…", { exact: true }),
+		).toBeHidden({ timeout: 15_000 });
 
 		const results = await new AxeBuilder({ page })
 			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -267,7 +272,12 @@ test.describe("Admin — Accessibility (axe-core)", () => {
 	test("admin orders page passes axe", async ({ page }) => {
 		await page.goto("/admin/orders");
 		await page.waitForLoadState("load");
-		await page.locator("table, h1, h2").waitFor({ timeout: 15_000 });
+		await expect(
+			page.getByRole("heading", { name: "Orders", exact: true }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(
+			page.locator("#admin-main table tbody .animate-pulse"),
+		).toHaveCount(0, { timeout: 15_000 });
 
 		const results = await new AxeBuilder({ page })
 			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -285,7 +295,12 @@ test.describe("Admin — Accessibility (axe-core)", () => {
 	test("admin customers page passes axe", async ({ page }) => {
 		await page.goto("/admin/customers");
 		await page.waitForLoadState("load");
-		await page.locator("table, h1, h2").waitFor({ timeout: 15_000 });
+		await expect(
+			page.getByRole("heading", { name: "Customers", exact: true }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(
+			page.locator("#admin-main table tbody .animate-pulse"),
+		).toHaveCount(0, { timeout: 15_000 });
 
 		const results = await new AxeBuilder({ page })
 			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])

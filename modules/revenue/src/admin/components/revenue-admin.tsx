@@ -1,39 +1,15 @@
 "use client";
 
 import { useModuleClient } from "@86d-app/core/client/provider";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import type { PaymentIntentStatus, RevenueStats } from "../../service";
 import RevenueAdminTemplate from "./revenue-admin.mdx";
-
-type PaymentIntentStatus =
-	| "pending"
-	| "processing"
-	| "succeeded"
-	| "failed"
-	| "cancelled"
-	| "refunded";
-
-type RevenueStats = {
-	totalVolume: number;
-	transactionCount: number;
-	averageValue: number;
-	currency: string;
-	byStatus: Record<PaymentIntentStatus, number>;
-	refundVolume: number;
-	refundCount: number;
-};
-
-type RevenueTransaction = {
-	id: string;
-	providerIntentId?: string | null;
-	email?: string | null;
-	customerId?: string | null;
-	orderId?: string | null;
-	amount: number;
-	currency: string;
-	status: PaymentIntentStatus;
-	createdAt: string;
-	updatedAt: string;
-};
+import {
+	isRevenueExportResult,
+	isRevenueStats,
+	isRevenueTransactionPage,
+	resolveRevenueQuery,
+} from "./revenue-stats";
 
 type DatePreset = "today" | "7d" | "30d" | "90d" | "all";
 
@@ -123,15 +99,20 @@ function StatCard({
 
 function OverviewTab({ preset }: { preset: DatePreset }) {
 	const api = useRevenueApi();
-	const range = presetToRange(preset);
+	const range = useMemo(() => presetToRange(preset), [preset]);
 
 	const { data, isLoading, isError } = api.getStats.useQuery(range) as {
-		data: RevenueStats | undefined;
+		data: unknown;
 		isLoading: boolean;
 		isError: boolean;
 	};
 
-	if (isError) {
+	const statsQuery = resolveRevenueQuery(
+		{ data, isError, isLoading },
+		isRevenueStats,
+	);
+
+	if (statsQuery.status === "unavailable") {
 		return (
 			<div
 				className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-center"
@@ -147,7 +128,7 @@ function OverviewTab({ preset }: { preset: DatePreset }) {
 		);
 	}
 
-	if (isLoading) {
+	if (statsQuery.status === "loading") {
 		return (
 			<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
 				{(["k0", "k1", "k2", "k3"] as const).map((key) => (
@@ -157,22 +138,7 @@ function OverviewTab({ preset }: { preset: DatePreset }) {
 		);
 	}
 
-	const stats = data ?? {
-		totalVolume: 0,
-		transactionCount: 0,
-		averageValue: 0,
-		currency: "USD",
-		byStatus: {
-			pending: 0,
-			processing: 0,
-			succeeded: 0,
-			failed: 0,
-			cancelled: 0,
-			refunded: 0,
-		},
-		refundVolume: 0,
-		refundCount: 0,
-	};
+	const stats: RevenueStats = statsQuery.data;
 
 	return (
 		<div className="space-y-6">
@@ -239,7 +205,8 @@ function TransactionsTab({ preset }: { preset: DatePreset }) {
 	const [statusFilter, setStatusFilter] = useState<string>("");
 	const [search, setSearch] = useState("");
 	const [searchInput, setSearchInput] = useState("");
-	const range = presetToRange(preset);
+	const [exportFailed, setExportFailed] = useState(false);
+	const range = useMemo(() => presetToRange(preset), [preset]);
 	const pageSize = 20;
 
 	const query: Record<string, string> = {
@@ -251,22 +218,36 @@ function TransactionsTab({ preset }: { preset: DatePreset }) {
 	if (search) query.search = search;
 
 	const { data, isLoading, isError } = api.listTransactions.useQuery(query) as {
-		data: { transactions: RevenueTransaction[]; total: number } | undefined;
+		data: unknown;
 		isLoading: boolean;
 		isError: boolean;
 	};
 
-	const transactions = data?.transactions ?? [];
-	const total = data?.total ?? 0;
+	const transactionsQuery = resolveRevenueQuery(
+		{ data, isError, isLoading },
+		isRevenueTransactionPage,
+	);
+	const transactionPage =
+		transactionsQuery.status === "ready" ? transactionsQuery.data : undefined;
+	const transactions = transactionPage?.transactions ?? [];
+	const total = transactionPage?.total ?? 0;
 	const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
 	const handleExport = async () => {
 		const exportQuery: Record<string, string> = { ...range };
 		if (statusFilter) exportQuery.status = statusFilter;
-		const result = (await api.exportTransactions.fetch(exportQuery)) as
-			| { csv: string; count: number }
-			| undefined;
-		if (!result?.csv) return;
+		let result: unknown;
+		try {
+			result = await api.exportTransactions.fetch(exportQuery);
+		} catch {
+			setExportFailed(true);
+			return;
+		}
+		if (!isRevenueExportResult(result)) {
+			setExportFailed(true);
+			return;
+		}
+		setExportFailed(false);
 
 		const blob = new Blob([result.csv], { type: "text/csv" });
 		const url = URL.createObjectURL(blob);
@@ -277,7 +258,7 @@ function TransactionsTab({ preset }: { preset: DatePreset }) {
 		URL.revokeObjectURL(url);
 	};
 
-	if (isError) {
+	if (transactionsQuery.status === "unavailable") {
 		return (
 			<div
 				className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-center"
@@ -295,6 +276,11 @@ function TransactionsTab({ preset }: { preset: DatePreset }) {
 
 	return (
 		<div className="space-y-4">
+			{exportFailed && (
+				<p className="text-destructive text-sm" role="alert">
+					Failed to export transactions
+				</p>
+			)}
 			<div className="flex flex-wrap items-center gap-3">
 				<div className="flex flex-1 items-center gap-2">
 					<input
@@ -417,7 +403,7 @@ function TransactionsTab({ preset }: { preset: DatePreset }) {
 						</tr>
 					</thead>
 					<tbody className="divide-y divide-border">
-						{isLoading ? (
+						{transactionsQuery.status === "loading" ? (
 							(["k0", "k1", "k2", "k3", "k4"] as const).map((key) => (
 								<tr key={key}>
 									{(["k0", "k1", "k2", "k3", "k4"] as const).map((key) => (

@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { getStoreName } from "~/lib/seo";
+import {
+	formatLegalPolicyRevisionDate,
+	legalPolicyRevisionDates,
+} from "../legal-policy-dates";
 import TermsPageClient from "../terms-page-client";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -11,11 +15,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function TermsPage() {
-	const lastUpdated = new Date().toLocaleDateString("en-US", {
-		year: "numeric",
-		month: "long",
-		day: "numeric",
-	});
+	const lastUpdated = formatLegalPolicyRevisionDate(
+		legalPolicyRevisionDates.terms,
+	);
 
 	return <TermsPageClient lastUpdated={lastUpdated} />;
 }

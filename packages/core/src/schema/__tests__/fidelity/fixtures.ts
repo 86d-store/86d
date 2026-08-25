@@ -259,19 +259,23 @@ export const FIDELITY_FIXTURES: readonly FidelityFixture[] = [
 	},
 	{
 		id: "zod.array",
-		description: "array → jsonb",
+		description: "bounded array → jsonb with array-length CHECK",
 		build: () => ({
 			moduleId: "cart",
 			tableName: "cart",
 			shape: z.object({
 				id: z.string().register(col, { pk: true }),
-				tags: z.array(z.string()),
+				tags: z.array(z.string()).max(5),
 			}),
 		}),
 		expectation: {
-			assert: (table) => {
+			assert: (table, sql) => {
 				const tags = table.columns.find((c) => c.name === "tags");
-				if (tags?.sqlType !== "jsonb") {
+				if (
+					tags?.sqlType !== "jsonb" ||
+					!sql.includes('jsonb_array_length("tags") <= 5') ||
+					sql.includes('char_length("tags")')
+				) {
 					throw new Error("zod.array fidelity failed");
 				}
 			},

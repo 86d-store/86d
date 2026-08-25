@@ -6,7 +6,7 @@ import {
 import type { Module } from "@86d-app/core/types/module";
 import {
 	applyModuleDdl,
-	type SqlExecutor,
+	type TransactionalSqlExecutor,
 } from "db/schema/apply-disposable-ddl";
 
 export type CompiledSchemaBundle = Readonly<{
@@ -26,7 +26,7 @@ export function compileInstalledModules(
 
 /** Apply compiled Module DDL idempotently against the Store database. */
 export async function applyCompiledModuleSchema(
-	executor: SqlExecutor,
+	executor: TransactionalSqlExecutor,
 	bundle: CompiledSchemaBundle,
 ): Promise<void> {
 	if (bundle.sql.trim().length === 0) {

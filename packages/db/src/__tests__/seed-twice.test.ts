@@ -5,7 +5,30 @@ import {
 import { PGlite } from "@electric-sql/pglite";
 import { describe, expect, it } from "vitest";
 import { loadCuratedModules } from "../load-curated-modules";
-import { applyDisposableDdl } from "../schema/apply-disposable-ddl";
+import {
+	applyDisposableDdl,
+	type TransactionalSqlExecutor,
+} from "../schema/apply-disposable-ddl";
+
+function pgliteExecutor(db: PGlite): TransactionalSqlExecutor {
+	const exec = async (statement: string) => {
+		await db.exec(statement);
+	};
+	return {
+		exec,
+		async transaction(run) {
+			await db.exec("BEGIN");
+			try {
+				const result = await run({ exec });
+				await db.exec("COMMIT");
+				return result;
+			} catch (error) {
+				await db.exec("ROLLBACK");
+				throw error;
+			}
+		},
+	};
+}
 
 async function snapshotSeedOwnedRows(db: PGlite): Promise<string> {
 	const tables = await db.query<{
@@ -77,11 +100,7 @@ describe("seed-twice curated compiled tables", () => {
 		expect(again).toBe(moduleSql);
 
 		const db = new PGlite();
-		const executor = {
-			async exec(statement: string) {
-				await db.exec(statement);
-			},
-		};
+		const executor = pgliteExecutor(db);
 
 		await applyDisposableDdl(executor, { moduleSql });
 

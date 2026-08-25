@@ -10,10 +10,14 @@ runs:
 
     - name: Build store
       shell: bash
+      env:
+        E2E_MERCHANT_UI_FIXTURES: "true"
       run: bun run build:store
 
     - name: Start store server
       shell: bash
+      env:
+        E2E_MERCHANT_UI_FIXTURES: "true"
       run: |
         cd apps/store && bun run start &
         echo $! > /tmp/store.pid

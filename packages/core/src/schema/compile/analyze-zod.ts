@@ -81,6 +81,12 @@ function zodChecksToSql(fieldName: string, schema: ZodType): string[] {
 	const checks: string[] = [];
 	const bounds = readFiniteChecks(schema);
 	const base = classifyZodBase(schema);
+	const lengthExpression =
+		base === "string"
+			? `char_length("${fieldName}")`
+			: base === "array"
+				? `jsonb_array_length("${fieldName}")`
+				: undefined;
 
 	if (bounds.minValue !== undefined) {
 		checks.push(`"${fieldName}" >= ${bounds.minValue}`);
@@ -88,15 +94,16 @@ function zodChecksToSql(fieldName: string, schema: ZodType): string[] {
 	if (bounds.maxValue !== undefined) {
 		checks.push(`"${fieldName}" <= ${bounds.maxValue}`);
 	}
-	if (bounds.minLength !== undefined) {
-		checks.push(`char_length("${fieldName}") >= ${bounds.minLength}`);
+	if (bounds.minLength !== undefined && lengthExpression) {
+		checks.push(`${lengthExpression} >= ${bounds.minLength}`);
 	}
 	// maxLength becomes varchar(N) column width; skip redundant CHECK when width set.
 	if (
 		bounds.maxLength !== undefined &&
+		lengthExpression &&
 		!(base === "string" && typeof bounds.maxLength === "number")
 	) {
-		checks.push(`char_length("${fieldName}") <= ${bounds.maxLength}`);
+		checks.push(`${lengthExpression} <= ${bounds.maxLength}`);
 	}
 
 	const enumValues = readEnumValues(schema);

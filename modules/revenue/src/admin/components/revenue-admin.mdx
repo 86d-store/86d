@@ -10,7 +10,7 @@
     <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-muted/50 p-1">
       {Object.entries(props.presetLabels).map(([key, label]) => (
         <button
-          key={i}
+          key={key}
           type="button"
           onClick={() => props.onPresetChange(key)}
           className={`rounded-md px-3 py-1.5 font-medium text-sm transition-colors ${

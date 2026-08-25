@@ -1,5 +1,7 @@
 import { expect } from "@playwright/test";
+import { getDeterministicAdminVisualResponse } from "./admin-visual-data";
 import { test } from "./fixtures/test-fixtures";
+import { createVisualApiTracker } from "./visual-api-tracker";
 
 /**
  * Visual regression tests — screenshot comparison across viewports.
@@ -24,15 +26,151 @@ const DEV_OVERLAY_CSS =
 
 const SCREENSHOT_OPTS = {
 	fullPage: true,
-	maxDiffPixelRatio: 0.02,
+	maxDiffPixelRatio: 0.005,
 	style: DEV_OVERLAY_CSS,
+	threshold: 0.15,
 };
+
+const VISUAL_FIXED_TIME = new Date("2026-08-25T12:00:00.000Z");
+const VISUAL_COPYRIGHT_YEAR = "2026";
+
+const visualApiTrackers = new WeakMap<
+	import("@playwright/test").Page,
+	ReturnType<typeof createVisualApiTracker>
+>();
+
+function installFailClosedVisualGuard(
+	page: import("@playwright/test").Page,
+	baseURL: string | undefined,
+) {
+	if (!baseURL) throw new Error("Visual tests require a configured baseURL");
+	const tracker = createVisualApiTracker(baseURL);
+	visualApiTrackers.set(page, tracker);
+
+	page.on("request", (request) => {
+		tracker.started(request, {
+			method: request.method(),
+			url: request.url(),
+		});
+	});
+
+	page.on("response", (response) => {
+		tracker.responded(response.request(), response.status());
+	});
+
+	page.on("requestfinished", (request) => {
+		tracker.finished(request);
+	});
+
+	page.on("requestfailed", (request) => {
+		tracker.failed(
+			request,
+			request.failure()?.errorText ?? "request failed without an error",
+		);
+	});
+}
+
+function beginVisualApiPhase(page: import("@playwright/test").Page) {
+	const tracker = visualApiTrackers.get(page);
+	if (!tracker) throw new Error("Visual API tracker is not installed");
+	tracker.beginPhase();
+}
+
+async function installDeterministicVisualWrites(
+	page: import("@playwright/test").Page,
+) {
+	await page.route("**/api/analytics/events", async (route) => {
+		if (route.request().method() !== "POST") {
+			await route.continue();
+			return;
+		}
+		await route.fulfill({
+			json: {
+				event: {
+					id: "visual_event_001",
+					type: "pageView",
+					data: {},
+					createdAt: VISUAL_FIXED_TIME.toISOString(),
+				},
+			},
+		});
+	});
+}
+
+const ADMIN_CLOCKED_VISUALS = new Set([
+	"admin dashboard",
+	"admin orders page",
+	"admin customers page",
+]);
+
+async function installDeterministicAdminVisualData(
+	page: import("@playwright/test").Page,
+) {
+	await page.route("**/api/admin/**", async (route) => {
+		if (route.request().method() !== "GET") {
+			await route.continue();
+			return;
+		}
+		const url = new URL(route.request().url());
+		const response = getDeterministicAdminVisualResponse(url.pathname, url);
+		if (!response) {
+			await route.continue();
+			return;
+		}
+		await route.fulfill({ json: response });
+	});
+}
 
 /** Navigate to a page and wait for it to fully settle. */
 async function stableGoto(page: import("@playwright/test").Page, path: string) {
 	await page.goto(path);
 	await page.waitForLoadState("load");
+	const copyright = page
+		.locator("footer span")
+		.filter({ hasText: /©\s+\d{4}/ })
+		.first();
+	if ((await copyright.count()) > 0) {
+		await copyright.evaluate((node, year) => {
+			node.textContent = node.textContent?.replace(/\b\d{4}\b/, year) ?? "";
+		}, VISUAL_COPYRIGHT_YEAR);
+	}
 }
+
+test.beforeEach(async ({ page }, testInfo) => {
+	installFailClosedVisualGuard(page, testInfo.project.use.baseURL);
+	await installDeterministicVisualWrites(page);
+});
+
+test.afterEach(async ({ page }) => {
+	const tracker = visualApiTrackers.get(page);
+	if (!tracker) {
+		throw new Error("Visual API tracker is not installed");
+	}
+	await expect
+		.poll(() => tracker.pendingIssues(), {
+			message: "Visual API requests must settle before teardown",
+			timeout: 10_000,
+		})
+		.toEqual([]);
+	const apiFailures = tracker.issues();
+	visualApiTrackers.delete(page);
+	const moduleBoundaries = await page
+		.getByText(/^Module "[^"]+" encountered an error$/)
+		.allTextContents();
+	const runtimeFailures = [
+		...apiFailures.map(
+			({ method, path, failure }) => `${method} ${path}: ${failure}`,
+		),
+		...moduleBoundaries.map(
+			(text) => `Rendered error boundary: ${text.trim()}`,
+		),
+	];
+
+	expect(
+		runtimeFailures,
+		"Visual runtime failures must block snapshots",
+	).toEqual([]);
+});
 
 // ─── Core storefront pages ──────────────────────────────────────────────────
 
@@ -200,18 +338,21 @@ test.describe("Storefront — Visual", () => {
 	});
 
 	test("appointments page", async ({ page }) => {
+		await page.clock.setFixedTime(VISUAL_FIXED_TIME);
 		await stableGoto(page, "/appointments");
 		await expect(page.locator("main")).toBeVisible({ timeout: 10_000 });
 		await expect(page).toHaveScreenshot("appointments.png", SCREENSHOT_OPTS);
 	});
 
 	test("delivery slots page", async ({ page }) => {
+		await page.clock.setFixedTime(VISUAL_FIXED_TIME);
 		await stableGoto(page, "/delivery-slots");
 		await expect(page.locator("main")).toBeVisible({ timeout: 10_000 });
 		await expect(page).toHaveScreenshot("delivery-slots.png", SCREENSHOT_OPTS);
 	});
 
 	test("store pickup page", async ({ page }) => {
+		await page.clock.setFixedTime(VISUAL_FIXED_TIME);
 		await stableGoto(page, "/store-pickup");
 		await expect(page.locator("main")).toBeVisible({ timeout: 10_000 });
 		await expect(page).toHaveScreenshot("store-pickup.png", SCREENSHOT_OPTS);
@@ -384,10 +525,7 @@ test.describe("Storefront — Cart drawer", () => {
 		await expect(
 			page.locator('[role="dialog"][aria-label="Shopping cart"]'),
 		).toBeVisible({ timeout: 5_000 });
-		await expect(page).toHaveScreenshot("cart-drawer.png", {
-			maxDiffPixelRatio: 0.02,
-			style: DEV_OVERLAY_CSS,
-		});
+		await expect(page).toHaveScreenshot("cart-drawer.png", SCREENSHOT_OPTS);
 	});
 });
 
@@ -403,12 +541,23 @@ test.describe("Admin — Visual", () => {
 // ─── Authenticated admin pages ───────────────────────────────────────────────
 
 test.describe("Admin — Authenticated Visual", () => {
-	test.beforeEach(async ({ admin }) => {
-		await admin.signIn();
+	test.beforeEach(async ({ admin }, testInfo) => {
+		await installDeterministicAdminVisualData(admin.page);
+		if (ADMIN_CLOCKED_VISUALS.has(testInfo.title)) {
+			await admin.page.clock.setFixedTime(VISUAL_FIXED_TIME);
+		}
+		await admin.applyStoredAdminSession();
+		beginVisualApiPhase(admin.page);
 	});
 
 	test("admin dashboard", async ({ admin }) => {
-		await admin.page.waitForLoadState("load");
+		await admin.page.goto("/admin");
+		await expect(
+			admin.page.getByText("#VISUAL-001", { exact: true }),
+		).toBeVisible();
+		await expect(
+			admin.page.getByText("House Blend Coffee", { exact: true }),
+		).toBeVisible();
 		await expect(admin.page).toHaveScreenshot(
 			"admin-dashboard.png",
 			SCREENSHOT_OPTS,
@@ -426,7 +575,9 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin orders page", async ({ admin }) => {
 		await admin.page.goto("/admin/orders");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page.getByText("VISUAL-001", { exact: true }),
+		).toBeVisible();
 		await expect(admin.page).toHaveScreenshot(
 			"admin-orders.png",
 			SCREENSHOT_OPTS,
@@ -435,7 +586,9 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin customers page", async ({ admin }) => {
 		await admin.page.goto("/admin/customers");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page.getByText("visual@example.com", { exact: true }),
+		).toBeVisible();
 		await expect(admin.page).toHaveScreenshot(
 			"admin-customers.png",
 			SCREENSHOT_OPTS,
@@ -445,6 +598,13 @@ test.describe("Admin — Authenticated Visual", () => {
 	test("admin announcements list", async ({ admin }) => {
 		await admin.page.goto("/admin/announcements");
 		await admin.page.waitForLoadState("load");
+		const main = admin.page.locator("#admin-main");
+		await expect(
+			main.getByText("No announcements yet", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(main.getByText("Click rate", { exact: true })).toBeVisible({
+			timeout: 15_000,
+		});
 		await expect(admin.page).toHaveScreenshot(
 			"admin-announcements-list.png",
 			SCREENSHOT_OPTS,
@@ -502,7 +662,9 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin stripe settings", async ({ admin }) => {
 		await admin.page.goto("/admin/stripe");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page.getByText("Supported Events", { exact: true }),
+		).toBeVisible();
 		await expect(admin.page).toHaveScreenshot(
 			"admin-stripe-settings.png",
 			SCREENSHOT_OPTS,
@@ -529,7 +691,12 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin checkout sessions", async ({ admin }) => {
 		await admin.page.goto("/admin/checkout");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page.getByText("No checkout sessions found", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(
+			admin.page.getByText("Total Sessions", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
 		await expect(admin.page).toHaveScreenshot(
 			"admin-checkout-sessions.png",
 			SCREENSHOT_OPTS,
@@ -538,7 +705,11 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin blog posts", async ({ admin }) => {
 		await admin.page.goto("/admin/blog");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page
+				.locator("#admin-main")
+				.getByText("No posts found", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
 		await expect(admin.page).toHaveScreenshot(
 			"admin-blog-posts.png",
 			SCREENSHOT_OPTS,
@@ -574,7 +745,13 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin collections list", async ({ admin }) => {
 		await admin.page.goto("/admin/collections");
-		await admin.page.waitForLoadState("load");
+		const main = admin.page.locator("#admin-main");
+		await expect(
+			main.getByText("No collections found", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(main.getByText("Products", { exact: true })).toBeVisible({
+			timeout: 15_000,
+		});
 		await expect(admin.page).toHaveScreenshot(
 			"admin-collections-list.png",
 			SCREENSHOT_OPTS,
@@ -681,7 +858,11 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin newsletter list", async ({ admin }) => {
 		await admin.page.goto("/admin/newsletter");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page
+				.locator("#admin-main")
+				.getByText("No subscribers found", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
 		await expect(admin.page).toHaveScreenshot(
 			"admin-newsletter-list.png",
 			SCREENSHOT_OPTS,
@@ -728,7 +909,11 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin media library", async ({ admin }) => {
 		await admin.page.goto("/admin/media");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page
+				.locator("#admin-main")
+				.getByText("No assets found", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
 		await expect(admin.page).toHaveScreenshot(
 			"admin-media-library.png",
 			SCREENSHOT_OPTS,
@@ -748,7 +933,12 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin revenue overview", async ({ admin }) => {
 		await admin.page.goto("/admin/revenue");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page.getByText("Total Revenue", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(
+			admin.page.getByText("By Status", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
 		await expect(admin.page).toHaveScreenshot(
 			"admin-revenue-overview.png",
 			SCREENSHOT_OPTS,
@@ -757,7 +947,12 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin analytics overview", async ({ admin }) => {
 		await admin.page.goto("/admin/analytics");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page.getByText("Total Events", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(admin.page.getByText("Loading…", { exact: true })).toBeHidden({
+			timeout: 15_000,
+		});
 		await expect(admin.page).toHaveScreenshot(
 			"admin-analytics-overview.png",
 			SCREENSHOT_OPTS,
@@ -844,7 +1039,9 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin carts list", async ({ admin }) => {
 		await admin.page.goto("/admin/carts");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page.getByText("No carts found", { exact: true }),
+		).toBeVisible();
 		await expect(admin.page).toHaveScreenshot(
 			"admin-carts-list.png",
 			SCREENSHOT_OPTS,
@@ -853,7 +1050,12 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin abandoned carts list", async ({ admin }) => {
 		await admin.page.goto("/admin/abandoned-carts");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page.getByText("No abandoned carts found.", { exact: true }),
+		).toBeVisible();
+		await expect(
+			admin.page.getByText("Recovery Rate", { exact: true }),
+		).toBeVisible();
 		await expect(admin.page).toHaveScreenshot(
 			"admin-abandoned-carts-list.png",
 			SCREENSHOT_OPTS,
@@ -862,7 +1064,11 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin payments list", async ({ admin }) => {
 		await admin.page.goto("/admin/payments");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page
+				.locator("#admin-main")
+				.getByText("No payment intents found", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
 		await expect(admin.page).toHaveScreenshot(
 			"admin-payments-list.png",
 			SCREENSHOT_OPTS,
@@ -1003,7 +1209,11 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin cms pages list", async ({ admin }) => {
 		await admin.page.goto("/admin/pages");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page
+				.locator("#admin-main")
+				.getByText("No pages found", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
 		await expect(admin.page).toHaveScreenshot(
 			"admin-pages-list.png",
 			SCREENSHOT_OPTS,
@@ -1021,7 +1231,19 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin sitemap settings", async ({ admin }) => {
 		await admin.page.goto("/admin/sitemap");
-		await admin.page.waitForLoadState("load");
+		const main = admin.page.locator("#admin-main");
+		await expect(
+			main.getByText(
+				"No sitemap entries yet. Click Regenerate to build the sitemap from your store data.",
+				{ exact: true },
+			),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(main.getByText("Configuration", { exact: true })).toBeVisible({
+			timeout: 15_000,
+		});
+		await expect(main.getByText("Total URLs", { exact: true })).toBeVisible({
+			timeout: 15_000,
+		});
 		await expect(admin.page).toHaveScreenshot(
 			"admin-sitemap-settings.png",
 			SCREENSHOT_OPTS,
@@ -1041,7 +1263,9 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin paypal settings", async ({ admin }) => {
 		await admin.page.goto("/admin/paypal");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page.getByText("Supported Events", { exact: true }),
+		).toBeVisible();
 		await expect(admin.page).toHaveScreenshot(
 			"admin-paypal-settings.png",
 			SCREENSHOT_OPTS,
@@ -1050,7 +1274,9 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin square settings", async ({ admin }) => {
 		await admin.page.goto("/admin/square");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page.getByText("Supported Events", { exact: true }),
+		).toBeVisible();
 		await expect(admin.page).toHaveScreenshot(
 			"admin-square-settings.png",
 			SCREENSHOT_OPTS,
@@ -1059,7 +1285,9 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin braintree settings", async ({ admin }) => {
 		await admin.page.goto("/admin/braintree");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page.getByText("Supported Events", { exact: true }),
+		).toBeVisible();
 		await expect(admin.page).toHaveScreenshot(
 			"admin-braintree-settings.png",
 			SCREENSHOT_OPTS,
@@ -1215,6 +1443,20 @@ test.describe("Admin — Authenticated Visual", () => {
 	test("admin google shopping settings", async ({ admin }) => {
 		await admin.page.goto("/admin/google-shopping");
 		await admin.page.waitForLoadState("load");
+		const main = admin.page.locator("#admin-main");
+		await expect(main.getByText("Not Configured", { exact: true })).toBeVisible(
+			{
+				timeout: 15_000,
+			},
+		);
+		await expect(main.getByText("No feed items", { exact: true })).toBeVisible({
+			timeout: 15_000,
+		});
+		await expect(
+			main.getByText("Awaiting review", { exact: true }),
+		).toBeVisible({
+			timeout: 15_000,
+		});
 		await expect(admin.page).toHaveScreenshot(
 			"admin-google-shopping-settings.png",
 			SCREENSHOT_OPTS,
@@ -1241,7 +1483,13 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin notifications list", async ({ admin }) => {
 		await admin.page.goto("/admin/notifications");
-		await admin.page.waitForLoadState("load");
+		const main = admin.page.locator("#admin-main");
+		await expect(
+			main.getByText("No notifications found", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(
+			main.getByText("0 total, 0 unread", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
 		await expect(admin.page).toHaveScreenshot(
 			"admin-notifications-list.png",
 			SCREENSHOT_OPTS,
@@ -1388,8 +1636,9 @@ test.describe("Admin — Authenticated Visual", () => {
 
 test.describe("Account — Visual", () => {
 	test.beforeEach(async ({ admin }) => {
-		// Sign in as the seeded admin user — same session works for the storefront account section
-		await admin.signIn();
+		// Reuse the seeded admin session for the storefront account section.
+		await admin.applyStoredAdminSession();
+		beginVisualApiPhase(admin.page);
 	});
 
 	test("account home page", async ({ admin }) => {
@@ -1556,7 +1805,15 @@ test.describe("Account — Visual", () => {
 
 	test("account transactions page", async ({ admin }) => {
 		await admin.page.goto("/account/transactions");
-		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page.getByText("No transactions found", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(
+			admin.page.getByText("Failed to load transactions", { exact: true }),
+		).toHaveCount(0);
+		await expect(
+			admin.page.getByText(/^Module "[^"]+" encountered an error$/),
+		).toHaveCount(0);
 		await expect(admin.page).toHaveScreenshot(
 			"account-transactions.png",
 			SCREENSHOT_OPTS,

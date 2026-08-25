@@ -1,4 +1,8 @@
 import { expect } from "@playwright/test";
+import {
+	assertCanonicalBasePriceRequest,
+	createExactlyOnceRequestRecorder,
+} from "./fixtures/exact-request-recorder";
 import { test } from "./fixtures/test-fixtures";
 
 test.describe("Storefront — Homepage", () => {
@@ -211,6 +215,45 @@ test.describe("Storefront — Product detail", () => {
 	});
 });
 
+test.describe("Storefront — Bulk Pricing", () => {
+	test("requests product tiers once with canonical base price cents", async ({
+		storefront,
+	}) => {
+		const tierRequests = createExactlyOnceRequestRecorder("bulk pricing tiers");
+		const isTierRequest = (rawUrl: string) => {
+			const url = new URL(rawUrl);
+			return (
+				url.pathname.startsWith("/api/bulk-pricing/product/") &&
+				url.pathname.endsWith("/tiers")
+			);
+		};
+		storefront.page.on("request", (request) => {
+			if (isTierRequest(request.url())) {
+				tierRequests.record(request.url());
+			}
+		});
+		const tierResponsePromise = storefront.page.waitForResponse((response) =>
+			isTierRequest(response.url()),
+		);
+
+		await storefront.navigateToFirstInStockProduct();
+		const tierResponse = await tierResponsePromise;
+		expect(
+			tierResponse.ok(),
+			`Bulk Pricing tiers returned HTTP ${tierResponse.status()}`,
+		).toBe(true);
+
+		const capturedRequests = tierRequests.all();
+		expect(capturedRequests).toHaveLength(1);
+		for (const requestUrl of capturedRequests) {
+			expect(
+				assertCanonicalBasePriceRequest(requestUrl),
+			).toBeGreaterThanOrEqual(0);
+		}
+		expect(tierRequests.only()).toEqual(capturedRequests[0]);
+	});
+});
+
 test.describe("Storefront — Cart", () => {
 	test("opens an empty cart drawer", async ({ storefront }) => {
 		await storefront.goto("/");
@@ -231,68 +274,14 @@ test.describe("Storefront — Cart", () => {
 	test("adding a product from detail opens cart with item", async ({
 		storefront,
 	}) => {
-		/* Go to a product detail page */
-		await storefront.navigateToProducts();
-		await expect(storefront.allProductCards.first()).toBeVisible({
-			timeout: 15_000,
-		});
-		await storefront.allProductCards.first().click();
-		await storefront.page.waitForURL(/\/products\/.+/);
-		await storefront.page.waitForLoadState("load");
-		/* Check if product is in stock */
-		const addButton = storefront.page
-			.locator("button")
-			.filter({ hasText: "Add to cart" });
-		const isInStock = await addButton.isVisible().catch(() => false);
-		if (!isInStock) {
-			test(true, "First product is out of stock");
-			return;
-		}
-		/* Add to cart — capture the POST response */
-		const cartResponsePromise = storefront.page.waitForResponse(
-			(resp) =>
-				resp.url().includes("/api/cart") && resp.request().method() === "POST",
-			{ timeout: 10_000 },
-		);
-		await addButton.click();
-		const cartResponse = await cartResponsePromise;
-		const body = await cartResponse.text();
-		expect(
-			cartResponse.status(),
-			`Cart POST returned ${cartResponse.status()}: ${body}`,
-		).toBe(200);
-		/* Cart drawer opens automatically on successful add — wait for it */
-		await expect(storefront.cartDrawer).toBeVisible({ timeout: 5_000 });
-		/* Should have at least one item */
-		const items = storefront.cartItems;
-		await expect(items.first()).toBeVisible({ timeout: 5_000 });
+		await storefront.addFirstInStockProductToCart();
+		await expect(storefront.cartItems.first()).toBeVisible();
 	});
 
 	test("cart drawer shows checkout link when items present", async ({
 		storefront,
 	}) => {
-		/* Navigate to product and add to cart */
-		await storefront.navigateToProducts();
-		await expect(storefront.allProductCards.first()).toBeVisible({
-			timeout: 15_000,
-		});
-		await storefront.allProductCards.first().click();
-		await storefront.page.waitForURL(/\/products\/.+/);
-		await storefront.page.waitForLoadState("load");
-		const addButton = storefront.page
-			.locator("button")
-			.filter({ hasText: "Add to cart" });
-		const isInStock = await addButton.isVisible().catch(() => false);
-		if (!isInStock) {
-			test(true, "First product is out of stock");
-			return;
-		}
-		await addButton.click();
-		/* Wait for mutation success — cart drawer opens automatically */
-		await expect(
-			storefront.page.locator("button").filter({ hasText: /Added!|Adding/ }),
-		).toBeVisible({ timeout: 5_000 });
-		await expect(storefront.cartDrawer).toBeVisible({ timeout: 5_000 });
+		await storefront.addFirstInStockProductToCart();
 		/* Checkout link should be visible */
 		await expect(storefront.checkoutLink).toBeVisible();
 		await expect(storefront.checkoutLink).toHaveAttribute("href", "/checkout");
@@ -384,6 +373,82 @@ test.describe("Storefront — Unauthenticated account", () => {
 });
 
 // ─── Module storefront pages ─────────────────────────────────────────────────
+
+test.describe("Storefront — Store Pickup", () => {
+	test("requests windows only after selecting a location", async ({ page }) => {
+		const locationId = "downtown/location 1";
+		const windowsRequests = createExactlyOnceRequestRecorder("pickup windows");
+		const isWindowsRequest = (rawUrl: string) => {
+			const url = new URL(rawUrl);
+			return (
+				url.pathname.startsWith("/api/store-pickup/locations/") &&
+				url.pathname.endsWith("/windows")
+			);
+		};
+
+		await page.clock.setFixedTime(new Date("2026-08-25T12:00:00.000Z"));
+		page.on("request", (request) => {
+			if (isWindowsRequest(request.url())) {
+				windowsRequests.record(request.url());
+			}
+		});
+
+		await page.route("**/api/store-pickup/locations", async (route) => {
+			await route.fulfill({
+				json: {
+					locations: [
+						{
+							id: locationId,
+							name: "Downtown",
+							address: "100 Main Street",
+							city: "Chicago",
+							state: "IL",
+							postalCode: "60601",
+							country: "US",
+							preparationMinutes: 30,
+						},
+					],
+				},
+			});
+		});
+		await page.route(
+			"**/api/store-pickup/locations/**/windows?*",
+			async (route) => {
+				await route.fulfill({ json: { windows: [] } });
+			},
+		);
+
+		await page.goto("/store-pickup");
+		const locationSelect = page.getByLabel("Location");
+		await expect(locationSelect).toHaveValue("");
+		expect(windowsRequests.all()).toHaveLength(0);
+
+		const windowsResponsePromise = page.waitForResponse((response) =>
+			isWindowsRequest(response.url()),
+		);
+		await locationSelect.selectOption(locationId);
+		const windowsResponse = await windowsResponsePromise;
+		expect(
+			windowsResponse.ok(),
+			`Store Pickup windows returned HTTP ${windowsResponse.status()}`,
+		).toBe(true);
+		await expect(
+			page.getByText("No pickup windows available for this date."),
+		).toBeVisible();
+
+		const expectedRequest =
+			"/api/store-pickup/locations/downtown%2Flocation%201/windows?date=2026-08-25";
+		expect(
+			windowsRequests
+				.all()
+				.map((requestUrl) => `${requestUrl.pathname}${requestUrl.search}`),
+		).toEqual([expectedRequest]);
+		const finalRequest = windowsRequests.only();
+		expect(`${finalRequest.pathname}${finalRequest.search}`).toBe(
+			expectedRequest,
+		);
+	});
+});
 
 test.describe("Storefront — Module Pages", () => {
 	const modulePaths = [

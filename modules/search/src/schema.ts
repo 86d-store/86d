@@ -27,7 +27,7 @@ export const searchSearchQueryShape = z.object({
 export const searchSearchSynonymShape = z.object({
 	id: z.string().register(col, { pk: true }),
 	term: z.string(),
-	synonyms: z.record(z.string(), z.unknown()),
+	synonyms: z.array(z.string().min(1).max(200)).min(1).max(50),
 	createdAt: z.coerce.date().default(() => new Date()),
 });
 

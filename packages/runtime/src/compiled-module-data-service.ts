@@ -592,8 +592,6 @@ export class CompiledModuleDataService<
 				input: DurableEventInput<D>,
 			): Promise<DurableEventEnvelope<D>> =>
 				this.persistEvent(db, definition, input),
-			getForUpdate: (entityType: string, entityId: string) =>
-				ownerData.getForUpdate(entityType, entityId),
 		});
 	}
 

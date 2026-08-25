@@ -1,5 +1,5 @@
 name: Update visual snapshots
-description: Regenerate Playwright visual snapshots and commit on main
+description: Regenerate Playwright visual snapshots locally without publishing
 
 runs:
   using: composite
@@ -10,19 +10,4 @@ runs:
 
     - name: Regenerate visual snapshots
       shell: bash
-      run: bunx playwright test visual.spec.ts --config tests/playwright.config.ts --update-snapshots
-
-    - name: Commit updated visual snapshots
-      shell: bash
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git add tests/e2e/visual.spec.ts-snapshots/
-        if git diff --staged --quiet; then
-          echo "No visual snapshot changes to commit."
-          exit 0
-        fi
-        # scope-empty is required by commitlint; [skip ci] avoids a redundant CI loop.
-        git commit -m "chore(ci): update visual snapshots [skip ci]"
-        # Working-tree snapshots are enough for the same-job re-test; push is best-effort.
-        git push || echo "::warning::Failed to push updated visual snapshots; re-test will still use the regenerated files."
+      run: bunx playwright test visual.spec.ts merchant-ui-fixtures.spec.ts --config tests/playwright.config.ts --update-snapshots=all

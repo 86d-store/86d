@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import type { Pool } from "pg";
 
 function packageRoot(): string {
 	const here =
@@ -104,14 +105,55 @@ export type SqlExecutor = Readonly<{
 	exec(statement: string): Promise<void>;
 }>;
 
+export type TransactionalSqlExecutor = SqlExecutor &
+	Readonly<{
+		transaction<T>(run: (executor: SqlExecutor) => Promise<T>): Promise<T>;
+	}>;
+
+const MODULE_DDL_ADVISORY_LOCK = 86_000_001;
+
+export function createPostgresTransactionalExecutor(
+	pool: Pool,
+): TransactionalSqlExecutor {
+	return {
+		async exec(statement: string) {
+			await pool.query(statement);
+		},
+		async transaction<T>(run: (executor: SqlExecutor) => Promise<T>) {
+			const client = await pool.connect();
+			const transaction = {
+				async exec(statement: string) {
+					await client.query(statement);
+				},
+			};
+			try {
+				await client.query("BEGIN");
+				const result = await run(transaction);
+				await client.query("COMMIT");
+				return result;
+			} catch (error) {
+				await client.query("ROLLBACK");
+				throw error;
+			} finally {
+				client.release();
+			}
+		},
+	};
+}
+
 /** Apply compiled module DDL (from emitSql) to a disposable database. */
 export async function applyModuleDdl(
-	executor: SqlExecutor,
+	executor: TransactionalSqlExecutor,
 	sql: string,
 ): Promise<void> {
-	for (const statement of splitModuleDdlStatements(sql)) {
-		await executor.exec(statement);
-	}
+	await executor.transaction(async (transaction) => {
+		await transaction.exec(
+			`SELECT pg_advisory_xact_lock(${MODULE_DDL_ADVISORY_LOCK});`,
+		);
+		for (const statement of splitModuleDdlStatements(sql)) {
+			await transaction.exec(statement);
+		}
+	});
 }
 
 /** Apply ordered framework Drizzle migrations (baseline through current). */
@@ -147,7 +189,7 @@ export async function applyFrameworkMigrations(
 
 /** Apply core migration then module DDL; safe to call twice on disposable Postgres. */
 export async function applyDisposableDdl(
-	executor: SqlExecutor,
+	executor: TransactionalSqlExecutor,
 	options: Readonly<{ moduleSql?: string }> = {},
 ): Promise<void> {
 	for (const statement of loadCoreMigration()) {

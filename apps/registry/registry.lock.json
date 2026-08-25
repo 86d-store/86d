@@ -1,6 +1,6 @@
 {
   "lockfileVersion": 1,
-  "generatedAt": "2026-08-24T22:00:24.634Z",
+  "generatedAt": "2026-08-25T15:15:11.412Z",
   "modules": {
     "abandoned-carts": {
       "source": "local",
@@ -27,7 +27,7 @@
       "source": "local",
       "packageName": "@86d-app/analytics",
       "version": "0.0.42",
-      "integrity": "sha256-18a53fe159fe286d6cf75722280c0ee1466398917990b9bf2044e67bc79b4087",
+      "integrity": "sha256-2b9229c6e9d7e3f04cfb6195c0007ae5ebf5635d7236bb0a822e40aa2fa2ab98",
       "localPath": "modules/analytics"
     },
     "announcements": {
@@ -440,7 +440,7 @@
       "source": "local",
       "packageName": "@86d-app/products",
       "version": "0.0.42",
-      "integrity": "sha256-bd5faa61a9bd2ccf58165f40b5944f750fe187fd96cc42520269e19d31200450",
+      "integrity": "sha256-a771a2e224996f4076e50b537ab15afb4f7214c49c96c595bffe5bc7a23a31e0",
       "localPath": "modules/products"
     },
     "qr-code": {
@@ -496,14 +496,14 @@
       "source": "local",
       "packageName": "@86d-app/revenue",
       "version": "0.0.42",
-      "integrity": "sha256-1df17312b2f80b0223d9a1d440975069daccd74017d1c0268cb8e529dfe89eee",
+      "integrity": "sha256-51bc454bb9d8ec3924a305da79a5deffda4ee06891de180d9f9865689f2a166a",
       "localPath": "modules/revenue"
     },
     "reviews": {
       "source": "local",
       "packageName": "@86d-app/reviews",
       "version": "0.0.42",
-      "integrity": "sha256-f9453b80ae8e9b3893ddfdfa7bab2cd8f999ab34ae5f16675ac8ae5e02580b12",
+      "integrity": "sha256-80c1c3f4c56fd1014b857635446c71ffd34e20ed2449c679ac2488dd30350b63",
       "localPath": "modules/reviews"
     },
     "saved-addresses": {
@@ -517,7 +517,7 @@
       "source": "local",
       "packageName": "@86d-app/search",
       "version": "0.0.42",
-      "integrity": "sha256-0e959ab9206cf076023b401ed51865fc46dac6d763201334ab02b1de8d504d81",
+      "integrity": "sha256-d7b57bbf1f58d84d90fcb1ae7371a568d1dd5d29c75fffb622b07ffa181537a0",
       "localPath": "modules/search"
     },
     "seo": {
@@ -587,7 +587,7 @@
       "source": "local",
       "packageName": "@86d-app/store-pickup",
       "version": "0.0.42",
-      "integrity": "sha256-6d441315a556593df9f6cec6fe0f8472309100f683505fb7c64f281686892ebb",
+      "integrity": "sha256-eac9ac5c9f3fc1591d974716a06aca608dd8e81a7a42d8fae436cc4d45be152f",
       "localPath": "modules/store-pickup"
     },
     "stripe": {

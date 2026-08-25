@@ -29,6 +29,7 @@ import { loadCuratedModules } from "../src/load-curated-modules.ts";
 import {
 	applyDisposableDdl,
 	applyModuleDdl,
+	createPostgresTransactionalExecutor,
 } from "../src/schema/apply-disposable-ddl.ts";
 
 const scriptRoot = resolve(fileURLToPath(new URL(".", import.meta.url)));
@@ -240,11 +241,7 @@ async function main(): Promise<void> {
 			"curated compile must emit isolation roles",
 		);
 
-		const executor = {
-			async exec(statement: string) {
-				await client.query(statement);
-			},
-		};
+		const executor = createPostgresTransactionalExecutor(pool);
 		await applyDisposableDdl(executor, { moduleSql: curatedReport.sql });
 
 		const matrix = JSON.parse(

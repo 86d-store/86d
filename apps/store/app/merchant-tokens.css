@@ -105,8 +105,8 @@
 	--primary-step-950: var(--primary-950);
 	--primary-step-1000: var(--primary-1000);
 
-	--primary: var(--primary-step-500);
-	--primary-foreground: var(--primary-25);
+	--primary: var(--primary-step-800);
+	--primary-foreground: var(--primary-step-25);
 
 	--caution-step-25: var(--caution-25);
 	--caution-step-50: var(--caution-50);
@@ -168,7 +168,7 @@
 	--secondary: var(--neutral-step-100);
 	--secondary-foreground: var(--neutral-step-900);
 	--muted: var(--neutral-step-100);
-	--muted-foreground: var(--neutral-step-500);
+	--muted-foreground: var(--neutral-step-600);
 	--accent: var(--neutral-step-200);
 	--accent-foreground: var(--neutral-step-900);
 	--border: var(--neutral-step-200);

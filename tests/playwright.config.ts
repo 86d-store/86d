@@ -146,6 +146,9 @@ export default defineConfig({
 		? {
 				webServer: {
 					command: "bun run dev:store",
+					env: {
+						E2E_MERCHANT_UI_FIXTURES: "true",
+					},
 					url: STORE_URL,
 					reuseExistingServer: true,
 					timeout: 120_000,
