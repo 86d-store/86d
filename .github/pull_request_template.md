@@ -15,6 +15,8 @@
 - [ ] Changeset added when a published package or Module API changes (`bunx changeset`)
 - [ ] Security-relevant changes follow [SECURITY.md](../SECURITY.md) (no public exploit detail)
 
+Module and lockfile pull requests trigger automated lock sync in CI. Manual `bun run regen:locks` is needed only when the sync bot comments about unresolved non-lock conflicts or for fork pull requests without `REPO_SYNC_TOKEN`.
+
 Agents never push. Leave remote publication to a human operator.
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full guide.

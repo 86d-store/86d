@@ -1,0 +1,167 @@
+name: Sync PR lockfiles
+description: Rebase a pull request onto its base branch and regenerate lockfiles
+
+inputs:
+  base-ref:
+    description: Base branch ref to rebase onto
+    required: true
+  head-repo:
+    description: Full name of the pull request head repository
+    required: true
+  repository:
+    description: Full name of the repository receiving the pull request
+    required: true
+  pr-number:
+    description: Pull request number for comments
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Skip fork pull requests without sync token
+      id: fork_gate
+      shell: bash
+      env:
+        HEAD_REPO: ${{ inputs.head-repo }}
+        REPOSITORY: ${{ inputs.repository }}
+        REPO_SYNC_TOKEN: ${{ env.REPO_SYNC_TOKEN }}
+      run: |
+        set -euo pipefail
+        if [ "$HEAD_REPO" != "$REPOSITORY" ] && [ -z "${REPO_SYNC_TOKEN:-}" ]; then
+          echo "skip=true" >> "$GITHUB_OUTPUT"
+          echo "Fork pull request without REPO_SYNC_TOKEN; skipping automated lock sync."
+        else
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Comment on fork pull requests without sync token
+      if: steps.fork_gate.outputs.skip == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+        REPOSITORY: ${{ inputs.repository }}
+      run: |
+        set -euo pipefail
+        gh pr comment "$PR_NUMBER" --repo "$REPOSITORY" --body "$(cat <<'EOF'
+        Automated lockfile sync skipped for fork pull requests.
+
+        To refresh lockfiles locally after rebasing onto the base branch:
+
+        ```bash
+        git fetch origin
+        git rebase origin/main
+        bun run regen:locks
+        git commit -am "chore(repo): sync lockfiles after rebase"
+        git push --force-with-lease
+        ```
+
+        One-time setup for local merge conflicts:
+
+        ```bash
+        sh internals/scripts/configure-git-merge-drivers.sh
+        ```
+        EOF
+        )"
+
+    - name: Configure git merge drivers
+      if: steps.fork_gate.outputs.skip != 'true'
+      shell: bash
+      run: sh internals/scripts/configure-git-merge-drivers.sh
+
+    - name: Rebase and regenerate lockfiles
+      if: steps.fork_gate.outputs.skip != 'true'
+      id: rebase
+      shell: bash
+      env:
+        BASE_REF: ${{ inputs.base-ref }}
+        GIT_LITERAL_PATHSPECS: "1"
+      run: |
+        set -euo pipefail
+
+        git fetch origin "$BASE_REF"
+
+        behind_count="$(git rev-list --count "HEAD..origin/${BASE_REF}" || echo 0)"
+        if [ "$behind_count" -eq 0 ]; then
+          echo "Pull request branch is up to date with origin/${BASE_REF}."
+          echo "pushed=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        rebase_lock_conflicts() {
+          bun run regen:locks
+          git add apps/registry/registry.lock.json bun.lock
+          GIT_EDITOR=true git rebase --continue
+        }
+
+        if ! git rebase "origin/${BASE_REF}"; then
+          conflicted_files="$(git diff --name-only --diff-filter=U || true)"
+          non_lock_conflicts="$(printf '%s\n' "$conflicted_files" | grep -Ev '^(apps/registry/registry\.lock\.json|bun\.lock)$' | sed '/^$/d' || true)"
+
+          if [ -n "$non_lock_conflicts" ]; then
+            git rebase --abort || true
+            {
+              echo "conflicted=true"
+              echo "pushed=false"
+              echo "conflicted_files<<EOF"
+              printf '%s\n' "$conflicted_files"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if ! rebase_lock_conflicts; then
+            git rebase --abort || true
+            echo "Failed to continue rebase after lockfile regeneration." >&2
+            exit 1
+          fi
+        fi
+
+        bun run regen:locks
+        bun run generate:modules -- --frozen
+
+        if ! git diff --quiet -- apps/registry/registry.lock.json bun.lock || ! git diff --cached --quiet -- apps/registry/registry.lock.json bun.lock; then
+          git add apps/registry/registry.lock.json bun.lock
+          git commit -m "$(cat <<'EOF'
+        chore(repo): sync lockfiles after rebase
+
+        [skip ci]
+        EOF
+        )"
+        fi
+
+        echo "conflicted=false" >> "$GITHUB_OUTPUT"
+        echo "pushed=true" >> "$GITHUB_OUTPUT"
+
+    - name: Comment when non-lock conflicts remain
+      if: steps.fork_gate.outputs.skip != 'true' && steps.rebase.outputs.conflicted == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+        REPOSITORY: ${{ inputs.repository }}
+        CONFLICTED_FILES: ${{ steps.rebase.outputs.conflicted_files }}
+      run: |
+        set -euo pipefail
+        gh pr comment "$PR_NUMBER" --repo "$REPOSITORY" --body "$(cat <<EOF
+        Automated lockfile sync stopped because non-lock files still conflict after rebasing onto \`${{ inputs.base-ref }}\`.
+
+        Conflicted files:
+        \`\`\`
+        ${CONFLICTED_FILES}
+        \`\`\`
+
+        Resolve those conflicts locally, then run:
+
+        \`\`\`bash
+        bun run regen:locks
+        git commit -am "chore(repo): sync lockfiles after rebase"
+        git push --force-with-lease
+        \`\`\`
+        EOF
+        )"
+
+    - name: Push rebased branch
+      if: steps.fork_gate.outputs.skip != 'true' && steps.rebase.outputs.pushed == 'true'
+      shell: bash
+      run: git push --force-with-lease

@@ -307,4 +307,41 @@ describe("E2E harness contract", () => {
 		expect(stableGotoSource).toContain("VISUAL_COPYRIGHT_YEAR");
 		expect(stableGotoSource).toContain("replace");
 	});
+
+	it("scopes lockfile sync automation to its own workflow", () => {
+		const ciWorkflow = readFileSync(
+			join(repositoryRoot, ".github/workflows/ci.yml"),
+			"utf8",
+		);
+		const e2eWorkflow = readFileSync(
+			join(repositoryRoot, ".github/workflows/e2e.yml"),
+			"utf8",
+		);
+		const syncWorkflow = readFileSync(
+			join(repositoryRoot, ".github/workflows/sync-pr-locks.yml"),
+			"utf8",
+		);
+		const syncAction = readFileSync(
+			join(repositoryRoot, "internals/github/sync-pr-locks/action.yml"),
+			"utf8",
+		);
+
+		expect(ciWorkflow).toMatch(/permissions:\s+contents: read/);
+		expect(ciWorkflow).not.toContain("contents: write");
+		expect(e2eWorkflow).toMatch(/permissions:\s+contents: read/);
+		expect(e2eWorkflow).not.toContain("contents: write");
+
+		expect(syncWorkflow).toMatch(/paths:\s*\n\s+- "modules\/\*\*"/);
+		expect(syncWorkflow).toContain("apps/registry/registry.lock.json");
+		expect(syncWorkflow).toContain("bun.lock");
+		expect(syncWorkflow).toContain("packages/registry/**");
+		expect(syncWorkflow).toMatch(/permissions:\s+contents: write/);
+		expect(syncWorkflow).toMatch(/pull-requests: write/);
+		expect(syncWorkflow).toContain(
+			"sync-pr-locks-${{ github.event.pull_request.number",
+		);
+		expect(syncAction).toContain("configure-git-merge-drivers.sh");
+		expect(syncAction).toContain("bun run regen:locks");
+		expect(syncAction).toContain("git push --force-with-lease");
+	});
 });

@@ -311,7 +311,6 @@ The `apps/registry/registry.lock.json` file captures the exact resolved state of
 ```json
 {
   "lockfileVersion": 1,
-  "generatedAt": "2026-03-12T18:00:00.000Z",
   "modules": {
     "products": {
       "source": "local",
@@ -320,7 +319,8 @@ The `apps/registry/registry.lock.json` file captures the exact resolved state of
       "integrity": "sha256-...",
       "localPath": "modules/products"
     }
-  }
+  },
+  "generatedAt": "2026-03-12T18:00:00.000Z"
 }
 ```
 

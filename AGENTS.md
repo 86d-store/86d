@@ -32,6 +32,9 @@ This gate applies to **every _slice_**, not only CI. GitHub Setup, Release, and 
 - Before declaring any slice complete, prove `bun run generate:modules -- --frozen` is _green_ under [Git and commits](#git-and-commits). Unit tests and typecheck do not substitute for this gate.
 - Lint-staged regenerates the lock only for `modules/**/*.{ts,tsx,json,md,mdx}`. Regenerate it yourself for Module changes outside that glob; let hooks run.
 - `bun run bump-version` regenerates both `apps/registry/registry.json` and the lock. Commit both outputs.
+- Pull requests that touch `modules/` or either lockfile trigger [`.github/workflows/sync-pr-locks.yml`](.github/workflows/sync-pr-locks.yml), which rebases onto the base branch and commits regenerated locks when needed. Fork pull requests comment instructions unless `REPO_SYNC_TOKEN` is configured.
+- After clone, run `sh internals/scripts/configure-git-merge-drivers.sh` once so local rebases regenerate `apps/registry/registry.lock.json` and `bun.lock` instead of leaving JSON conflict markers.
+- Use `bun run regen:locks` to refresh both lockfiles after a rebase or dependency change.
 
 ## Context routes
 
@@ -149,7 +152,7 @@ Commits use Conventional Commits with a required scope: `type(scope): subject`. 
 
 `CONTRIBUTING.md` is the contributor reference, but this guide's frozen-lock requirement and gate order are stricter and take precedence for agents.
 
-Before changing CI triggers or gate selection, read `.github/workflows/ci.yml`, `.github/workflows/e2e.yml`, `.github/workflows/release.yml`, `.github/workflows/docker-release.yml`, and `internals/github/ci-cd/action.yml`.
+Before changing CI triggers or gate selection, read `.github/workflows/ci.yml`, `.github/workflows/e2e.yml`, `.github/workflows/release.yml`, `.github/workflows/docker-release.yml`, `.github/workflows/sync-pr-locks.yml`, and `internals/github/ci-cd/action.yml`.
 
 - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
 - Scopes: `store`, `cli`, `core`, `runtime`, `sdk`, `registry`, `db`, `emails`, `env`, `lib`, `storage`, `ui`, `utils`, `modules`, `ci`, `deps`, `config`, `docs`, `repo`.

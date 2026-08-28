@@ -63,7 +63,12 @@ export function readLockfile(root: string): Lockfile | undefined {
 export function writeLockfile(root: string, lockfile: Lockfile): void {
 	const lockPath = registryLockfilePath(root);
 	mkdirSync(dirname(lockPath), { recursive: true });
-	writeFileSync(lockPath, `${JSON.stringify(lockfile, null, 2)}\n`);
+	const serialized = {
+		lockfileVersion: lockfile.lockfileVersion,
+		modules: lockfile.modules,
+		generatedAt: lockfile.generatedAt,
+	};
+	writeFileSync(lockPath, `${JSON.stringify(serialized, null, 2)}\n`);
 }
 
 // ── Generate ─────────────────────────────────────────────────────────
@@ -127,8 +132,8 @@ export function generateLockfile(
 
 	return {
 		lockfileVersion: 1,
-		generatedAt: new Date().toISOString(),
 		modules: sorted,
+		generatedAt: new Date().toISOString(),
 	};
 }
 

@@ -66,6 +66,38 @@ Rules:
 
 Hooks install automatically on `bun install`. If a hook fails, fix the cause and commit again.
 
+## Lockfile conflicts
+
+Two committed lockfiles can conflict when multiple pull requests regenerate them:
+
+- `apps/registry/registry.lock.json` — module integrity lock from `bun run generate:modules`
+- `bun.lock` — dependency lock from `bun install`
+
+Both stay in git. Never gitignore them.
+
+### One-time setup after clone
+
+```bash
+sh internals/scripts/configure-git-merge-drivers.sh
+```
+
+This registers git merge drivers that regenerate each lockfile during merges and rebases instead of leaving conflict markers.
+
+### Refresh both lockfiles
+
+```bash
+bun run regen:locks
+```
+
+### Pull request automation
+
+Pull requests that touch `modules/`, `packages/registry/`, or either lockfile run the **Sync PR lockfiles** workflow. It rebases onto the base branch, regenerates locks, and force-pushes when the branch is behind.
+
+- **Same-repository branches:** fully automated
+- **Fork pull requests:** the workflow comments with exact commands unless the repository configures a `REPO_SYNC_TOKEN` secret with write access
+
+If the bot comments that non-lock files still conflict, resolve those locally, then run `bun run regen:locks` and push.
+
 ## Pull requests
 
 - **One coherent change per PR.** A bug fix, a new endpoint, a new module, a docs improvement. Not all four at once.

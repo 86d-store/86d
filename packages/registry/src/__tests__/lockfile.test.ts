@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
@@ -125,6 +125,17 @@ describe("readLockfile / writeLockfile", () => {
 		expect(read).toBeDefined();
 		expect(read?.lockfileVersion).toBe(1);
 		expect(read?.modules.products.packageName).toBe("@86d-app/products");
+	});
+
+	it("writes generatedAt after modules for stable merges", () => {
+		const lockfile = generateLockfile([makeResolved("products")], TMP_ROOT);
+
+		writeLockfile(TMP_ROOT, lockfile);
+		const raw = readFileSync(registryLockfilePath(TMP_ROOT), "utf-8");
+		const generatedAtIndex = raw.indexOf('"generatedAt"');
+		const modulesIndex = raw.indexOf('"modules"');
+
+		expect(generatedAtIndex).toBeGreaterThan(modulesIndex);
 	});
 
 	it("returns undefined for non-existent lockfile", () => {

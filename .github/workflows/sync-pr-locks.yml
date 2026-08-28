@@ -1,0 +1,43 @@
+name: Sync PR lockfiles
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "modules/**"
+      - "apps/registry/registry.lock.json"
+      - "bun.lock"
+      - "packages/registry/**"
+
+concurrency:
+  group: sync-pr-locks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync-pr-locks:
+    name: sync lockfiles
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 0
+          token: ${{ secrets.REPO_SYNC_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Setup
+        uses: ./internals/github/setup
+
+      - name: Rebase and sync lockfiles
+        uses: ./internals/github/sync-pr-locks
+        env:
+          REPO_SYNC_TOKEN: ${{ secrets.REPO_SYNC_TOKEN }}
+        with:
+          base-ref: ${{ github.event.pull_request.base.ref }}
+          head-repo: ${{ github.event.pull_request.head.repo.full_name }}
+          repository: ${{ github.repository }}
+          pr-number: ${{ github.event.pull_request.number }}

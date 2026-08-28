@@ -1,0 +1,2 @@
+apps/registry/registry.lock.json merge=registry-lock
+bun.lock merge=bun-lock

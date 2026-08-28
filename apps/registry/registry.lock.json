@@ -1,6 +1,5 @@
 {
   "lockfileVersion": 1,
-  "generatedAt": "2026-08-28T19:10:05.430Z",
   "modules": {
     "abandoned-carts": {
       "source": "local",
@@ -702,5 +701,6 @@
       "integrity": "sha256-42c1bc6261b17a4e04c853b806308da2ee43e229e657ea893e2e319d83319e2c",
       "localPath": "modules/x-shop"
     }
-  }
+  },
+  "generatedAt": "2026-08-28T19:45:01.358Z"
 }
