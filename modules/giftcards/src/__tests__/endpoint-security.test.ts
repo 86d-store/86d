@@ -1,6 +1,37 @@
+import type {
+	ModuleDataTransaction,
+	ModuleTransactionRunner,
+} from "@86d-app/core/durable-events";
 import { createMockDataService } from "@86d-app/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createGiftCardController } from "../service-impl";
+
+function createSerialTransactionRunner(
+	data: ReturnType<typeof createMockDataService>,
+): ModuleTransactionRunner {
+	let tail = Promise.resolve();
+	const transaction = {
+		get: data.get.bind(data),
+		findMany: data.findMany.bind(data),
+		upsert: data.upsert.bind(data),
+		delete: data.delete.bind(data),
+		getForUpdate: data.get.bind(data),
+		emit: async () => {
+			throw new Error("Gift-card redemptions do not emit durable events.");
+		},
+	} as unknown as ModuleDataTransaction;
+
+	return {
+		transaction<T>(work: (current: ModuleDataTransaction) => Promise<T>) {
+			const run = tail.then(() => work(transaction));
+			tail = run.then(
+				() => undefined,
+				() => undefined,
+			);
+			return run;
+		},
+	};
+}
 
 /**
  * Security regression tests for gift-cards endpoints.
@@ -68,6 +99,27 @@ describe("gift-cards endpoint security", () => {
 	// ── Double-Spending Prevention ─────────────────────────────────
 
 	describe("double-spending prevention", () => {
+		it("serializes concurrent redemptions against the latest locked balance", async () => {
+			const data = createMockDataService();
+			const lockedController = createGiftCardController(
+				data,
+				createSerialTransactionRunner(data),
+			);
+			const card = await lockedController.create({ initialBalance: 1000 });
+
+			const results = await Promise.all([
+				lockedController.redeem(card.code, 1000, "order_1"),
+				lockedController.redeem(card.code, 1000, "order_2"),
+			]);
+
+			expect(results.filter(Boolean)).toHaveLength(1);
+			expect(await lockedController.checkBalance(card.code)).toMatchObject({
+				balance: 0,
+				status: "depleted",
+			});
+			expect(await lockedController.listTransactions(card.id)).toHaveLength(1);
+		});
+
 		it("cannot redeem from a depleted card", async () => {
 			const card = await controller.create({ initialBalance: 1000 });
 			await controller.redeem(card.code, 1000);

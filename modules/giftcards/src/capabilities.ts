@@ -54,5 +54,8 @@ export async function handleGiftCardCheckout(
 export const giftCardCheckoutProvider = provideCapability(
 	giftCardCheckoutCapability,
 	async (ctx, request) =>
-		handleGiftCardCheckout(createGiftCardController(ctx.data), request),
+		handleGiftCardCheckout(
+			createGiftCardController(ctx.data, ctx.transactions),
+			request,
+		),
 );

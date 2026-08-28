@@ -49,7 +49,7 @@ export default function giftCards(options?: GiftCardOptions): Module {
 			],
 		},
 		init: async (ctx: ModuleContext) => {
-			const controller = createGiftCardController(ctx.data);
+			const controller = createGiftCardController(ctx.data, ctx.transactions);
 			return { controllers: { giftCards: controller } };
 		},
 		endpoints: {

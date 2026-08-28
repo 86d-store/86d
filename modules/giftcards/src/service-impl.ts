@@ -1,3 +1,8 @@
+import type {
+	LockingModuleDataTransaction,
+	ModuleDataTransaction,
+	ModuleTransactionRunner,
+} from "@86d-app/core/durable-events";
 import type { ModuleDataService } from "@86d-app/core/types/module";
 import type {
 	BulkCreateParams,
@@ -11,6 +16,15 @@ import type {
 	SendGiftCardParams,
 	TopUpParams,
 } from "./service";
+
+function supportsRowLock(
+	transaction: ModuleDataTransaction,
+): transaction is LockingModuleDataTransaction {
+	return (
+		typeof (transaction as Partial<LockingModuleDataTransaction>)
+			.getForUpdate === "function"
+	);
+}
 
 /**
  * Generate a unique gift card code in the format GIFT-XXXX-XXXX-XXXX
@@ -30,6 +44,7 @@ function generateCode(): string {
 
 export function createGiftCardController(
 	data: ModuleDataService,
+	transactions?: ModuleTransactionRunner | undefined,
 ): GiftCardController {
 	return {
 		async create(params: CreateGiftCardParams): Promise<GiftCard> {
@@ -184,50 +199,68 @@ export function createGiftCardController(
 
 			const card = cards[0];
 
-			// Validate card can be redeemed
-			if (card.status !== "active") return null;
-			if (card.expiresAt && new Date(card.expiresAt) < new Date()) return null;
-			if (card.currentBalance <= 0) return null;
-			if (amount <= 0) return null;
+			const redeemLocked = async (
+				transaction: Pick<
+					LockingModuleDataTransaction,
+					"getForUpdate" | "upsert"
+				>,
+			): Promise<RedeemResult | null> => {
+				const locked = await transaction.getForUpdate("giftCard", card.id);
+				if (!locked) return null;
+				const current = locked as unknown as GiftCard;
 
-			// Cap redemption to available balance
-			const debitAmount = Math.min(amount, card.currentBalance);
-			const newBalance = card.currentBalance - debitAmount;
+				if (current.status !== "active") return null;
+				if (current.expiresAt && new Date(current.expiresAt) < new Date()) {
+					return null;
+				}
+				if (current.currentBalance <= 0 || amount <= 0) return null;
 
-			// Update card balance
-			const updatedCard: GiftCard = {
-				...card,
-				currentBalance: newBalance,
-				status: newBalance === 0 ? "depleted" : "active",
-				updatedAt: new Date(),
+				const debitAmount = Math.min(amount, current.currentBalance);
+				const newBalance = current.currentBalance - debitAmount;
+				const updatedCard: GiftCard = {
+					...current,
+					currentBalance: newBalance,
+					status: newBalance === 0 ? "depleted" : "active",
+					updatedAt: new Date(),
+				};
+
+				await transaction.upsert(
+					"giftCard",
+					current.id,
+					updatedCard as Record<string, unknown>,
+				);
+
+				const txn: GiftCardTransaction = {
+					id: crypto.randomUUID(),
+					giftCardId: current.id,
+					type: "debit",
+					amount: debitAmount,
+					balanceAfter: newBalance,
+					orderId,
+					note: orderId ? `Redeemed for order ${orderId}` : "Redeemed",
+					createdAt: new Date(),
+				};
+
+				await transaction.upsert(
+					"giftCardTransaction",
+					txn.id,
+					txn as Record<string, unknown>,
+				);
+
+				return { transaction: txn, giftCard: updatedCard };
 			};
 
-			await data.upsert(
-				"giftCard",
-				card.id,
-				updatedCard as Record<string, unknown>,
-			);
+			if (transactions) {
+				return transactions.transaction(async (transaction) => {
+					if (!supportsRowLock(transaction)) return null;
+					return redeemLocked(transaction);
+				});
+			}
 
-			// Record transaction
-			const txnId = crypto.randomUUID();
-			const txn: GiftCardTransaction = {
-				id: txnId,
-				giftCardId: card.id,
-				type: "debit",
-				amount: debitAmount,
-				balanceAfter: newBalance,
-				orderId,
-				note: orderId ? `Redeemed for order ${orderId}` : "Redeemed",
-				createdAt: new Date(),
-			};
-
-			await data.upsert(
-				"giftCardTransaction",
-				txnId,
-				txn as Record<string, unknown>,
-			);
-
-			return { transaction: txn, giftCard: updatedCard };
+			return redeemLocked({
+				getForUpdate: data.get.bind(data),
+				upsert: data.upsert.bind(data),
+			});
 		},
 
 		async credit(
