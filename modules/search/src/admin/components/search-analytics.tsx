@@ -480,14 +480,14 @@ export function SearchAnalytics() {
 							{synonyms.map((syn) => (
 								<div
 									key={syn.id}
-									className="flex items-center justify-between px-4 py-2.5"
+									className="flex items-center gap-3 px-4 py-2.5"
 								>
-									<div className="text-sm">
-										<span className="font-medium text-foreground">
+									<div className="grid min-w-0 flex-1 grid-cols-[minmax(0,8rem)_auto_minmax(0,1fr)] items-center gap-2 text-sm">
+										<span className="min-w-0 break-words font-medium text-foreground">
 											{syn.term}
 										</span>
-										<span className="mx-2 text-muted-foreground">&rarr;</span>
-										<span className="text-muted-foreground">
+										<span className="text-muted-foreground">&rarr;</span>
+										<span className="min-w-0 break-words text-muted-foreground">
 											{syn.synonyms.join(", ")}
 										</span>
 									</div>
@@ -498,7 +498,7 @@ export function SearchAnalytics() {
 												params: { id: syn.id },
 											})
 										}
-										className="text-muted-foreground text-xs hover:text-destructive"
+										className="shrink-0 text-muted-foreground text-xs hover:text-destructive"
 									>
 										Remove
 									</button>

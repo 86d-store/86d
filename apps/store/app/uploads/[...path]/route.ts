@@ -18,7 +18,9 @@ const MIME_TYPES: Record<string, string> = {
 	".pdf": "application/pdf",
 };
 
-const UPLOADS_DIR = resolve(getProcessEnv("STORAGE_LOCAL_DIR") ?? "./uploads");
+const UPLOADS_DIR = resolve(
+	/* turbopackIgnore: true */ getProcessEnv("STORAGE_LOCAL_DIR") ?? "./uploads",
+);
 
 function buildResponseHeaders(
 	contentType: string,
@@ -101,7 +103,9 @@ export async function GET(
 		return NextResponse.json({ error: "Not found" }, { status: 404 });
 	}
 
-	const filePath = resolve(join(UPLOADS_DIR, ...path));
+	const filePath = resolve(
+		/* turbopackIgnore: true */ join(UPLOADS_DIR, ...path),
+	);
 
 	// Prevent path traversal
 	if (!filePath.startsWith(UPLOADS_DIR)) {

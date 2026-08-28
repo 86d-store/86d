@@ -122,4 +122,79 @@ describe("CompiledModuleDataService", () => {
 			lockRead.mockRestore();
 		}
 	});
+
+	it("returns the same page for equivalent rows inserted in different orders", async () => {
+		async function createCatalog(
+			moduleId: string,
+			moduleDbId: string,
+			insertionOrder: readonly string[],
+		) {
+			const module: Module = {
+				id: moduleId,
+				version: "0.0.1",
+				tables: { product: { shape: productShape } },
+			};
+			const report = compileModuleDeclarations([module]);
+			for (const statement of splitModuleDdlStatements(
+				emitSql(report.transcoded),
+			)) {
+				await client.exec(statement);
+			}
+
+			const data = new CompiledModuleDataService({
+				db,
+				storeId: "11111111-1111-1111-1111-111111111111",
+				moduleId,
+				moduleDbId,
+				compiled: report.transcoded,
+			});
+			for (const id of insertionOrder) {
+				await data.upsert("product", id, {
+					id,
+					name: id,
+					slug: id,
+					status: "active",
+					createdAt: "2026-08-25T12:00:00.000Z",
+				});
+			}
+			return data;
+		}
+
+		const first = await createCatalog(
+			"catalog-order-a",
+			"44444444-4444-4444-4444-444444444444",
+			["prod_b", "prod_a", "prod_c"],
+		);
+		const second = await createCatalog(
+			"catalog-order-b",
+			"55555555-5555-5555-5555-555555555555",
+			["prod_c", "prod_b", "prod_a"],
+		);
+
+		const options = {
+			orderBy: { createdAt: "desc" as const },
+			take: 2,
+		};
+		const firstPage = await first.findMany("product", options);
+		const secondPage = await second.findMany("product", options);
+		const firstDefaultPage = await first.findMany("product", { take: 2 });
+		const secondDefaultPage = await second.findMany("product", { take: 2 });
+
+		expect(firstPage.map((product) => product.id)).toEqual([
+			"prod_a",
+			"prod_b",
+		]);
+		expect(secondPage.map((product) => product.id)).toEqual([
+			"prod_a",
+			"prod_b",
+		]);
+		expect(firstDefaultPage.map((product) => product.id)).toEqual([
+			"prod_a",
+			"prod_b",
+		]);
+		expect(secondDefaultPage.map((product) => product.id)).toEqual([
+			"prod_a",
+			"prod_b",
+		]);
+	});
 });

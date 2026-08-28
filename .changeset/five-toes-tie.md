@@ -10,4 +10,4 @@
 "@86d-app/runtime": patch
 ---
 
-Fix the Analytics and Revenue admin runtimes, keep merchant semantic colors WCAG AA compliant through shared hover states, keep product-list controls and table columns reachable on narrow screens, send valid volume-pricing requests from product pages, preserve review photo and search synonym arrays through compiled storage with valid PostgreSQL array constraints, keep transactional row locks on the compiled storage adapter without recursion, and request pickup windows only after a shopper selects a location.
+Fix the Analytics and Revenue admin runtimes, keep merchant semantic colors WCAG AA compliant through shared hover states, keep product-list controls and table columns reachable on narrow screens, send valid volume-pricing requests from product pages, preserve review photo and search synonym arrays through compiled storage with valid PostgreSQL array constraints, align search synonym rows across supported viewports, keep compiled reads and transactional row locks deterministic without recursion, and request pickup windows only after a shopper selects a location.

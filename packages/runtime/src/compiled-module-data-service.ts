@@ -417,14 +417,27 @@ export class CompiledModuleDataService<
 		const orderEntries = options?.orderBy
 			? Object.entries(options.orderBy)
 			: ([["createdAt", "desc"]] as const);
+		const orderedColumns = new Set<string>();
+		const orderExpressions: SQL[] = [];
 		for (const [columnName, direction] of orderEntries) {
 			const column = tableColumns[columnName];
 			if (!column) {
 				continue;
 			}
-			query = query.orderBy(
-				direction === "asc" ? asc(column) : desc(column),
-			) as typeof query;
+			orderedColumns.add(columnName);
+			orderExpressions.push(direction === "asc" ? asc(column) : desc(column));
+		}
+		const primaryKey =
+			compiled.primaryKey.length > 0 ? compiled.primaryKey : ["id"];
+		for (const columnName of primaryKey) {
+			const column = tableColumns[columnName];
+			if (!column || orderedColumns.has(columnName)) {
+				continue;
+			}
+			orderExpressions.push(asc(column));
+		}
+		if (orderExpressions.length > 0) {
+			query = query.orderBy(...orderExpressions) as typeof query;
 		}
 
 		const take = boundedTake(options?.take);

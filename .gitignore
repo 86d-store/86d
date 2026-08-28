@@ -43,7 +43,7 @@ logs/
 .86d/
 
 # Storage
-uploads/
+/uploads/
 
 # Misc
 bak/

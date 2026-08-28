@@ -1,6 +1,6 @@
 {
   "lockfileVersion": 1,
-  "generatedAt": "2026-08-28T00:57:59.677Z",
+  "generatedAt": "2026-08-28T19:10:05.430Z",
   "modules": {
     "abandoned-carts": {
       "source": "local",
@@ -517,7 +517,7 @@
       "source": "local",
       "packageName": "@86d-app/search",
       "version": "0.0.42",
-      "integrity": "sha256-d7b57bbf1f58d84d90fcb1ae7371a568d1dd5d29c75fffb622b07ffa181537a0",
+      "integrity": "sha256-ff7b979c782731414e167deacafda0dec43ec9ab793d8687e5538161b7c25f2c",
       "localPath": "modules/search"
     },
     "seo": {

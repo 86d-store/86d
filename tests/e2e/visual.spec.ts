@@ -1314,7 +1314,18 @@ test.describe("Admin — Authenticated Visual", () => {
 
 	test("admin search settings", async ({ admin }) => {
 		await admin.page.goto("/admin/search");
-		await admin.page.waitForLoadState("load");
+		const synonymRows = admin.page
+			.getByRole("button", { name: "Remove", exact: true })
+			.locator("..");
+		await expect(synonymRows).toHaveCount(6);
+		const arrowColumns = await synonymRows
+			.getByText("→", { exact: true })
+			.evaluateAll((arrows) => [
+				...new Set(
+					arrows.map((arrow) => Math.round(arrow.getBoundingClientRect().x)),
+				),
+			]);
+		expect(arrowColumns).toHaveLength(1);
 		await expect(admin.page).toHaveScreenshot(
 			"admin-search-settings.png",
 			SCREENSHOT_OPTS,
