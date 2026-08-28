@@ -257,7 +257,7 @@
       "source": "local",
       "packageName": "@86d-app/giftcards",
       "version": "0.0.42",
-      "integrity": "sha256-05338d9ac28391f95698cfb7854165095e8d2b80dd4611aa2ca26d46dd931543",
+      "integrity": "sha256-05db7be37a1749894f4ee33379ae142c52bd31327e23276c333455c69b96a48f",
       "localPath": "modules/giftcards"
     },
     "google-shopping": {
@@ -702,5 +702,5 @@
       "localPath": "modules/x-shop"
     }
   },
-  "generatedAt": "2026-08-28T19:45:01.358Z"
+  "generatedAt": "2026-08-28T20:09:38.620Z"
 }
