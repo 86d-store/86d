@@ -1,6 +1,6 @@
 {
   "lockfileVersion": 1,
-  "generatedAt": "2026-08-25T15:15:11.412Z",
+  "generatedAt": "2026-08-28T00:57:59.677Z",
   "modules": {
     "abandoned-carts": {
       "source": "local",
@@ -41,7 +41,7 @@
       "source": "local",
       "packageName": "@86d-app/appointments",
       "version": "0.0.42",
-      "integrity": "sha256-b0ac826f6eff0106c351d0f1a324d34fcab480c61a5eaf55af9d78230b8d056f",
+      "integrity": "sha256-fdfcafdc6e0c63e032db17979e88dc310cd2d9d46743ffebdc4b31ac091121a7",
       "localPath": "modules/appointments"
     },
     "auctions": {

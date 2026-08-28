@@ -9,11 +9,16 @@ export const getAppointment = createStoreEndpoint(
 		params: z.object({ id: z.string().max(200) }),
 	},
 	async (ctx) => {
+		const customerId = ctx.context.session?.user.id;
+		if (!customerId) {
+			return { error: "Authentication required", status: 401 };
+		}
+
 		const controller = ctx.context.controllers
 			.appointments as AppointmentController;
 
 		const appointment = await controller.getAppointment(ctx.params.id);
-		if (!appointment) {
+		if (!appointment || appointment.customerId !== customerId) {
 			return { error: "Appointment not found", status: 404 };
 		}
 
