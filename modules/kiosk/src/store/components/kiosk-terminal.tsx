@@ -65,8 +65,6 @@ export function KioskTerminal(props: KioskTerminalProps) {
 	const [itemQty, setItemQty] = useState(1);
 	const [addError, setAddError] = useState<string | null>(null);
 	const [sessionError, setSessionError] = useState<string | null>(null);
-	const [paymentMethod, setPaymentMethod] = useState("card");
-	const [isCompleted, setIsCompleted] = useState(false);
 	const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const startMutation = api.startSession.useMutation() as {
@@ -87,14 +85,6 @@ export function KioskTerminal(props: KioskTerminalProps) {
 	const removeMutation = api.removeItem.useMutation() as {
 		mutateAsync: (opts: {
 			params: { id: string; itemId: string };
-		}) => Promise<{ session?: KioskSession }>;
-		isPending: boolean;
-	};
-
-	const completeMutation = api.complete.useMutation() as {
-		mutateAsync: (opts: {
-			params: { id: string };
-			body: Record<string, unknown>;
 		}) => Promise<{ session?: KioskSession }>;
 		isPending: boolean;
 	};
@@ -120,13 +110,12 @@ export function KioskTerminal(props: KioskTerminalProps) {
 	// Reset idle timer on any interaction
 	const resetIdleTimer = useCallback(() => {
 		clearTimeout(idleTimerRef.current ?? undefined);
-		if (session && !isCompleted) {
+		if (session) {
 			idleTimerRef.current = setTimeout(() => {
 				setSession(null);
-				setIsCompleted(false);
 			}, idleTimeout * 1000);
 		}
-	}, [session, isCompleted, idleTimeout]);
+	}, [session, idleTimeout]);
 
 	useEffect(() => {
 		resetIdleTimer();
@@ -143,7 +132,6 @@ export function KioskTerminal(props: KioskTerminalProps) {
 			});
 			if (result.session) {
 				setSession(result.session);
-				setIsCompleted(false);
 				resetIdleTimer();
 			}
 		} catch (err) {
@@ -194,31 +182,8 @@ export function KioskTerminal(props: KioskTerminalProps) {
 		}
 	}
 
-	async function handleComplete() {
-		if (!session) return;
-		resetIdleTimer();
-		try {
-			const result = await completeMutation.mutateAsync({
-				params: { id: session.id },
-				body: { paymentMethod },
-			});
-			if (result.session) {
-				setSession(result.session);
-				setIsCompleted(true);
-				clearTimeout(idleTimerRef.current ?? undefined);
-				setTimeout(() => {
-					setSession(null);
-					setIsCompleted(false);
-				}, 5000);
-			}
-		} catch {
-			// silently ignore
-		}
-	}
-
 	function handleReset() {
 		setSession(null);
-		setIsCompleted(false);
 		setAddError(null);
 		setSessionError(null);
 	}
@@ -226,30 +191,25 @@ export function KioskTerminal(props: KioskTerminalProps) {
 	const isMutating =
 		startMutation.isPending ||
 		addMutation.isPending ||
-		removeMutation.isPending ||
-		completeMutation.isPending;
+		removeMutation.isPending;
 
 	return (
 		<KioskTerminalTemplate
 			session={session}
-			isCompleted={isCompleted}
 			isMutating={isMutating}
 			sessionError={sessionError}
 			addError={addError}
 			itemName={itemName}
 			itemPrice={itemPrice}
 			itemQty={itemQty}
-			paymentMethod={paymentMethod}
 			currency={currency}
 			onStart={handleStart}
 			onAddItem={handleAddItem}
 			onRemove={handleRemove}
-			onComplete={handleComplete}
 			onReset={handleReset}
 			onItemNameChange={setItemName}
 			onItemPriceChange={setItemPrice}
 			onItemQtyChange={setItemQty}
-			onPaymentMethodChange={setPaymentMethod}
 			onInteraction={resetIdleTimer}
 			formatCurrency={formatCurrency}
 		/>

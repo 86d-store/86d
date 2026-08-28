@@ -299,7 +299,7 @@
       "source": "local",
       "packageName": "@86d-app/kiosk",
       "version": "0.0.42",
-      "integrity": "sha256-87a80ca179916f3009c902f89817d70c30b773b54ad58f4f7f5cab9be0f45e93",
+      "integrity": "sha256-eeb0134068264589e0972a1528eec7cd254b48bdc30bd305b8f8b6817a8ef331",
       "localPath": "modules/kiosk"
     },
     "loyalty": {
@@ -702,5 +702,5 @@
       "localPath": "modules/x-shop"
     }
   },
-  "generatedAt": "2026-08-28T19:45:01.358Z"
+  "generatedAt": "2026-08-28T20:09:47.702Z"
 }

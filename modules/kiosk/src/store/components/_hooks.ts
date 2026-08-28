@@ -12,7 +12,6 @@ export function useKioskStoreApi() {
 			client.module("kiosk").store["/kiosk/sessions/:id/items/:itemId/delete"],
 		updateItem:
 			client.module("kiosk").store["/kiosk/sessions/:id/items/:itemId"],
-		complete: client.module("kiosk").store["/kiosk/sessions/:id/complete"],
 		heartbeat: client.module("kiosk").store["/kiosk/stations/:id/heartbeat"],
 	};
 }
