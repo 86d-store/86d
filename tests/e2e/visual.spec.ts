@@ -459,6 +459,18 @@ test.describe("Storefront — Visual", () => {
 		await expect(page.locator("main")).toBeVisible({ timeout: 10_000 });
 		await expect(page).toHaveScreenshot("sitemap.png", SCREENSHOT_OPTS);
 	});
+
+	test("kiosk terminal containment", async ({ page }) => {
+		await stableGoto(page, "/kiosk/visual-station");
+		await expect(page.getByTestId("kiosk-unavailable")).toBeVisible();
+		await expect(page.getByRole("button", { name: "Start order" })).toHaveCount(
+			0,
+		);
+		await expect(page).toHaveScreenshot(
+			"kiosk-terminal-containment.png",
+			SCREENSHOT_OPTS,
+		);
+	});
 });
 
 // ─── Auth pages ─────────────────────────────────────────────────────────────
@@ -1486,8 +1498,67 @@ test.describe("Admin — Authenticated Visual", () => {
 	test("admin kiosks list", async ({ admin }) => {
 		await admin.page.goto("/admin/kiosk");
 		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page.getByText("Unavailable", { exact: true }),
+		).toHaveCount(2);
 		await expect(admin.page).toHaveScreenshot(
 			"admin-kiosks-list.png",
+			SCREENSHOT_OPTS,
+		);
+	});
+
+	test("admin kiosk stations", async ({ admin }) => {
+		const stationId = "visual-station";
+		await admin.page.route("**/api/admin/kiosk/stations*", async (route) => {
+			expect(route.request().method()).toBe("GET");
+			await route.fulfill({
+				json: {
+					stations: [
+						{
+							id: stationId,
+							name: "Front Counter",
+							location: "Main lobby",
+							isActive: true,
+							settings: {},
+							createdAt: VISUAL_FIXED_TIME.toISOString(),
+							updatedAt: VISUAL_FIXED_TIME.toISOString(),
+						},
+					],
+					total: 1,
+				},
+			});
+		});
+		await admin.page.route("**/api/admin/kiosk/sessions*", async (route) => {
+			expect(route.request().method()).toBe("GET");
+			await route.fulfill({
+				json: {
+					sessions: [
+						{
+							id: "legacy-session-001",
+							stationId,
+							status: "legacy-completed",
+							startedAt: VISUAL_FIXED_TIME.toISOString(),
+							completedAt: VISUAL_FIXED_TIME.toISOString(),
+						},
+					],
+					total: 1,
+				},
+			});
+		});
+
+		await admin.page.goto("/admin/kiosk/stations");
+		await admin.page.getByRole("button", { name: "Sessions" }).click();
+		await expect(
+			admin.page.getByText("legacy completed", { exact: true }),
+		).toBeVisible();
+		await expect(
+			admin.page.getByRole("columnheader", { name: "Payment" }),
+		).toHaveCount(0);
+		await expect(
+			admin.page.getByRole("columnheader", { name: "Item subtotal" }),
+		).toHaveCount(0);
+		await expect(admin.page).toHaveScreenshot(
+			"admin-kiosk-stations.png",
 			SCREENSHOT_OPTS,
 		);
 	});

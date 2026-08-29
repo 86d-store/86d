@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import { createStationEndpoint } from "../admin/endpoints/create-station";
-import { deleteStationEndpoint } from "../admin/endpoints/delete-station";
 import { kioskStatsEndpoint } from "../admin/endpoints/kiosk-stats";
 import { listSessionsEndpoint } from "../admin/endpoints/list-sessions";
 import { listStationsEndpoint } from "../admin/endpoints/list-stations";
+import { adminEndpoints } from "../admin/endpoints/routes";
 import { updateStationEndpoint } from "../admin/endpoints/update-station";
 import type {
 	KioskController,
@@ -11,6 +11,7 @@ import type {
 	KioskStation,
 	OverallStats,
 } from "../service";
+import { KioskMutationUnavailableError } from "../service-impl";
 
 function extractHandler(
 	ep: unknown,
@@ -48,17 +49,8 @@ function makeController(
 	return {
 		registerStation: vi.fn().mockResolvedValue(makeStation()),
 		updateStation: vi.fn().mockResolvedValue(null),
-		deleteStation: vi.fn().mockResolvedValue(false),
 		listStations: vi.fn().mockResolvedValue([]),
 		getStation: vi.fn().mockResolvedValue(null),
-		heartbeat: vi.fn().mockResolvedValue(null),
-		startSession: vi.fn().mockResolvedValue(null),
-		addItem: vi.fn().mockResolvedValue(null),
-		removeItem: vi.fn().mockResolvedValue(null),
-		updateItemQuantity: vi.fn().mockResolvedValue(null),
-		getSession: vi.fn().mockResolvedValue(null),
-		completeSession: vi.fn().mockResolvedValue(null),
-		abandonSession: vi.fn().mockResolvedValue(null),
 		listSessions: vi.fn().mockResolvedValue([]),
 		getStationStats: vi.fn().mockResolvedValue({
 			totalSessions: 0,
@@ -93,7 +85,6 @@ function call(
 const listStationsHandler = extractHandler(listStationsEndpoint);
 const createHandler = extractHandler(createStationEndpoint);
 const updateHandler = extractHandler(updateStationEndpoint);
-const deleteHandler = extractHandler(deleteStationEndpoint);
 const listSessionsHandler = extractHandler(listSessionsEndpoint);
 const statsHandler = extractHandler(kioskStatsEndpoint);
 
@@ -130,6 +121,9 @@ describe("admin POST /kiosk/stations/create", () => {
 			controller: ctrl,
 		})) as { station: KioskStation };
 		expect(result.station.name).toBe("Drive-Thru Kiosk");
+		expect(result.station).not.toHaveProperty("isOnline");
+		expect(result.station).not.toHaveProperty("lastHeartbeat");
+		expect(result.station).not.toHaveProperty("currentSessionId");
 	});
 
 	it("calls registerStation with correct params", async () => {
@@ -148,12 +142,12 @@ describe("admin POST /kiosk/stations/create", () => {
 });
 
 describe("admin PUT /kiosk/stations/:id", () => {
-	it("returns null when station not found", async () => {
-		const result = (await call(updateHandler, {
+	it("returns a stable not-found response", async () => {
+		const result = await call(updateHandler, {
 			params: { id: "missing" },
 			body: { name: "New Name" },
-		})) as { station: KioskStation | null };
-		expect(result.station).toBeNull();
+		});
+		expect(result).toEqual({ error: "Station not found", status: 404 });
 	});
 
 	it("updates station and returns it", async () => {
@@ -167,26 +161,32 @@ describe("admin PUT /kiosk/stations/:id", () => {
 			controller: ctrl,
 		})) as { station: KioskStation };
 		expect(result.station.name).toBe("Renamed Kiosk");
+		expect(result.station).not.toHaveProperty("isOnline");
+		expect(result.station).not.toHaveProperty("lastHeartbeat");
+		expect(result.station).not.toHaveProperty("currentSessionId");
+	});
+
+	it("maps unavailable locking to a stable response", async () => {
+		const ctrl = makeController({
+			updateStation: vi
+				.fn()
+				.mockRejectedValue(new KioskMutationUnavailableError()),
+		});
+		expect(
+			await call(updateHandler, {
+				params: { id: "s-1" },
+				body: { name: "New Name" },
+				controller: ctrl,
+			}),
+		).toEqual({ error: "Station update is unavailable", status: 503 });
 	});
 });
 
-describe("admin DELETE /kiosk/stations/:id/delete", () => {
-	it("returns deleted=false when station not found", async () => {
-		const result = (await call(deleteHandler, {
-			params: { id: "missing" },
-		})) as { deleted: boolean };
-		expect(result.deleted).toBe(false);
-	});
-
-	it("returns deleted=true when station removed", async () => {
-		const ctrl = makeController({
-			deleteStation: vi.fn().mockResolvedValue(true),
-		});
-		const result = (await call(deleteHandler, {
-			params: { id: "s1" },
-			controller: ctrl,
-		})) as { deleted: boolean };
-		expect(result.deleted).toBe(true);
+describe("admin station containment", () => {
+	it("does not expose station deletion without a destructive workflow", () => {
+		expect(adminEndpoints).not.toHaveProperty(
+			"/admin/kiosk/stations/:id/delete",
+		);
 	});
 });
 
@@ -209,6 +209,49 @@ describe("admin GET /kiosk/sessions", () => {
 			expect.objectContaining({ stationId: "s-1" }),
 		);
 	});
+
+	it("projects legacy rows without money or payment claims", async () => {
+		const now = new Date();
+		const ctrl = makeController({
+			listSessions: vi.fn().mockResolvedValue([
+				{
+					id: "legacy-session",
+					stationId: "station-1",
+					status: "completed",
+					items: [{ id: "item-1", name: "Item", price: 500, quantity: 1 }],
+					subtotal: 500,
+					tax: 40,
+					tip: 100,
+					total: 640,
+					paymentMethod: "card",
+					paymentStatus: "paid",
+					startedAt: now,
+					completedAt: now,
+					createdAt: now,
+				},
+			]),
+		});
+
+		const result = await call(listSessionsHandler, { controller: ctrl });
+		expect(result).toEqual({
+			sessions: [
+				{
+					id: "legacy-session",
+					stationId: "station-1",
+					status: "legacy-completed",
+					startedAt: now,
+					completedAt: now,
+				},
+			],
+			total: 1,
+		});
+		const projection = (result as { sessions: Array<Record<string, unknown>> })
+			.sessions[0];
+		expect(projection).not.toHaveProperty("items");
+		expect(projection).not.toHaveProperty("subtotal");
+		expect(projection).not.toHaveProperty("paymentStatus");
+		expect(projection).not.toHaveProperty("paymentMethod");
+	});
 });
 
 describe("admin GET /kiosk/stats", () => {
@@ -226,13 +269,14 @@ describe("admin GET /kiosk/stats", () => {
 				totalSessions: 150,
 				completedSessions: 140,
 				abandonedSessions: 10,
-				totalRevenue: 45000,
+				totalRevenue: 0,
 			}),
 		});
 		const result = (await call(statsHandler, { controller: ctrl })) as {
 			stats: OverallStats;
 		};
 		expect(result.stats.totalStations).toBe(3);
-		expect(result.stats.totalRevenue).toBe(45000);
+		expect(result.stats.completedSessions).toBe(0);
+		expect(result.stats.totalRevenue).toBe(0);
 	});
 });

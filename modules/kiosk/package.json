@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/kiosk",
 	"version": "0.0.42",
-	"description": "Self-service ordering kiosk module for 86d commerce platform",
+	"description": "Kiosk station registration and legacy lifecycle records",
 	"keywords": [
 		"commerce",
 		"restaurant",

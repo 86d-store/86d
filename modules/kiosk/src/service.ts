@@ -10,7 +10,7 @@ export type KioskStation = {
 	isOnline: boolean;
 	isActive: boolean;
 	lastHeartbeat?: Date | undefined;
-	currentSessionId?: string | undefined;
+	currentSessionId?: string | null | undefined;
 	settings: Record<string, unknown>;
 	createdAt: Date;
 	updatedAt: Date;
@@ -73,8 +73,6 @@ export type KioskController = ModuleController & {
 		},
 	): Promise<KioskStation | null>;
 
-	deleteStation(id: string): Promise<boolean>;
-
 	listStations(params?: {
 		isActive?: boolean | undefined;
 		take?: number | undefined;
@@ -82,32 +80,6 @@ export type KioskController = ModuleController & {
 	}): Promise<KioskStation[]>;
 
 	getStation(id: string): Promise<KioskStation | null>;
-
-	heartbeat(stationId: string): Promise<KioskStation | null>;
-
-	startSession(stationId: string): Promise<KioskSession | null>;
-
-	addItem(
-		sessionId: string,
-		item: { name: string; price: number; quantity: number },
-	): Promise<KioskSession | null>;
-
-	removeItem(sessionId: string, itemId: string): Promise<KioskSession | null>;
-
-	updateItemQuantity(
-		sessionId: string,
-		itemId: string,
-		quantity: number,
-	): Promise<KioskSession | null>;
-
-	getSession(id: string): Promise<KioskSession | null>;
-
-	completeSession(
-		id: string,
-		paymentMethod: string,
-	): Promise<KioskSession | null>;
-
-	abandonSession(id: string): Promise<KioskSession | null>;
 
 	listSessions(params?: {
 		stationId?: string | undefined;

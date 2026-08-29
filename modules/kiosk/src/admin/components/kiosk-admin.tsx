@@ -31,10 +31,7 @@ export function KioskAdmin() {
 			| {
 					stats: {
 						totalStations: number;
-						onlineStations: number;
 						totalSessions: number;
-						completedSessions: number;
-						totalRevenue: number;
 					};
 			  }
 			| undefined;
@@ -95,9 +92,9 @@ export function KioskAdmin() {
 						</p>
 					</div>
 					<div className="rounded-md border border-border p-4">
-						<p className="text-muted-foreground text-xs">Online</p>
+						<p className="text-muted-foreground text-xs">Station health</p>
 						<p className="font-semibold text-2xl text-foreground">
-							{stats.onlineStations}
+							Unavailable
 						</p>
 					</div>
 					<div className="rounded-md border border-border p-4">
@@ -107,9 +104,9 @@ export function KioskAdmin() {
 						</p>
 					</div>
 					<div className="rounded-md border border-border p-4">
-						<p className="text-muted-foreground text-xs">Revenue</p>
+						<p className="text-muted-foreground text-xs">Checkout</p>
 						<p className="font-semibold text-2xl text-foreground">
-							${stats.totalRevenue.toFixed(2)}
+							Unavailable
 						</p>
 					</div>
 				</div>

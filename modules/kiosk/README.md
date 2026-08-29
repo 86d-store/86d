@@ -15,13 +15,13 @@
 <br/>
 
 > [!WARNING]
-> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
+> This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk.
 
 📚 **Documentation:** [86d.app/docs/modules/kiosk](https://86d.app/docs/modules/kiosk)
 
 # Kiosk Module
 
-Self-service kiosk management for 86d. Register kiosk stations, manage ordering sessions with cart operations, process payments, and track station health via heartbeats.
+Kiosk station registration and legacy lifecycle-record inspection for 86d. The public kiosk terminal is a static unavailable surface. Public sessions, station health, item selection, pricing, checkout, payment, order creation, and station deletion are unavailable until complete authoritative Workflows own them.
 
 ## Installation
 
@@ -34,43 +34,26 @@ npm install @86d-app/kiosk
 ```ts
 import kiosk from "@86d-app/kiosk";
 
-const module = kiosk({
-  idleTimeout: "120",
-  enableTipping: "true",
-  defaultTipPercents: "15,18,20,25",
-});
+const module = kiosk();
 ```
 
-## Configuration
+The legacy `idleTimeout`, `enableTipping`, and `defaultTipPercents` options remain accepted for configuration compatibility but have no public behavior while sessions and tipping are unavailable.
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `idleTimeout` | `string` | `"120"` | Idle timeout in seconds |
-| `enableTipping` | `string` | `"true"` | Enable tipping on kiosks |
-| `defaultTipPercents` | `string` | `"15,18,20,25"` | Comma-separated tip percentages |
+## Store Surface
 
-## Store Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/kiosk/sessions` | Start a new session |
-| GET | `/kiosk/sessions/:id` | Get session by ID |
-| POST | `/kiosk/sessions/:id/items` | Add item to session |
-| POST | `/kiosk/sessions/:id/items/:itemId/delete` | Remove item from session |
-| POST | `/kiosk/sessions/:id/items/:itemId` | Update item quantity |
-| POST | `/kiosk/sessions/:id/complete` | Complete session with payment |
-| POST | `/kiosk/stations/:id/heartbeat` | Send station heartbeat |
+The Module exposes no store endpoints. `/kiosk/:stationId` renders a static status explaining that kiosk sessions and commerce actions are unavailable. It does not create a browser capability, call an API, start a session, report station health, or mutate durable state.
 
 ## Admin Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/admin/kiosk/stations` | List all stations |
-| POST | `/admin/kiosk/stations/create` | Register a new station |
-| POST | `/admin/kiosk/stations/:id` | Update a station |
-| POST | `/admin/kiosk/stations/:id/delete` | Delete a station |
-| GET | `/admin/kiosk/sessions` | List all sessions |
-| GET | `/admin/kiosk/stats` | Get overall kiosk stats |
+| GET | `/admin/kiosk/stations` | List health-free station registration projections |
+| POST | `/admin/kiosk/stations/create` | Register a station |
+| PUT | `/admin/kiosk/stations/:id` | Update a station registration |
+| GET | `/admin/kiosk/sessions` | List qualified legacy lifecycle projections |
+| GET | `/admin/kiosk/stats` | Get neutral kiosk record counts |
+
+Create, update, and list station responses omit legacy `isOnline`, `lastHeartbeat`, and `currentSessionId` fields. Session responses omit items, money, and payment fields and map stored `completed` to `legacy-completed`.
 
 ## Controller API
 
@@ -78,92 +61,24 @@ const module = kiosk({
 interface KioskController extends ModuleController {
   registerStation(params: { name: string; location?: string; settings?: Record<string, unknown> }): Promise<KioskStation>;
   updateStation(id: string, params: { name?: string; location?: string; isActive?: boolean; settings?: Record<string, unknown> }): Promise<KioskStation | null>;
-  deleteStation(id: string): Promise<boolean>;
   listStations(params?: { isActive?: boolean; take?: number; skip?: number }): Promise<KioskStation[]>;
   getStation(id: string): Promise<KioskStation | null>;
-  heartbeat(stationId: string): Promise<KioskStation | null>;
-
-  startSession(stationId: string): Promise<KioskSession | null>;
-  addItem(sessionId: string, item: { name: string; price: number; quantity: number }): Promise<KioskSession | null>;
-  removeItem(sessionId: string, itemId: string): Promise<KioskSession | null>;
-  updateItemQuantity(sessionId: string, itemId: string, quantity: number): Promise<KioskSession | null>;
-  getSession(id: string): Promise<KioskSession | null>;
-  completeSession(id: string, paymentMethod: string): Promise<KioskSession | null>;
-  abandonSession(id: string): Promise<KioskSession | null>;
   listSessions(params?: { stationId?: string; status?: SessionStatus; take?: number; skip?: number }): Promise<KioskSession[]>;
-
   getStationStats(stationId: string): Promise<StationStats>;
   getOverallStats(): Promise<OverallStats>;
 }
 ```
 
-## Types
+The controller types retain legacy station-health, item, money, payment, and completion fields solely so pre-withdrawal durable rows can still be parsed. Merchant-facing endpoints do not project those fields as current facts. Completion, revenue, and online compatibility statistics are fixed at `0`.
 
-```ts
-type SessionStatus = "active" | "completed" | "abandoned" | "timed-out";
-type PaymentStatus = "pending" | "paid" | "failed";
+Station updates require an owner-local transaction with row locking. Missing locking or malformed durable records fail closed with `KioskMutationUnavailableError`.
 
-interface KioskStation {
-  id: string;
-  name: string;
-  location?: string;
-  isOnline: boolean;
-  isActive: boolean;
-  lastHeartbeat?: Date;
-  currentSessionId?: string;
-  settings: Record<string, unknown>;
-  createdAt: Date;
-  updatedAt: Date;
-}
+## Containment Notes
 
-interface KioskItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  modifiers?: Array<Record<string, unknown>>;
-}
-
-interface KioskSession {
-  id: string;
-  stationId: string;
-  status: SessionStatus;
-  items: KioskItem[];
-  subtotal: number;
-  tax: number;
-  tip: number;
-  total: number;
-  paymentMethod?: string;
-  paymentStatus: PaymentStatus;
-  startedAt: Date;
-  completedAt?: Date;
-  createdAt: Date;
-}
-
-interface StationStats {
-  totalSessions: number;
-  completedSessions: number;
-  abandonedSessions: number;
-  totalRevenue: number;
-}
-
-interface OverallStats {
-  totalStations: number;
-  onlineStations: number;
-  totalSessions: number;
-  completedSessions: number;
-  abandonedSessions: number;
-  totalRevenue: number;
-}
-```
-
-## Notes
-
-- Tax is automatically calculated at 8% on the subtotal when items are added, removed, or updated.
-- Starting a session requires the station to be active; the session is linked to the station via `currentSessionId`.
-- Completing or abandoning a session clears the station's `currentSessionId`.
-- Only `active` sessions allow item modifications (add, remove, update quantity).
-- Setting quantity to 0 or below removes the item from the session.
-- Station heartbeat sets `isOnline` to `true` and updates `lastHeartbeat` timestamp.
-- Two admin pages: "Kiosks" (overview dashboard) and "Stations" (station management).
-- Events emitted: `kiosk.session.started`, `kiosk.session.ended`, `kiosk.order.paid`, `kiosk.registered`, `kiosk.heartbeat`.
+- There are no public kiosk endpoints and no public lifecycle or health mutations.
+- Item selection, pricing, tax, tipping, Payment creation, Checkout completion, and Order creation are unavailable.
+- Station deletion is unavailable until a complete destructive Workflow owns it.
+- Stored `completed` is a legacy state, not evidence of Checkout, Payment, or Order completion.
+- Admin session projections use `legacy-completed` and omit item, money, and payment data.
+- Admin station projections omit stored health and current-session fields.
+- The Module declares no cross-Module events or exports.

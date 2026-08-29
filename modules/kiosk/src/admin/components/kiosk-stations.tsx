@@ -9,10 +9,7 @@ interface KioskStation {
 	id: string;
 	name: string;
 	location?: string;
-	isOnline: boolean;
 	isActive: boolean;
-	lastHeartbeat?: string;
-	currentSessionId?: string;
 	settings: Record<string, unknown>;
 	createdAt: string;
 	updatedAt: string;
@@ -21,13 +18,7 @@ interface KioskStation {
 interface KioskSession {
 	id: string;
 	stationId: string;
-	status: "active" | "completed" | "abandoned" | "timed-out";
-	subtotal: number;
-	tax: number;
-	tip: number;
-	total: number;
-	paymentMethod?: string;
-	paymentStatus: "pending" | "paid" | "failed";
+	status: "active" | "legacy-completed" | "abandoned" | "timed-out";
 	startedAt: string;
 	completedAt?: string;
 }
@@ -48,13 +39,6 @@ function formatDate(dateStr: string) {
 	});
 }
 
-function formatMoney(cents: number) {
-	return new Intl.NumberFormat(undefined, {
-		style: "currency",
-		currency: "USD",
-	}).format(cents / 100);
-}
-
 function extractError(err: unknown): string {
 	if (err && typeof err === "object" && "message" in err) {
 		return String((err as { message: string }).message);
@@ -65,17 +49,11 @@ function extractError(err: unknown): string {
 const SESSION_STATUS_COLORS: Record<string, string> = {
 	active:
 		"bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-	completed: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+	"legacy-completed":
+		"bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
 	abandoned: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
 	"timed-out":
 		"bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-};
-
-const PAYMENT_STATUS_COLORS: Record<string, string> = {
-	paid: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-	pending:
-		"bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-	failed: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
 };
 
 const SKELETON_IDS = ["a", "b", "c", "d"] as const;
@@ -89,8 +67,6 @@ function useKioskApi() {
 		listStations: client.module("kiosk").admin["/admin/kiosk/stations"],
 		createStation: client.module("kiosk").admin["/admin/kiosk/stations/create"],
 		updateStation: client.module("kiosk").admin["/admin/kiosk/stations/:id"],
-		deleteStation:
-			client.module("kiosk").admin["/admin/kiosk/stations/:id/delete"],
 		listSessions: client.module("kiosk").admin["/admin/kiosk/sessions"],
 	};
 }
@@ -335,7 +311,7 @@ function SessionsTable({ stations }: SessionsTableProps) {
 				>
 					<option value="">All statuses</option>
 					<option value="active">Active</option>
-					<option value="completed">Completed</option>
+					<option value="completed">Legacy completed</option>
 					<option value="abandoned">Abandoned</option>
 					<option value="timed-out">Timed out</option>
 				</select>
@@ -381,18 +357,6 @@ function SessionsTable({ stations }: SessionsTableProps) {
 									scope="col"
 									className="px-4 py-2 font-medium text-muted-foreground"
 								>
-									Total
-								</th>
-								<th
-									scope="col"
-									className="px-4 py-2 font-medium text-muted-foreground"
-								>
-									Payment
-								</th>
-								<th
-									scope="col"
-									className="px-4 py-2 font-medium text-muted-foreground"
-								>
 									Started
 								</th>
 							</tr>
@@ -417,17 +381,7 @@ function SessionsTable({ stations }: SessionsTableProps) {
 											<span
 												className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium text-xs ${SESSION_STATUS_COLORS[s.status] ?? "bg-muted text-muted-foreground"}`}
 											>
-												{s.status}
-											</span>
-										</td>
-										<td className="px-4 py-2 text-foreground text-xs">
-											{formatMoney(s.total)}
-										</td>
-										<td className="px-4 py-2">
-											<span
-												className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium text-xs ${PAYMENT_STATUS_COLORS[s.paymentStatus] ?? "bg-muted text-muted-foreground"}`}
-											>
-												{s.paymentStatus}
+												{s.status.replace("-", " ")}
 											</span>
 										</td>
 										<td className="px-4 py-2 text-muted-foreground text-xs">
@@ -462,21 +416,7 @@ export function KioskStations() {
 		isLoading: boolean;
 	};
 
-	const deleteMutation = api.deleteStation.useMutation({
-		onSuccess: () => void api.listStations.invalidate(),
-	});
-
 	const stations = data?.stations ?? [];
-
-	const handleDelete = (station: KioskStation) => {
-		if (
-			!window.confirm(
-				`Delete station "${station.name}"? This cannot be undone.`,
-			)
-		)
-			return;
-		deleteMutation.mutate({ params: { id: station.id } });
-	};
 
 	return (
 		<div>
@@ -500,7 +440,8 @@ export function KioskStations() {
 				<div>
 					<h1 className="font-bold text-2xl text-foreground">Kiosk Stations</h1>
 					<p className="mt-1 text-muted-foreground text-sm">
-						Manage kiosk terminals and review sessions
+						Manage registration records and review stored session lifecycle
+						records
 					</p>
 				</div>
 				{tab === "stations" ? (
@@ -565,7 +506,7 @@ export function KioskStations() {
 								No stations yet
 							</p>
 							<p className="mt-1 text-muted-foreground text-xs">
-								Add a station to get started
+								Add a station registration record
 							</p>
 							<button
 								type="button"
@@ -596,19 +537,7 @@ export function KioskStations() {
 											scope="col"
 											className="px-4 py-2 font-medium text-muted-foreground"
 										>
-											Online
-										</th>
-										<th
-											scope="col"
-											className="px-4 py-2 font-medium text-muted-foreground"
-										>
 											Active
-										</th>
-										<th
-											scope="col"
-											className="px-4 py-2 font-medium text-muted-foreground"
-										>
-											Last Heartbeat
 										</th>
 										<th
 											scope="col"
@@ -632,20 +561,6 @@ export function KioskStations() {
 											</td>
 											<td className="px-4 py-2">
 												<span
-													className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium text-xs ${
-														station.isOnline
-															? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-															: "bg-muted text-muted-foreground"
-													}`}
-												>
-													<span
-														className={`h-1.5 w-1.5 rounded-full ${station.isOnline ? "bg-green-500" : "bg-muted"}`}
-													/>
-													{station.isOnline ? "Online" : "Offline"}
-												</span>
-											</td>
-											<td className="px-4 py-2">
-												<span
 													className={`inline-flex items-center rounded-full px-2 py-0.5 font-medium text-xs ${
 														station.isActive
 															? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
@@ -655,11 +570,6 @@ export function KioskStations() {
 													{station.isActive ? "Active" : "Inactive"}
 												</span>
 											</td>
-											<td className="px-4 py-2 text-muted-foreground text-xs">
-												{station.lastHeartbeat
-													? formatDate(station.lastHeartbeat)
-													: "Never"}
-											</td>
 											<td className="px-4 py-2">
 												<div className="flex gap-1">
 													<button
@@ -668,14 +578,6 @@ export function KioskStations() {
 														className="rounded px-2 py-1 text-xs hover:bg-muted"
 													>
 														Edit
-													</button>
-													<button
-														type="button"
-														onClick={() => handleDelete(station)}
-														disabled={deleteMutation.isPending}
-														className="rounded px-2 py-1 text-red-600 text-xs hover:bg-red-50 disabled:opacity-50 dark:hover:bg-red-900/20"
-													>
-														Delete
 													</button>
 												</div>
 											</td>

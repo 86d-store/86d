@@ -1,6 +1,6 @@
 # Kiosk Module
 
-Self-service kiosk station management with session-based ordering, item management, and payment tracking.
+Kiosk station registration and legacy lifecycle-record inspection. The public terminal is a static unavailable surface. Public sessions, health, commerce actions, and station deletion remain unavailable until complete authoritative Workflows own them.
 
 **Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
 
@@ -16,55 +16,38 @@ Self-service kiosk station management with session-based ordering, item manageme
 ```
 src/
   index.ts          Factory: kiosk(options?) => Module + admin nav (Sales, 2 pages)
-  schema.ts         Zod models: kioskStation, kioskSession
+  schema.ts         Legacy-compatible Zod models: kioskStation, kioskSession
   service.ts        KioskController interface
-  service-impl.ts   KioskController implementation (auto tax calc at 8%)
-  store/endpoints/
-    /kiosk/sessions                           Start session
-    /kiosk/sessions/:id                       Get session
-    /kiosk/sessions/:id/items                 Add item
-    /kiosk/sessions/:id/items/:itemId/delete  Remove item
-    /kiosk/sessions/:id/items/:itemId         Update item quantity
-    /kiosk/sessions/:id/complete              Complete session (pay)
-    /kiosk/stations/:id/heartbeat             Station heartbeat
-  store/components/  index.tsx
+  service-impl.ts   Registration, legacy reads, and neutral statistics
+  store/endpoints/  Empty; no unauthenticated kiosk endpoints
+  store/components/ Static unavailable terminal
   admin/endpoints/
-    /admin/kiosk/stations              List stations
-    /admin/kiosk/stations/create       Create station
-    /admin/kiosk/stations/:id          Update station
-    /admin/kiosk/stations/:id/delete   Delete station
-    /admin/kiosk/sessions              List sessions
-    /admin/kiosk/stats                 Get overall stats
-  admin/components/  kiosk-admin.tsx, kiosk-admin.mdx, kiosk-stations.tsx, kiosk-stations.mdx, index.tsx
-  __tests__/         controllers.test.ts, endpoint-security.test.ts, events.test.ts
+    /admin/kiosk/stations              List registration projections
+    /admin/kiosk/stations/create       Register station
+    /admin/kiosk/stations/:id          Update station registration
+    /admin/kiosk/sessions              List qualified legacy lifecycle projections
+    /admin/kiosk/stats                 Get neutral record counts
+  admin/components/  kiosk-admin.tsx, kiosk-admin.mdx, kiosk-stations.tsx, kiosk-stations.mdx
+  __tests__/         Service, endpoint, route-exposure, and terminal containment suites
 ```
 
 ## Options
 
-```ts
-interface KioskOptions extends ModuleConfig {
-  idleTimeout?: string;        // Idle timeout in seconds (default: "120")
-  enableTipping?: string;      // Enable tipping (default: "true")
-  defaultTipPercents?: string; // Comma-separated tip % (default: "15,18,20,25")
-}
-```
+`idleTimeout`, `enableTipping`, and `defaultTipPercents` are accepted only for configuration compatibility. They do not enable public sessions, timeout behavior, tipping, or terminal actions.
 
 ## Data models
 
-- **KioskStation** — id, name, location, isOnline, isActive, lastHeartbeat, currentSessionId, settings (JSON)
-- **KioskSession** — id, stationId, status (active|completed|abandoned|timed-out), items (KioskItem[]), subtotal, tax, tip, total, paymentMethod, paymentStatus (pending|paid|failed), startedAt, completedAt
-- **KioskItem** — id, name, price, quantity, modifiers
-- **StationStats** — totalSessions, completedSessions, abandonedSessions, totalRevenue
-- **OverallStats** — totalStations, onlineStations, totalSessions, completedSessions, abandonedSessions, totalRevenue
+- **KioskStation** — registration fields plus legacy `isOnline`, `lastHeartbeat`, and `currentSessionId` storage fields; health/current-session fields are never projected by admin endpoints
+- **KioskSession** — legacy lifecycle record; item, money, payment, and `completed` fields are storage compatibility only and are not projected as commerce truth
+- **StationStats** — neutral lifecycle counts plus completion and revenue compatibility fields fixed at 0
+- **OverallStats** — neutral record counts plus online, completion, and revenue compatibility fields fixed at 0
 
 ## Patterns
 
-- Two admin pages: "Kiosks" (overview/stats) and "Stations" (manage stations)
-- Station heartbeat sets `isOnline=true` and updates `lastHeartbeat`
-- Session start requires station to be active; links session to station via `currentSessionId`
-- Items auto-recalculate subtotal, tax (8%), and total on add/remove/update
-- Complete session sets `paymentStatus=paid` and clears station's `currentSessionId`
-- Abandon session clears station's `currentSessionId`
-- Events emitted: `kiosk.session.started`, `kiosk.session.ended`, `kiosk.order.placed`, `kiosk.order.paid`, `kiosk.registered`, `kiosk.heartbeat`
-- Exports read values: `kioskSessionStatus`, `kioskStationOnline`
-- Only active sessions allow item modifications
+- `/kiosk/:stationId` is static: no browser capability, API request, session, heartbeat, timer, or durable mutation
+- `storeEndpoints` stays empty until authoritative public Workflows exist
+- Station create, update, and list responses project registration fields only
+- Admin session responses map stored `completed` to `legacy-completed` and omit item, money, and payment fields
+- Station update uses an owner-local row-locking transaction; missing locking and invalid durable state fail closed
+- Public lifecycle, station health, item, pricing, Checkout, Payment, Order, station deletion, completion stats, and revenue reporting are unavailable
+- No cross-Module events or exports are declared
