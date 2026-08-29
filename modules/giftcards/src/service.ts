@@ -174,10 +174,10 @@ export type GiftCardController = ModuleController & {
 
 	countAll(): Promise<number>;
 
-	/** Purchase a gift card (customer-facing) */
+	/** Create a purchased gift card after authoritative payment confirmation */
 	purchase(params: PurchaseGiftCardParams): Promise<GiftCard>;
 
-	/** Top up an existing gift card */
+	/** Add balance after authoritative payment confirmation */
 	topUp(params: TopUpParams): Promise<RedeemResult | null>;
 
 	/** Send a gift card to a recipient via email */

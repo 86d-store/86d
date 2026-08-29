@@ -1,6 +1,6 @@
 # Gift Cards Module
 
-Digital gift cards with purchasing, gifting, redemption, balance management, top-ups, and analytics.
+Digital gift cards with issuance, gifting, redemption, balance management, and analytics. Direct storefront purchase and top-up stay unavailable until an authoritative payment Workflow owns each operation.
 
 **Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
 
@@ -24,10 +24,8 @@ src/
     endpoints/
       check-balance.ts    GET  /gift-cards/check          (public)
       redeem.ts           POST /gift-cards/redeem          (auth)
-      purchase.ts         POST /gift-cards/purchase         (auth)
       send.ts             POST /gift-cards/send             (auth)
       my-cards.ts         GET  /gift-cards/my-cards         (auth)
-      top-up.ts           POST /gift-cards/top-up           (auth)
   admin/
     components/     Admin MDX + TSX (overview)
     endpoints/
@@ -66,9 +64,9 @@ Emits: `giftCard.created`, `giftCard.purchased`, `giftCard.redeemed`, `giftCard.
 ## Patterns
 
 - Codes are uppercase alphanumeric, no ambiguous chars (0/O/1/I/L), format GIFT-XXXX-XXXX-XXXX
-- `purchase()` creates card + records purchase transaction; assigns customerId for self-purchases, leaves unassigned for gifts
+- `purchase()` is an internal primitive that creates a card and purchase transaction; invoke it only after authoritative payment confirmation, never from a direct Store endpoint
+- `topUp()` is an internal primitive that adds balance; invoke it only after authoritative payment confirmation, never from a direct Store endpoint
 - `sendGiftCard()` marks card as delivered with email delivery — only owner or purchaser can send
-- `topUp()` verifies card ownership before adding balance — reactivates depleted cards
 - `redeem(code, amount)` caps at available balance; sets status to "depleted" at zero
 - `checkBalance(code)` is public (no auth), returns expired status for past-dated cards
 - `bulkCreate()` generates multiple cards with shared settings (for promotions)

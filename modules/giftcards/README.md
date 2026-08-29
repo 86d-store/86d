@@ -21,7 +21,7 @@
 
 # Gift Cards Module
 
-Full-featured gift card system for 86d commerce: purchasing, gifting, redemption, top-ups, balance management, bulk issuance, and analytics.
+Gift card issuance, gifting, redemption, balance management, bulk issuance, and analytics for 86d commerce. Direct storefront purchase and top-up are unavailable until they can run through an authoritative payment Workflow.
 
 ## Installation
 
@@ -57,10 +57,8 @@ const module = giftCards({
 |---|---|---|---|
 | `GET` | `/gift-cards/check?code=...` | No | Check balance and status by code |
 | `POST` | `/gift-cards/redeem` | Yes | Redeem a gift card for an amount |
-| `POST` | `/gift-cards/purchase` | Yes | Purchase a new gift card (for self or as gift) |
 | `POST` | `/gift-cards/send` | Yes | Send an owned gift card to a recipient via email |
 | `GET` | `/gift-cards/my-cards` | Yes | List authenticated customer's gift cards |
-| `POST` | `/gift-cards/top-up` | Yes | Add balance to an owned gift card |
 
 ## Admin Endpoints
 
@@ -96,8 +94,9 @@ interface GiftCardController {
   credit(id: string, amount: number, note?: string, orderId?: string): Promise<RedeemResult | null>;
   listTransactions(giftCardId: string, params?: { take?; skip? }): Promise<GiftCardTransaction[]>;
 
-  // Customer-facing
+  // Internal purchase primitive; call only after authoritative payment confirmation
   purchase(params: PurchaseGiftCardParams): Promise<GiftCard>;
+  // Internal top-up primitive; call only after authoritative payment confirmation
   topUp(params: TopUpParams): Promise<RedeemResult | null>;
   sendGiftCard(params: SendGiftCardParams): Promise<GiftCard | null>;
   listByCustomer(customerId: string, params?: { take?; skip? }): Promise<GiftCard[]>;

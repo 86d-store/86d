@@ -4,13 +4,16 @@ import { createGiftCardController } from "../service-impl";
 
 /**
  * Tests for expanded gift-cards features:
- * - Purchase (customer-facing gift card buying)
- * - Top-up (add balance to owned card)
+ * - Internal purchase primitive (after payment confirmation)
+ * - Internal top-up primitive (after payment confirmation)
  * - Send gift card (email delivery)
  * - List by customer
  * - Bulk create (admin)
  * - Statistics (admin)
  * - Disable expired (admin)
+ *
+ * Store route exposure is covered separately and remains fail-closed for value
+ * creation until authoritative payment Workflows are available.
  */
 describe("gift-cards — new features", () => {
 	let mockData: ReturnType<typeof createMockDataService>;
@@ -619,11 +622,11 @@ describe("gift-cards — new features", () => {
 		});
 	});
 
-	// ── Full lifecycle: purchase → send → redeem ──────────────────
+	// ── Controller lifecycle: purchase → send → redeem ────────────
 
 	describe("full lifecycle: purchase → send → redeem", () => {
-		it("complete gift card gifting flow", async () => {
-			// 1. Customer purchases a gift card for someone
+		it("records a confirmed gift card gifting flow", async () => {
+			// 1. Apply an already-confirmed purchase for someone
 			const card = await controller.purchase({
 				amount: 5000,
 				customerId: "buyer_1",
@@ -659,8 +662,8 @@ describe("gift-cards — new features", () => {
 			expect(allTxns).toHaveLength(3); // purchase + 2 debits
 		});
 
-		it("purchase → top-up → redeem flow", async () => {
-			// 1. Purchase for self
+		it("records confirmed purchase → top-up → redeem operations", async () => {
+			// 1. Apply an already-confirmed purchase for self
 			const card = await controller.purchase({
 				amount: 2000,
 				customerId: "cust_1",
@@ -668,7 +671,7 @@ describe("gift-cards — new features", () => {
 			});
 			expect(card.customerId).toBe("cust_1");
 
-			// 2. Top up the card
+			// 2. Apply an already-confirmed top-up
 			const topUp = await controller.topUp({
 				giftCardId: card.id,
 				customerId: "cust_1",
