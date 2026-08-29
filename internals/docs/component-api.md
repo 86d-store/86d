@@ -59,7 +59,7 @@ Modules must be listed in `templates/brisa/config.json` to be available.
 - [`@86d-app/gamification`](#86d-appgamification) — 1 store, 2 admin components
 - [`@86d-app/gift-registry`](#86d-appgift-registry) — 2 store, 2 admin components
 - [`@86d-app/gift-wrapping`](#86d-appgift-wrapping) — 1 store, 2 admin components
-- [`@86d-app/giftcards`](#86d-appgiftcards) — 3 store, 1 admin components
+- [`@86d-app/giftcards`](#86d-appgiftcards) — 2 store, 1 admin components
 - [`@86d-app/google-shopping`](#86d-appgoogle-shopping) — 1 admin component
 - [`@86d-app/import-export`](#86d-appimport-export) — 2 admin components
 - [`@86d-app/instagram-shop`](#86d-appinstagram-shop) — 1 admin component
@@ -1272,7 +1272,7 @@ Registered as admin pages — accessed via the admin sidebar.
 
 ## `@86d-app/giftcards`
 
-Digital gift cards with purchasing, gifting, redemption, balance management, top-ups, and analytics.
+Digital gift cards with purchasing, gifting, balance management, top-ups, analytics, and contained redemption internals.
 
 ### Store components
 
@@ -1288,12 +1288,6 @@ Use in MDX template files:
 
 ```mdx
 <GiftCardLanding />
-```
-
-#### `GiftCardRedeem`
-
-```mdx
-<GiftCardRedeem />
 ```
 
 ### Admin components

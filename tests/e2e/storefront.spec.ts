@@ -477,7 +477,6 @@ test.describe("Storefront — Module Pages", () => {
 		{ name: "Support Tickets", path: "/support/tickets" },
 		{ name: "New Ticket", path: "/support/tickets/new" },
 		{ name: "Gift Card Balance", path: "/gift-cards/balance" },
-		{ name: "Gift Card Redeem", path: "/gift-cards/redeem" },
 		{ name: "Loyalty", path: "/loyalty" },
 		{ name: "Subscriptions", path: "/subscriptions" },
 		{ name: "Downloads", path: "/downloads" },

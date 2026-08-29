@@ -412,15 +412,6 @@ test.describe("Storefront — Visual", () => {
 		);
 	});
 
-	test("gift card redeem page", async ({ page }) => {
-		await stableGoto(page, "/gift-cards/redeem");
-		await expect(page.locator("main")).toBeVisible({ timeout: 10_000 });
-		await expect(page).toHaveScreenshot(
-			"gift-cards-redeem.png",
-			SCREENSHOT_OPTS,
-		);
-	});
-
 	test("loyalty page", async ({ page }) => {
 		await stableGoto(page, "/loyalty");
 		await expect(page.locator("main")).toBeVisible({ timeout: 10_000 });

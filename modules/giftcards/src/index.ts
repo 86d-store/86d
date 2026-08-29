@@ -71,7 +71,6 @@ export default function giftCards(options?: GiftCardOptions): Module {
 			pages: [
 				{ path: "/gift-cards", component: "GiftCardLanding" },
 				{ path: "/gift-cards/balance", component: "GiftCardBalance" },
-				{ path: "/gift-cards/redeem", component: "GiftCardRedeem" },
 			],
 		},
 		options,

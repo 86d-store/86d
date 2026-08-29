@@ -4,6 +4,7 @@ import type {
 	ModuleTransactionRunner,
 } from "@86d-app/core/durable-events";
 import type { ModuleDataService } from "@86d-app/core/types/module";
+import { giftcardsGiftCardShape } from "./schema";
 import type {
 	BulkCreateParams,
 	CreateGiftCardParams,
@@ -21,9 +22,14 @@ function supportsRowLock(
 	transaction: ModuleDataTransaction,
 ): transaction is LockingModuleDataTransaction {
 	return (
-		typeof (transaction as Partial<LockingModuleDataTransaction>)
-			.getForUpdate === "function"
+		"getForUpdate" in transaction &&
+		typeof transaction.getForUpdate === "function"
 	);
+}
+
+function parseGiftCard(value: unknown): GiftCard | null {
+	const parsed = giftcardsGiftCardShape.safeParse(value);
+	return parsed.success ? parsed.data : null;
 }
 
 /**
@@ -190,14 +196,14 @@ export function createGiftCardController(
 			amount: number,
 			orderId?: string | undefined,
 		): Promise<RedeemResult | null> {
+			if (!transactions) return null;
+
 			const results = await data.findMany("giftCard", {
 				where: { code: code.toUpperCase() },
 				take: 1,
 			});
-			const cards = results as unknown as GiftCard[];
-			if (cards.length === 0) return null;
-
-			const card = cards[0];
+			const card = parseGiftCard(results[0]);
+			if (!card) return null;
 
 			const redeemLocked = async (
 				transaction: Pick<
@@ -207,7 +213,8 @@ export function createGiftCardController(
 			): Promise<RedeemResult | null> => {
 				const locked = await transaction.getForUpdate("giftCard", card.id);
 				if (!locked) return null;
-				const current = locked as unknown as GiftCard;
+				const current = parseGiftCard(locked);
+				if (!current) return null;
 
 				if (current.status !== "active") return null;
 				if (current.expiresAt && new Date(current.expiresAt) < new Date()) {
@@ -224,11 +231,7 @@ export function createGiftCardController(
 					updatedAt: new Date(),
 				};
 
-				await transaction.upsert(
-					"giftCard",
-					current.id,
-					updatedCard as Record<string, unknown>,
-				);
+				await transaction.upsert("giftCard", current.id, { ...updatedCard });
 
 				const txn: GiftCardTransaction = {
 					id: crypto.randomUUID(),
@@ -241,25 +244,14 @@ export function createGiftCardController(
 					createdAt: new Date(),
 				};
 
-				await transaction.upsert(
-					"giftCardTransaction",
-					txn.id,
-					txn as Record<string, unknown>,
-				);
+				await transaction.upsert("giftCardTransaction", txn.id, { ...txn });
 
 				return { transaction: txn, giftCard: updatedCard };
 			};
 
-			if (transactions) {
-				return transactions.transaction(async (transaction) => {
-					if (!supportsRowLock(transaction)) return null;
-					return redeemLocked(transaction);
-				});
-			}
-
-			return redeemLocked({
-				getForUpdate: data.get.bind(data),
-				upsert: data.upsert.bind(data),
+			return transactions.transaction(async (transaction) => {
+				if (!supportsRowLock(transaction)) return null;
+				return redeemLocked(transaction);
 			});
 		},
 

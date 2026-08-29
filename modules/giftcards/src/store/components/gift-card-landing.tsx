@@ -1,6 +1,6 @@
 import GiftCardLandingTemplate from "./gift-card-landing.mdx";
 
-/** Landing page for the gift cards section — links to balance check and redemption. */
+/** Landing page for the available gift card balance lookup. */
 export function GiftCardLanding() {
 	return <GiftCardLandingTemplate />;
 }
