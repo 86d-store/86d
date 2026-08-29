@@ -6,11 +6,11 @@ export type PaymentStatus = "pending" | "paid" | "failed";
 export type KioskStation = {
 	id: string;
 	name: string;
-	location?: string | undefined;
+	location?: string | null | undefined;
 	isOnline: boolean;
 	isActive: boolean;
 	lastHeartbeat?: Date | undefined;
-	currentSessionId?: string | undefined;
+	currentSessionId?: string | null | undefined;
 	settings: Record<string, unknown>;
 	createdAt: Date;
 	updatedAt: Date;
@@ -56,6 +56,56 @@ export type OverallStats = {
 	totalRevenue: number;
 };
 
+export const KIOSK_STATION_ADMIN_SORT_FIELDS = [
+	"name",
+	"location",
+	"isActive",
+] as const;
+
+export type KioskStationAdminSortField =
+	(typeof KIOSK_STATION_ADMIN_SORT_FIELDS)[number];
+
+export const KIOSK_SESSION_ADMIN_SORT_FIELDS = [
+	"id",
+	"stationId",
+	"status",
+	"startedAt",
+] as const;
+
+export type KioskSessionAdminSortField =
+	(typeof KIOSK_SESSION_ADMIN_SORT_FIELDS)[number];
+
+export type KioskAdminSortDirection = "asc" | "desc";
+
+export type KioskStationAdminListParams = {
+	isActive?: boolean | undefined;
+	search?: string | undefined;
+	sort?: KioskStationAdminSortField | undefined;
+	direction?: KioskAdminSortDirection | undefined;
+	take?: number | undefined;
+	skip?: number | undefined;
+};
+
+export type KioskStationAdminListPage = {
+	stations: KioskStation[];
+	total: number;
+};
+
+export type KioskSessionAdminListParams = {
+	stationId?: string | undefined;
+	status?: SessionStatus | undefined;
+	search?: string | undefined;
+	sort?: KioskSessionAdminSortField | undefined;
+	direction?: KioskAdminSortDirection | undefined;
+	take?: number | undefined;
+	skip?: number | undefined;
+};
+
+export type KioskSessionAdminListPage = {
+	sessions: KioskSession[];
+	total: number;
+};
+
 export type KioskController = ModuleController & {
 	registerStation(params: {
 		name: string;
@@ -67,13 +117,11 @@ export type KioskController = ModuleController & {
 		id: string,
 		params: {
 			name?: string | undefined;
-			location?: string | undefined;
+			location?: string | null | undefined;
 			isActive?: boolean | undefined;
 			settings?: Record<string, unknown> | undefined;
 		},
 	): Promise<KioskStation | null>;
-
-	deleteStation(id: string): Promise<boolean>;
 
 	listStations(params?: {
 		isActive?: boolean | undefined;
@@ -81,33 +129,12 @@ export type KioskController = ModuleController & {
 		skip?: number | undefined;
 	}): Promise<KioskStation[]>;
 
+	/** Query one admin page after applying filters and ordering to all records. */
+	listStationAdminPage(
+		params?: KioskStationAdminListParams,
+	): Promise<KioskStationAdminListPage>;
+
 	getStation(id: string): Promise<KioskStation | null>;
-
-	heartbeat(stationId: string): Promise<KioskStation | null>;
-
-	startSession(stationId: string): Promise<KioskSession | null>;
-
-	addItem(
-		sessionId: string,
-		item: { name: string; price: number; quantity: number },
-	): Promise<KioskSession | null>;
-
-	removeItem(sessionId: string, itemId: string): Promise<KioskSession | null>;
-
-	updateItemQuantity(
-		sessionId: string,
-		itemId: string,
-		quantity: number,
-	): Promise<KioskSession | null>;
-
-	getSession(id: string): Promise<KioskSession | null>;
-
-	completeSession(
-		id: string,
-		paymentMethod: string,
-	): Promise<KioskSession | null>;
-
-	abandonSession(id: string): Promise<KioskSession | null>;
 
 	listSessions(params?: {
 		stationId?: string | undefined;
@@ -115,6 +142,11 @@ export type KioskController = ModuleController & {
 		take?: number | undefined;
 		skip?: number | undefined;
 	}): Promise<KioskSession[]>;
+
+	/** Query one admin page after applying filters and ordering to all records. */
+	listSessionAdminPage(
+		params?: KioskSessionAdminListParams,
+	): Promise<KioskSessionAdminListPage>;
 
 	getStationStats(stationId: string): Promise<StationStats>;
 

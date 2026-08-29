@@ -1,11 +1,15 @@
 "use client";
 
 import { useModuleClient } from "@86d-app/core/client/provider";
+import { Alert, AlertDescription, AlertTitle } from "@86d-app/ui/alert";
+import { Button } from "@86d-app/ui/button";
+import { Text } from "@86d-app/ui/text";
+import { View } from "@86d-app/ui/view";
 import KioskAdminTemplate from "./kiosk-admin.mdx";
 
 function Skeleton({ className = "" }: { className?: string }) {
 	return (
-		<div
+		<View
 			className={`animate-pulse rounded bg-muted ${className}`}
 			aria-hidden="true"
 		/>
@@ -19,100 +23,116 @@ function useKioskAdminApi() {
 	};
 }
 
+function KioskAdminUnavailable({ onRetry }: { onRetry: () => void }) {
+	return (
+		<Alert variant="destructive" role="alert">
+			<AlertTitle>Kiosk overview is unavailable</AlertTitle>
+			<AlertDescription>
+				Station registration and legacy session record counts could not be
+				loaded. Your records have not changed.
+			</AlertDescription>
+			<View className="mt-3">
+				<Button
+					type="button"
+					variant="outline"
+					onClick={onRetry}
+					aria-label="Retry loading kiosk overview"
+				>
+					Try again
+				</Button>
+			</View>
+		</Alert>
+	);
+}
+
 export function KioskAdmin() {
 	const api = useKioskAdminApi();
-	const {
-		data,
-		isLoading: loading,
-		isError: statsError,
-		refetch: refetchStats,
-	} = api.getStats.useQuery({}) as {
+	const query = api.getStats.useQuery({}) as {
 		data:
 			| {
 					stats: {
 						totalStations: number;
-						onlineStations: number;
-						totalSessions: number;
-						completedSessions: number;
-						totalRevenue: number;
+						legacySessionRecords: number;
 					};
 			  }
 			| undefined;
 		isLoading: boolean;
 		isError: boolean;
-		refetch: () => void;
+		refetch: () => unknown;
 	};
 
-	if (statsError) {
+	if (query.isError) {
 		return (
-			<div>
-				<h1 className="mb-4 font-bold text-2xl text-foreground">
-					Kiosk Overview
-				</h1>
-				<div
-					role="alert"
-					className="rounded-md border border-destructive/50 bg-destructive/10 p-4"
-				>
-					<p className="font-semibold text-destructive">
-						Failed to load kiosk stats
-					</p>
-					<p className="mt-1 text-muted-foreground text-sm">
-						Check your connection and try again.
-					</p>
-					<button
-						type="button"
-						onClick={() => refetchStats()}
-						className="mt-3 rounded-md bg-destructive/20 px-3 py-1.5 font-medium text-destructive text-sm transition-colors hover:bg-destructive/30"
-					>
-						Try again
-					</button>
-				</div>
-			</div>
+			<KioskAdminTemplate>
+				<KioskAdminUnavailable onRetry={() => void query.refetch()} />
+			</KioskAdminTemplate>
 		);
 	}
 
-	const stats = data?.stats;
+	const stats = query.data?.stats;
 
 	return (
 		<KioskAdminTemplate>
-			{loading ? (
-				<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-					{Array.from({ length: 4 }, (_, i) => `skel-${i}`).map((key) => (
-						<div key={key} className="rounded-md border border-border p-4">
-							<Skeleton className="mb-2 h-3 w-14" />
-							<Skeleton className="h-7 w-20" />
-						</div>
-					))}
-				</div>
+			{query.isLoading ? (
+				<View className="grid grid-cols-2 gap-4 md:grid-cols-4">
+					{Array.from({ length: 4 }, (_, index) => `skel-${index}`).map(
+						(key) => (
+							<View key={key} className="rounded-md border border-border p-4">
+								<Skeleton className="mb-2 h-3 w-14" />
+								<Skeleton className="h-7 w-20" />
+							</View>
+						),
+					)}
+				</View>
 			) : !stats ? (
-				<p className="text-muted-foreground text-sm">No data available.</p>
+				<KioskAdminUnavailable onRetry={() => void query.refetch()} />
 			) : (
-				<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-					<div className="rounded-md border border-border p-4">
-						<p className="text-muted-foreground text-xs">Stations</p>
-						<p className="font-semibold text-2xl text-foreground">
+				<View className="grid grid-cols-2 gap-4 md:grid-cols-4">
+					<View className="rounded-md border border-border p-4">
+						<Text variant="p" className="text-muted-foreground text-xs">
+							Stations
+						</Text>
+						<Text
+							variant="p"
+							className="font-semibold text-2xl text-foreground tabular-nums"
+						>
 							{stats.totalStations}
-						</p>
-					</div>
-					<div className="rounded-md border border-border p-4">
-						<p className="text-muted-foreground text-xs">Online</p>
-						<p className="font-semibold text-2xl text-foreground">
-							{stats.onlineStations}
-						</p>
-					</div>
-					<div className="rounded-md border border-border p-4">
-						<p className="text-muted-foreground text-xs">Sessions</p>
-						<p className="font-semibold text-2xl text-foreground">
-							{stats.totalSessions}
-						</p>
-					</div>
-					<div className="rounded-md border border-border p-4">
-						<p className="text-muted-foreground text-xs">Revenue</p>
-						<p className="font-semibold text-2xl text-foreground">
-							${stats.totalRevenue.toFixed(2)}
-						</p>
-					</div>
-				</div>
+						</Text>
+					</View>
+					<View className="rounded-md border border-border p-4">
+						<Text variant="p" className="text-muted-foreground text-xs">
+							Station health
+						</Text>
+						<Text
+							variant="p"
+							className="font-semibold text-2xl text-foreground"
+						>
+							Unavailable
+						</Text>
+					</View>
+					<View className="rounded-md border border-border p-4">
+						<Text variant="p" className="text-muted-foreground text-xs">
+							Legacy session records
+						</Text>
+						<Text
+							variant="p"
+							className="font-semibold text-2xl text-foreground tabular-nums"
+						>
+							{stats.legacySessionRecords}
+						</Text>
+					</View>
+					<View className="rounded-md border border-border p-4">
+						<Text variant="p" className="text-muted-foreground text-xs">
+							Checkout
+						</Text>
+						<Text
+							variant="p"
+							className="font-semibold text-2xl text-foreground"
+						>
+							Unavailable
+						</Text>
+					</View>
+				</View>
 			)}
 		</KioskAdminTemplate>
 	);

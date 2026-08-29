@@ -16,6 +16,7 @@ const productShape = z.object({
 	name: z.string(),
 	slug: z.string(),
 	status: z.string(),
+	description: z.string().nullable().optional(),
 	createdAt: z.string().optional(),
 	updatedAt: z.string().optional(),
 });
@@ -58,6 +59,7 @@ describe("CompiledModuleDataService", () => {
 			name: "Coat",
 			slug: "coat",
 			status: "active",
+			description: "Warm coat",
 		});
 		const got = await data.get("product", "prod_1");
 		expect(got).toMatchObject({
@@ -65,6 +67,19 @@ describe("CompiledModuleDataService", () => {
 			name: "Coat",
 			slug: "coat",
 			status: "active",
+			description: "Warm coat",
+		});
+
+		await data.upsert("product", "prod_1", {
+			id: "prod_1",
+			name: "Coat",
+			slug: "coat",
+			status: "active",
+			description: null,
+		});
+		await expect(data.get("product", "prod_1")).resolves.toMatchObject({
+			id: "prod_1",
+			description: null,
 		});
 
 		const listed = await data.findMany("product", {

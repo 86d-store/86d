@@ -1412,7 +1412,7 @@ Registered as admin pages — accessed via the admin sidebar.
 
 ## `@86d-app/kiosk`
 
-Self-service kiosk station management with session-based ordering, item management, and payment tracking.
+Kiosk station registration and legacy lifecycle-record inspection. The public terminal is a static unavailable surface. Public sessions, health, commerce actions, and station deletion remain unavailable until complete authoritative Workflows own them.
 
 ### Store components
 
@@ -1423,15 +1423,6 @@ Use in MDX template files:
 ```mdx
 <KioskTerminal />
 ```
-
-**Props**
-
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `stationId` | `string \| undefined` | No | Station ID this terminal is registered as |
-| `currency` | `string` | No | ISO 4217 currency code (default: "USD") |
-| `idleTimeout` | `number` | No | Idle timeout in seconds before auto-reset (default: 120) |
-| `params` | `Record<string, string> \| undefined` | No |  |
 
 ### Admin components
 

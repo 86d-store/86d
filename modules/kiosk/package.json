@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/kiosk",
 	"version": "0.0.42",
-	"description": "Self-service ordering kiosk module for 86d commerce platform",
+	"description": "Kiosk station registration and legacy lifecycle records",
 	"keywords": [
 		"commerce",
 		"restaurant",
@@ -55,13 +55,18 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-app/core": "workspace:*",
+		"@86d-app/ui": "workspace:*",
+		"@tanstack/react-form": "1.33.5",
+		"@tanstack/react-table": "9.1.2"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",
 		"@biomejs/biome": "catalog:",
 		"@types/mdx": "catalog:mdx",
 		"@types/react": "catalog:react",
+		"@types/react-dom": "catalog:react",
+		"react-dom": "catalog:react",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
 	},

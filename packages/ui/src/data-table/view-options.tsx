@@ -2,7 +2,7 @@
 
 import { SlidersHorizontalIcon } from "@phosphor-icons/react/dist/ssr";
 import type { ReactTable, RowData, TableFeatures } from "@tanstack/react-table";
-import { Button } from "~/button";
+import { Button } from "../button";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -11,8 +11,8 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "~/dropdown-menu";
-import { cn } from "~/lib/utils";
+} from "../dropdown-menu";
+import { cn } from "../lib/utils";
 
 type VisibilityColumn = {
 	id: string;

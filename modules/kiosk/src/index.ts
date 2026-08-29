@@ -9,10 +9,17 @@ import { createKioskController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
 export type {
+	KioskAdminSortDirection,
 	KioskController,
 	KioskItem,
 	KioskSession,
+	KioskSessionAdminListPage,
+	KioskSessionAdminListParams,
+	KioskSessionAdminSortField,
 	KioskStation,
+	KioskStationAdminListPage,
+	KioskStationAdminListParams,
+	KioskStationAdminSortField,
 	OverallStats,
 	PaymentStatus,
 	SessionStatus,
@@ -20,11 +27,11 @@ export type {
 } from "./service";
 
 export interface KioskOptions extends ModuleConfig {
-	/** Idle timeout in seconds (default: "120") */
+	/** Reserved compatibility option; public sessions are unavailable. */
 	idleTimeout?: string;
-	/** Enable tipping (default: "true") */
+	/** Reserved compatibility option; tipping is unavailable. */
 	enableTipping?: string;
-	/** Default tip percentages, comma-separated (default: "15,18,20,25") */
+	/** Reserved compatibility option; tip choices are unavailable. */
 	defaultTipPercents?: string;
 }
 
@@ -33,21 +40,8 @@ export default function kiosk(options?: KioskOptions): Module {
 		id: "kiosk",
 		version: "0.0.1",
 		storage: kioskStorage,
-		exports: {
-			read: ["kioskSessionStatus", "kioskStationOnline"],
-		},
-		events: {
-			emits: [
-				"kiosk.session.started",
-				"kiosk.session.ended",
-				"kiosk.order.placed",
-				"kiosk.order.paid",
-				"kiosk.registered",
-				"kiosk.heartbeat",
-			],
-		},
 		init: async (ctx: ModuleContext) => {
-			const controller = createKioskController(ctx.data, ctx.events);
+			const controller = createKioskController(ctx.data, ctx.transactions);
 			return { controllers: { kiosk: controller } };
 		},
 		endpoints: {

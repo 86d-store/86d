@@ -627,6 +627,18 @@ test.describe("Storefront — Visual", () => {
 		await expect(page.locator("main")).toBeVisible({ timeout: 10_000 });
 		await expect(page).toHaveScreenshot("sitemap.png", SCREENSHOT_OPTS);
 	});
+
+	test("kiosk terminal containment", async ({ page }) => {
+		await stableGoto(page, "/kiosk/visual-station");
+		await expect(page.getByTestId("kiosk-unavailable")).toBeVisible();
+		await expect(page.getByRole("button", { name: "Start order" })).toHaveCount(
+			0,
+		);
+		await expect(page).toHaveScreenshot(
+			"kiosk-terminal-containment.png",
+			SCREENSHOT_OPTS,
+		);
+	});
 });
 
 // ─── Auth pages ─────────────────────────────────────────────────────────────
@@ -1857,8 +1869,196 @@ test.describe("Admin — Authenticated Visual", () => {
 	test("admin kiosks list", async ({ admin }) => {
 		await admin.page.goto("/admin/kiosk");
 		await admin.page.waitForLoadState("load");
+		await expect(
+			admin.page.getByText("Unavailable", { exact: true }),
+		).toHaveCount(2);
 		await expect(admin.page).toHaveScreenshot(
 			"admin-kiosks-list.png",
+			SCREENSHOT_OPTS,
+		);
+	});
+
+	test("admin kiosk overview unavailable", async ({ admin }) => {
+		await admin.page.route("**/api/admin/kiosk/stats*", async (route) => {
+			expect(route.request().method()).toBe("GET");
+			await route.fulfill({
+				status: 503,
+				json: { error: "Kiosk statistics are unavailable" },
+			});
+		});
+
+		await admin.page.goto("/admin/kiosk");
+		await expect(
+			admin.page.getByText("Kiosk overview is unavailable", { exact: true }),
+		).toBeVisible();
+		await expect(
+			admin.page.getByRole("button", {
+				name: "Retry loading kiosk overview",
+			}),
+		).toBeVisible();
+		beginVisualApiPhase(admin.page);
+		await expect(admin.page).toHaveScreenshot(
+			"admin-kiosk-overview-unavailable.png",
+			SCREENSHOT_OPTS,
+		);
+	});
+
+	test("admin kiosk stations", async ({ admin }) => {
+		const stationId = "visual-station";
+		await admin.page.route("**/api/admin/kiosk/stations*", async (route) => {
+			expect(route.request().method()).toBe("GET");
+			await route.fulfill({
+				json: {
+					stations: [
+						{
+							id: stationId,
+							name: "Front Counter",
+							location: "Main lobby",
+							isActive: true,
+							settings: {},
+							createdAt: VISUAL_FIXED_TIME.toISOString(),
+							updatedAt: VISUAL_FIXED_TIME.toISOString(),
+						},
+					],
+					total: 1,
+				},
+			});
+		});
+		await admin.page.route(
+			"**/api/admin/kiosk/station-options*",
+			async (route) => {
+				expect(route.request().method()).toBe("GET");
+				await route.fulfill({
+					json: {
+						stations: [
+							{
+								id: stationId,
+								name: "Front Counter",
+								location: "Main lobby",
+							},
+						],
+					},
+				});
+			},
+		);
+		await admin.page.route("**/api/admin/kiosk/sessions*", async (route) => {
+			expect(route.request().method()).toBe("GET");
+			await route.fulfill({
+				json: {
+					sessions: [
+						{
+							id: "legacy-session-001",
+							stationId,
+							status: "legacy-completed",
+							startedAt: VISUAL_FIXED_TIME.toISOString(),
+							completedAt: VISUAL_FIXED_TIME.toISOString(),
+						},
+					],
+					total: 1,
+				},
+			});
+		});
+
+		await admin.page.goto("/admin/kiosk/stations");
+		await expect(
+			admin.page.getByTestId("kiosk-station-data-table"),
+		).toBeVisible();
+		await expect(
+			admin.page.locator('[data-slot="badge"]:visible', { hasText: "Enabled" }),
+		).toHaveCount(1);
+		await expect(
+			admin.page.getByRole("columnheader", { name: "Health" }),
+		).toHaveCount(0);
+		await expect(admin.page).toHaveScreenshot(
+			"admin-kiosk-station-registrations.png",
+			SCREENSHOT_OPTS,
+		);
+		await admin.page
+			.getByRole("tab", { name: "Legacy sessions", exact: true })
+			.click();
+		await expect(
+			admin.page.locator('[data-slot="badge"]:visible', {
+				hasText: "Legacy completed",
+			}),
+		).toHaveCount(1);
+		await expect(
+			admin.page.getByRole("columnheader", { name: "Payment" }),
+		).toHaveCount(0);
+		await expect(
+			admin.page.getByRole("columnheader", { name: "Item subtotal" }),
+		).toHaveCount(0);
+		await expect(admin.page).toHaveScreenshot(
+			"admin-kiosk-stations.png",
+			SCREENSHOT_OPTS,
+		);
+	});
+
+	test("admin kiosk stations unavailable", async ({ admin }) => {
+		await admin.page.route("**/api/admin/kiosk/stations*", async (route) => {
+			expect(route.request().method()).toBe("GET");
+			await route.fulfill({
+				status: 503,
+				json: { error: "Kiosk stations are unavailable" },
+			});
+		});
+
+		await admin.page.goto("/admin/kiosk/stations");
+		await expect(
+			admin.page.getByTestId("kiosk-stations-unavailable"),
+		).toBeVisible();
+		await expect(
+			admin.page.getByText("No stations yet", { exact: true }),
+		).toHaveCount(0);
+		await expect(
+			admin.page.getByRole("button", {
+				name: "Retry loading kiosk stations",
+			}),
+		).toBeVisible();
+		beginVisualApiPhase(admin.page);
+		await expect(admin.page).toHaveScreenshot(
+			"admin-kiosk-stations-unavailable.png",
+			SCREENSHOT_OPTS,
+		);
+	});
+
+	test("admin kiosk sessions unavailable", async ({ admin }) => {
+		await admin.page.route("**/api/admin/kiosk/stations*", async (route) => {
+			expect(route.request().method()).toBe("GET");
+			await route.fulfill({ json: { stations: [], total: 0 } });
+		});
+		await admin.page.route(
+			"**/api/admin/kiosk/station-options*",
+			async (route) => {
+				expect(route.request().method()).toBe("GET");
+				await route.fulfill({ json: { stations: [] } });
+			},
+		);
+		await admin.page.route("**/api/admin/kiosk/sessions*", async (route) => {
+			expect(route.request().method()).toBe("GET");
+			await route.fulfill({
+				status: 503,
+				json: { error: "Kiosk sessions are unavailable" },
+			});
+		});
+
+		await admin.page.goto("/admin/kiosk/stations");
+		await admin.page
+			.getByRole("tab", { name: "Legacy sessions", exact: true })
+			.click();
+		await expect(
+			admin.page.getByTestId("kiosk-sessions-unavailable"),
+		).toBeVisible();
+		await expect(
+			admin.page.getByText("No legacy session records found", { exact: true }),
+		).toHaveCount(0);
+		await expect(
+			admin.page.getByRole("button", {
+				name: "Retry loading kiosk sessions",
+			}),
+		).toBeVisible();
+		beginVisualApiPhase(admin.page);
+		await expect(admin.page).toHaveScreenshot(
+			"admin-kiosk-sessions-unavailable.png",
 			SCREENSHOT_OPTS,
 		);
 	});

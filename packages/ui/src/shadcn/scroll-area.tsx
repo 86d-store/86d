@@ -2,8 +2,8 @@
 
 import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area";
 import * as React from "react";
-import { useTouchPrimary } from "~/hooks/use-has-primary-touch";
-import { cn } from "~/lib/utils";
+import { useTouchPrimary } from "../hooks/use-has-primary-touch";
+import { cn } from "../lib/utils";
 
 type Mask = {
 	top: boolean;

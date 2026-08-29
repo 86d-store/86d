@@ -2,15 +2,25 @@ import { createAdminEndpoint } from "@86d-app/core/api";
 import { sanitizeText } from "@86d-app/core/sanitize";
 import { z } from "zod";
 import type { KioskController } from "../../service";
+import { projectAdminStation } from "./projections";
 
 export const createStationEndpoint = createAdminEndpoint(
 	"/admin/kiosk/stations/create",
 	{
 		method: "POST",
 		body: z.object({
-			name: z.string().min(1).max(200).transform(sanitizeText),
+			name: z
+				.string()
+				.max(200)
+				.transform(sanitizeText)
+				.pipe(z.string().min(1).max(200)),
 			location: z.string().max(500).transform(sanitizeText).optional(),
-			settings: z.record(z.string().max(100), z.unknown()).optional(),
+			settings: z
+				.record(z.string().max(100), z.unknown())
+				.refine((value) => Object.keys(value).length <= 100, {
+					message: "Settings cannot contain more than 100 entries",
+				})
+				.optional(),
 		}),
 	},
 	async (ctx) => {
@@ -20,6 +30,6 @@ export const createStationEndpoint = createAdminEndpoint(
 			location: ctx.body.location,
 			settings: ctx.body.settings,
 		});
-		return { station };
+		return { station: projectAdminStation(station) };
 	},
 );

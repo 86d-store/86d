@@ -42,6 +42,10 @@
 			"types": "./src/card.tsx",
 			"default": "./src/card.tsx"
 		},
+		"./console/form-sheet": {
+			"types": "./src/console/form-sheet.tsx",
+			"default": "./src/console/form-sheet.tsx"
+		},
 		"./data-table/column-header": {
 			"types": "./src/data-table/column-header.tsx",
 			"default": "./src/data-table/column-header.tsx"
@@ -54,6 +58,14 @@
 			"types": "./src/data-table/skeleton-rows.tsx",
 			"default": "./src/data-table/skeleton-rows.tsx"
 		},
+		"./data-table/view-options": {
+			"types": "./src/data-table/view-options.tsx",
+			"default": "./src/data-table/view-options.tsx"
+		},
+		"./shadcn/checkbox": {
+			"types": "./src/shadcn/checkbox.tsx",
+			"default": "./src/shadcn/checkbox.tsx"
+		},
 		"./shadcn/input": {
 			"types": "./src/shadcn/input.tsx",
 			"default": "./src/shadcn/input.tsx"
@@ -62,6 +74,10 @@
 			"types": "./src/shadcn/native-select.tsx",
 			"default": "./src/shadcn/native-select.tsx"
 		},
+		"./shadcn/label": {
+			"types": "./src/shadcn/label.tsx",
+			"default": "./src/shadcn/label.tsx"
+		},
 		"./shadcn/skeleton": {
 			"types": "./src/shadcn/skeleton.tsx",
 			"default": "./src/shadcn/skeleton.tsx"
@@ -69,6 +85,10 @@
 		"./shadcn/table": {
 			"types": "./src/shadcn/table.tsx",
 			"default": "./src/shadcn/table.tsx"
+		},
+		"./shadcn/tabs": {
+			"types": "./src/shadcn/tabs.tsx",
+			"default": "./src/shadcn/tabs.tsx"
 		},
 		"./text": {
 			"types": "./src/text.tsx",
@@ -166,6 +186,10 @@
 				"types": "./dist/card.d.ts",
 				"default": "./dist/card.js"
 			},
+			"./console/form-sheet": {
+				"types": "./dist/console/form-sheet.d.ts",
+				"default": "./dist/console/form-sheet.js"
+			},
 			"./data-table/column-header": {
 				"types": "./dist/data-table/column-header.d.ts",
 				"default": "./dist/data-table/column-header.js"
@@ -178,6 +202,14 @@
 				"types": "./dist/data-table/skeleton-rows.d.ts",
 				"default": "./dist/data-table/skeleton-rows.js"
 			},
+			"./data-table/view-options": {
+				"types": "./dist/data-table/view-options.d.ts",
+				"default": "./dist/data-table/view-options.js"
+			},
+			"./shadcn/checkbox": {
+				"types": "./dist/shadcn/checkbox.d.ts",
+				"default": "./dist/shadcn/checkbox.js"
+			},
 			"./shadcn/input": {
 				"types": "./dist/shadcn/input.d.ts",
 				"default": "./dist/shadcn/input.js"
@@ -186,6 +218,10 @@
 				"types": "./dist/shadcn/native-select.d.ts",
 				"default": "./dist/shadcn/native-select.js"
 			},
+			"./shadcn/label": {
+				"types": "./dist/shadcn/label.d.ts",
+				"default": "./dist/shadcn/label.js"
+			},
 			"./shadcn/skeleton": {
 				"types": "./dist/shadcn/skeleton.d.ts",
 				"default": "./dist/shadcn/skeleton.js"
@@ -193,6 +229,10 @@
 			"./shadcn/table": {
 				"types": "./dist/shadcn/table.d.ts",
 				"default": "./dist/shadcn/table.js"
+			},
+			"./shadcn/tabs": {
+				"types": "./dist/shadcn/tabs.d.ts",
+				"default": "./dist/shadcn/tabs.js"
 			},
 			"./text": {
 				"types": "./dist/text.d.ts",
