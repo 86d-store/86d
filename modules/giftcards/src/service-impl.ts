@@ -32,18 +32,62 @@ const giftCardTextCollator = new Intl.Collator("en-US", {
 	sensitivity: "base",
 });
 
+export class GiftCardDataUnavailableError extends Error {
+	constructor() {
+		super("Gift card data is unavailable.");
+		this.name = "GiftCardDataUnavailableError";
+	}
+}
+
 function parseGiftCard(value: unknown): GiftCard | null {
+	if (value === null || value === undefined) return null;
 	const parsed = giftcardsGiftCardShape.safeParse(value);
-	return parsed.success ? parsed.data : null;
+	if (!parsed.success) throw new GiftCardDataUnavailableError();
+	return parsed.data;
 }
 
 function parseGiftCardTransaction(value: unknown): GiftCardTransaction | null {
+	if (value === null || value === undefined) return null;
 	const parsed = giftcardsGiftCardTransactionShape.safeParse(value);
-	return parsed.success ? parsed.data : null;
+	if (!parsed.success) throw new GiftCardDataUnavailableError();
+	return parsed.data;
 }
 
-function isPresent<T>(value: T | null): value is T {
-	return value !== null;
+function parseGiftCards(values: readonly unknown[]): GiftCard[] {
+	return values.map((value) => {
+		const card = parseGiftCard(value);
+		if (!card) throw new GiftCardDataUnavailableError();
+		return card;
+	});
+}
+
+function parseGiftCardTransactions(
+	values: readonly unknown[],
+): GiftCardTransaction[] {
+	return values.map((value) => {
+		const transaction = parseGiftCardTransaction(value);
+		if (!transaction) throw new GiftCardDataUnavailableError();
+		return transaction;
+	});
+}
+
+function hasGiftCardExpired(card: GiftCard, now: Date): boolean {
+	if (card.status === "expired") return true;
+	if (!card.expiresAt) return false;
+	const expiresAt = Date.parse(card.expiresAt);
+	return Number.isFinite(expiresAt) && expiresAt <= now.getTime();
+}
+
+function projectEffectiveGiftCardStatus(card: GiftCard, now: Date): GiftCard {
+	if (!hasGiftCardExpired(card, now) || card.status === "expired") return card;
+	return { ...card, status: "expired" };
+}
+
+function projectEffectiveGiftCardStatuses(
+	cards: readonly GiftCard[],
+	now: Date,
+): GiftCard[] {
+	return cards.map((card) => projectEffectiveGiftCardStatus(card, now));
 }
 
 function supportsRowLock(
@@ -82,17 +126,15 @@ async function findAllGiftCards(
 	data: ModuleDataService,
 	where?: Record<string, unknown> | undefined,
 ): Promise<GiftCard[]> {
-	return (await findAllRows(data, "giftCard", where))
-		.map(parseGiftCard)
-		.filter(isPresent);
+	return parseGiftCards(await findAllRows(data, "giftCard", where));
 }
 
 async function findAllGiftCardTransactions(
 	data: ModuleDataService,
 ): Promise<GiftCardTransaction[]> {
-	return (await findAllRows(data, "giftCardTransaction"))
-		.map(parseGiftCardTransaction)
-		.filter(isPresent);
+	return parseGiftCardTransactions(
+		await findAllRows(data, "giftCardTransaction"),
+	);
 }
 
 function matchesAdminSearch(card: GiftCard, search: string): boolean {
@@ -149,7 +191,8 @@ export function createGiftCardController(
 ): GiftCardController {
 	return {
 		async get(id: string): Promise<GiftCard | null> {
-			return parseGiftCard(await data.get("giftCard", id));
+			const card = parseGiftCard(await data.get("giftCard", id));
+			return card ? projectEffectiveGiftCardStatus(card, new Date()) : null;
 		},
 
 		async getByCode(code: string): Promise<GiftCard | null> {
@@ -157,15 +200,20 @@ export function createGiftCardController(
 				where: { code: code.toUpperCase() },
 				take: 1,
 			});
-			return parseGiftCard(results[0]);
+			const card = parseGiftCard(results[0]);
+			return card ? projectEffectiveGiftCardStatus(card, new Date()) : null;
 		},
 
 		async list(params): Promise<GiftCard[]> {
 			const where: Record<string, unknown> = {};
-			if (params?.status) where.status = params.status;
 			if (params?.customerId) where.customerId = params.customerId;
 
-			const cards = await findAllGiftCards(data, where);
+			const cards = projectEffectiveGiftCardStatuses(
+				await findAllGiftCards(data, where),
+				new Date(),
+			).filter((card) =>
+				params?.status ? card.status === params.status : true,
+			);
 			const skip = params?.skip ?? 0;
 			return cards.slice(
 				skip,
@@ -178,11 +226,16 @@ export function createGiftCardController(
 			total: number;
 		}> {
 			const where: Record<string, unknown> = {};
-			if (params?.status) where.status = params.status;
 			if (params?.customerId) where.customerId = params.customerId;
 
-			const matching = (await findAllGiftCards(data, where)).filter((card) =>
-				params?.search ? matchesAdminSearch(card, params.search) : true,
+			const cards = projectEffectiveGiftCardStatuses(
+				await findAllGiftCards(data, where),
+				new Date(),
+			);
+			const matching = cards.filter(
+				(card) =>
+					(!params?.status || card.status === params.status) &&
+					(!params?.search || matchesAdminSearch(card, params.search)),
 			);
 			const sorted = sortAdminCards(matching, params);
 			const skip = params?.skip ?? 0;
@@ -203,10 +256,11 @@ export function createGiftCardController(
 				where: { code: code.toUpperCase() },
 				take: 1,
 			});
-			const card = parseGiftCard(results[0]);
-			if (!card) return null;
+			const parsedCard = parseGiftCard(results[0]);
+			if (!parsedCard) return null;
+			const card = projectEffectiveGiftCardStatus(parsedCard, new Date());
 
-			if (card.expiresAt && new Date(card.expiresAt) < new Date()) {
+			if (card.status === "expired") {
 				return {
 					balance: 0,
 					currency: card.currency,
@@ -227,7 +281,7 @@ export function createGiftCardController(
 				...(params?.take !== undefined ? { take: params.take } : {}),
 				...(params?.skip !== undefined ? { skip: params.skip } : {}),
 			});
-			return results.map(parseGiftCardTransaction).filter(isPresent);
+			return parseGiftCardTransactions(results);
 		},
 
 		async countAll(): Promise<number> {
@@ -295,11 +349,18 @@ export function createGiftCardController(
 				...(params?.take !== undefined ? { take: params.take } : {}),
 				...(params?.skip !== undefined ? { skip: params.skip } : {}),
 			});
-			return results.map(parseGiftCard).filter(isPresent);
+			return projectEffectiveGiftCardStatuses(
+				parseGiftCards(results),
+				new Date(),
+			);
 		},
 
 		async getStats(): Promise<GiftCardStats> {
-			const allCards = await findAllGiftCards(data);
+			const now = new Date();
+			const allCards = projectEffectiveGiftCardStatuses(
+				await findAllGiftCards(data),
+				now,
+			);
 
 			let totalActive = 0;
 			let totalDepleted = 0;
@@ -307,16 +368,11 @@ export function createGiftCardController(
 			let totalExpired = 0;
 			let totalIssuedValue = 0;
 			let totalOutstandingBalance = 0;
-			const now = new Date();
-
 			for (const card of allCards) {
 				totalIssuedValue += card.initialBalance;
 				totalOutstandingBalance += card.currentBalance;
 
-				if (
-					card.status === "expired" ||
-					(card.expiresAt && new Date(card.expiresAt) < now)
-				) {
+				if (card.status === "expired") {
 					totalExpired++;
 				} else if (card.status === "depleted") {
 					totalDepleted++;

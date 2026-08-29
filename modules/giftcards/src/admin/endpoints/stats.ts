@@ -1,5 +1,6 @@
 import { createAdminEndpoint } from "@86d-app/core/api";
 import type { GiftCardController } from "../../service";
+import { GiftCardDataUnavailableError } from "../../service-impl";
 
 export const getGiftCardStats = createAdminEndpoint(
 	"/admin/gift-cards/stats",
@@ -8,7 +9,14 @@ export const getGiftCardStats = createAdminEndpoint(
 	},
 	async (ctx) => {
 		const controller = ctx.context.controllers.giftCards as GiftCardController;
-		const stats = await controller.getStats();
-		return { stats };
+		try {
+			const stats = await controller.getStats();
+			return { stats };
+		} catch (error) {
+			if (error instanceof GiftCardDataUnavailableError) {
+				return { error: "Gift card summaries are unavailable", status: 503 };
+			}
+			throw error;
+		}
 	},
 );

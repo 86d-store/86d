@@ -9,6 +9,7 @@ import type {
 	GiftCardStats,
 	GiftCardTransaction,
 } from "../service";
+import { GiftCardDataUnavailableError } from "../service-impl";
 
 function extractHandler(
 	endpoint: unknown,
@@ -102,6 +103,66 @@ const getHandler = extractHandler(getGiftCard);
 const listHandler = extractHandler(listGiftCards);
 const statsHandler = extractHandler(getGiftCardStats);
 const listTransactionsHandler = extractHandler(listGiftCardTransactions);
+
+describe("admin gift-card unavailable containment", () => {
+	it("maps malformed durable data to stable 503 responses", async () => {
+		const unavailable = new GiftCardDataUnavailableError();
+		const card = makeCard({ id: "gc_unavailable" });
+
+		await expect(
+			call(listHandler, {
+				controller: makeController({
+					listAdminPage: vi.fn().mockRejectedValue(unavailable),
+				}),
+			}),
+		).resolves.toEqual({ error: "Gift cards are unavailable", status: 503 });
+		await expect(
+			call(getHandler, {
+				params: { id: card.id },
+				controller: makeController({
+					get: vi.fn().mockRejectedValue(unavailable),
+				}),
+			}),
+		).resolves.toEqual({
+			error: "Gift card details are unavailable",
+			status: 503,
+		});
+		await expect(
+			call(listTransactionsHandler, {
+				params: { id: card.id },
+				controller: makeController({
+					get: vi.fn().mockResolvedValue(card),
+					listTransactions: vi.fn().mockRejectedValue(unavailable),
+				}),
+			}),
+		).resolves.toEqual({
+			error: "Gift card details are unavailable",
+			status: 503,
+		});
+		await expect(
+			call(statsHandler, {
+				controller: makeController({
+					getStats: vi.fn().mockRejectedValue(unavailable),
+				}),
+			}),
+		).resolves.toEqual({
+			error: "Gift card summaries are unavailable",
+			status: 503,
+		});
+	});
+
+	it("does not mask unexpected controller failures", async () => {
+		await expect(
+			call(listHandler, {
+				controller: makeController({
+					listAdminPage: vi
+						.fn()
+						.mockRejectedValue(new Error("database offline")),
+				}),
+			}),
+		).rejects.toThrow("database offline");
+	});
+});
 
 describe("admin GET /gift-cards", () => {
 	it("returns an empty page", async () => {

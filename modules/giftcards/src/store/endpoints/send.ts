@@ -2,6 +2,7 @@ import { createStoreEndpoint } from "@86d-app/core/api";
 import { sanitizeText } from "@86d-app/core/sanitize";
 import { z } from "zod";
 import type { GiftCardController } from "../../service";
+import { GiftCardDataUnavailableError } from "../../service-impl";
 
 export const sendGiftCard = createStoreEndpoint(
 	"/gift-cards/send",
@@ -22,27 +23,37 @@ export const sendGiftCard = createStoreEndpoint(
 		}
 
 		const controller = ctx.context.controllers.giftCards as GiftCardController;
-		const result = await controller.sendGiftCard({
-			giftCardId: ctx.body.giftCardId,
-			customerId: session.user.id,
-			recipientEmail: ctx.body.recipientEmail,
-			recipientName: ctx.body.recipientName,
-			senderName: ctx.body.senderName,
-			message: ctx.body.message,
-		});
+		try {
+			const result = await controller.sendGiftCard({
+				giftCardId: ctx.body.giftCardId,
+				customerId: session.user.id,
+				recipientEmail: ctx.body.recipientEmail,
+				recipientName: ctx.body.recipientName,
+				senderName: ctx.body.senderName,
+				message: ctx.body.message,
+			});
 
-		if (!result) {
+			if (!result) {
+				return {
+					error: "Gift card delivery metadata could not be recorded",
+					status: 400,
+				};
+			}
+
 			return {
-				error: "Gift card delivery metadata could not be recorded",
-				status: 400,
+				id: result.id,
+				recipientEmail: result.recipientEmail,
+				deliveryMetadataRecorded: true,
+				delivered: result.delivered === true,
 			};
+		} catch (error) {
+			if (error instanceof GiftCardDataUnavailableError) {
+				return {
+					error: "Gift card delivery metadata is unavailable",
+					status: 503,
+				};
+			}
+			throw error;
 		}
-
-		return {
-			id: result.id,
-			recipientEmail: result.recipientEmail,
-			deliveryMetadataRecorded: true,
-			delivered: result.delivered === true,
-		};
 	},
 );

@@ -49,7 +49,8 @@ No commerce events are emitted while money and destructive operations remain con
 - `sendGiftCard()` records intended email-delivery metadata without setting `delivered` or `deliveredAt`; it does not itself deliver a message, only the owner or purchaser may call it, and it fails closed without owner-local row locking
 - Controller and HTTP surfaces do not expose issuance, purchase, top-up, credit, redemption, status mutation, bulk mutation, or deletion
 - Checkout gift-card application and redemption fail closed until one complete Checkout Workflow coordinates the discount, debit, Payment, and Order with durable evidence and closed repair behavior
-- `checkBalance(code)` is public (no auth), returns expired status for past-dated cards
+- Effective status treats a past-dated card as expired across balance, list, admin filtering/search/sort, and analytics projections without mutating the stored legacy row
+- Every selected durable card and transaction row must validate before projection; malformed rows fail the affected read closed and map to stable unavailable HTTP responses rather than appearing missing or understating financial totals
 - `getStats()` computes issued/redeemed/outstanding values from legacy cards + transactions
 - Expired cards and cards with any existing delivery marker cannot have intent recorded again, preventing forwarding and partial-state overwrite
 - Legacy transaction types remain readable for historical compatibility; their presence is not an executable money path

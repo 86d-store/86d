@@ -61,7 +61,11 @@ The contained projection has no Module-specific configuration.
 The store admin overview is read-only. Its searchable, sortable record table
 persists status, sort, search, and column-visibility preferences in the browser,
 and opens card balances and transaction history without exposing mutation
-controls.
+controls. A past expiration date is projected consistently as `expired` for
+lookup, filtering, sorting, and display without rewriting the stored legacy
+record. If any selected durable card or transaction row cannot be validated,
+the affected read returns an unavailable response instead of omitting the row or
+understating balances and totals.
 
 ## Controller API
 
@@ -165,3 +169,5 @@ Balance checker — customer enters code to check balance.
 - `sendGiftCard()` records intended delivery metadata but does not itself deliver a message or set `delivered`/`deliveredAt`; the endpoint returns `deliveryMetadataRecorded: true` and `delivered: false`, and it fails closed without owner-local row locking
 - Expired cards and cards with any existing delivery marker cannot be recorded again, which prevents forwarding and partial-state overwrite through this surface
 - Legacy money fields and transaction types are retained only for read compatibility
+- Past-dated cards are projected as expired across balance, list, admin, and analytics reads without mutating storage
+- Malformed durable card or transaction rows fail affected reads closed with a stable unavailable response; they are never silently omitted from counts, balances, or history

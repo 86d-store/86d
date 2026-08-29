@@ -3,6 +3,7 @@
 import { Button } from "@86d-app/ui/button";
 import { DataTableEmptyRow } from "@86d-app/ui/data-table/empty-row";
 import { DataTableSkeletonRows } from "@86d-app/ui/data-table/skeleton-rows";
+import { DataTableViewOptions } from "@86d-app/ui/data-table/view-options";
 import { Input } from "@86d-app/ui/shadcn/input";
 import {
 	NativeSelect,
@@ -201,9 +202,6 @@ export function GiftCardDataTable({
 	const search = stateController.state.globalFilter;
 	const statusFilter = stateController.state.statusFilter;
 	const emptyCopy = getGiftCardEmptyStateCopy({ search, statusFilter });
-	const hideableColumns = table
-		.getAllColumns()
-		.filter((column) => column.getCanHide());
 	const serverSort = getGiftCardServerSort(stateController.state.sorting);
 	const mobileSortValue = `${serverSort.sort}:${serverSort.direction}`;
 	const isColumnVisible = (columnId: string) =>
@@ -267,39 +265,9 @@ export function GiftCardDataTable({
 							</NativeSelectOption>
 						))}
 					</NativeSelect>
-					<details
-						className="relative"
-						data-testid="gift-card-column-visibility"
-					>
-						<summary className="flex h-10 cursor-pointer list-none items-center rounded-md border border-border bg-background px-3 font-medium text-sm shadow-xs hover:bg-muted">
-							Columns
-						</summary>
-						<View className="absolute right-0 z-30 mt-1 min-w-48 rounded-md border border-border bg-card p-2 shadow-md">
-							<Text className="block px-1 pb-1 font-medium text-muted-foreground text-xs">
-								Toggle columns
-							</Text>
-							{hideableColumns.map((column) => {
-								const meta = column.columnDef.meta as
-									| { label?: string }
-									| undefined;
-								return (
-									<label
-										key={column.id}
-										className="flex min-h-10 cursor-pointer items-center gap-2 rounded px-2 text-sm hover:bg-muted"
-									>
-										<input
-											type="checkbox"
-											checked={column.getIsVisible()}
-											onChange={(event) =>
-												column.toggleVisibility(event.target.checked)
-											}
-										/>
-										{meta?.label ?? column.id}
-									</label>
-								);
-							})}
-						</View>
-					</details>
+					<View data-testid="gift-card-column-visibility">
+						<DataTableViewOptions table={table} className="ml-0" />
+					</View>
 				</View>
 				<Text className="hidden items-center gap-1 text-muted-foreground text-xs tabular-nums sm:inline-flex">
 					{isLoading ? (

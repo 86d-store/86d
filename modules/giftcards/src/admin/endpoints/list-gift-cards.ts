@@ -5,6 +5,7 @@ import {
 	GIFT_CARD_ADMIN_SORT_FIELDS,
 	type GiftCardController,
 } from "../../service";
+import { GiftCardDataUnavailableError } from "../../service-impl";
 
 export const listGiftCards = createAdminEndpoint(
 	"/admin/gift-cards",
@@ -24,14 +25,21 @@ export const listGiftCards = createAdminEndpoint(
 		const controller = ctx.context.controllers.giftCards as GiftCardController;
 		const take = ctx.query.take ?? 50;
 		const skip = ctx.query.skip ?? 0;
-		return controller.listAdminPage({
-			status: ctx.query.status,
-			customerId: ctx.query.customerId,
-			search: ctx.query.search,
-			sort: ctx.query.sort,
-			direction: ctx.query.direction,
-			take,
-			skip,
-		});
+		try {
+			return await controller.listAdminPage({
+				status: ctx.query.status,
+				customerId: ctx.query.customerId,
+				search: ctx.query.search,
+				sort: ctx.query.sort,
+				direction: ctx.query.direction,
+				take,
+				skip,
+			});
+		} catch (error) {
+			if (error instanceof GiftCardDataUnavailableError) {
+				return { error: "Gift cards are unavailable", status: 503 };
+			}
+			throw error;
+		}
 	},
 );

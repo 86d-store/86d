@@ -4,7 +4,10 @@ import {
 } from "@86d-app/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { GiftCard } from "../service";
-import { createGiftCardController } from "../service-impl";
+import {
+	createGiftCardController,
+	GiftCardDataUnavailableError,
+} from "../service-impl";
 
 type DataService = ReturnType<typeof createMockDataService>;
 
@@ -83,12 +86,37 @@ describe("gift card controller containment", () => {
 		expect(data.size("giftCardTransaction")).toBe(1);
 	});
 
-	it("ignores malformed legacy rows instead of projecting unsafe data", async () => {
+	it("fails every affected card projection closed on malformed durable data", async () => {
 		await data.upsert("giftCard", "malformed", {
 			id: "malformed",
 			code: "GIFT-MALF-ORMD-ROW2",
 			initialBalance: "not-a-number",
+			customerId: "customer_1",
 		});
+
+		const reads = [
+			() => controller.get("malformed"),
+			() => controller.getByCode("GIFT-MALF-ORMD-ROW2"),
+			() => controller.list(),
+			() => controller.listAdminPage(),
+			() => controller.checkBalance("GIFT-MALF-ORMD-ROW2"),
+			() => controller.countAll(),
+			() => controller.listByCustomer("customer_1"),
+			() => controller.getStats(),
+			() =>
+				controller.sendGiftCard({
+					giftCardId: "malformed",
+					customerId: "customer_1",
+					recipientEmail: "recipient@example.com",
+				}),
+		];
+
+		for (const read of reads) {
+			await expect(read()).rejects.toBeInstanceOf(GiftCardDataUnavailableError);
+		}
+	});
+
+	it("fails transaction history and financial statistics closed on malformed data", async () => {
 		await data.upsert("giftCardTransaction", "malformed", {
 			id: "malformed",
 			giftCardId: "card_1",
@@ -96,10 +124,12 @@ describe("gift card controller containment", () => {
 			amount: "not-a-number",
 		});
 
-		await expect(controller.get("malformed")).resolves.toBeNull();
-		await expect(controller.list()).resolves.toEqual([]);
-		await expect(controller.countAll()).resolves.toBe(0);
-		await expect(controller.listTransactions("card_1")).resolves.toEqual([]);
+		await expect(controller.listTransactions("card_1")).rejects.toBeInstanceOf(
+			GiftCardDataUnavailableError,
+		);
+		await expect(controller.getStats()).rejects.toBeInstanceOf(
+			GiftCardDataUnavailableError,
+		);
 	});
 
 	it("uses persisted status for future-dated and non-expiring cards", async () => {

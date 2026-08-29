@@ -188,6 +188,62 @@ describe("createGiftCardController", () => {
 		});
 	});
 
+	it("projects effective expiry before reading, filtering, searching, and sorting", async () => {
+		const expired = await seedCard(data, {
+			id: "past-dated-active",
+			code: "GIFT-PAST-DATE-2345",
+			customerId: "customer_1",
+			status: "active",
+			expiresAt: "2020-01-01T00:00:00.000Z",
+		});
+		await seedCard(data, {
+			id: "current-active",
+			code: "GIFT-CURR-ACTV-2345",
+			customerId: "customer_1",
+			status: "active",
+			expiresAt: "2099-01-01T00:00:00.000Z",
+		});
+
+		await expect(controller.get(expired.id)).resolves.toMatchObject({
+			id: expired.id,
+			status: "expired",
+		});
+		await expect(controller.getByCode(expired.code)).resolves.toMatchObject({
+			id: expired.id,
+			status: "expired",
+		});
+		await expect(controller.list({ status: "expired" })).resolves.toEqual([
+			expect.objectContaining({ id: expired.id, status: "expired" }),
+		]);
+		await expect(controller.listByCustomer("customer_1")).resolves.toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ id: expired.id, status: "expired" }),
+			]),
+		);
+		await expect(
+			controller.listAdminPage({
+				status: "expired",
+				search: "expired",
+				sort: "status",
+				direction: "asc",
+			}),
+		).resolves.toEqual({
+			cards: [expect.objectContaining({ id: expired.id, status: "expired" })],
+			total: 1,
+		});
+		await expect(
+			controller.listAdminPage({ status: "active" }),
+		).resolves.toEqual({
+			cards: [
+				expect.objectContaining({ id: "current-active", status: "active" }),
+			],
+			total: 1,
+		});
+		expect(await data.get("giftCard", expired.id)).toMatchObject({
+			status: "active",
+		});
+	});
+
 	it("searches the visible status and UTC creation date projection", async () => {
 		await seedCard(data, {
 			id: "legacy-status",
@@ -210,6 +266,11 @@ describe("createGiftCardController", () => {
 			code: "GIFT-EXPR-2345-6789",
 			expiresAt: "2020-01-01T00:00:00.000Z",
 		});
+		const statusExpired = await seedCard(data, {
+			id: "card_status_expired",
+			code: "GIFT-STAT-EXPR-2345",
+			status: "expired",
+		});
 
 		await expect(controller.checkBalance(active.code)).resolves.toEqual({
 			balance: 5_000,
@@ -217,6 +278,11 @@ describe("createGiftCardController", () => {
 			status: "active",
 		});
 		await expect(controller.checkBalance(expired.code)).resolves.toEqual({
+			balance: 0,
+			currency: "USD",
+			status: "expired",
+		});
+		await expect(controller.checkBalance(statusExpired.code)).resolves.toEqual({
 			balance: 0,
 			currency: "USD",
 			status: "expired",
@@ -446,7 +512,7 @@ describe("createGiftCardController", () => {
 				recipientEmail: "second@example.com",
 			}),
 		).resolves.toBeNull();
-		await expect(controller.get(card.id)).resolves.toEqual(card);
+		expect(await data.get("giftCard", card.id)).toEqual(card);
 	});
 
 	it("projects statistics from existing cards and transactions", async () => {

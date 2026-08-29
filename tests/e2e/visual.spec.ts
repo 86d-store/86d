@@ -1126,6 +1126,41 @@ test.describe("Admin — Authenticated Visual", () => {
 		);
 	});
 
+	test("admin gift cards unavailable", async ({ admin }) => {
+		await admin.page.route("**/api/admin/gift-cards/stats*", async (route) => {
+			expect(route.request().method()).toBe("GET");
+			await route.fulfill({
+				status: 503,
+				json: { error: "Gift card summaries are unavailable" },
+			});
+		});
+		await admin.page.route(
+			/\/api\/admin\/gift-cards(?:\?.*)?$/,
+			async (route) => {
+				expect(route.request().method()).toBe("GET");
+				await route.fulfill({
+					status: 503,
+					json: { error: "Gift cards are unavailable" },
+				});
+			},
+		);
+
+		await admin.page.goto("/admin/gift-cards");
+		const main = admin.page.locator("#admin-main");
+		await expect(main.getByTestId("gift-card-stats-error")).toBeVisible({
+			timeout: 15_000,
+		});
+		await expect(main.getByTestId("gift-card-list-error")).toBeVisible();
+		await expect(
+			main.getByText("No gift cards found", { exact: true }),
+		).toHaveCount(0);
+		beginVisualApiPhase(admin.page);
+		await expect(admin.page).toHaveScreenshot(
+			"admin-gift-cards-unavailable.png",
+			SCREENSHOT_OPTS,
+		);
+	});
+
 	test("admin collections list", async ({ admin }) => {
 		await admin.page.goto("/admin/collections");
 		const main = admin.page.locator("#admin-main");

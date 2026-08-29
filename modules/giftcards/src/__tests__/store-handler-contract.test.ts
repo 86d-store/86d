@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { GiftCard, GiftCardController } from "../service";
+import { GiftCardDataUnavailableError } from "../service-impl";
 import { checkGiftCardBalance } from "../store/endpoints/check-balance";
 import { listMyGiftCards } from "../store/endpoints/my-cards";
 import { sendGiftCard } from "../store/endpoints/send";
@@ -79,6 +80,68 @@ const sendHandler = extractHandler(sendGiftCard);
 const myCardsHandler = extractHandler(listMyGiftCards);
 
 describe("gift-card retained Store handler contract", () => {
+	it("maps malformed durable data to stable unavailable responses", async () => {
+		const unavailable = new GiftCardDataUnavailableError();
+
+		await expect(
+			checkHandler(
+				context(
+					controller({
+						checkBalance: vi.fn().mockRejectedValue(unavailable),
+					}),
+					{ query: { code: "GIFT-CODE" } },
+				),
+			),
+		).resolves.toEqual({
+			error: "Gift card balance is unavailable",
+			status: 503,
+		});
+		await expect(
+			myCardsHandler(
+				context(
+					controller({
+						listByCustomer: vi.fn().mockRejectedValue(unavailable),
+					}),
+					{ userId: "customer_1" },
+				),
+			),
+		).resolves.toEqual({ error: "Gift cards are unavailable", status: 503 });
+		await expect(
+			sendHandler(
+				context(
+					controller({
+						sendGiftCard: vi.fn().mockRejectedValue(unavailable),
+					}),
+					{
+						userId: "customer_1",
+						body: {
+							giftCardId: "card_1",
+							recipientEmail: "recipient@example.com",
+						},
+					},
+				),
+			),
+		).resolves.toEqual({
+			error: "Gift card delivery metadata is unavailable",
+			status: 503,
+		});
+	});
+
+	it("does not mask unexpected controller failures", async () => {
+		await expect(
+			checkHandler(
+				context(
+					controller({
+						checkBalance: vi
+							.fn()
+							.mockRejectedValue(new Error("database offline")),
+					}),
+					{ query: { code: "GIFT-CODE" } },
+				),
+			),
+		).rejects.toThrow("database offline");
+	});
+
 	it("returns the balance projection produced by the controller", async () => {
 		const giftCards = controller({
 			checkBalance: vi.fn().mockResolvedValue({
