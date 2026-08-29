@@ -1,4 +1,7 @@
-import { createMockDataService } from "@86d-app/core/test-utils";
+import {
+	createMockDataService,
+	createMockTransactionRunner,
+} from "@86d-app/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { CreateGiftCardParams } from "../service";
 import { createGiftCardController } from "../service-impl";
@@ -25,7 +28,10 @@ describe("gift-cards — admin workflows", () => {
 
 	beforeEach(() => {
 		mockData = createMockDataService();
-		controller = createGiftCardController(mockData);
+		controller = createGiftCardController(
+			mockData,
+			createMockTransactionRunner({ data: mockData }),
+		);
 	});
 
 	// ── Card creation ──────────────────────────────────────────────

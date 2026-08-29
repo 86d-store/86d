@@ -1,6 +1,59 @@
-import { createMockDataService } from "@86d-app/core/test-utils";
+import type {
+	LockingModuleDataTransaction,
+	ModuleDataTransaction,
+	ModuleTransactionRunner,
+} from "@86d-app/core/durable-events";
+import {
+	createMockDataService,
+	createMockTransactionRunner,
+} from "@86d-app/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createGiftCardController } from "../service-impl";
+
+type LockingTestRunner = ModuleTransactionRunner & {
+	lockCount(): number;
+};
+
+function createLockingTransactionRunner(
+	data: ReturnType<typeof createMockDataService>,
+): LockingTestRunner {
+	const base = createMockTransactionRunner({ data });
+	let lockTail = Promise.resolve();
+	let lockCount = 0;
+
+	return {
+		lockCount: () => lockCount,
+		transaction<T>(work: (current: ModuleDataTransaction) => Promise<T>) {
+			return base.transaction(async (transaction) => {
+				let release: (() => void) | undefined;
+				const lockingTransaction = {
+					...transaction,
+					async getForUpdate(entityType: string, entityId: string) {
+						lockCount++;
+						const predecessor = lockTail;
+						let releaseCurrent: (() => void) | undefined;
+						const current = new Promise<void>((resolve) => {
+							releaseCurrent = resolve;
+						});
+						lockTail = predecessor.then(() => current);
+						await predecessor;
+						if (!releaseCurrent) {
+							throw new Error("Row lock release was not initialized.");
+						}
+						release = releaseCurrent;
+						return transaction.get(entityType, entityId);
+					},
+				} satisfies LockingModuleDataTransaction;
+
+				try {
+					return await work(lockingTransaction);
+				} finally {
+					release?.();
+				}
+			});
+		},
+	};
+}
 
 /**
  * Security regression tests for gift-cards endpoints.
@@ -22,7 +75,10 @@ describe("gift-cards endpoint security", () => {
 
 	beforeEach(() => {
 		mockData = createMockDataService();
-		controller = createGiftCardController(mockData);
+		controller = createGiftCardController(
+			mockData,
+			createMockTransactionRunner({ data: mockData }),
+		);
 	});
 
 	// ── Balance Isolation ──────────────────────────────────────────
@@ -68,6 +124,75 @@ describe("gift-cards endpoint security", () => {
 	// ── Double-Spending Prevention ─────────────────────────────────
 
 	describe("double-spending prevention", () => {
+		it("fails closed when transactional row locking is unavailable", async () => {
+			const data = createMockDataService();
+			const unlockedController = createGiftCardController(data);
+			const card = await unlockedController.create({ initialBalance: 1000 });
+
+			await expect(
+				unlockedController.redeem(card.code, 1000),
+			).resolves.toBeNull();
+			expect(await unlockedController.checkBalance(card.code)).toMatchObject({
+				balance: 1000,
+				status: "active",
+			});
+			expect(await unlockedController.listTransactions(card.id)).toEqual([]);
+		});
+
+		it("fails closed when a transaction runner cannot lock rows", async () => {
+			const data = createMockDataService();
+			const base = createMockTransactionRunner({ data });
+			const nonLockingTransactions: ModuleTransactionRunner = {
+				transaction<T>(work: (current: ModuleDataTransaction) => Promise<T>) {
+					return base.transaction((lockingTransaction) => {
+						const { getForUpdate: _getForUpdate, ...transaction } =
+							lockingTransaction;
+						return work(transaction);
+					});
+				},
+			};
+			const controllerWithoutLocks = createGiftCardController(
+				data,
+				nonLockingTransactions,
+			);
+			const card = await controllerWithoutLocks.create({
+				initialBalance: 1000,
+			});
+
+			await expect(
+				controllerWithoutLocks.redeem(card.code, 1000),
+			).resolves.toBeNull();
+			expect(
+				await controllerWithoutLocks.checkBalance(card.code),
+			).toMatchObject({
+				balance: 1000,
+				status: "active",
+			});
+			expect(await controllerWithoutLocks.listTransactions(card.id)).toEqual(
+				[],
+			);
+		});
+
+		it("serializes concurrent redemptions against the latest locked balance", async () => {
+			const data = createMockDataService();
+			const transactions = createLockingTransactionRunner(data);
+			const lockedController = createGiftCardController(data, transactions);
+			const card = await lockedController.create({ initialBalance: 1000 });
+
+			const results = await Promise.all([
+				lockedController.redeem(card.code, 1000, "order_1"),
+				lockedController.redeem(card.code, 1000, "order_2"),
+			]);
+
+			expect(results.filter(Boolean)).toHaveLength(1);
+			expect(await lockedController.checkBalance(card.code)).toMatchObject({
+				balance: 0,
+				status: "depleted",
+			});
+			expect(await lockedController.listTransactions(card.id)).toHaveLength(1);
+			expect(transactions.lockCount()).toBe(2);
+		});
+
 		it("cannot redeem from a depleted card", async () => {
 			const card = await controller.create({ initialBalance: 1000 });
 			await controller.redeem(card.code, 1000);

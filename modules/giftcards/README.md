@@ -21,7 +21,7 @@
 
 # Gift Cards Module
 
-Full-featured gift card system for 86d commerce: purchasing, gifting, redemption, top-ups, balance management, bulk issuance, and analytics.
+Gift card system for 86d commerce: purchasing, gifting, top-ups, balance management, bulk issuance, analytics, and transactionally locked redemption internals.
 
 ## Installation
 
@@ -56,7 +56,6 @@ const module = giftCards({
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | `GET` | `/gift-cards/check?code=...` | No | Check balance and status by code |
-| `POST` | `/gift-cards/redeem` | Yes | Redeem a gift card for an amount |
 | `POST` | `/gift-cards/purchase` | Yes | Purchase a new gift card (for self or as gift) |
 | `POST` | `/gift-cards/send` | Yes | Send an owned gift card to a recipient via email |
 | `GET` | `/gift-cards/my-cards` | Yes | List authenticated customer's gift cards |
@@ -108,6 +107,8 @@ interface GiftCardController {
   disableExpired(): Promise<number>;
 }
 ```
+
+`redeem()` is an internal orchestration primitive. It fails closed without transactional row locking. The module does not expose standalone redemption, and its Checkout capability returns an unavailable decision until a complete Checkout Workflow can coordinate the debit and Order with durable evidence and closed repair behavior.
 
 ## Types
 
@@ -177,29 +178,12 @@ Balance checker — customer enters code to check balance.
 <GiftCardBalance />
 ```
 
-### GiftCardRedeem
-
-Redeem form — apply gift card to an order at checkout.
-
-#### Props
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `orderId` | `string` | Optional order ID |
-| `orderTotal` | `number` | Order total in cents |
-| `onApplied` | `(amountApplied, remainingBalance) => void` | Callback when applied |
-
-#### Usage in MDX
-
-```mdx
-<GiftCardRedeem orderTotal={cartTotal} onApplied={handleApplied} />
-```
-
 ## Notes
 
 - Gift card codes use uppercase alphanumeric characters, excluding ambiguous chars (0/O/1/I/L)
 - Balance check (`/gift-cards/check`) is public — no authentication required
-- All other store endpoints require authentication and derive customer identity from the session
+- Standalone gift card redemption is not exposed
+- Authenticated store endpoints derive customer identity from the session
 - Purchasing a gift card for someone else does not assign `customerId` — only `purchasedByCustomerId` is set
 - Cards that have already been delivered cannot be re-sent to prevent forwarding abuse
 - The `disableExpired` admin endpoint is idempotent — only active cards with past expiration are affected

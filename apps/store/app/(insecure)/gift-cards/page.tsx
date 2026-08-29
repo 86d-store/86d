@@ -5,8 +5,8 @@ import GiftCardsPageClient from "./gift-cards-page-client";
 export async function generateMetadata(): Promise<Metadata> {
 	const storeName = await getStoreName();
 	return {
-		title: `Gift Cards — ${storeName}`,
-		description: `Give the perfect gift. ${storeName} gift cards let recipients choose exactly what they want.`,
+		title: `Gift card balance — ${storeName}`,
+		description: `Check the recorded balance and status of a ${storeName} gift card. Gift card redemption is unavailable.`,
 	};
 }
 

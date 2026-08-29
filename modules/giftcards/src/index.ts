@@ -49,7 +49,7 @@ export default function giftCards(options?: GiftCardOptions): Module {
 			],
 		},
 		init: async (ctx: ModuleContext) => {
-			const controller = createGiftCardController(ctx.data);
+			const controller = createGiftCardController(ctx.data, ctx.transactions);
 			return { controllers: { giftCards: controller } };
 		},
 		endpoints: {
@@ -71,7 +71,6 @@ export default function giftCards(options?: GiftCardOptions): Module {
 			pages: [
 				{ path: "/gift-cards", component: "GiftCardLanding" },
 				{ path: "/gift-cards/balance", component: "GiftCardBalance" },
-				{ path: "/gift-cards/redeem", component: "GiftCardRedeem" },
 			],
 		},
 		options,

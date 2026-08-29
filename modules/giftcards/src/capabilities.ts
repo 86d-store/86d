@@ -27,32 +27,20 @@ export async function handleGiftCardCheckout(
 					},
 				};
 	}
-	const result = await controller.redeem(
-		request.code,
-		request.amount,
-		request.orderId,
-	);
-	return result
-		? {
-				ok: true as const,
-				decision: {
-					operation: "redeem" as const,
-					transactionId: result.transaction.id,
-					amount: result.transaction.amount,
-					balanceAfter: result.transaction.balanceAfter,
-				},
-			}
-		: {
-				ok: false as const,
-				failure: {
-					code: "GIFT_CARD_REDEMPTION_FAILED" as const,
-					message: "Gift card could not be redeemed.",
-				},
-			};
+	return {
+		ok: false as const,
+		failure: {
+			code: "GIFT_CARD_REDEMPTION_FAILED" as const,
+			message: "Gift card redemption is unavailable.",
+		},
+	};
 }
 
 export const giftCardCheckoutProvider = provideCapability(
 	giftCardCheckoutCapability,
 	async (ctx, request) =>
-		handleGiftCardCheckout(createGiftCardController(ctx.data), request),
+		handleGiftCardCheckout(
+			createGiftCardController(ctx.data, ctx.transactions),
+			request,
+		),
 );

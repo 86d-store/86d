@@ -29,15 +29,15 @@ export default function GiftCardsPage() {
 						<path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5" />
 					</svg>
 					<span className="font-medium text-muted-foreground text-xs tracking-wide">
-						Gift Cards
+						Gift card lookup
 					</span>
 				</div>
 				<h1 className="font-bold font-display text-4xl text-foreground tracking-tight sm:text-5xl">
-					Give the gift of choice
+					Check a gift card
 				</h1>
 				<p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-					The perfect present for any occasion. Let them pick exactly what they
-					love from our entire collection.
+					View the recorded balance and status of an issued gift card. Gift card
+					redemption is unavailable.
 				</p>
 			</header>
 
@@ -45,10 +45,10 @@ export default function GiftCardsPage() {
 			<section className="mx-auto mt-16 max-w-lg sm:mt-20">
 				<div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm sm:p-8">
 					<h2 className="mb-1 text-center font-display font-semibold text-foreground text-lg tracking-tight">
-						Check your balance
+						Balance and status
 					</h2>
 					<p className="mb-6 text-center text-muted-foreground text-sm">
-						Enter your gift card code to see your remaining balance.
+						Enter the code printed on the gift card.
 					</p>
 					<GiftCardBalance />
 				</div>
@@ -57,7 +57,7 @@ export default function GiftCardsPage() {
 			{/* How it works */}
 			<section className="mx-auto mt-20 max-w-3xl sm:mt-28">
 				<h2 className="mb-10 text-center font-display font-semibold text-2xl text-foreground tracking-tight sm:mb-12">
-					How it works
+					Check your card
 				</h2>
 				<div className="grid gap-8 sm:grid-cols-3 sm:gap-6">
 					<div className="text-center">
@@ -65,11 +65,10 @@ export default function GiftCardsPage() {
 							<span className="font-display font-semibold text-lg">1</span>
 						</div>
 						<h3 className="font-display font-semibold text-foreground text-sm">
-							Receive a code
+							Enter the code
 						</h3>
 						<p className="mt-1.5 text-muted-foreground text-sm leading-relaxed">
-							Gift cards come with a unique code in the format
-							GIFT-XXXX-XXXX-XXXX.
+							Use the issued code in the format GIFT-XXXX-XXXX-XXXX.
 						</p>
 					</div>
 					<div className="text-center">
@@ -77,10 +76,10 @@ export default function GiftCardsPage() {
 							<span className="font-display font-semibold text-lg">2</span>
 						</div>
 						<h3 className="font-display font-semibold text-foreground text-sm">
-							Shop the store
+							Review the status
 						</h3>
 						<p className="mt-1.5 text-muted-foreground text-sm leading-relaxed">
-							Browse our full catalog and add your favorite items to your cart.
+							See whether the card is active, disabled, depleted, or expired.
 						</p>
 					</div>
 					<div className="text-center">
@@ -88,11 +87,11 @@ export default function GiftCardsPage() {
 							<span className="font-display font-semibold text-lg">3</span>
 						</div>
 						<h3 className="font-display font-semibold text-foreground text-sm">
-							Apply at checkout
+							See the balance
 						</h3>
 						<p className="mt-1.5 text-muted-foreground text-sm leading-relaxed">
-							Enter your gift card code during checkout to apply the balance to
-							your order.
+							View the card&apos;s recorded balance without reserving or
+							spending it.
 						</p>
 					</div>
 				</div>
@@ -106,7 +105,7 @@ export default function GiftCardsPage() {
 				<div className="divide-y divide-border/60">
 					<details className="group py-4">
 						<summary className="flex cursor-pointer items-center justify-between font-medium text-foreground text-sm">
-							How do I use a gift card?
+							Can I redeem a gift card?
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="16"
@@ -124,15 +123,13 @@ export default function GiftCardsPage() {
 							</svg>
 						</summary>
 						<p className="mt-3 pr-8 text-muted-foreground text-sm leading-relaxed">
-							During checkout, you&apos;ll find a field to enter your gift card
-							code. The balance will be applied to your order total. If the
-							order exceeds your gift card balance, you can pay the remaining
-							amount with another payment method.
+							Gift card redemption is unavailable. Checking a card does not
+							reserve or spend its balance.
 						</p>
 					</details>
 					<details className="group py-4">
 						<summary className="flex cursor-pointer items-center justify-between font-medium text-foreground text-sm">
-							Can I use a gift card more than once?
+							What does an active status mean?
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="16"
@@ -150,9 +147,8 @@ export default function GiftCardsPage() {
 							</svg>
 						</summary>
 						<p className="mt-3 pr-8 text-muted-foreground text-sm leading-relaxed">
-							Yes. If your gift card has a remaining balance after a purchase,
-							you can use the same code on future orders until the balance is
-							fully used.
+							The issued card is not disabled, depleted, or expired. An active
+							status does not mean checkout redemption is available.
 						</p>
 					</details>
 					<details className="group py-4">
@@ -177,8 +173,7 @@ export default function GiftCardsPage() {
 						<p className="mt-3 pr-8 text-muted-foreground text-sm leading-relaxed">
 							Gift cards may have an expiration date set at the time of
 							purchase. You can check your card&apos;s status and balance using
-							the checker above. Active cards are ready to use, while expired
-							cards can no longer be redeemed.
+							the checker above. Expired cards report a zero balance.
 						</p>
 					</details>
 					<details className="group py-4">
@@ -208,20 +203,14 @@ export default function GiftCardsPage() {
 				</div>
 			</section>
 
-			{/* CTA */}
+			{/* Availability */}
 			<section className="mx-auto mt-20 max-w-lg text-center sm:mt-28">
 				<h2 className="font-display font-semibold text-2xl text-foreground tracking-tight">
-					Ready to shop?
+					Balance lookup only
 				</h2>
 				<p className="mt-2 text-muted-foreground text-sm">
-					Browse our collection and find something you love.
+					This page does not apply a gift card to a cart or order.
 				</p>
-				<a
-					href="/products"
-					className="mt-6 inline-flex items-center justify-center rounded-lg bg-primary px-6 py-2.5 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/90"
-				>
-					Browse products
-				</a>
 			</section>
 		</div>
 	);

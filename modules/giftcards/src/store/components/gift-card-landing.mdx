@@ -2,11 +2,11 @@
   <div className="mb-10 text-center">
     <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">Gift Cards</h1>
     <p className="mx-auto mt-3 max-w-md text-muted-foreground text-base">
-      Give the gift of choice. Gift cards are redeemable on any purchase.
+      Check the balance and status of an issued gift card.
     </p>
   </div>
 
-  <div className="grid gap-6 sm:grid-cols-2">
+  <div className="mx-auto grid max-w-md gap-6">
     <a
       href="/gift-cards/balance"
       className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-6 transition-colors hover:bg-muted/40"
@@ -22,24 +22,6 @@
       </div>
       <span className="mt-auto text-muted-foreground text-xs transition-colors group-hover:text-foreground">
         Check balance →
-      </span>
-    </a>
-
-    <a
-      href="/gift-cards/redeem"
-      className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-6 transition-colors hover:bg-muted/40"
-    >
-      <div className="flex size-10 items-center justify-center rounded-lg bg-muted text-foreground">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6" /><path d="M12 12h6l-6-6 6 6" /></svg>
-      </div>
-      <div>
-        <h2 className="font-semibold text-foreground text-base">Redeem a gift card</h2>
-        <p className="mt-1 text-muted-foreground text-sm">
-          Apply your gift card code to your next purchase at checkout.
-        </p>
-      </div>
-      <span className="mt-auto text-muted-foreground text-xs transition-colors group-hover:text-foreground">
-        Redeem →
       </span>
     </a>
   </div>

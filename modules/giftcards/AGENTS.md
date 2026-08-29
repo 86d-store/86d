@@ -1,6 +1,6 @@
 # Gift Cards Module
 
-Digital gift cards with purchasing, gifting, redemption, balance management, top-ups, and analytics.
+Digital gift cards with purchasing, gifting, balance management, top-ups, analytics, and contained redemption internals.
 
 **Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
 
@@ -20,10 +20,9 @@ src/
   service.ts        GiftCardController interface + all type definitions
   service-impl.ts   GiftCardController implementation
   store/
-    components/     Store-facing MDX + TSX (balance check, redeem)
+    components/     Store-facing MDX + TSX (balance check)
     endpoints/
       check-balance.ts    GET  /gift-cards/check          (public)
-      redeem.ts           POST /gift-cards/redeem          (auth)
       purchase.ts         POST /gift-cards/purchase         (auth)
       send.ts             POST /gift-cards/send             (auth)
       my-cards.ts         GET  /gift-cards/my-cards         (auth)
@@ -69,7 +68,8 @@ Emits: `giftCard.created`, `giftCard.purchased`, `giftCard.redeemed`, `giftCard.
 - `purchase()` creates card + records purchase transaction; assigns customerId for self-purchases, leaves unassigned for gifts
 - `sendGiftCard()` marks card as delivered with email delivery — only owner or purchaser can send
 - `topUp()` verifies card ownership before adding balance — reactivates depleted cards
-- `redeem(code, amount)` caps at available balance; sets status to "depleted" at zero
+- `redeem(code, amount)` requires transactional row locking, caps at available balance, and sets status to "depleted" at zero
+- Standalone and Checkout redemption stay unexposed or fail closed until one complete Checkout Workflow coordinates the gift-card debit and Order with durable evidence and closed repair behavior
 - `checkBalance(code)` is public (no auth), returns expired status for past-dated cards
 - `bulkCreate()` generates multiple cards with shared settings (for promotions)
 - `getStats()` computes issued/redeemed/outstanding values from cards + transactions

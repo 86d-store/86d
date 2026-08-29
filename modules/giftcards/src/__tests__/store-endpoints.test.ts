@@ -1,6 +1,8 @@
 import { createMockDataService } from "@86d-app/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
+import giftCards from "../index";
 import { createGiftCardController } from "../service-impl";
+import { storeEndpoints } from "../store/endpoints/routes";
 
 /**
  * Store endpoint integration tests for the giftcards module.
@@ -8,7 +10,7 @@ import { createGiftCardController } from "../service-impl";
  * These tests verify the business logic in store-facing endpoints:
  *
  * 1. Balance check returns correct data and handles missing/expired cards
- * 2. Redeem requires authentication and enforces balance constraints
+ * 2. Standalone redemption remains unexposed
  * 3. Purchase derives customerId from session, not request body
  * 4. Send verifies card ownership before allowing transfer
  * 5. Top-up enforces ownership — only the card's customer can top up
@@ -17,6 +19,20 @@ import { createGiftCardController } from "../service-impl";
  */
 
 type DataService = ReturnType<typeof createMockDataService>;
+
+describe("store surface exposure", () => {
+	it("does not expose standalone gift card redemption", () => {
+		expect(storeEndpoints).toHaveProperty("/gift-cards/check");
+		expect(storeEndpoints).not.toHaveProperty("/gift-cards/redeem");
+	});
+
+	it("registers only balance-focused store pages", () => {
+		expect(giftCards().store?.pages).toEqual([
+			{ path: "/gift-cards", component: "GiftCardLanding" },
+			{ path: "/gift-cards/balance", component: "GiftCardBalance" },
+		]);
+	});
+});
 
 // ── Simulate store endpoint logic ────────────────────────────────────
 
@@ -36,36 +52,6 @@ async function simulateCheckBalance(data: DataService, code: string) {
 		balance: result.balance,
 		currency: result.currency,
 		status: result.status,
-	};
-}
-
-/**
- * Simulate redeem endpoint: requires session.
- * Returns amountApplied, remainingBalance, currency or errors.
- */
-async function simulateRedeem(
-	data: DataService,
-	body: { code: string; amount: number; orderId?: string },
-	session: { userId: string } | null,
-) {
-	if (!session) {
-		return { error: "Authentication required", status: 401 };
-	}
-
-	const controller = createGiftCardController(data);
-	const result = await controller.redeem(body.code, body.amount, body.orderId);
-
-	if (!result) {
-		return {
-			error: "Gift card not found, inactive, expired, or insufficient balance",
-			status: 400,
-		};
-	}
-
-	return {
-		amountApplied: result.transaction.amount,
-		remainingBalance: result.giftCard.currentBalance,
-		currency: result.giftCard.currency,
 	};
 }
 
@@ -348,192 +334,6 @@ describe("store endpoint: check balance", () => {
 			currency: "USD",
 			status: "active",
 		});
-	});
-});
-
-describe("store endpoint: redeem — authentication and balance", () => {
-	let data: DataService;
-
-	beforeEach(() => {
-		data = createMockDataService();
-	});
-
-	it("returns 401 when no session is provided", async () => {
-		const result = await simulateRedeem(
-			data,
-			{ code: "ANY", amount: 1000 },
-			null,
-		);
-		expect(result).toEqual({
-			error: "Authentication required",
-			status: 401,
-		});
-	});
-
-	it("redeems the full requested amount when balance is sufficient", async () => {
-		const card = await seedGiftCard(data, { initialBalance: 5000 });
-
-		const result = await simulateRedeem(
-			data,
-			{ code: card.code, amount: 3000 },
-			{ userId: "cust_1" },
-		);
-
-		expect(result).toEqual({
-			amountApplied: 3000,
-			remainingBalance: 2000,
-			currency: "USD",
-		});
-	});
-
-	it("caps redemption to available balance", async () => {
-		const card = await seedGiftCard(data, { initialBalance: 2000 });
-
-		const result = await simulateRedeem(
-			data,
-			{ code: card.code, amount: 5000 },
-			{ userId: "cust_1" },
-		);
-
-		expect(result).toEqual({
-			amountApplied: 2000,
-			remainingBalance: 0,
-			currency: "USD",
-		});
-	});
-
-	it("returns 400 for an inactive card", async () => {
-		const card = await seedGiftCard(data, {
-			initialBalance: 5000,
-			status: "disabled",
-		});
-
-		const result = await simulateRedeem(
-			data,
-			{ code: card.code, amount: 1000 },
-			{ userId: "cust_1" },
-		);
-
-		expect(result).toEqual({
-			error: "Gift card not found, inactive, expired, or insufficient balance",
-			status: 400,
-		});
-	});
-
-	it("returns 400 for an expired card", async () => {
-		const card = await seedGiftCard(data, {
-			initialBalance: 5000,
-			expiresAt: "2020-01-01T00:00:00.000Z",
-		});
-
-		const result = await simulateRedeem(
-			data,
-			{ code: card.code, amount: 1000 },
-			{ userId: "cust_1" },
-		);
-
-		expect(result).toEqual({
-			error: "Gift card not found, inactive, expired, or insufficient balance",
-			status: 400,
-		});
-	});
-
-	it("returns 400 for a depleted card", async () => {
-		const card = await seedGiftCard(data, {
-			initialBalance: 5000,
-			currentBalance: 0,
-			status: "depleted",
-		});
-
-		const result = await simulateRedeem(
-			data,
-			{ code: card.code, amount: 1000 },
-			{ userId: "cust_1" },
-		);
-
-		expect(result).toEqual({
-			error: "Gift card not found, inactive, expired, or insufficient balance",
-			status: 400,
-		});
-	});
-
-	it("returns 400 for a nonexistent code", async () => {
-		const result = await simulateRedeem(
-			data,
-			{ code: "NONEXISTENT-CODE", amount: 1000 },
-			{ userId: "cust_1" },
-		);
-
-		expect(result).toEqual({
-			error: "Gift card not found, inactive, expired, or insufficient balance",
-			status: 400,
-		});
-	});
-
-	it("marks card as depleted when entire balance is redeemed", async () => {
-		const card = await seedGiftCard(data, { initialBalance: 3000 });
-
-		const result = await simulateRedeem(
-			data,
-			{ code: card.code, amount: 3000 },
-			{ userId: "cust_1" },
-		);
-
-		expect(result).toEqual({
-			amountApplied: 3000,
-			remainingBalance: 0,
-			currency: "USD",
-		});
-
-		// Subsequent check should show depleted
-		const balanceCheck = await simulateCheckBalance(data, card.code);
-		expect(balanceCheck).toEqual({
-			balance: 0,
-			currency: "USD",
-			status: "depleted",
-		});
-	});
-
-	it("supports partial redemption across multiple calls", async () => {
-		const card = await seedGiftCard(data, { initialBalance: 5000 });
-
-		const first = await simulateRedeem(
-			data,
-			{ code: card.code, amount: 2000 },
-			{ userId: "cust_1" },
-		);
-		expect(first).toEqual({
-			amountApplied: 2000,
-			remainingBalance: 3000,
-			currency: "USD",
-		});
-
-		const second = await simulateRedeem(
-			data,
-			{ code: card.code, amount: 1500 },
-			{ userId: "cust_1" },
-		);
-		expect(second).toEqual({
-			amountApplied: 1500,
-			remainingBalance: 1500,
-			currency: "USD",
-		});
-	});
-
-	it("includes orderId in the transaction when provided", async () => {
-		const card = await seedGiftCard(data, { initialBalance: 5000 });
-
-		const result = await simulateRedeem(
-			data,
-			{ code: card.code, amount: 1000, orderId: "order_123" },
-			{ userId: "cust_1" },
-		);
-
-		expect("amountApplied" in result).toBe(true);
-		if (!("amountApplied" in result)) {
-			throw new Error("expected 'amountApplied' in result");
-		}
-		expect(result.amountApplied).toBe(1000);
 	});
 });
 
@@ -1011,93 +811,5 @@ describe("store endpoint: my-cards — customer scoping", () => {
 			throw new Error("expected 'cards' in result");
 		}
 		expect(result.cards.some((c) => c.id === otherCard.id)).toBe(false);
-	});
-});
-
-describe("store endpoint: redeem then check — cross-endpoint consistency", () => {
-	let data: DataService;
-
-	beforeEach(() => {
-		data = createMockDataService();
-	});
-
-	it("check-balance reflects the updated balance after partial redeem", async () => {
-		const card = await seedGiftCard(data, { initialBalance: 10000 });
-
-		await simulateRedeem(
-			data,
-			{ code: card.code, amount: 4000 },
-			{ userId: "cust_1" },
-		);
-
-		const balance = await simulateCheckBalance(data, card.code);
-		expect(balance).toEqual({
-			balance: 6000,
-			currency: "USD",
-			status: "active",
-		});
-	});
-
-	it("purchase then redeem full amount depletes the card", async () => {
-		const session = { userId: "cust_1", email: "buyer@example.com" };
-		const purchased = await simulatePurchase(data, { amount: 2500 }, session);
-
-		expect("code" in purchased).toBe(true);
-		if (!("code" in purchased)) {
-			throw new Error("expected 'code' in purchased");
-		}
-		const redeemed = await simulateRedeem(
-			data,
-			{ code: purchased.code, amount: 2500 },
-			{ userId: "cust_1" },
-		);
-
-		expect(redeemed).toEqual({
-			amountApplied: 2500,
-			remainingBalance: 0,
-			currency: "USD",
-		});
-
-		const balance = await simulateCheckBalance(data, purchased.code);
-		expect(balance).toEqual({
-			balance: 0,
-			currency: "USD",
-			status: "depleted",
-		});
-	});
-
-	it("top-up restores balance after partial redeem", async () => {
-		const card = await seedGiftCard(data, {
-			customerId: "cust_1",
-			initialBalance: 5000,
-		});
-
-		// Redeem 3000
-		await simulateRedeem(
-			data,
-			{ code: card.code, amount: 3000 },
-			{ userId: "cust_1" },
-		);
-
-		// Top up 4000
-		const topUpResult = await simulateTopUp(
-			data,
-			{ giftCardId: card.id, amount: 4000 },
-			{ userId: "cust_1" },
-		);
-
-		expect(topUpResult).toEqual({
-			newBalance: 6000,
-			currency: "USD",
-			amountAdded: 4000,
-		});
-
-		// Check final balance
-		const balance = await simulateCheckBalance(data, card.code);
-		expect(balance).toEqual({
-			balance: 6000,
-			currency: "USD",
-			status: "active",
-		});
 	});
 });
