@@ -1,8 +1,10 @@
 import { spawnSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import {
 	existsSync,
 	mkdirSync,
 	mkdtempSync,
+	readdirSync,
 	readFileSync,
 	rmSync,
 	symlinkSync,
@@ -43,6 +45,23 @@ function prepareWorktree(worktreePath: string): void {
 	if (!existsSync(nodeModulesPath)) {
 		symlinkSync(join(WORKSPACE_ROOT, "node_modules"), nodeModulesPath);
 	}
+	for (const workspaceGroup of ["apps", "internals", "modules", "packages"]) {
+		const groupPath = join(WORKSPACE_ROOT, workspaceGroup);
+		for (const entry of readdirSync(groupPath, { withFileTypes: true })) {
+			if (!entry.isDirectory()) continue;
+			const source = join(groupPath, entry.name, "node_modules");
+			if (!existsSync(source)) continue;
+			const target = join(
+				worktreePath,
+				workspaceGroup,
+				entry.name,
+				"node_modules",
+			);
+			if (!existsSync(target)) {
+				symlinkSync(source, target);
+			}
+		}
+	}
 
 	mkdirSync(join(worktreePath, "internals"), { recursive: true });
 	run(
@@ -57,20 +76,8 @@ function prepareWorktree(worktreePath: string): void {
 
 const worktrees: string[] = [];
 const branches: string[] = [];
-let originalBranch = "";
-const restoredFiles = new Map<string, string>();
 
 afterEach(() => {
-	for (const [path, contents] of restoredFiles.entries()) {
-		writeFileSync(path, contents);
-	}
-	restoredFiles.clear();
-
-	if (originalBranch) {
-		run(`git checkout ${originalBranch}`, WORKSPACE_ROOT);
-		originalBranch = "";
-	}
-
 	for (const worktreePath of worktrees.splice(0)) {
 		run(`git worktree remove "${worktreePath}" --force`, WORKSPACE_ROOT);
 		rmSync(worktreePath, { recursive: true, force: true });
@@ -85,7 +92,7 @@ describe("lockfile merge drivers", () => {
 		const worktreePath = mkdtempSync(
 			join(tmpdir(), "86d-merge-driver-config-"),
 		);
-		const branch = `test/merge-driver-config-${Date.now()}`;
+		const branch = `test/merge-driver-config-${process.pid}-${Date.now()}-${randomUUID().slice(0, 8)}`;
 		worktrees.push(worktreePath);
 		branches.push(branch);
 
@@ -117,78 +124,90 @@ describe("lockfile merge drivers", () => {
 	});
 
 	it("resolves registry.lock.json merge conflicts by regenerating", () => {
-		originalBranch = run(
-			"git branch --show-current",
-			WORKSPACE_ROOT,
-		).stdout.trim();
-		const stamp = Date.now();
+		const callerState = {
+			head: run("git rev-parse HEAD", WORKSPACE_ROOT).stdout,
+			symbolicRef: run("git symbolic-ref -q HEAD", WORKSPACE_ROOT).stdout,
+			status: run(
+				"git status --porcelain=v1 --untracked-files=all",
+				WORKSPACE_ROOT,
+			).stdout,
+		};
+		const worktreePath = mkdtempSync(join(tmpdir(), "86d-merge-driver-"));
+		const stamp = `${process.pid}-${Date.now()}-${randomUUID().slice(0, 8)}`;
 		const mainBranch = `test/merge-driver-main-${stamp}`;
 		const branchA = `test/merge-driver-a-${stamp}`;
 		const branchB = `test/merge-driver-b-${stamp}`;
+		worktrees.push(worktreePath);
 		branches.push(mainBranch, branchA, branchB);
+		expectSuccess(
+			`git worktree add -b ${mainBranch} "${worktreePath}" HEAD`,
+			WORKSPACE_ROOT,
+		);
+		prepareWorktree(worktreePath);
 
 		const searchIndexPath = join(
-			WORKSPACE_ROOT,
+			worktreePath,
 			"modules/search/src/admin/components/search-analytics.tsx",
 		);
 		const productsIndexPath = join(
-			WORKSPACE_ROOT,
+			worktreePath,
 			"modules/products/src/index.ts",
 		);
-		restoredFiles.set(searchIndexPath, readFileSync(searchIndexPath, "utf-8"));
-		restoredFiles.set(
-			productsIndexPath,
-			readFileSync(productsIndexPath, "utf-8"),
-		);
+		const searchIndex = readFileSync(searchIndexPath, "utf-8");
+		const productsIndex = readFileSync(productsIndexPath, "utf-8");
 
 		expectSuccess(
 			"sh internals/scripts/configure-git-merge-drivers.sh",
-			WORKSPACE_ROOT,
+			worktreePath,
 		);
-		expectSuccess(`git checkout -b ${mainBranch}`, WORKSPACE_ROOT);
 
-		expectSuccess(`git checkout -b ${branchA}`, WORKSPACE_ROOT);
-		writeFileSync(searchIndexPath, `${restoredFiles.get(searchIndexPath)}\n`);
-		expectSuccess("bun run generate:modules", WORKSPACE_ROOT);
+		expectSuccess(`git checkout -b ${branchA}`, worktreePath);
+		writeFileSync(searchIndexPath, `${searchIndex}\n`);
+		expectSuccess("bun run generate:modules", worktreePath);
 		expectSuccess(
 			"git add apps/registry/registry.lock.json modules/search/src/admin/components/search-analytics.tsx",
-			WORKSPACE_ROOT,
+			worktreePath,
 		);
 		expectSuccess(
 			'git commit -m "test(repo): branch a module change" --no-verify',
-			WORKSPACE_ROOT,
+			worktreePath,
 		);
 
-		expectSuccess(`git checkout ${mainBranch}`, WORKSPACE_ROOT);
-		expectSuccess(`git checkout -b ${branchB}`, WORKSPACE_ROOT);
-		writeFileSync(
-			productsIndexPath,
-			`${restoredFiles.get(productsIndexPath)}\n`,
-		);
-		expectSuccess("bun run generate:modules", WORKSPACE_ROOT);
+		expectSuccess(`git checkout ${mainBranch}`, worktreePath);
+		expectSuccess(`git checkout -b ${branchB}`, worktreePath);
+		writeFileSync(productsIndexPath, `${productsIndex}\n`);
+		expectSuccess("bun run generate:modules", worktreePath);
 		expectSuccess(
 			"git add apps/registry/registry.lock.json modules/products/src/index.ts",
-			WORKSPACE_ROOT,
+			worktreePath,
 		);
 		expectSuccess(
 			'git commit -m "test(repo): branch b module change" --no-verify',
-			WORKSPACE_ROOT,
+			worktreePath,
 		);
 
-		expectSuccess(`git checkout ${mainBranch}`, WORKSPACE_ROOT);
-		expectSuccess(`git merge ${branchA}`, WORKSPACE_ROOT);
-		const mergeResult = run(`git merge ${branchB}`, WORKSPACE_ROOT);
+		expectSuccess(`git checkout ${mainBranch}`, worktreePath);
+		expectSuccess(`git merge ${branchA}`, worktreePath);
+		const mergeResult = run(`git merge ${branchB}`, worktreePath);
 		expect(mergeResult.status, mergeResult.stderr).toBe(0);
 
-		expectSuccess("bun run generate:modules", WORKSPACE_ROOT);
-		expectSuccess("bun run generate:modules -- --frozen", WORKSPACE_ROOT);
+		expectSuccess("bun run generate:modules", worktreePath);
+		expectSuccess("bun run generate:modules -- --frozen", worktreePath);
 
 		const lockRaw = readFileSync(
-			join(WORKSPACE_ROOT, "apps/registry/registry.lock.json"),
+			join(worktreePath, "apps/registry/registry.lock.json"),
 			"utf-8",
 		);
 		const generatedAtIndex = lockRaw.indexOf('"generatedAt"');
 		const modulesIndex = lockRaw.indexOf('"modules"');
 		expect(generatedAtIndex).toBeGreaterThan(modulesIndex);
+		expect({
+			head: run("git rev-parse HEAD", WORKSPACE_ROOT).stdout,
+			symbolicRef: run("git symbolic-ref -q HEAD", WORKSPACE_ROOT).stdout,
+			status: run(
+				"git status --porcelain=v1 --untracked-files=all",
+				WORKSPACE_ROOT,
+			).stdout,
+		}).toEqual(callerState);
 	}, 120_000);
 });
