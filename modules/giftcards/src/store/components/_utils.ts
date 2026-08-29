@@ -9,8 +9,19 @@ export function extractError(error: Error | null, fallback: string): string {
 }
 
 export function formatCurrency(amount: number, currency: string): string {
-	return new Intl.NumberFormat("en-US", {
-		style: "currency",
-		currency,
-	}).format(amount);
+	const normalizedCurrency = currency.trim().toUpperCase();
+	try {
+		return new Intl.NumberFormat("en-US", {
+			style: "currency",
+			currency: normalizedCurrency,
+		}).format(amount);
+	} catch {
+		const formattedAmount = new Intl.NumberFormat("en-US", {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2,
+		}).format(amount);
+		return normalizedCurrency
+			? `${formattedAmount} ${normalizedCurrency}`
+			: `${formattedAmount} Unknown currency`;
+	}
 }

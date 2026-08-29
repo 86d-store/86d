@@ -1,6 +1,6 @@
 # Gift Cards Module
 
-Digital gift cards with purchasing, gifting, balance management, top-ups, analytics, and contained redemption internals.
+Read-only gift card records, balance and status lookup, owned-card delivery metadata, and analytics. Issuance, funding, redemption, status mutation, and deletion stay unavailable until complete Workflows own those operations with durable evidence.
 
 **Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
 
@@ -15,7 +15,7 @@ Digital gift cards with purchasing, gifting, balance management, top-ups, analyt
 
 ```
 src/
-  index.ts          Factory: giftCards(options?) => Module
+  index.ts          Factory: giftCards() => Module
   schema.ts         Data models: giftCard, giftCardTransaction
   service.ts        GiftCardController interface + all type definitions
   service-impl.ts   GiftCardController implementation
@@ -23,59 +23,34 @@ src/
     components/     Store-facing MDX + TSX (balance check)
     endpoints/
       check-balance.ts    GET  /gift-cards/check          (public)
-      purchase.ts         POST /gift-cards/purchase         (auth)
       send.ts             POST /gift-cards/send             (auth)
       my-cards.ts         GET  /gift-cards/my-cards         (auth)
-      top-up.ts           POST /gift-cards/top-up           (auth)
   admin/
-    components/     Admin MDX + TSX (overview)
+    components/     Admin MDX + TSX (read-only overview)
     endpoints/
       list-gift-cards.ts              GET    /admin/gift-cards
-      create-gift-card.ts             POST   /admin/gift-cards/create
-      bulk-create.ts                  POST   /admin/gift-cards/bulk-create
       stats.ts                        GET    /admin/gift-cards/stats
-      disable-expired.ts              POST   /admin/gift-cards/disable-expired
       get-gift-card.ts                GET    /admin/gift-cards/:id
-      update-gift-card.ts             PUT    /admin/gift-cards/:id/update
-      delete-gift-card.ts             DELETE /admin/gift-cards/:id/delete
-      credit-gift-card.ts             POST   /admin/gift-cards/:id/credit
       list-gift-card-transactions.ts  GET    /admin/gift-cards/:id/transactions
-```
-
-## Options
-
-```ts
-GiftCardOptions {
-  defaultCurrency?: string  // default "USD"
-  maxBalance?: number       // maximum gift card value
-  denominations?: string    // comma-separated amounts, e.g. "1000,2500,5000"
-  maxBulkCount?: number     // max cards per bulk creation (default 100)
-}
 ```
 
 ## Data models
 
-- **giftCard**: id, code (GIFT-XXXX-XXXX-XXXX), initialBalance, currentBalance, currency, status (active|disabled|expired|depleted), expiresAt?, recipientEmail?, recipientName?, customerId?, purchasedByCustomerId?, senderName?, senderEmail?, message?, deliveryMethod? (email|physical|digital), delivered?, deliveredAt?, scheduledDeliveryAt?, purchaseOrderId?, note?
-- **giftCardTransaction**: id, giftCardId, type (debit|credit|purchase|topup), amount, balanceAfter, orderId?, customerId?, note?, createdAt
+- **giftCard**: legacy stored record with id, code (GIFT-XXXX-XXXX-XXXX), initialBalance, currentBalance, currency, string status (common values: active|disabled|expired|depleted), expiresAt?, recipientEmail?, recipientName?, customerId?, purchasedByCustomerId?, senderName?, senderEmail?, message?, string deliveryMethod? (common values: email|physical|digital), delivered?, deliveredAt?, scheduledDeliveryAt?, purchaseOrderId?, note?
+- **giftCardTransaction**: legacy stored history with id, giftCardId, string type (common values: debit|credit|purchase|topup), amount, balanceAfter, orderId?, customerId?, note?, createdAt
 
 ## Events
 
-Emits: `giftCard.created`, `giftCard.purchased`, `giftCard.redeemed`, `giftCard.credited`, `giftCard.depleted`, `giftCard.sent`, `giftCard.toppedUp`, `giftCard.expired`
+No commerce events are emitted while money and destructive operations remain contained.
 
 ## Patterns
 
-- Codes are uppercase alphanumeric, no ambiguous chars (0/O/1/I/L), format GIFT-XXXX-XXXX-XXXX
-- `purchase()` creates card + records purchase transaction; assigns customerId for self-purchases, leaves unassigned for gifts
-- `sendGiftCard()` marks card as delivered with email delivery — only owner or purchaser can send
-- `topUp()` verifies card ownership before adding balance — reactivates depleted cards
-- `redeem(code, amount)` requires transactional row locking, caps at available balance, and sets status to "depleted" at zero
-- Standalone and Checkout redemption stay unexposed or fail closed until one complete Checkout Workflow coordinates the gift-card debit and Order with durable evidence and closed repair behavior
+- Legacy records commonly use uppercase `GIFT-XXXX-XXXX-XXXX` codes; the contained reader accepts arbitrary stored strings and does not generate codes
+- `sendGiftCard()` records intended email-delivery metadata without setting `delivered` or `deliveredAt`; it does not itself deliver a message, only the owner or purchaser may call it, and it fails closed without owner-local row locking
+- Controller and HTTP surfaces do not expose issuance, purchase, top-up, credit, redemption, status mutation, bulk mutation, or deletion
+- Checkout gift-card application and redemption fail closed until one complete Checkout Workflow coordinates the discount, debit, Payment, and Order with durable evidence and closed repair behavior
 - `checkBalance(code)` is public (no auth), returns expired status for past-dated cards
-- `bulkCreate()` generates multiple cards with shared settings (for promotions)
-- `getStats()` computes issued/redeemed/outstanding values from cards + transactions
-- `disableExpired()` batch-updates active cards with past expiresAt to "expired" status
-- Cards already delivered cannot be re-sent to prevent forwarding abuse
-- `ModuleConfig` only allows `Primitive` values — store array options as comma-separated strings
-- Transaction type includes "purchase" and "topup" in addition to "debit"/"credit"
-- `delivered` field defaults to `false` on create, not `undefined`
+- `getStats()` computes issued/redeemed/outstanding values from legacy cards + transactions
+- Expired cards and cards with any existing delivery marker cannot have intent recorded again, preventing forwarding and partial-state overwrite
+- Legacy transaction types remain readable for historical compatibility; their presence is not an executable money path
 - Store endpoints derive customerId from session — never accept it from request body

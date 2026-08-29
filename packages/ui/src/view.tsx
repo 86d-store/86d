@@ -1,6 +1,6 @@
 import { Slot } from "@radix-ui/react-slot";
 import type * as React from "react";
-import { cn } from "~/lib/utils";
+import { cn } from "./lib/utils";
 
 export type ViewProps = React.ComponentProps<"div"> & {
 	asChild?: boolean;

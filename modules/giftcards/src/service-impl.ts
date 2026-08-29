@@ -4,19 +4,47 @@ import type {
 	ModuleTransactionRunner,
 } from "@86d-app/core/durable-events";
 import type { ModuleDataService } from "@86d-app/core/types/module";
-import { giftcardsGiftCardShape } from "./schema";
+import {
+	giftcardsGiftCardShape,
+	giftcardsGiftCardTransactionShape,
+} from "./schema";
 import type {
-	BulkCreateParams,
-	CreateGiftCardParams,
 	GiftCard,
+	GiftCardAdminListParams,
+	GiftCardAdminSortField,
 	GiftCardController,
 	GiftCardStats,
 	GiftCardTransaction,
-	PurchaseGiftCardParams,
-	RedeemResult,
 	SendGiftCardParams,
-	TopUpParams,
 } from "./service";
+
+const READ_BATCH_SIZE = 1_000;
+
+const giftCardSearchDateFormatter = new Intl.DateTimeFormat("en-US", {
+	month: "short",
+	day: "numeric",
+	year: "numeric",
+	timeZone: "UTC",
+});
+
+const giftCardTextCollator = new Intl.Collator("en-US", {
+	numeric: true,
+	sensitivity: "base",
+});
+
+function parseGiftCard(value: unknown): GiftCard | null {
+	const parsed = giftcardsGiftCardShape.safeParse(value);
+	return parsed.success ? parsed.data : null;
+}
+
+function parseGiftCardTransaction(value: unknown): GiftCardTransaction | null {
+	const parsed = giftcardsGiftCardTransactionShape.safeParse(value);
+	return parsed.success ? parsed.data : null;
+}
+
+function isPresent<T>(value: T | null): value is T {
+	return value !== null;
+}
 
 function supportsRowLock(
 	transaction: ModuleDataTransaction,
@@ -27,25 +55,92 @@ function supportsRowLock(
 	);
 }
 
-function parseGiftCard(value: unknown): GiftCard | null {
-	const parsed = giftcardsGiftCardShape.safeParse(value);
-	return parsed.success ? parsed.data : null;
+async function findAllRows(
+	data: ModuleDataService,
+	entityType: "giftCard" | "giftCardTransaction",
+	where?: Record<string, unknown> | undefined,
+): Promise<unknown[]> {
+	const rows: unknown[] = [];
+	let skip = 0;
+	let batch: unknown[];
+
+	do {
+		batch = await data.findMany(entityType, {
+			...(where && Object.keys(where).length > 0 ? { where } : {}),
+			orderBy: { id: "asc" },
+			take: READ_BATCH_SIZE,
+			skip,
+		});
+		rows.push(...batch);
+		skip += batch.length;
+	} while (batch.length === READ_BATCH_SIZE);
+
+	return rows;
 }
 
-/**
- * Generate a unique gift card code in the format GIFT-XXXX-XXXX-XXXX
- * Uses uppercase alphanumeric characters (no ambiguous chars like 0/O, 1/I/L)
- */
-function generateCode(): string {
-	const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-	const segment = () => {
-		let s = "";
-		for (let i = 0; i < 4; i++) {
-			s += chars[Math.floor(Math.random() * chars.length)];
-		}
-		return s;
-	};
-	return `GIFT-${segment()}-${segment()}-${segment()}`;
+async function findAllGiftCards(
+	data: ModuleDataService,
+	where?: Record<string, unknown> | undefined,
+): Promise<GiftCard[]> {
+	return (await findAllRows(data, "giftCard", where))
+		.map(parseGiftCard)
+		.filter(isPresent);
+}
+
+async function findAllGiftCardTransactions(
+	data: ModuleDataService,
+): Promise<GiftCardTransaction[]> {
+	return (await findAllRows(data, "giftCardTransaction"))
+		.map(parseGiftCardTransaction)
+		.filter(isPresent);
+}
+
+function matchesAdminSearch(card: GiftCard, search: string): boolean {
+	const query = search.trim().toLocaleLowerCase("en-US");
+	if (!query) return true;
+
+	return [
+		card.code,
+		card.recipientEmail,
+		card.recipientName,
+		card.status,
+		card.createdAt.toISOString(),
+		giftCardSearchDateFormatter.format(card.createdAt),
+	].some((value) => value?.toLocaleLowerCase("en-US").includes(query));
+}
+
+function compareAdminField(
+	left: GiftCard,
+	right: GiftCard,
+	sort: GiftCardAdminSortField,
+): number {
+	if (sort === "balance") {
+		return left.currentBalance - right.currentBalance;
+	}
+	if (sort === "createdAt") {
+		return left.createdAt.getTime() - right.createdAt.getTime();
+	}
+	if (sort === "recipient") {
+		return giftCardTextCollator.compare(
+			left.recipientEmail ?? "",
+			right.recipientEmail ?? "",
+		);
+	}
+	return giftCardTextCollator.compare(left[sort], right[sort]);
+}
+
+function sortAdminCards(
+	cards: GiftCard[],
+	params: GiftCardAdminListParams | undefined,
+): GiftCard[] {
+	const sort = params?.sort ?? "createdAt";
+	const multiplier = params?.direction === "asc" ? 1 : -1;
+
+	return [...cards].sort((left, right) => {
+		const compared = compareAdminField(left, right, sort);
+		if (compared !== 0) return compared * multiplier;
+		return giftCardTextCollator.compare(left.id, right.id);
+	});
 }
 
 export function createGiftCardController(
@@ -53,43 +148,8 @@ export function createGiftCardController(
 	transactions?: ModuleTransactionRunner | undefined,
 ): GiftCardController {
 	return {
-		async create(params: CreateGiftCardParams): Promise<GiftCard> {
-			const id = crypto.randomUUID();
-			const code = generateCode();
-			const now = new Date();
-
-			const card: GiftCard = {
-				id,
-				code,
-				initialBalance: params.initialBalance,
-				currentBalance: params.initialBalance,
-				currency: params.currency ?? "USD",
-				status: "active",
-				expiresAt: params.expiresAt,
-				recipientEmail: params.recipientEmail,
-				recipientName: params.recipientName,
-				customerId: params.customerId,
-				purchasedByCustomerId: params.purchasedByCustomerId,
-				senderName: params.senderName,
-				senderEmail: params.senderEmail,
-				message: params.message,
-				deliveryMethod: params.deliveryMethod,
-				delivered: false,
-				scheduledDeliveryAt: params.scheduledDeliveryAt,
-				purchaseOrderId: params.purchaseOrderId,
-				note: params.note,
-				createdAt: now,
-				updatedAt: now,
-			};
-
-			await data.upsert("giftCard", id, card as Record<string, unknown>);
-			return card;
-		},
-
 		async get(id: string): Promise<GiftCard | null> {
-			const raw = await data.get("giftCard", id);
-			if (!raw) return null;
-			return raw as unknown as GiftCard;
+			return parseGiftCard(await data.get("giftCard", id));
 		},
 
 		async getByCode(code: string): Promise<GiftCard | null> {
@@ -97,8 +157,7 @@ export function createGiftCardController(
 				where: { code: code.toUpperCase() },
 				take: 1,
 			});
-			const cards = results as unknown as GiftCard[];
-			return cards.length > 0 ? cards[0] : null;
+			return parseGiftCard(results[0]);
 		},
 
 		async list(params): Promise<GiftCard[]> {
@@ -106,59 +165,33 @@ export function createGiftCardController(
 			if (params?.status) where.status = params.status;
 			if (params?.customerId) where.customerId = params.customerId;
 
-			const results = await data.findMany("giftCard", {
-				...(Object.keys(where).length > 0 ? { where } : {}),
-				...(params?.take !== undefined ? { take: params.take } : {}),
-				...(params?.skip !== undefined ? { skip: params.skip } : {}),
-			});
-			return results as unknown as GiftCard[];
+			const cards = await findAllGiftCards(data, where);
+			const skip = params?.skip ?? 0;
+			return cards.slice(
+				skip,
+				params?.take !== undefined ? skip + params.take : undefined,
+			);
 		},
 
-		async update(id, updates): Promise<GiftCard | null> {
-			const existing = await data.get("giftCard", id);
-			if (!existing) return null;
+		async listAdminPage(params): Promise<{
+			cards: GiftCard[];
+			total: number;
+		}> {
+			const where: Record<string, unknown> = {};
+			if (params?.status) where.status = params.status;
+			if (params?.customerId) where.customerId = params.customerId;
 
-			const card = existing as unknown as GiftCard;
-			const updated: GiftCard = {
-				...card,
-				...(updates.status !== undefined ? { status: updates.status } : {}),
-				...(updates.expiresAt !== undefined
-					? { expiresAt: updates.expiresAt }
-					: {}),
-				...(updates.note !== undefined ? { note: updates.note } : {}),
-				...(updates.recipientEmail !== undefined
-					? { recipientEmail: updates.recipientEmail }
-					: {}),
-				...(updates.recipientName !== undefined
-					? { recipientName: updates.recipientName }
-					: {}),
-				...(updates.delivered !== undefined
-					? { delivered: updates.delivered }
-					: {}),
-				...(updates.deliveredAt !== undefined
-					? { deliveredAt: updates.deliveredAt }
-					: {}),
-				updatedAt: new Date(),
+			const matching = (await findAllGiftCards(data, where)).filter((card) =>
+				params?.search ? matchesAdminSearch(card, params.search) : true,
+			);
+			const sorted = sortAdminCards(matching, params);
+			const skip = params?.skip ?? 0;
+			const take = params?.take ?? 50;
+
+			return {
+				cards: sorted.slice(skip, skip + take),
+				total: sorted.length,
 			};
-
-			await data.upsert("giftCard", id, updated as Record<string, unknown>);
-			return updated;
-		},
-
-		async delete(id: string): Promise<boolean> {
-			const existing = await data.get("giftCard", id);
-			if (!existing) return false;
-
-			// Delete associated transactions first
-			const txns = await data.findMany("giftCardTransaction", {
-				where: { giftCardId: id },
-			});
-			for (const txn of txns as unknown as GiftCardTransaction[]) {
-				await data.delete("giftCardTransaction", txn.id);
-			}
-
-			await data.delete("giftCard", id);
-			return true;
 		},
 
 		async checkBalance(code: string): Promise<{
@@ -170,12 +203,9 @@ export function createGiftCardController(
 				where: { code: code.toUpperCase() },
 				take: 1,
 			});
-			const cards = results as unknown as GiftCard[];
-			if (cards.length === 0) return null;
+			const card = parseGiftCard(results[0]);
+			if (!card) return null;
 
-			const card = cards[0];
-
-			// Check expiration
 			if (card.expiresAt && new Date(card.expiresAt) < new Date()) {
 				return {
 					balance: 0,
@@ -191,285 +221,85 @@ export function createGiftCardController(
 			};
 		},
 
-		async redeem(
-			code: string,
-			amount: number,
-			orderId?: string | undefined,
-		): Promise<RedeemResult | null> {
-			if (!transactions) return null;
-
-			const results = await data.findMany("giftCard", {
-				where: { code: code.toUpperCase() },
-				take: 1,
-			});
-			const card = parseGiftCard(results[0]);
-			if (!card) return null;
-
-			const redeemLocked = async (
-				transaction: Pick<
-					LockingModuleDataTransaction,
-					"getForUpdate" | "upsert"
-				>,
-			): Promise<RedeemResult | null> => {
-				const locked = await transaction.getForUpdate("giftCard", card.id);
-				if (!locked) return null;
-				const current = parseGiftCard(locked);
-				if (!current) return null;
-
-				if (current.status !== "active") return null;
-				if (current.expiresAt && new Date(current.expiresAt) < new Date()) {
-					return null;
-				}
-				if (current.currentBalance <= 0 || amount <= 0) return null;
-
-				const debitAmount = Math.min(amount, current.currentBalance);
-				const newBalance = current.currentBalance - debitAmount;
-				const updatedCard: GiftCard = {
-					...current,
-					currentBalance: newBalance,
-					status: newBalance === 0 ? "depleted" : "active",
-					updatedAt: new Date(),
-				};
-
-				await transaction.upsert("giftCard", current.id, { ...updatedCard });
-
-				const txn: GiftCardTransaction = {
-					id: crypto.randomUUID(),
-					giftCardId: current.id,
-					type: "debit",
-					amount: debitAmount,
-					balanceAfter: newBalance,
-					orderId,
-					note: orderId ? `Redeemed for order ${orderId}` : "Redeemed",
-					createdAt: new Date(),
-				};
-
-				await transaction.upsert("giftCardTransaction", txn.id, { ...txn });
-
-				return { transaction: txn, giftCard: updatedCard };
-			};
-
-			return transactions.transaction(async (transaction) => {
-				if (!supportsRowLock(transaction)) return null;
-				return redeemLocked(transaction);
-			});
-		},
-
-		async credit(
-			id: string,
-			amount: number,
-			note?: string | undefined,
-			orderId?: string | undefined,
-		): Promise<RedeemResult | null> {
-			const existing = await data.get("giftCard", id);
-			if (!existing) return null;
-			if (amount <= 0) return null;
-
-			const card = existing as unknown as GiftCard;
-			const newBalance = card.currentBalance + amount;
-
-			const updatedCard: GiftCard = {
-				...card,
-				currentBalance: newBalance,
-				status: newBalance > 0 ? "active" : card.status,
-				updatedAt: new Date(),
-			};
-
-			await data.upsert("giftCard", id, updatedCard as Record<string, unknown>);
-
-			const txnId = crypto.randomUUID();
-			const txn: GiftCardTransaction = {
-				id: txnId,
-				giftCardId: id,
-				type: "credit",
-				amount,
-				balanceAfter: newBalance,
-				orderId,
-				note: note ?? "Credit applied",
-				createdAt: new Date(),
-			};
-
-			await data.upsert(
-				"giftCardTransaction",
-				txnId,
-				txn as Record<string, unknown>,
-			);
-
-			return { transaction: txn, giftCard: updatedCard };
-		},
-
 		async listTransactions(giftCardId, params): Promise<GiftCardTransaction[]> {
 			const results = await data.findMany("giftCardTransaction", {
 				where: { giftCardId },
 				...(params?.take !== undefined ? { take: params.take } : {}),
 				...(params?.skip !== undefined ? { skip: params.skip } : {}),
 			});
-			return results as unknown as GiftCardTransaction[];
+			return results.map(parseGiftCardTransaction).filter(isPresent);
 		},
 
 		async countAll(): Promise<number> {
-			const all = await data.findMany("giftCard", {});
-			return (all as unknown as GiftCard[]).length;
-		},
-
-		async purchase(params: PurchaseGiftCardParams): Promise<GiftCard> {
-			const card = await this.create({
-				initialBalance: params.amount,
-				currency: params.currency,
-				purchasedByCustomerId: params.customerId,
-				senderEmail: params.customerEmail,
-				senderName: params.senderName,
-				recipientEmail: params.recipientEmail,
-				recipientName: params.recipientName,
-				message: params.message,
-				deliveryMethod: params.deliveryMethod ?? "digital",
-				scheduledDeliveryAt: params.scheduledDeliveryAt,
-				// If buying for self, assign to own customer ID
-				customerId: params.recipientEmail ? undefined : params.customerId,
-			});
-
-			// Record purchase transaction
-			const txnId = crypto.randomUUID();
-			const txn: GiftCardTransaction = {
-				id: txnId,
-				giftCardId: card.id,
-				type: "purchase",
-				amount: params.amount,
-				balanceAfter: params.amount,
-				customerId: params.customerId,
-				note: params.recipientEmail
-					? `Gift card purchased for ${params.recipientEmail}`
-					: "Gift card purchased for self",
-				createdAt: new Date(),
-			};
-
-			await data.upsert(
-				"giftCardTransaction",
-				txnId,
-				txn as Record<string, unknown>,
-			);
-
-			return card;
-		},
-
-		async topUp(params: TopUpParams): Promise<RedeemResult | null> {
-			const existing = await data.get("giftCard", params.giftCardId);
-			if (!existing) return null;
-
-			const card = existing as unknown as GiftCard;
-
-			// Customer can only top up their own cards
-			if (card.customerId !== params.customerId) return null;
-			if (card.status === "disabled") return null;
-			if (params.amount <= 0) return null;
-
-			const newBalance = card.currentBalance + params.amount;
-
-			const updatedCard: GiftCard = {
-				...card,
-				currentBalance: newBalance,
-				status: "active",
-				updatedAt: new Date(),
-			};
-
-			await data.upsert(
-				"giftCard",
-				params.giftCardId,
-				updatedCard as Record<string, unknown>,
-			);
-
-			const txnId = crypto.randomUUID();
-			const txn: GiftCardTransaction = {
-				id: txnId,
-				giftCardId: params.giftCardId,
-				type: "topup",
-				amount: params.amount,
-				balanceAfter: newBalance,
-				customerId: params.customerId,
-				note: "Balance top-up",
-				createdAt: new Date(),
-			};
-
-			await data.upsert(
-				"giftCardTransaction",
-				txnId,
-				txn as Record<string, unknown>,
-			);
-
-			return { transaction: txn, giftCard: updatedCard };
+			return (await findAllGiftCards(data)).length;
 		},
 
 		async sendGiftCard(params: SendGiftCardParams): Promise<GiftCard | null> {
-			const existing = await data.get("giftCard", params.giftCardId);
-			if (!existing) return null;
+			if (!transactions) return null;
 
-			const card = existing as unknown as GiftCard;
+			return transactions.transaction(async (transaction) => {
+				if (!supportsRowLock(transaction)) return null;
+				const card = parseGiftCard(
+					await transaction.getForUpdate("giftCard", params.giftCardId),
+				);
+				if (!card) return null;
 
-			// Only the owner or purchaser can send the card
-			if (
-				card.customerId !== params.customerId &&
-				card.purchasedByCustomerId !== params.customerId
-			) {
-				return null;
-			}
+				if (
+					card.customerId !== params.customerId &&
+					card.purchasedByCustomerId !== params.customerId
+				) {
+					return null;
+				}
+				if (card.status !== "active") return null;
+				if (
+					card.delivered === true ||
+					[
+						card.recipientEmail,
+						card.recipientName,
+						card.senderName,
+						card.senderEmail,
+						card.message,
+						card.deliveryMethod,
+						card.deliveredAt,
+						card.scheduledDeliveryAt,
+					].some((marker) => marker !== undefined)
+				) {
+					return null;
+				}
 
-			// Card must be active
-			if (card.status !== "active") return null;
+				const now = new Date();
+				if (card.expiresAt) {
+					const expiresAt = Date.parse(card.expiresAt);
+					if (!Number.isFinite(expiresAt) || expiresAt <= now.getTime()) {
+						return null;
+					}
+				}
+				const updated: GiftCard = {
+					...card,
+					recipientEmail: params.recipientEmail,
+					recipientName: params.recipientName,
+					senderName: params.senderName,
+					message: params.message,
+					deliveryMethod: "email",
+					updatedAt: now,
+				};
 
-			// Already delivered to someone else
-			if (card.delivered && card.recipientEmail) return null;
-
-			const now = new Date();
-			const updated: GiftCard = {
-				...card,
-				recipientEmail: params.recipientEmail,
-				recipientName: params.recipientName,
-				senderName: params.senderName,
-				message: params.message,
-				deliveryMethod: "email",
-				delivered: true,
-				deliveredAt: now,
-				updatedAt: now,
-			};
-
-			await data.upsert(
-				"giftCard",
-				card.id,
-				updated as Record<string, unknown>,
-			);
-			return updated;
+				await transaction.upsert("giftCard", card.id, { ...updated });
+				return updated;
+			});
 		},
 
 		async listByCustomer(customerId, params): Promise<GiftCard[]> {
-			// Find cards owned by this customer
-			const owned = await data.findMany("giftCard", {
+			const results = await data.findMany("giftCard", {
 				where: { customerId },
 				...(params?.take !== undefined ? { take: params.take } : {}),
 				...(params?.skip !== undefined ? { skip: params.skip } : {}),
 			});
-
-			return owned as unknown as GiftCard[];
-		},
-
-		async bulkCreate(params: BulkCreateParams): Promise<GiftCard[]> {
-			const cards: GiftCard[] = [];
-			for (let i = 0; i < params.count; i++) {
-				const card = await this.create({
-					initialBalance: params.initialBalance,
-					currency: params.currency,
-					expiresAt: params.expiresAt,
-					note: params.note,
-				});
-				cards.push(card);
-			}
-			return cards;
+			return results.map(parseGiftCard).filter(isPresent);
 		},
 
 		async getStats(): Promise<GiftCardStats> {
-			const allCards = (await data.findMany(
-				"giftCard",
-				{},
-			)) as unknown as GiftCard[];
+			const allCards = await findAllGiftCards(data);
 
 			let totalActive = 0;
 			let totalDepleted = 0;
@@ -477,36 +307,32 @@ export function createGiftCardController(
 			let totalExpired = 0;
 			let totalIssuedValue = 0;
 			let totalOutstandingBalance = 0;
-
 			const now = new Date();
+
 			for (const card of allCards) {
 				totalIssuedValue += card.initialBalance;
 				totalOutstandingBalance += card.currentBalance;
 
-				// Count expired cards (expiresAt in the past) regardless of stored status
-				if (card.expiresAt && new Date(card.expiresAt) < now) {
+				if (
+					card.status === "expired" ||
+					(card.expiresAt && new Date(card.expiresAt) < now)
+				) {
 					totalExpired++;
 				} else if (card.status === "depleted") {
 					totalDepleted++;
 				} else if (card.status === "disabled") {
 					totalDisabled++;
-				} else {
+				} else if (card.status === "active") {
 					totalActive++;
 				}
 			}
 
-			// Calculate redeemed value from transactions
-			const allTxns = (await data.findMany(
-				"giftCardTransaction",
-				{},
-			)) as unknown as GiftCardTransaction[];
-
-			let totalRedeemedValue = 0;
-			for (const txn of allTxns) {
-				if (txn.type === "debit") {
-					totalRedeemedValue += txn.amount;
-				}
-			}
+			const allTransactions = await findAllGiftCardTransactions(data);
+			const totalRedeemedValue = allTransactions.reduce(
+				(total, transaction) =>
+					transaction.type === "debit" ? total + transaction.amount : total,
+				0,
+			);
 
 			return {
 				totalIssued: allCards.length,
@@ -518,29 +344,6 @@ export function createGiftCardController(
 				totalRedeemedValue,
 				totalOutstandingBalance,
 			};
-		},
-
-		async disableExpired(): Promise<number> {
-			const allCards = (await data.findMany(
-				"giftCard",
-				{},
-			)) as unknown as GiftCard[];
-
-			const now = new Date();
-			let count = 0;
-
-			for (const card of allCards) {
-				if (
-					card.expiresAt &&
-					new Date(card.expiresAt) < now &&
-					card.status === "active"
-				) {
-					await this.update(card.id, { status: "expired" });
-					count++;
-				}
-			}
-
-			return count;
 		},
 	};
 }

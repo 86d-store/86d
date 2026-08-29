@@ -1,14 +1,21 @@
 import { createAdminEndpoint } from "@86d-app/core/api";
+import { sanitizeText } from "@86d-app/core/sanitize";
 import { z } from "zod";
-import type { GiftCardController } from "../../service";
+import {
+	GIFT_CARD_ADMIN_SORT_FIELDS,
+	type GiftCardController,
+} from "../../service";
 
 export const listGiftCards = createAdminEndpoint(
 	"/admin/gift-cards",
 	{
 		method: "GET",
 		query: z.object({
-			status: z.string().optional(),
-			customerId: z.string().optional(),
+			status: z.string().min(1).max(100).transform(sanitizeText).optional(),
+			customerId: z.string().min(1).max(200).transform(sanitizeText).optional(),
+			search: z.string().max(200).transform(sanitizeText).optional(),
+			sort: z.enum(GIFT_CARD_ADMIN_SORT_FIELDS).optional(),
+			direction: z.enum(["asc", "desc"]).optional(),
 			take: z.coerce.number().int().min(1).max(100).optional(),
 			skip: z.coerce.number().int().min(0).optional(),
 		}),
@@ -17,12 +24,14 @@ export const listGiftCards = createAdminEndpoint(
 		const controller = ctx.context.controllers.giftCards as GiftCardController;
 		const take = ctx.query.take ?? 50;
 		const skip = ctx.query.skip ?? 0;
-		const all = await controller.list({
+		return controller.listAdminPage({
 			status: ctx.query.status,
 			customerId: ctx.query.customerId,
+			search: ctx.query.search,
+			sort: ctx.query.sort,
+			direction: ctx.query.direction,
+			take,
+			skip,
 		});
-		const total = all.length;
-		const cards = all.slice(skip, skip + take);
-		return { cards, total };
 	},
 );

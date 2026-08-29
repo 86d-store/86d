@@ -1,384 +1,507 @@
+import type { ModuleTransactionRunner } from "@86d-app/core/durable-events";
 import {
 	createMockDataService,
 	createMockTransactionRunner,
 } from "@86d-app/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
+import type { GiftCard, GiftCardTransaction } from "../service";
 import { createGiftCardController } from "../service-impl";
 
+type DataService = ReturnType<typeof createMockDataService>;
+
+function giftCard(overrides: Partial<GiftCard> = {}): GiftCard {
+	const now = new Date("2026-01-01T00:00:00.000Z");
+	return {
+		id: "card_1",
+		code: "GIFT-ABCD-EFGH-JKNP",
+		initialBalance: 5_000,
+		currentBalance: 5_000,
+		currency: "USD",
+		status: "active",
+		delivered: false,
+		createdAt: now,
+		updatedAt: now,
+		...overrides,
+	};
+}
+
+function transaction(
+	overrides: Partial<GiftCardTransaction> = {},
+): GiftCardTransaction {
+	return {
+		id: "transaction_1",
+		giftCardId: "card_1",
+		type: "debit",
+		amount: 1_000,
+		balanceAfter: 4_000,
+		createdAt: new Date("2026-01-02T00:00:00.000Z"),
+		...overrides,
+	};
+}
+
+async function seedCard(
+	data: DataService,
+	overrides: Partial<GiftCard> = {},
+): Promise<GiftCard> {
+	const card = giftCard(overrides);
+	await data.upsert("giftCard", card.id, { ...card });
+	return card;
+}
+
+async function seedTransaction(
+	data: DataService,
+	overrides: Partial<GiftCardTransaction> = {},
+): Promise<GiftCardTransaction> {
+	const entry = transaction(overrides);
+	await data.upsert("giftCardTransaction", entry.id, { ...entry });
+	return entry;
+}
+
 describe("createGiftCardController", () => {
-	let mockData: ReturnType<typeof createMockDataService>;
+	let data: DataService;
 	let controller: ReturnType<typeof createGiftCardController>;
 
 	beforeEach(() => {
-		mockData = createMockDataService();
+		data = createMockDataService();
 		controller = createGiftCardController(
-			mockData,
-			createMockTransactionRunner({ data: mockData }),
+			data,
+			createMockTransactionRunner({ data }),
 		);
 	});
 
-	// ── create ───────────────────────────────────────────────────────────
-
-	describe("create", () => {
-		it("creates a gift card with default values", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			expect(card.id).toBeDefined();
-			expect(card.code).toMatch(/^GIFT-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/);
-			expect(card.initialBalance).toBe(5000);
-			expect(card.currentBalance).toBe(5000);
-			expect(card.currency).toBe("USD");
-			expect(card.status).toBe("active");
-		});
-
-		it("creates a gift card with custom currency", async () => {
-			const card = await controller.create({
-				initialBalance: 1000,
-				currency: "EUR",
-			});
-			expect(card.currency).toBe("EUR");
-		});
-
-		it("stores optional fields", async () => {
-			const card = await controller.create({
-				initialBalance: 2500,
-				expiresAt: "2025-12-31",
-				recipientEmail: "bob@example.com",
-				customerId: "cust_1",
-				purchaseOrderId: "ord_1",
-				note: "Happy birthday!",
-			});
-			expect(card.expiresAt).toBe("2025-12-31");
-			expect(card.recipientEmail).toBe("bob@example.com");
-			expect(card.customerId).toBe("cust_1");
-			expect(card.purchaseOrderId).toBe("ord_1");
-			expect(card.note).toBe("Happy birthday!");
-		});
-
-		it("generates unique codes", async () => {
-			const card1 = await controller.create({ initialBalance: 1000 });
-			const card2 = await controller.create({ initialBalance: 1000 });
-			expect(card1.code).not.toBe(card2.code);
-		});
+	it("exposes only contained read and delivery operations", () => {
+		expect(Object.keys(controller).sort()).toEqual(
+			[
+				"checkBalance",
+				"countAll",
+				"get",
+				"getByCode",
+				"getStats",
+				"list",
+				"listAdminPage",
+				"listByCustomer",
+				"listTransactions",
+				"sendGiftCard",
+			].sort(),
+		);
 	});
 
-	// ── get ──────────────────────────────────────────────────────────────
-
-	describe("get", () => {
-		it("returns an existing gift card", async () => {
-			const created = await controller.create({ initialBalance: 5000 });
-			const found = await controller.get(created.id);
-			expect(found?.id).toBe(created.id);
-			expect(found?.initialBalance).toBe(5000);
-		});
-
-		it("returns null for non-existent card", async () => {
-			const found = await controller.get("missing");
-			expect(found).toBeNull();
-		});
+	it("does not expose direct money or destructive primitives", () => {
+		const surface = Object.fromEntries(Object.entries(controller));
+		for (const method of [
+			"create",
+			"update",
+			"delete",
+			"redeem",
+			"credit",
+			"purchase",
+			"topUp",
+			"bulkCreate",
+			"disableExpired",
+		]) {
+			expect(surface).not.toHaveProperty(method);
+		}
 	});
 
-	// ── getByCode ────────────────────────────────────────────────────────
+	it("reads an existing card by id and code without changing it", async () => {
+		const card = await seedCard(data);
 
-	describe("getByCode", () => {
-		it("returns a card by its code", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			const found = await controller.getByCode(card.code);
-			expect(found?.id).toBe(card.id);
-		});
-
-		it("handles case-insensitive lookup", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			const found = await controller.getByCode(card.code.toLowerCase());
-			// The code is stored uppercase; lookup uppercases input
-			expect(found?.id).toBe(card.id);
-		});
-
-		it("returns null for non-existent code", async () => {
-			const found = await controller.getByCode("GIFT-XXXX-YYYY-ZZZZ");
-			expect(found).toBeNull();
-		});
+		await expect(controller.get(card.id)).resolves.toEqual(card);
+		await expect(
+			controller.getByCode(card.code.toLowerCase()),
+		).resolves.toEqual(card);
+		await expect(controller.get("missing")).resolves.toBeNull();
+		await expect(controller.getByCode("missing")).resolves.toBeNull();
+		expect(data.size("giftCard")).toBe(1);
 	});
 
-	// ── list ─────────────────────────────────────────────────────────────
-
-	describe("list", () => {
-		it("lists all gift cards", async () => {
-			await controller.create({ initialBalance: 1000 });
-			await controller.create({ initialBalance: 2000 });
-			const all = await controller.list();
-			expect(all).toHaveLength(2);
+	it("filters and paginates legacy cards", async () => {
+		await seedCard(data, { id: "card_1", customerId: "customer_1" });
+		await seedCard(data, {
+			id: "card_2",
+			code: "GIFT-QRST-UVWX-YZ23",
+			customerId: "customer_1",
+			status: "disabled",
+		});
+		await seedCard(data, {
+			id: "card_3",
+			code: "GIFT-4567-89AB-CDEF",
+			customerId: "customer_2",
 		});
 
-		it("filters by status", async () => {
-			const card = await controller.create({ initialBalance: 1000 });
-			await controller.update(card.id, { status: "disabled" });
-			await controller.create({ initialBalance: 2000 });
-			const disabled = await controller.list({ status: "disabled" });
-			expect(disabled).toHaveLength(1);
-		});
-
-		it("filters by customerId", async () => {
-			await controller.create({
-				initialBalance: 1000,
-				customerId: "cust_1",
-			});
-			await controller.create({ initialBalance: 2000 });
-			const results = await controller.list({ customerId: "cust_1" });
-			expect(results).toHaveLength(1);
-		});
-
-		it("supports take and skip", async () => {
-			for (let i = 0; i < 5; i++) {
-				await controller.create({ initialBalance: 1000 * (i + 1) });
-			}
-			const page = await controller.list({ take: 2, skip: 1 });
-			expect(page).toHaveLength(2);
-		});
+		await expect(controller.list({ status: "disabled" })).resolves.toEqual([
+			expect.objectContaining({ id: "card_2" }),
+		]);
+		await expect(
+			controller.list({ customerId: "customer_1", take: 1, skip: 1 }),
+		).resolves.toEqual([expect.objectContaining({ id: "card_2" })]);
+		await expect(controller.countAll()).resolves.toBe(3);
 	});
 
-	// ── update ───────────────────────────────────────────────────────────
-
-	describe("update", () => {
-		it("updates status", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			const updated = await controller.update(card.id, {
-				status: "disabled",
+	it("searches, sorts, and paginates across the complete admin result set", async () => {
+		for (let index = 0; index < 25; index++) {
+			await seedCard(data, {
+				id: `card_${index.toString().padStart(2, "0")}`,
+				code: `GIFT-CARD-${index.toString().padStart(4, "0")}`,
+				currentBalance: index,
+				recipientEmail:
+					index >= 20
+						? `matching-${index}@example.com`
+						: `other-${index}@example.com`,
+				createdAt: new Date(
+					`2026-01-${String(index + 1).padStart(2, "0")}T00:00:00.000Z`,
+				),
 			});
-			expect(updated?.status).toBe("disabled");
-		});
+		}
 
-		it("updates expiresAt", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			const updated = await controller.update(card.id, {
-				expiresAt: "2026-06-30",
-			});
-			expect(updated?.expiresAt).toBe("2026-06-30");
-		});
-
-		it("updates note and recipientEmail", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			const updated = await controller.update(card.id, {
-				note: "Updated note",
-				recipientEmail: "new@example.com",
-			});
-			expect(updated?.note).toBe("Updated note");
-			expect(updated?.recipientEmail).toBe("new@example.com");
-		});
-
-		it("returns null for non-existent card", async () => {
-			const result = await controller.update("missing", {
-				status: "disabled",
-			});
-			expect(result).toBeNull();
-		});
-
-		it("preserves fields not being updated", async () => {
-			const card = await controller.create({
-				initialBalance: 5000,
-				note: "Original note",
-			});
-			const updated = await controller.update(card.id, {
-				status: "disabled",
-			});
-			expect(updated?.note).toBe("Original note");
-			expect(updated?.initialBalance).toBe(5000);
-		});
-	});
-
-	// ── delete ───────────────────────────────────────────────────────────
-
-	describe("delete", () => {
-		it("deletes a gift card and its transactions", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			await controller.redeem(card.code, 1000);
-			const result = await controller.delete(card.id);
-			expect(result).toBe(true);
-			const found = await controller.get(card.id);
-			expect(found).toBeNull();
-		});
-
-		it("returns false for non-existent card", async () => {
-			const result = await controller.delete("missing");
-			expect(result).toBe(false);
-		});
-	});
-
-	// ── checkBalance ─────────────────────────────────────────────────────
-
-	describe("checkBalance", () => {
-		it("returns balance for an active card", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			const result = await controller.checkBalance(card.code);
-			expect(result?.balance).toBe(5000);
-			expect(result?.currency).toBe("USD");
-			expect(result?.status).toBe("active");
-		});
-
-		it("returns expired status for expired card", async () => {
-			const card = await controller.create({
-				initialBalance: 5000,
-				expiresAt: "2020-01-01",
-			});
-			const result = await controller.checkBalance(card.code);
-			expect(result?.balance).toBe(0);
-			expect(result?.status).toBe("expired");
-		});
-
-		it("returns null for non-existent code", async () => {
-			const result = await controller.checkBalance("GIFT-XXXX-YYYY-ZZZZ");
-			expect(result).toBeNull();
-		});
-	});
-
-	// ── redeem ───────────────────────────────────────────────────────────
-
-	describe("redeem", () => {
-		it("deducts from the gift card balance", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			const result = await controller.redeem(card.code, 2000);
-			expect(result).not.toBeNull();
-			expect(result?.transaction.amount).toBe(2000);
-			expect(result?.transaction.type).toBe("debit");
-			expect(result?.giftCard.currentBalance).toBe(3000);
-			expect(result?.giftCard.status).toBe("active");
-		});
-
-		it("depletes the card when full balance is redeemed", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			const result = await controller.redeem(card.code, 5000);
-			expect(result?.giftCard.currentBalance).toBe(0);
-			expect(result?.giftCard.status).toBe("depleted");
-		});
-
-		it("caps redemption at available balance", async () => {
-			const card = await controller.create({ initialBalance: 3000 });
-			const result = await controller.redeem(card.code, 5000);
-			expect(result?.transaction.amount).toBe(3000);
-			expect(result?.giftCard.currentBalance).toBe(0);
-		});
-
-		it("returns null for non-existent code", async () => {
-			const result = await controller.redeem("GIFT-XXXX-YYYY-ZZZZ", 1000);
-			expect(result).toBeNull();
-		});
-
-		it("returns null for disabled card", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			await controller.update(card.id, { status: "disabled" });
-			const result = await controller.redeem(card.code, 1000);
-			expect(result).toBeNull();
-		});
-
-		it("returns null for expired card", async () => {
-			const card = await controller.create({
-				initialBalance: 5000,
-				expiresAt: "2020-01-01",
-			});
-			const result = await controller.redeem(card.code, 1000);
-			expect(result).toBeNull();
-		});
-
-		it("returns null for zero amount", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			const result = await controller.redeem(card.code, 0);
-			expect(result).toBeNull();
-		});
-
-		it("stores orderId in transaction", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			const result = await controller.redeem(card.code, 2000, "ord_1");
-			expect(result?.transaction.orderId).toBe("ord_1");
-		});
-	});
-
-	// ── credit ───────────────────────────────────────────────────────────
-
-	describe("credit", () => {
-		it("adds to the gift card balance", async () => {
-			const card = await controller.create({ initialBalance: 3000 });
-			const result = await controller.credit(card.id, 2000);
-			expect(result?.giftCard.currentBalance).toBe(5000);
-			expect(result?.transaction.type).toBe("credit");
-			expect(result?.transaction.amount).toBe(2000);
-		});
-
-		it("reactivates a depleted card", async () => {
-			const card = await controller.create({ initialBalance: 1000 });
-			await controller.redeem(card.code, 1000);
-			const result = await controller.credit(card.id, 500);
-			expect(result?.giftCard.status).toBe("active");
-			expect(result?.giftCard.currentBalance).toBe(500);
-		});
-
-		it("returns null for non-existent card", async () => {
-			const result = await controller.credit("missing", 1000);
-			expect(result).toBeNull();
-		});
-
-		it("returns null for zero amount", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			const result = await controller.credit(card.id, 0);
-			expect(result).toBeNull();
-		});
-
-		it("stores custom note and orderId", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			const result = await controller.credit(
-				card.id,
-				1000,
-				"Refund credit",
-				"ord_1",
-			);
-			expect(result?.transaction.note).toBe("Refund credit");
-			expect(result?.transaction.orderId).toBe("ord_1");
-		});
-	});
-
-	// ── listTransactions ─────────────────────────────────────────────────
-
-	describe("listTransactions", () => {
-		it("lists transactions for a gift card", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			await controller.redeem(card.code, 1000);
-			await controller.redeem(card.code, 500);
-			await controller.credit(card.id, 200);
-			const txns = await controller.listTransactions(card.id);
-			expect(txns).toHaveLength(3);
-		});
-
-		it("returns empty array for card with no transactions", async () => {
-			const card = await controller.create({ initialBalance: 5000 });
-			const txns = await controller.listTransactions(card.id);
-			expect(txns).toHaveLength(0);
-		});
-
-		it("supports take and skip", async () => {
-			const card = await controller.create({ initialBalance: 10000 });
-			for (let i = 0; i < 5; i++) {
-				await controller.redeem(card.code, 100);
-			}
-			const page = await controller.listTransactions(card.id, {
+		await expect(
+			controller.listAdminPage({
+				search: "matching",
+				sort: "balance",
+				direction: "desc",
 				take: 2,
 				skip: 1,
-			});
-			expect(page).toHaveLength(2);
+			}),
+		).resolves.toEqual({
+			cards: [
+				expect.objectContaining({ id: "card_23" }),
+				expect.objectContaining({ id: "card_22" }),
+			],
+			total: 5,
 		});
 	});
 
-	// ── countAll ─────────────────────────────────────────────────────────
+	it("continues the admin projection beyond one storage read batch", async () => {
+		for (let index = 0; index <= 1_000; index += 1) {
+			await seedCard(data, {
+				id: `batch-card-${index.toString().padStart(4, "0")}`,
+				code: `GIFT-BATCH-${index.toString().padStart(4, "0")}`,
+				recipientEmail: index === 1_000 ? "last-batch@example.com" : undefined,
+			});
+		}
 
-	describe("countAll", () => {
-		it("counts all gift cards", async () => {
-			await controller.create({ initialBalance: 1000 });
-			await controller.create({ initialBalance: 2000 });
-			await controller.create({ initialBalance: 3000 });
-			const count = await controller.countAll();
-			expect(count).toBe(3);
+		await expect(
+			controller.listAdminPage({ search: "last-batch", take: 20, skip: 0 }),
+		).resolves.toEqual({
+			cards: [expect.objectContaining({ id: "batch-card-1000" })],
+			total: 1,
+		});
+	});
+
+	it("searches the visible status and UTC creation date projection", async () => {
+		await seedCard(data, {
+			id: "legacy-status",
+			status: "archived-by-import",
+			createdAt: new Date("2026-03-14T00:00:00.000Z"),
 		});
 
-		it("returns 0 when no cards exist", async () => {
-			const count = await controller.countAll();
-			expect(count).toBe(0);
+		await expect(
+			controller.listAdminPage({ search: "archived-by-import" }),
+		).resolves.toMatchObject({ total: 1 });
+		await expect(
+			controller.listAdminPage({ search: "Mar 14, 2026" }),
+		).resolves.toMatchObject({ total: 1 });
+	});
+
+	it("checks active, expired, and missing balances", async () => {
+		const active = await seedCard(data);
+		const expired = await seedCard(data, {
+			id: "card_expired",
+			code: "GIFT-EXPR-2345-6789",
+			expiresAt: "2020-01-01T00:00:00.000Z",
+		});
+
+		await expect(controller.checkBalance(active.code)).resolves.toEqual({
+			balance: 5_000,
+			currency: "USD",
+			status: "active",
+		});
+		await expect(controller.checkBalance(expired.code)).resolves.toEqual({
+			balance: 0,
+			currency: "USD",
+			status: "expired",
+		});
+		await expect(controller.checkBalance("missing")).resolves.toBeNull();
+	});
+
+	it("reads and paginates existing transaction history", async () => {
+		await seedTransaction(data, { id: "transaction_1" });
+		await seedTransaction(data, { id: "transaction_2", amount: 500 });
+		await seedTransaction(data, {
+			id: "transaction_other",
+			giftCardId: "card_2",
+		});
+
+		await expect(
+			controller.listTransactions("card_1", { take: 1, skip: 1 }),
+		).resolves.toEqual([
+			expect.objectContaining({ id: "transaction_2", amount: 500 }),
+		]);
+		await expect(controller.listTransactions("missing")).resolves.toEqual([]);
+	});
+
+	it("keeps unknown legacy status, delivery, and transaction values readable", async () => {
+		const card = await seedCard(data, {
+			status: "archived-by-legacy-import",
+			deliveryMethod: "carrier-pigeon",
+		});
+		const entry = await seedTransaction(data, {
+			type: "legacy-adjustment",
+		});
+
+		await expect(controller.get(card.id)).resolves.toMatchObject({
+			status: "archived-by-legacy-import",
+			deliveryMethod: "carrier-pigeon",
+		});
+		await expect(controller.listTransactions(card.id)).resolves.toEqual([
+			expect.objectContaining({ id: entry.id, type: "legacy-adjustment" }),
+		]);
+	});
+
+	it("lists only cards owned by the requested customer", async () => {
+		await seedCard(data, { id: "owned_1", customerId: "customer_1" });
+		await seedCard(data, {
+			id: "owned_2",
+			code: "GIFT-QRST-UVWX-YZ23",
+			customerId: "customer_1",
+		});
+		await seedCard(data, {
+			id: "other",
+			code: "GIFT-4567-89AB-CDEF",
+			customerId: "customer_2",
+		});
+
+		const cards = await controller.listByCustomer("customer_1");
+		expect(cards.map((card) => card.id)).toEqual(["owned_1", "owned_2"]);
+	});
+
+	it("records delivery intent without claiming that a message was delivered", async () => {
+		const card = await seedCard(data, { customerId: "customer_1" });
+
+		const result = await controller.sendGiftCard({
+			giftCardId: card.id,
+			customerId: "customer_1",
+			recipientEmail: "recipient@example.com",
+			recipientName: "Recipient",
+			senderName: "Sender",
+			message: "Enjoy",
+		});
+
+		expect(result).toMatchObject({
+			recipientEmail: "recipient@example.com",
+			recipientName: "Recipient",
+			senderName: "Sender",
+			message: "Enjoy",
+			deliveryMethod: "email",
+			delivered: false,
+		});
+		expect(result?.deliveredAt).toBeUndefined();
+		await expect(controller.get(card.id)).resolves.toMatchObject({
+			recipientEmail: "recipient@example.com",
+			deliveryMethod: "email",
+			delivered: false,
+		});
+		expect((await controller.get(card.id))?.deliveredAt).toBeUndefined();
+	});
+
+	it("records only one recipient when concurrent sends target the same card", async () => {
+		const runner = createMockTransactionRunner({ data });
+		let tail = Promise.resolve();
+		const serialTransactions: ModuleTransactionRunner = {
+			transaction<T>(work): Promise<T> {
+				const result = tail.then(() => runner.transaction(work));
+				tail = result.then(
+					() => undefined,
+					() => undefined,
+				);
+				return result;
+			},
+		};
+		const lockedController = createGiftCardController(data, serialTransactions);
+		const card = await seedCard(data, { customerId: "customer_1" });
+
+		const results = await Promise.all([
+			lockedController.sendGiftCard({
+				giftCardId: card.id,
+				customerId: "customer_1",
+				recipientEmail: "first@example.com",
+			}),
+			lockedController.sendGiftCard({
+				giftCardId: card.id,
+				customerId: "customer_1",
+				recipientEmail: "second@example.com",
+			}),
+		]);
+
+		expect(results.filter((result) => result !== null)).toHaveLength(1);
+		await expect(lockedController.get(card.id)).resolves.toMatchObject({
+			recipientEmail: "first@example.com",
+			delivered: false,
+		});
+	});
+
+	it("fails delivery metadata closed without transactional row locking", async () => {
+		const unlockedController = createGiftCardController(data);
+		const card = await seedCard(data, { customerId: "customer_1" });
+
+		await expect(
+			unlockedController.sendGiftCard({
+				giftCardId: card.id,
+				customerId: "customer_1",
+				recipientEmail: "recipient@example.com",
+			}),
+		).resolves.toBeNull();
+		await expect(unlockedController.get(card.id)).resolves.toEqual(card);
+	});
+
+	it("allows the recorded purchaser to send a card", async () => {
+		const card = await seedCard(data, {
+			purchasedByCustomerId: "customer_1",
+		});
+
+		await expect(
+			controller.sendGiftCard({
+				giftCardId: card.id,
+				customerId: "customer_1",
+				recipientEmail: "recipient@example.com",
+			}),
+		).resolves.toMatchObject({
+			recipientEmail: "recipient@example.com",
+			deliveryMethod: "email",
+			delivered: false,
+		});
+	});
+
+	it.each([
+		["a different customer", { customerId: "customer_1" }, "customer_2"],
+		[
+			"a disabled card",
+			{ customerId: "customer_1", status: "disabled" as const },
+			"customer_1",
+		],
+		[
+			"a delivered card without recipient metadata",
+			{
+				customerId: "customer_1",
+				delivered: true,
+			},
+			"customer_1",
+		],
+		[
+			"recipient metadata without the delivered flag",
+			{
+				customerId: "customer_1",
+				delivered: false,
+				recipientEmail: "first@example.com",
+			},
+			"customer_1",
+		],
+		[
+			"recipient-name metadata without an email",
+			{
+				customerId: "customer_1",
+				recipientName: "Original recipient",
+			},
+			"customer_1",
+		],
+		[
+			"sender metadata",
+			{
+				customerId: "customer_1",
+				senderEmail: "sender@example.com",
+			},
+			"customer_1",
+		],
+		[
+			"scheduled delivery metadata",
+			{
+				customerId: "customer_1",
+				scheduledDeliveryAt: "2099-01-01T00:00:00.000Z",
+			},
+			"customer_1",
+		],
+		[
+			"a persisted delivery method",
+			{
+				customerId: "customer_1",
+				deliveryMethod: "physical",
+			},
+			"customer_1",
+		],
+		[
+			"a past-dated card",
+			{
+				customerId: "customer_1",
+				expiresAt: "2020-01-01T00:00:00.000Z",
+			},
+			"customer_1",
+		],
+	])("refuses to send for %s", async (_case, overrides, customerId) => {
+		const card = await seedCard(data, overrides);
+
+		await expect(
+			controller.sendGiftCard({
+				giftCardId: card.id,
+				customerId,
+				recipientEmail: "second@example.com",
+			}),
+		).resolves.toBeNull();
+		await expect(controller.get(card.id)).resolves.toEqual(card);
+	});
+
+	it("projects statistics from existing cards and transactions", async () => {
+		await seedCard(data, { id: "active", initialBalance: 5_000 });
+		await seedCard(data, {
+			id: "depleted",
+			code: "GIFT-QRST-UVWX-YZ23",
+			initialBalance: 3_000,
+			currentBalance: 0,
+			status: "depleted",
+		});
+		await seedCard(data, {
+			id: "disabled",
+			code: "GIFT-4567-89AB-CDEF",
+			initialBalance: 2_000,
+			currentBalance: 2_000,
+			status: "disabled",
+		});
+		await seedCard(data, {
+			id: "expired",
+			code: "GIFT-GHJK-MNPQ-RSTU",
+			initialBalance: 1_000,
+			currentBalance: 1_000,
+			expiresAt: "2020-01-01T00:00:00.000Z",
+		});
+		await seedCard(data, {
+			id: "status_expired",
+			code: "GIFT-STAT-EXPR-2345",
+			initialBalance: 1_000,
+			currentBalance: 1_000,
+			status: "expired",
+		});
+		await seedCard(data, {
+			id: "legacy_unknown",
+			code: "GIFT-UNKN-STAT-2345",
+			initialBalance: 500,
+			currentBalance: 500,
+			status: "legacy-hold",
+		});
+		await seedTransaction(data, { amount: 1_500 });
+		await seedTransaction(data, {
+			id: "credit_1",
+			type: "credit",
+			amount: 500,
+		});
+
+		await expect(controller.getStats()).resolves.toEqual({
+			totalIssued: 6,
+			totalActive: 1,
+			totalDepleted: 1,
+			totalDisabled: 1,
+			totalExpired: 2,
+			totalIssuedValue: 12_500,
+			totalRedeemedValue: 1_500,
+			totalOutstandingBalance: 9_500,
 		});
 	});
 });

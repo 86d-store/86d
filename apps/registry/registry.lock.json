@@ -117,7 +117,7 @@
       "source": "local",
       "packageName": "@86d-app/checkout",
       "version": "0.0.42",
-      "integrity": "sha256-0d4625ff1b0155b76adc0a04c1b3716efb34e0aa48d6f83a0d5f1c7e37660d46",
+      "integrity": "sha256-86b4fe7eb3cf9434ae94f86a6e2533896c1159aea82c333c59774e0149eed28d",
       "localPath": "modules/checkout"
     },
     "collections": {
@@ -257,7 +257,7 @@
       "source": "local",
       "packageName": "@86d-app/giftcards",
       "version": "0.0.42",
-      "integrity": "sha256-40d7e0ed84c50ae72a59e241a7fabfb77f4614720cc014ec0027c1fb9c48bc74",
+      "integrity": "sha256-f59f8cab342914dcee43e02cf4895dfb6f6c1496e1b0474432c4721162b24bf8",
       "localPath": "modules/giftcards"
     },
     "google-shopping": {
@@ -702,5 +702,5 @@
       "localPath": "modules/x-shop"
     }
   },
-  "generatedAt": "2026-08-29T02:47:23.274Z"
+  "generatedAt": "2026-08-29T06:56:25.717Z"
 }

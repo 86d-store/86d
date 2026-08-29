@@ -33,7 +33,7 @@ export const sendGiftCard = createStoreEndpoint(
 
 		if (!result) {
 			return {
-				error: "Gift card not found, not owned by you, or already sent",
+				error: "Gift card delivery metadata could not be recorded",
 				status: 400,
 			};
 		}
@@ -41,7 +41,8 @@ export const sendGiftCard = createStoreEndpoint(
 		return {
 			id: result.id,
 			recipientEmail: result.recipientEmail,
-			delivered: result.delivered,
+			deliveryMetadataRecorded: true,
+			delivered: result.delivered === true,
 		};
 	},
 );

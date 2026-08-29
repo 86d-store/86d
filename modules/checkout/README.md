@@ -76,6 +76,17 @@ Flow: `pending → processing → completed`, `pending → expired`, `pending/pr
 | `PUT` | `/checkout/sessions/:id/update` | Update contact/billing data; caller Shipping/Payment choices are rejected |
 | `POST` | `/checkout/sessions/:id/discount` | Apply a discount code |
 
+Gift-card application is unavailable until one complete Workflow can coordinate
+the Checkout discount, gift-card debit, Payment, and Order with durable evidence
+and closed repair behavior. Neither session creation nor `CheckoutController`
+accepts a new gift-card application. Stored legacy fields remain readable, and
+the removal endpoint remains registered only so a legacy session with an
+already-applied card can restore its undiscounted total.
+
+The unregistered Finalization handlers return `GIFT_CARD_WORKFLOW_REQUIRED`
+before invoking capabilities, creating an Order, or completing a Checkout when
+a legacy gift-card code or nonzero amount remains stored.
+
 Every mutation after session creation requires `expectedRevision`. The Store
 Runtime locks the Checkout-owned row, compares the revision, and increments it
 atomically with the update. Row-locking unavailability fails closed rather than
@@ -244,7 +255,7 @@ interface CheckoutSession {
 
 ## Inter-module Integration
 
-Checkout accepts versioned contracts owned by Products, Orders, Inventory, Tax, Shipping, Discounts, Gift Cards, Store Credits, Payments, Price Lists, and Multi-currency. Product resolution and Order creation are required at admission; the remaining integrations are explicitly optional. Every call is schema-validated and the provider receives only its own data service.
+Checkout accepts versioned contracts owned by Products, Orders, Inventory, Tax, Shipping, Discounts, Store Credits, Payments, Price Lists, and Multi-currency. Product resolution and Order creation are required at admission; the remaining integrations are explicitly optional. Gift-card application is excluded until its complete Workflow exists. Every call is schema-validated and the provider receives only its own data service.
 
 ```ts
 const result = await ctx.context.capabilities.invoke(
@@ -345,7 +356,7 @@ None.
 
 ### CheckoutSummary
 
-Order summary sidebar. Displays line items, subtotal, shipping, tax, discount, gift card, and total. Includes forms for applying/removing promo codes and gift cards.
+Order summary sidebar. Displays line items, subtotal, shipping, tax, discount, any legacy applied gift card, and total. A negative stored gift-card amount is shown as a signed legacy adjustment so the total remains explainable. Promo-code application/removal remains available; new gift-card application is unavailable, while legacy applied-card removal remains for recovery.
 
 #### Props
 

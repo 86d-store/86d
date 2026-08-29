@@ -214,7 +214,7 @@ export function createCheckoutController(
 				taxAmount: params.taxAmount ?? 0,
 				shippingAmount: params.shippingAmount ?? 0,
 				discountAmount: params.discountAmount ?? 0,
-				giftCardAmount: params.giftCardAmount ?? 0,
+				giftCardAmount: 0,
 				storeCreditAmount: params.storeCreditAmount ?? 0,
 				total: params.total,
 				currency: params.currency ?? "USD",
@@ -337,28 +337,6 @@ export function createCheckoutController(
 					total: calculateTotal({
 						...existing,
 						discountAmount: 0,
-					}),
-				};
-			});
-		},
-
-		async applyGiftCard(
-			id: string,
-			params: { code: string; giftCardAmount: number },
-			expectedRevision?: number | undefined,
-		): Promise<CheckoutSession | null> {
-			return mutateSession(id, expectedRevision, (existing) => {
-				if (existing.status === "completed" || existing.status === "expired") {
-					return null;
-				}
-
-				return {
-					...existing,
-					giftCardCode: params.code,
-					giftCardAmount: params.giftCardAmount,
-					total: calculateTotal({
-						...existing,
-						giftCardAmount: params.giftCardAmount,
 					}),
 				};
 			});

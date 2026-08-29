@@ -1,7 +1,4 @@
-/**
- * Rewrite workspace path aliases in emitted dist so npm consumers resolve
- * relative files instead of `~/` specifiers.
- */
+/** Rewrite emitted imports so npm consumers can load the package with Node ESM. */
 
 import {
 	existsSync,
@@ -16,7 +13,8 @@ import { fileURLToPath } from "node:url";
 const pkgDir = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const distDir = join(pkgDir, "dist");
 
-const IMPORT_SPECIFIER = /(from\s+|import\s*\(\s*)(["'])~\/([^"']+)\2/g;
+const IMPORT_SPECIFIER =
+	/(\bfrom\s+|\bimport\s*\(\s*|\bimport\s+)(["'])([^"']+)\2/g;
 
 function toPosix(path: string): string {
 	return path.split(sep).join("/");
@@ -35,19 +33,36 @@ function walk(dir: string, out: string[] = []): string[] {
 	return out;
 }
 
+function withJavaScriptExtension(specifier: string): string {
+	const suffixIndex = specifier.search(/[?#]/);
+	const path = suffixIndex === -1 ? specifier : specifier.slice(0, suffixIndex);
+	const suffix = suffixIndex === -1 ? "" : specifier.slice(suffixIndex);
+	if (extname(path)) return specifier;
+	return `${path}.js${suffix}`;
+}
+
 function relativeSpecifier(fromFile: string, importedPath: string): string {
 	const targetAbs = resolve(distDir, importedPath);
 	let rel = toPosix(relative(dirname(fromFile), targetAbs));
 	if (!rel.startsWith(".")) rel = `./${rel}`;
-	if (!extname(rel)) rel += ".js";
-	return rel;
+	return withJavaScriptExtension(rel);
 }
 
-function rewriteFileContents(fromFile: string, source: string): string {
+function rewriteSpecifier(fromFile: string, specifier: string): string {
+	if (specifier.startsWith("~/")) {
+		return relativeSpecifier(fromFile, specifier.slice(2));
+	}
+	if (!specifier.startsWith("./") && !specifier.startsWith("../")) {
+		return specifier;
+	}
+	return withJavaScriptExtension(specifier);
+}
+
+export function rewriteFileContents(fromFile: string, source: string): string {
 	return source.replace(
 		IMPORT_SPECIFIER,
-		(_match, prefix: string, quote: string, importedPath: string) =>
-			`${prefix}${quote}${relativeSpecifier(fromFile, importedPath)}${quote}`,
+		(_match, prefix: string, quote: string, specifier: string) =>
+			`${prefix}${quote}${rewriteSpecifier(fromFile, specifier)}${quote}`,
 	);
 }
 
@@ -67,4 +82,6 @@ function main(): void {
 	}
 }
 
-main();
+if (import.meta.main) {
+	main();
+}

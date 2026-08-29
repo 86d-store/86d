@@ -2,6 +2,7 @@ import { createMockDataService } from "@86d-app/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { CheckoutAddress, CheckoutLineItem } from "../service";
 import { createCheckoutController } from "../service-impl";
+import { seedLegacyStoredGiftCard } from "./legacy-gift-card-test-utils";
 
 const sampleAddress: CheckoutAddress = {
 	firstName: "Jane",
@@ -603,117 +604,6 @@ describe("checkout controller edge cases", () => {
 		});
 	});
 
-	// ── applyGiftCard edge cases ──────────────────────────────────────
-
-	describe("applyGiftCard edge cases", () => {
-		it("returns null for missing session", async () => {
-			const result = await controller.applyGiftCard("ghost", {
-				code: "GC123",
-				giftCardAmount: 50,
-			});
-			expect(result).toBeNull();
-		});
-
-		it("returns null for completed session", async () => {
-			const session = await controller.create({
-				subtotal: 100,
-				total: 100,
-				lineItems: sampleLineItems,
-			});
-			await controller.complete(session.id, "ord-1");
-			const result = await controller.applyGiftCard(session.id, {
-				code: "GC",
-				giftCardAmount: 50,
-			});
-			expect(result).toBeNull();
-		});
-
-		it("returns null for expired session", async () => {
-			const session = await controller.create({
-				subtotal: 100,
-				total: 100,
-				lineItems: sampleLineItems,
-				ttl: -1,
-			});
-			await controller.expireStale();
-			const result = await controller.applyGiftCard(session.id, {
-				code: "GC",
-				giftCardAmount: 50,
-			});
-			expect(result).toBeNull();
-		});
-
-		it("gift card amount larger than total clamps to zero", async () => {
-			const session = await controller.create({
-				subtotal: 100,
-				taxAmount: 10,
-				shippingAmount: 5,
-				total: 115,
-				lineItems: sampleLineItems,
-			});
-			const updated = await controller.applyGiftCard(session.id, {
-				code: "BIGCARD",
-				giftCardAmount: 99999,
-			});
-			expect(updated?.total).toBe(0);
-		});
-
-		it("replaces an existing gift card", async () => {
-			const session = await controller.create({
-				subtotal: 1000,
-				total: 1000,
-				lineItems: sampleLineItems,
-			});
-			await controller.applyGiftCard(session.id, {
-				code: "GC-FIRST",
-				giftCardAmount: 100,
-			});
-			const updated = await controller.applyGiftCard(session.id, {
-				code: "GC-SECOND",
-				giftCardAmount: 200,
-			});
-			expect(updated?.giftCardCode).toBe("GC-SECOND");
-			expect(updated?.giftCardAmount).toBe(200);
-			expect(updated?.total).toBe(800);
-		});
-
-		it("applying zero gift card amount updates code but not total", async () => {
-			const session = await controller.create({
-				subtotal: 1000,
-				total: 1000,
-				lineItems: sampleLineItems,
-			});
-			const updated = await controller.applyGiftCard(session.id, {
-				code: "EMPTY-CARD",
-				giftCardAmount: 0,
-			});
-			expect(updated?.giftCardCode).toBe("EMPTY-CARD");
-			expect(updated?.giftCardAmount).toBe(0);
-			expect(updated?.total).toBe(1000);
-		});
-
-		it("gift card combined with discount both reduce total", async () => {
-			const session = await controller.create({
-				subtotal: 1000,
-				taxAmount: 100,
-				shippingAmount: 200,
-				total: 1300,
-				lineItems: sampleLineItems,
-			});
-			await controller.applyDiscount(session.id, {
-				code: "SAVE200",
-				discountAmount: 200,
-				freeShipping: false,
-			});
-			const updated = await controller.applyGiftCard(session.id, {
-				code: "GC100",
-				giftCardAmount: 100,
-			});
-			// 1000 + 100 + 200 - 200 - 100 = 1000
-			expect(updated?.total).toBe(1000);
-		});
-	});
-
 	// ── removeGiftCard edge cases ─────────────────────────────────────
 
 	describe("removeGiftCard edge cases", () => {
@@ -764,9 +654,9 @@ describe("checkout controller edge cases", () => {
 				total: 1300,
 				lineItems: sampleLineItems,
 			});
-			await controller.applyGiftCard(session.id, {
+			await seedLegacyStoredGiftCard(mockData, session.id, {
 				code: "GC500",
-				giftCardAmount: 500,
+				amount: 500,
 			});
 			const restored = await controller.removeGiftCard(session.id);
 			expect(restored?.giftCardCode).toBeUndefined();
@@ -1590,7 +1480,7 @@ describe("checkout controller edge cases", () => {
 	// ── complex lifecycle scenarios ───────────────────────────────────
 
 	describe("complex lifecycle scenarios", () => {
-		it("full happy path: create -> update -> discount -> gift card -> confirm -> payment -> complete", async () => {
+		it("full happy path: create -> update -> discount -> confirm -> payment -> complete", async () => {
 			// Create
 			const session = await controller.create({
 				subtotal: 5000,
@@ -1618,14 +1508,6 @@ describe("checkout controller edge cases", () => {
 			// 5000 + 500 + 800 - 500 = 5800
 			expect(discounted?.total).toBe(5800);
 
-			// Apply gift card
-			const gifted = await controller.applyGiftCard(session.id, {
-				code: "GC-200",
-				giftCardAmount: 200,
-			});
-			// 5000 + 500 + 800 - 500 - 200 = 5600
-			expect(gifted?.total).toBe(5600);
-
 			// Confirm
 			const confirmed = await controller.confirm(session.id);
 			expect("session" in confirmed).toBe(true);
@@ -1646,7 +1528,7 @@ describe("checkout controller edge cases", () => {
 			const completed = await controller.complete(session.id, "ord-final");
 			expect(completed?.status).toBe("completed");
 			expect(completed?.orderId).toBe("ord-final");
-			expect(completed?.total).toBe(5600);
+			expect(completed?.total).toBe(5800);
 		});
 
 		it("session expiration blocks all modifications except abandon", async () => {
@@ -1672,12 +1554,6 @@ describe("checkout controller edge cases", () => {
 				}),
 			).toBeNull();
 			expect(await controller.removeDiscount(session.id)).toBeNull();
-			expect(
-				await controller.applyGiftCard(session.id, {
-					code: "GC",
-					giftCardAmount: 10,
-				}),
-			).toBeNull();
 			expect(await controller.removeGiftCard(session.id)).toBeNull();
 			expect(
 				await controller.setPaymentIntent(session.id, "pi", "pending"),
@@ -1711,12 +1587,6 @@ describe("checkout controller edge cases", () => {
 				}),
 			).toBeNull();
 			expect(await controller.removeDiscount(session.id)).toBeNull();
-			expect(
-				await controller.applyGiftCard(session.id, {
-					code: "GC",
-					giftCardAmount: 10,
-				}),
-			).toBeNull();
 			expect(await controller.removeGiftCard(session.id)).toBeNull();
 			expect(
 				await controller.setPaymentIntent(session.id, "pi", "pending"),

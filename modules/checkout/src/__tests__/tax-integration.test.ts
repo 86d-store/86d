@@ -6,6 +6,7 @@ import type {
 	TaxCalculateController,
 } from "../service";
 import { createCheckoutController } from "../service-impl";
+import { seedLegacyStoredGiftCard } from "./legacy-gift-card-test-utils";
 
 // ---------------------------------------------------------------------------
 // Mock tax controller
@@ -379,9 +380,9 @@ describe("update-session tax auto-calculation", () => {
 				shippingAmount: 0,
 			}),
 		);
-		await ctrl.applyGiftCard(session.id, {
+		await seedLegacyStoredGiftCard(data, session.id, {
 			code: "GIFT",
-			giftCardAmount: 50,
+			amount: 50,
 		});
 
 		const updated = await simulateUpdateWithTax({

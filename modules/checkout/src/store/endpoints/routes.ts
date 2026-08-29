@@ -1,14 +1,13 @@
 import { abandonSession } from "./abandon-session";
 import {
 	capturePaymentUnavailable as capturePayment,
-	completeSessionUnavailable as completeSession,
 	confirmSessionUnavailable as confirmSession,
 	createPaymentUnavailable as createPayment,
 	getPaymentUnavailable as getPayment,
 } from "./activation-unavailable";
 import { applyDiscount } from "./apply-discount";
-import { applyGiftCard } from "./apply-gift-card";
 import { applyStoreCredit } from "./apply-store-credit";
+import { completeSession } from "./complete-session";
 import { createCheckoutRequest } from "./create-checkout-request";
 import { createSession } from "./create-session";
 import { getCheckoutRequest } from "./get-checkout-request";
@@ -31,7 +30,6 @@ export const storeEndpoints = {
 	"/checkout/sessions/:id/abandon": abandonSession,
 	"/checkout/sessions/:id/discount": applyDiscount,
 	"/checkout/sessions/:id/discount/remove": removeDiscount,
-	"/checkout/sessions/:id/gift-card": applyGiftCard,
 	"/checkout/sessions/:id/gift-card/remove": removeGiftCard,
 	"/checkout/sessions/:id/store-credit": applyStoreCredit,
 	"/checkout/sessions/:id/store-credit/remove": removeStoreCredit,

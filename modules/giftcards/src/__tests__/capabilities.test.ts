@@ -1,13 +1,10 @@
-import {
-	createMockDataService,
-	createMockTransactionRunner,
-} from "@86d-app/core/test-utils";
+import { createMockDataService } from "@86d-app/core/test-utils";
 import { describe, expect, it } from "vitest";
 import { handleGiftCardCheckout } from "../capabilities";
 import { createGiftCardController } from "../service-impl";
 
 describe("gift card checkout capability", () => {
-	it("reports an unknown card as a typed failure", async () => {
+	it("fails application closed before exposing a balance decision", async () => {
 		await expect(
 			handleGiftCardCheckout(
 				createGiftCardController(createMockDataService()),
@@ -18,17 +15,28 @@ describe("gift card checkout capability", () => {
 			),
 		).resolves.toEqual({
 			ok: false,
-			failure: { code: "GIFT_CARD_NOT_FOUND", message: "Gift card not found." },
+			failure: {
+				code: "GIFT_CARD_REDEMPTION_FAILED",
+				message: "Gift card checkout application is unavailable.",
+			},
 		});
 	});
 
 	it("fails closed without mutating balance for a redemption request", async () => {
 		const data = createMockDataService();
-		const controller = createGiftCardController(
-			data,
-			createMockTransactionRunner({ data }),
-		);
-		const card = await controller.create({ initialBalance: 1000 });
+		const controller = createGiftCardController(data);
+		const card = {
+			id: "card_1",
+			code: "GIFT-ABCD-EFGH-JKNP",
+			initialBalance: 1_000,
+			currentBalance: 1_000,
+			currency: "USD",
+			status: "active" as const,
+			delivered: false,
+			createdAt: new Date("2026-01-01T00:00:00.000Z"),
+			updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+		};
+		await data.upsert("giftCard", card.id, { ...card });
 
 		await expect(
 			handleGiftCardCheckout(controller, {

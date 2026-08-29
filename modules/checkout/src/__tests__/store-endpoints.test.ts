@@ -4,11 +4,13 @@ import type {
 	CheckoutLineItem,
 	CheckoutSession,
 	DiscountController,
-	GiftCardCheckController,
 	InventoryCheckController,
-	PaymentProcessController,
 } from "../service";
 import { createCheckoutController } from "../service-impl";
+import { checkoutActivationUnavailable } from "../store/endpoints/activation-unavailable";
+import { completeSession } from "../store/endpoints/complete-session";
+import { storeEndpoints } from "../store/endpoints/routes";
+import { seedLegacyStoredGiftCard } from "./legacy-gift-card-test-utils";
 
 /**
  * Store endpoint integration tests for the checkout module.
@@ -20,10 +22,8 @@ import { createCheckoutController } from "../service-impl";
  *    total recalculation from trusted prices, guest vs authenticated
  * 2. get-session: ownership check, line items returned alongside session
  * 3. confirm-session: inventory stock check before confirm, reservation
- * 4. complete-session: payment verification, gift card redemption,
- *    order creation, zero-total bypass, inventory deduction
+ * 4. complete-session: explicit activation containment without side effects
  * 5. apply-discount: discount code validation through discount controller
- * 6. apply-gift-card: balance check, cap to remaining total, status validation
  */
 
 type DataService = ReturnType<typeof createMockDataService>;
@@ -247,87 +247,6 @@ async function simulateConfirmSession(
 }
 
 /**
- * Simulates complete-session endpoint: payment check, gift card
- * redemption, order creation, inventory deduction.
- */
-async function simulateCompleteSession(
-	data: DataService,
-	sessionId: string,
-	opts: {
-		userId?: string;
-		paymentController?: PaymentProcessController;
-		giftCardController?: GiftCardCheckController;
-		inventoryController?: InventoryCheckController;
-	} = {},
-) {
-	const controller = createCheckoutController(data);
-	const existing = await controller.getById(sessionId);
-	if (!existing) {
-		return { error: "Checkout session not found", status: 404 };
-	}
-
-	if (
-		existing.customerId &&
-		(!opts.userId || existing.customerId !== opts.userId)
-	) {
-		return { error: "Checkout session not found", status: 404 };
-	}
-
-	// Payment verification
-	if (existing.total > 0) {
-		const paymentOk =
-			existing.paymentStatus === "succeeded" ||
-			existing.paymentIntentId === "no_payment_required";
-
-		if (!paymentOk) {
-			if (
-				opts.paymentController &&
-				existing.paymentIntentId &&
-				!existing.paymentIntentId.startsWith("demo_")
-			) {
-				const intent = await opts.paymentController.getIntent(
-					existing.paymentIntentId,
-				);
-				if (intent?.status !== "succeeded") {
-					return { error: "Payment has not been completed", status: 422 };
-				}
-				await controller.setPaymentIntent(sessionId, intent.id, intent.status);
-			} else if (!existing.paymentIntentId) {
-				return { error: "Payment has not been initiated", status: 422 };
-			}
-		}
-	}
-
-	// Gift card redemption
-	if (
-		existing.giftCardCode &&
-		existing.giftCardAmount > 0 &&
-		opts.giftCardController
-	) {
-		const redeemResult = await opts.giftCardController.redeem(
-			existing.giftCardCode,
-			existing.giftCardAmount,
-		);
-		if (!redeemResult) {
-			return {
-				error:
-					"Gift card could not be redeemed. It may be expired, inactive, or have insufficient balance.",
-				status: 422,
-			};
-		}
-	}
-
-	const orderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
-	const orderNumber = orderId;
-	const session = await controller.complete(sessionId, orderId);
-	if (!session) {
-		return { error: "Cannot complete this checkout session", status: 422 };
-	}
-
-	return { session, orderId, orderNumber };
-}
-
-/**
  * Simulates apply-discount endpoint: validates code through discount
  * controller, applies discount amount.
  */
@@ -372,60 +291,6 @@ async function simulateApplyDiscount(
 		code,
 		discountAmount,
 		freeShipping,
-	});
-	return { session: updated };
-}
-
-/**
- * Simulates apply-gift-card endpoint: checks balance, validates status,
- * caps amount to remaining total.
- */
-async function simulateApplyGiftCard(
-	data: DataService,
-	sessionId: string,
-	code: string,
-	opts: {
-		userId?: string;
-		giftCardController?: GiftCardCheckController;
-	} = {},
-) {
-	const controller = createCheckoutController(data);
-	const session = await controller.getById(sessionId);
-	if (!session) {
-		return { error: "Checkout session not found", status: 404 };
-	}
-
-	if (
-		session.customerId &&
-		(!opts.userId || session.customerId !== opts.userId)
-	) {
-		return { error: "Checkout session not found", status: 404 };
-	}
-
-	let giftCardAmount = 0;
-
-	if (opts.giftCardController) {
-		const result = await opts.giftCardController.checkBalance(code);
-		if (!result) {
-			return { error: "Gift card not found", status: 404 };
-		}
-		if (result.status !== "active") {
-			return { error: `Gift card is ${result.status}`, status: 400 };
-		}
-		if (result.balance <= 0) {
-			return { error: "Gift card has no balance", status: 400 };
-		}
-		const remainingTotal =
-			session.subtotal +
-			session.taxAmount +
-			session.shippingAmount -
-			session.discountAmount;
-		giftCardAmount = Math.min(result.balance, Math.max(0, remainingTotal));
-	}
-
-	const updated = await controller.applyGiftCard(sessionId, {
-		code: code.toUpperCase(),
-		giftCardAmount,
 	});
 	return { session: updated };
 }
@@ -880,158 +745,34 @@ describe("checkout store endpoints", () => {
 		});
 	});
 
-	// ── complete-session ─────────────────────────────────────────────
+	// ── complete-session containment ──────────────────────────────────
 
-	describe("complete-session", () => {
-		it("rejects when payment has not been initiated", async () => {
-			const session = await createTestSession(controller, {
-				customerId: "cust-1",
-			});
-
-			const result = await simulateCompleteSession(data, session.id, {
-				userId: "cust-1",
-			});
-
-			expect(result).toEqual({
-				error: "Payment has not been initiated",
-				status: 422,
-			});
+	describe("complete-session containment", () => {
+		it("registers the package-exported fail-closed handler", () => {
+			expect(storeEndpoints["/checkout/sessions/:id/complete"]).toBe(
+				completeSession,
+			);
 		});
 
-		it("completes when payment status is succeeded", async () => {
-			const session = await createTestSession(controller, {
-				customerId: "cust-1",
-			});
-			await controller.setPaymentIntent(session.id, "pi_123", "succeeded");
-
-			const result = await simulateCompleteSession(data, session.id, {
-				userId: "cust-1",
-			});
-
-			expect("orderId" in result).toBe(true);
-			const res = result as {
-				session: CheckoutSession;
-				orderId: string;
-				orderNumber: string;
+		it("returns the same bounded failure on retry without downstream effects", async () => {
+			const downstream = vi.fn();
+			const input = {
+				params: { id: "session-1" },
+				context: {
+					controllers: {
+						checkout: { getById: downstream, complete: downstream },
+					},
+				},
 			};
-			expect(res.session.status).toBe("completed");
-		});
+			const endpoint = storeEndpoints["/checkout/sessions/:id/complete"];
 
-		it("returns orderNumber alongside orderId", async () => {
-			const session = await createTestSession(controller, {
-				customerId: "cust-1",
-			});
-			await controller.setPaymentIntent(session.id, "pi_123", "succeeded");
-
-			const result = await simulateCompleteSession(data, session.id, {
-				userId: "cust-1",
-			});
-
-			expect("orderNumber" in result).toBe(true);
-			const res = result as {
-				orderId: string;
-				orderNumber: string;
-			};
-			expect(typeof res.orderNumber).toBe("string");
-			expect(res.orderNumber.length).toBeGreaterThan(0);
-		});
-
-		it("bypasses payment check for zero-total sessions", async () => {
-			const session = await controller.create({
-				subtotal: 0,
-				total: 0,
-				lineItems: [defaultLineItem({ price: 0 })],
-				customerId: "cust-1",
-				guestEmail: "test@example.com",
-				shippingAddress: testAddress,
-			});
-
-			const result = await simulateCompleteSession(data, session.id, {
-				userId: "cust-1",
-			});
-
-			expect("orderId" in result).toBe(true);
-		});
-
-		it("completes with demo payment intent prefix", async () => {
-			const session = await createTestSession(controller, {
-				customerId: "cust-1",
-			});
-			await controller.setPaymentIntent(session.id, "demo_pi_123", "pending");
-
-			// demo_ prefix skips payment verification
-			const result = await simulateCompleteSession(data, session.id, {
-				userId: "cust-1",
-			});
-
-			expect("orderId" in result).toBe(true);
-		});
-
-		it("checks payment controller when status is not succeeded", async () => {
-			const session = await createTestSession(controller, {
-				customerId: "cust-1",
-			});
-			await controller.setPaymentIntent(session.id, "pi_123", "pending");
-
-			const paymentController: PaymentProcessController = {
-				getIntent: vi
-					.fn()
-					.mockResolvedValue({ id: "pi_123", status: "failed" }),
-				createIntent: vi.fn(),
-				confirmIntent: vi.fn(),
-				cancelIntent: vi.fn(),
-			};
-
-			const result = await simulateCompleteSession(data, session.id, {
-				userId: "cust-1",
-				paymentController,
-			});
-
-			expect(result).toEqual({
-				error: "Payment has not been completed",
-				status: 422,
-			});
-		});
-
-		it("rejects when gift card redemption fails", async () => {
-			const session = await createTestSession(controller, {
-				customerId: "cust-1",
-			});
-			await controller.setPaymentIntent(session.id, "pi_123", "succeeded");
-			await controller.applyGiftCard(session.id, {
-				code: "GC-EXPIRED",
-				giftCardAmount: 500,
-			});
-
-			const giftCardController: GiftCardCheckController = {
-				checkBalance: vi.fn(),
-				redeem: vi.fn().mockResolvedValue(null),
-			};
-
-			const result = await simulateCompleteSession(data, session.id, {
-				userId: "cust-1",
-				giftCardController,
-			});
-
-			expect(result).toMatchObject({
-				error: expect.stringContaining("Gift card could not be redeemed"),
-				status: 422,
-			});
-		});
-
-		it("returns 404 for another customer's session", async () => {
-			const session = await createTestSession(controller, {
-				customerId: "cust-owner",
-			});
-
-			const result = await simulateCompleteSession(data, session.id, {
-				userId: "cust-intruder",
-			});
-
-			expect(result).toEqual({
-				error: "Checkout session not found",
-				status: 404,
-			});
+			await expect(endpoint(input)).resolves.toEqual(
+				checkoutActivationUnavailable,
+			);
+			await expect(endpoint(input)).resolves.toEqual(
+				checkoutActivationUnavailable,
+			);
+			expect(downstream).not.toHaveBeenCalled();
 		});
 	});
 
@@ -1131,139 +872,6 @@ describe("checkout store endpoints", () => {
 		});
 	});
 
-	// ── apply-gift-card ──────────────────────────────────────────────
-
-	describe("apply-gift-card", () => {
-		it("applies gift card with sufficient balance", async () => {
-			const session = await createTestSession(controller, {
-				subtotal: 5000,
-				total: 5000,
-			});
-
-			const giftCardController: GiftCardCheckController = {
-				checkBalance: vi.fn().mockResolvedValue({
-					balance: 2000,
-					currency: "USD",
-					status: "active",
-				}),
-				redeem: vi.fn(),
-			};
-
-			const result = await simulateApplyGiftCard(data, session.id, "gc-123", {
-				giftCardController,
-			});
-
-			const res = result as { session: CheckoutSession };
-			expect(res.session.giftCardCode).toBe("GC-123"); // uppercased
-			expect(res.session.giftCardAmount).toBe(2000);
-			expect(res.session.total).toBe(3000); // 5000 - 2000
-		});
-
-		it("caps gift card amount to remaining total", async () => {
-			const session = await createTestSession(controller, {
-				subtotal: 1000,
-				total: 1000,
-			});
-
-			const giftCardController: GiftCardCheckController = {
-				checkBalance: vi.fn().mockResolvedValue({
-					balance: 5000, // More than the order total
-					currency: "USD",
-					status: "active",
-				}),
-				redeem: vi.fn(),
-			};
-
-			const result = await simulateApplyGiftCard(data, session.id, "gc-big", {
-				giftCardController,
-			});
-
-			const res = result as { session: CheckoutSession };
-			expect(res.session.giftCardAmount).toBe(1000); // Capped to total
-			expect(res.session.total).toBe(0);
-		});
-
-		it("rejects nonexistent gift card", async () => {
-			const session = await createTestSession(controller);
-
-			const giftCardController: GiftCardCheckController = {
-				checkBalance: vi.fn().mockResolvedValue(null),
-				redeem: vi.fn(),
-			};
-
-			const result = await simulateApplyGiftCard(
-				data,
-				session.id,
-				"no-such-gc",
-				{ giftCardController },
-			);
-
-			expect(result).toEqual({ error: "Gift card not found", status: 404 });
-		});
-
-		it("rejects inactive gift card", async () => {
-			const session = await createTestSession(controller);
-
-			const giftCardController: GiftCardCheckController = {
-				checkBalance: vi.fn().mockResolvedValue({
-					balance: 1000,
-					currency: "USD",
-					status: "expired",
-				}),
-				redeem: vi.fn(),
-			};
-
-			const result = await simulateApplyGiftCard(
-				data,
-				session.id,
-				"gc-expired",
-				{ giftCardController },
-			);
-
-			expect(result).toEqual({
-				error: "Gift card is expired",
-				status: 400,
-			});
-		});
-
-		it("rejects zero-balance gift card", async () => {
-			const session = await createTestSession(controller);
-
-			const giftCardController: GiftCardCheckController = {
-				checkBalance: vi.fn().mockResolvedValue({
-					balance: 0,
-					currency: "USD",
-					status: "active",
-				}),
-				redeem: vi.fn(),
-			};
-
-			const result = await simulateApplyGiftCard(data, session.id, "gc-empty", {
-				giftCardController,
-			});
-
-			expect(result).toEqual({
-				error: "Gift card has no balance",
-				status: 400,
-			});
-		});
-
-		it("blocks gift card on another customer's session", async () => {
-			const session = await createTestSession(controller, {
-				customerId: "cust-owner",
-			});
-
-			const result = await simulateApplyGiftCard(data, session.id, "gc-123", {
-				userId: "cust-intruder",
-			});
-
-			expect(result).toEqual({
-				error: "Checkout session not found",
-				status: 404,
-			});
-		});
-	});
-
 	// ── remove-discount ──────────────────────────────────────────────
 
 	describe("remove-discount", () => {
@@ -1332,10 +940,9 @@ describe("checkout store endpoints", () => {
 				total: 4000,
 			});
 
-			// Apply a gift card first
-			await controller.applyGiftCard(session.id, {
+			await seedLegacyStoredGiftCard(data, session.id, {
 				code: "GC-ABC",
-				giftCardAmount: 500,
+				amount: 500,
 			});
 
 			const result = await simulateRemoveGiftCard(data, session.id);

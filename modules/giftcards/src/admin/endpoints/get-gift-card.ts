@@ -6,7 +6,7 @@ export const getGiftCard = createAdminEndpoint(
 	"/admin/gift-cards/:id",
 	{
 		method: "GET",
-		params: z.object({ id: z.string() }),
+		params: z.object({ id: z.string().min(1).max(200) }),
 	},
 	async (ctx) => {
 		const controller = ctx.context.controllers.giftCards as GiftCardController;

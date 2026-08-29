@@ -42,6 +42,30 @@ describe("@86d-app/ui package manifest", () => {
 			types: "./dist/*.d.ts",
 			default: "./dist/*.js",
 		});
+		for (const entry of [
+			"./alert",
+			"./badge",
+			"./button",
+			"./card",
+			"./data-table/column-header",
+			"./data-table/empty-row",
+			"./data-table/skeleton-rows",
+			"./shadcn/input",
+			"./shadcn/native-select",
+			"./shadcn/skeleton",
+			"./shadcn/table",
+			"./text",
+			"./view",
+		]) {
+			expect(pkg.exports?.[entry]).toEqual({
+				types: expect.stringMatching(/^\.\/src\/.+\.tsx$/),
+				default: expect.stringMatching(/^\.\/src\/.+\.tsx$/),
+			});
+			expect(pkg.publishConfig?.exports?.[entry]).toEqual({
+				types: expect.stringMatching(/^\.\/dist\/.+\.d\.ts$/),
+				default: expect.stringMatching(/^\.\/dist\/.+\.js$/),
+			});
+		}
 	});
 
 	it("does not depend on private workspace packages", () => {

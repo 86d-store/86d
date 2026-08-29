@@ -9,29 +9,17 @@ type GiftCardCheckoutRequest = z.infer<
 >;
 
 export async function handleGiftCardCheckout(
-	controller: GiftCardController,
+	_controller: GiftCardController,
 	request: GiftCardCheckoutRequest,
 ) {
-	if (request.operation === "balance") {
-		const balance = await controller.checkBalance(request.code);
-		return balance
-			? {
-					ok: true as const,
-					decision: { operation: "balance" as const, ...balance },
-				}
-			: {
-					ok: false as const,
-					failure: {
-						code: "GIFT_CARD_NOT_FOUND" as const,
-						message: "Gift card not found.",
-					},
-				};
-	}
 	return {
 		ok: false as const,
 		failure: {
 			code: "GIFT_CARD_REDEMPTION_FAILED" as const,
-			message: "Gift card redemption is unavailable.",
+			message:
+				request.operation === "balance"
+					? "Gift card checkout application is unavailable."
+					: "Gift card redemption is unavailable.",
 		},
 	};
 }
@@ -39,8 +27,5 @@ export async function handleGiftCardCheckout(
 export const giftCardCheckoutProvider = provideCapability(
 	giftCardCheckoutCapability,
 	async (ctx, request) =>
-		handleGiftCardCheckout(
-			createGiftCardController(ctx.data, ctx.transactions),
-			request,
-		),
+		handleGiftCardCheckout(createGiftCardController(ctx.data), request),
 );

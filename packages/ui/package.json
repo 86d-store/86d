@@ -26,6 +26,58 @@
 		"./globals.css": "./src/globals.css",
 		"./assets/*.png": "./src/assets/*.png",
 		"./assets/*.svg": "./src/assets/*.svg",
+		"./alert": {
+			"types": "./src/alert.tsx",
+			"default": "./src/alert.tsx"
+		},
+		"./badge": {
+			"types": "./src/badge.tsx",
+			"default": "./src/badge.tsx"
+		},
+		"./button": {
+			"types": "./src/button.tsx",
+			"default": "./src/button.tsx"
+		},
+		"./card": {
+			"types": "./src/card.tsx",
+			"default": "./src/card.tsx"
+		},
+		"./data-table/column-header": {
+			"types": "./src/data-table/column-header.tsx",
+			"default": "./src/data-table/column-header.tsx"
+		},
+		"./data-table/empty-row": {
+			"types": "./src/data-table/empty-row.tsx",
+			"default": "./src/data-table/empty-row.tsx"
+		},
+		"./data-table/skeleton-rows": {
+			"types": "./src/data-table/skeleton-rows.tsx",
+			"default": "./src/data-table/skeleton-rows.tsx"
+		},
+		"./shadcn/input": {
+			"types": "./src/shadcn/input.tsx",
+			"default": "./src/shadcn/input.tsx"
+		},
+		"./shadcn/native-select": {
+			"types": "./src/shadcn/native-select.tsx",
+			"default": "./src/shadcn/native-select.tsx"
+		},
+		"./shadcn/skeleton": {
+			"types": "./src/shadcn/skeleton.tsx",
+			"default": "./src/shadcn/skeleton.tsx"
+		},
+		"./shadcn/table": {
+			"types": "./src/shadcn/table.tsx",
+			"default": "./src/shadcn/table.tsx"
+		},
+		"./text": {
+			"types": "./src/text.tsx",
+			"default": "./src/text.tsx"
+		},
+		"./view": {
+			"types": "./src/view.tsx",
+			"default": "./src/view.tsx"
+		},
 		"./*": "./src/*"
 	},
 	"files": [
@@ -98,6 +150,58 @@
 			"./globals.css": "./dist/globals.css",
 			"./assets/*.png": "./dist/assets/*.png",
 			"./assets/*.svg": "./dist/assets/*.svg",
+			"./alert": {
+				"types": "./dist/alert.d.ts",
+				"default": "./dist/alert.js"
+			},
+			"./badge": {
+				"types": "./dist/badge.d.ts",
+				"default": "./dist/badge.js"
+			},
+			"./button": {
+				"types": "./dist/button.d.ts",
+				"default": "./dist/button.js"
+			},
+			"./card": {
+				"types": "./dist/card.d.ts",
+				"default": "./dist/card.js"
+			},
+			"./data-table/column-header": {
+				"types": "./dist/data-table/column-header.d.ts",
+				"default": "./dist/data-table/column-header.js"
+			},
+			"./data-table/empty-row": {
+				"types": "./dist/data-table/empty-row.d.ts",
+				"default": "./dist/data-table/empty-row.js"
+			},
+			"./data-table/skeleton-rows": {
+				"types": "./dist/data-table/skeleton-rows.d.ts",
+				"default": "./dist/data-table/skeleton-rows.js"
+			},
+			"./shadcn/input": {
+				"types": "./dist/shadcn/input.d.ts",
+				"default": "./dist/shadcn/input.js"
+			},
+			"./shadcn/native-select": {
+				"types": "./dist/shadcn/native-select.d.ts",
+				"default": "./dist/shadcn/native-select.js"
+			},
+			"./shadcn/skeleton": {
+				"types": "./dist/shadcn/skeleton.d.ts",
+				"default": "./dist/shadcn/skeleton.js"
+			},
+			"./shadcn/table": {
+				"types": "./dist/shadcn/table.d.ts",
+				"default": "./dist/shadcn/table.js"
+			},
+			"./text": {
+				"types": "./dist/text.d.ts",
+				"default": "./dist/text.js"
+			},
+			"./view": {
+				"types": "./dist/view.d.ts",
+				"default": "./dist/view.js"
+			},
 			"./*": {
 				"types": "./dist/*.d.ts",
 				"default": "./dist/*.js"

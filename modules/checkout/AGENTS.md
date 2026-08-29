@@ -48,9 +48,11 @@ CheckoutOptions {
 
 ## Capability boundary
 
-Product and variant resolution plus Order creation are required capabilities. Inventory, Tax, Shipping, Discount, Gift Card, Store Credit, Payment, Price List, and currency conversion are explicit optional integrations whose call sites return bounded unavailability or domain failures. Checkout never receives another Module's data service or controller.
+Product and variant resolution plus Order creation are required capabilities. Inventory, Tax, Shipping, Discount, Store Credit, Payment, Price List, and currency conversion are explicit optional integrations whose call sites return bounded unavailability or domain failures. Checkout never receives another Module's data service or controller. Gift-card application is withdrawn from routes, `CheckoutController`, and session creation until one Workflow can coordinate the discount, debit, Payment, and Order; stored legacy fields remain readable and only removal remains for recovery.
 
-M0 activation containment remains in force: confirm, payment, capture, payment-status, and completion routes return `CHECKOUT_ACTIVATION_UNAVAILABLE`. The consumer operation grants cover only currently reachable decisions (`check`/`release`, validation/balance reads, and payment cancellation); duplicate-sensitive commit, redeem, debit, reserve, deduct, create, get, and confirm operations are not granted to Checkout.
+The unregistered Finalization handlers also stop with `GIFT_CARD_WORKFLOW_REQUIRED` before invoking capabilities, creating an Order, or completing a Checkout whenever a legacy gift-card code or nonzero amount is stored.
+
+M0 activation containment remains in force: confirm, payment, capture, payment-status, and completion routes return `CHECKOUT_ACTIVATION_UNAVAILABLE`. The consumer operation grants cover only currently reachable decisions (`check`/`release`, discount and store-credit validation/balance reads, and payment cancellation); duplicate-sensitive gift-card application/redeem, commit, debit, reserve, deduct, create, get, and confirm operations are not granted to Checkout.
 
 The Store Admin expiry route also fails with `CHECKOUT_EXPIRY_WORKFLOW_REQUIRED`. Expiring a session cannot be activated until reservation release and Payment cancellation/reconciliation are a durable, idempotent workflow.
 

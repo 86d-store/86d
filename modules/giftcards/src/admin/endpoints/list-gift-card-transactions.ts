@@ -6,7 +6,7 @@ export const listGiftCardTransactions = createAdminEndpoint(
 	"/admin/gift-cards/:id/transactions",
 	{
 		method: "GET",
-		params: z.object({ id: z.string() }),
+		params: z.object({ id: z.string().min(1).max(200) }),
 		query: z.object({
 			take: z.coerce.number().int().min(1).max(100).optional(),
 			skip: z.coerce.number().int().min(0).optional(),
@@ -15,7 +15,6 @@ export const listGiftCardTransactions = createAdminEndpoint(
 	async (ctx) => {
 		const controller = ctx.context.controllers.giftCards as GiftCardController;
 
-		// Verify card exists
 		const card = await controller.get(ctx.params.id);
 		if (!card) {
 			return { error: "Gift card not found", status: 404 };

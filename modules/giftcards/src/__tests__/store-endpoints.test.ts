@@ -1,6 +1,10 @@
-import { createMockDataService } from "@86d-app/core/test-utils";
+import {
+	createMockDataService,
+	createMockTransactionRunner,
+} from "@86d-app/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import giftCards from "../index";
+import type { GiftCard } from "../service";
 import { createGiftCardController } from "../service-impl";
 import { storeEndpoints } from "../store/endpoints/routes";
 
@@ -10,20 +14,24 @@ import { storeEndpoints } from "../store/endpoints/routes";
  * These tests verify the business logic in store-facing endpoints:
  *
  * 1. Balance check returns correct data and handles missing/expired cards
- * 2. Standalone redemption remains unexposed
- * 3. Purchase derives customerId from session, not request body
- * 4. Send verifies card ownership before allowing transfer
- * 5. Top-up enforces ownership — only the card's customer can top up
- * 6. My-cards scopes results to the authenticated customer
- * 7. Response shaping matches what the client expects
+ * 2. Direct purchase, top-up, and redemption remain unexposed
+ * 3. Send verifies card ownership before allowing transfer
+ * 4. My-cards scopes results to the authenticated customer
+ * 5. Response shaping matches what the client expects
  */
 
 type DataService = ReturnType<typeof createMockDataService>;
 
 describe("store surface exposure", () => {
-	it("does not expose standalone gift card redemption", () => {
+	it("does not expose direct gift card money routes", () => {
 		expect(storeEndpoints).toHaveProperty("/gift-cards/check");
-		expect(storeEndpoints).not.toHaveProperty("/gift-cards/redeem");
+		for (const route of [
+			"/gift-cards/purchase",
+			"/gift-cards/top-up",
+			"/gift-cards/redeem",
+		]) {
+			expect(storeEndpoints).not.toHaveProperty(route);
+		}
 	});
 
 	it("registers only balance-focused store pages", () => {
@@ -56,47 +64,6 @@ async function simulateCheckBalance(data: DataService, code: string) {
 }
 
 /**
- * Simulate purchase endpoint: requires session.
- * customerId and customerEmail are derived from session, not body.
- */
-async function simulatePurchase(
-	data: DataService,
-	body: {
-		amount: number;
-		currency?: string;
-		recipientEmail?: string;
-		recipientName?: string;
-		senderName?: string;
-		message?: string;
-	},
-	session: { userId: string; email: string } | null,
-) {
-	if (!session) {
-		return { error: "Authentication required", status: 401 };
-	}
-
-	const controller = createGiftCardController(data);
-	const card = await controller.purchase({
-		amount: body.amount,
-		currency: body.currency,
-		customerId: session.userId,
-		customerEmail: session.email,
-		recipientEmail: body.recipientEmail,
-		recipientName: body.recipientName,
-		senderName: body.senderName,
-		message: body.message,
-	});
-
-	return {
-		id: card.id,
-		code: card.code,
-		balance: card.currentBalance,
-		currency: card.currency,
-		recipientEmail: card.recipientEmail,
-	};
-}
-
-/**
  * Simulate send endpoint: requires session, verifies ownership.
  */
 async function simulateSend(
@@ -114,7 +81,10 @@ async function simulateSend(
 		return { error: "Authentication required", status: 401 };
 	}
 
-	const controller = createGiftCardController(data);
+	const controller = createGiftCardController(
+		data,
+		createMockTransactionRunner({ data }),
+	);
 	const result = await controller.sendGiftCard({
 		giftCardId: body.giftCardId,
 		customerId: session.userId,
@@ -126,7 +96,7 @@ async function simulateSend(
 
 	if (!result) {
 		return {
-			error: "Gift card not found, not owned by you, or already sent",
+			error: "Gift card delivery metadata could not be recorded",
 			status: 400,
 		};
 	}
@@ -134,41 +104,8 @@ async function simulateSend(
 	return {
 		id: result.id,
 		recipientEmail: result.recipientEmail,
-		delivered: result.delivered,
-	};
-}
-
-/**
- * Simulate top-up endpoint: requires session, verifies ownership.
- */
-async function simulateTopUp(
-	data: DataService,
-	body: { giftCardId: string; amount: number },
-	session: { userId: string } | null,
-) {
-	if (!session) {
-		return { error: "Authentication required", status: 401 };
-	}
-
-	const controller = createGiftCardController(data);
-	const result = await controller.topUp({
-		giftCardId: body.giftCardId,
-		customerId: session.userId,
-		amount: body.amount,
-	});
-
-	if (!result) {
-		return {
-			error:
-				"Gift card not found, not owned by you, disabled, or invalid amount",
-			status: 400,
-		};
-	}
-
-	return {
-		newBalance: result.giftCard.currentBalance,
-		currency: result.giftCard.currency,
-		amountAdded: result.transaction.amount,
+		deliveryMetadataRecorded: true,
+		delivered: result.delivered === true,
 	};
 }
 
@@ -213,59 +150,26 @@ async function simulateMyCards(
 
 async function seedGiftCard(
 	data: DataService,
-	overrides: Partial<{
-		id: string;
-		code: string;
-		initialBalance: number;
-		currentBalance: number;
-		currency: string;
-		status: string;
-		customerId: string;
-		purchasedByCustomerId: string;
-		expiresAt: string;
-		delivered: boolean;
-		recipientEmail: string;
-	}> = {},
+	overrides: Partial<GiftCard> = {},
 ) {
-	const controller = createGiftCardController(data);
-	const card = await controller.create({
-		initialBalance: overrides.initialBalance ?? 5000,
-		currency: overrides.currency ?? "USD",
-		customerId: overrides.customerId,
-		purchasedByCustomerId: overrides.purchasedByCustomerId,
-		expiresAt: overrides.expiresAt,
-		recipientEmail: overrides.recipientEmail,
-	});
-
-	// Apply any status/balance overrides directly
-	if (
-		overrides.status ||
-		overrides.currentBalance !== undefined ||
-		overrides.delivered !== undefined
-	) {
-		const raw = (await data.get("giftCard", card.id)) as Record<
-			string,
-			unknown
-		>;
-		if (overrides.status) raw.status = overrides.status;
-		if (overrides.currentBalance !== undefined)
-			raw.currentBalance = overrides.currentBalance;
-		if (overrides.delivered !== undefined) raw.delivered = overrides.delivered;
-		if (overrides.recipientEmail !== undefined)
-			raw.recipientEmail = overrides.recipientEmail;
-		await data.upsert("giftCard", card.id, raw);
-	}
-
-	// Re-read to get final state
-	const final = (await data.get("giftCard", card.id)) as unknown as {
-		id: string;
-		code: string;
-		currentBalance: number;
-		currency: string;
-		status: string;
-		customerId?: string;
+	const now = new Date("2026-01-01T00:00:00.000Z");
+	const initialBalance = overrides.initialBalance ?? 5_000;
+	const card: GiftCard = {
+		id: overrides.id ?? crypto.randomUUID(),
+		code:
+			overrides.code ??
+			`GIFT-${crypto.randomUUID().slice(0, 14).toUpperCase()}`,
+		initialBalance,
+		currentBalance: overrides.currentBalance ?? initialBalance,
+		currency: "USD",
+		status: "active",
+		delivered: false,
+		createdAt: now,
+		updatedAt: now,
+		...overrides,
 	};
-	return final;
+	await data.upsert("giftCard", card.id, { ...card });
+	return card;
 }
 
 // ── Tests ────────────────────────────────────────────────────────────
@@ -337,104 +241,6 @@ describe("store endpoint: check balance", () => {
 	});
 });
 
-describe("store endpoint: purchase — session identity", () => {
-	let data: DataService;
-
-	beforeEach(() => {
-		data = createMockDataService();
-	});
-
-	it("returns 401 when no session is provided", async () => {
-		const result = await simulatePurchase(data, { amount: 5000 }, null);
-		expect(result).toEqual({
-			error: "Authentication required",
-			status: 401,
-		});
-	});
-
-	it("creates a gift card with correct balance and currency", async () => {
-		const result = await simulatePurchase(
-			data,
-			{ amount: 5000, currency: "EUR" },
-			{ userId: "cust_1", email: "buyer@example.com" },
-		);
-
-		expect("id" in result).toBe(true);
-		if (!("id" in result)) {
-			throw new Error("expected 'id' in result");
-		}
-		expect(result.balance).toBe(5000);
-		expect(result.currency).toBe("EUR");
-		expect(result.code).toMatch(/^GIFT-/);
-	});
-
-	it("defaults to USD when no currency specified", async () => {
-		const result = await simulatePurchase(
-			data,
-			{ amount: 2500 },
-			{ userId: "cust_1", email: "buyer@example.com" },
-		);
-
-		expect("currency" in result).toBe(true);
-		if (!("currency" in result)) {
-			throw new Error("expected 'currency' in result");
-		}
-		expect(result.currency).toBe("USD");
-	});
-
-	it("sets recipientEmail when buying as a gift", async () => {
-		const result = await simulatePurchase(
-			data,
-			{
-				amount: 3000,
-				recipientEmail: "friend@example.com",
-				recipientName: "Friend",
-				senderName: "Buyer",
-				message: "Happy Birthday!",
-			},
-			{ userId: "cust_1", email: "buyer@example.com" },
-		);
-
-		expect("recipientEmail" in result).toBe(true);
-		if (!("recipientEmail" in result)) {
-			throw new Error("expected 'recipientEmail' in result");
-		}
-		expect(result.recipientEmail).toBe("friend@example.com");
-	});
-
-	it("assigns card to purchaser when no recipient specified", async () => {
-		const result = await simulatePurchase(
-			data,
-			{ amount: 2000 },
-			{ userId: "cust_1", email: "buyer@example.com" },
-		);
-
-		// Card should be in my-cards for cust_1
-		expect("id" in result).toBe(true);
-		if (!("id" in result)) {
-			throw new Error("expected 'id' in result");
-		}
-		const myCards = await simulateMyCards(data, {}, { userId: "cust_1" });
-		expect("cards" in myCards).toBe(true);
-		if (!("cards" in myCards)) {
-			throw new Error("expected 'cards' in myCards");
-		}
-		expect(myCards.cards.some((c) => c.id === result.id)).toBe(true);
-	});
-
-	it("each purchase generates a unique code", async () => {
-		const session = { userId: "cust_1", email: "buyer@example.com" };
-		const result1 = await simulatePurchase(data, { amount: 1000 }, session);
-		const result2 = await simulatePurchase(data, { amount: 1000 }, session);
-
-		expect("code" in result1 && "code" in result2).toBe(true);
-		if (!("code" in result1 && "code" in result2)) {
-			throw new Error("expected 'code' in result1 && 'code' in result2");
-		}
-		expect(result1.code).not.toBe(result2.code);
-	});
-});
-
 describe("store endpoint: send — ownership verification", () => {
 	let data: DataService;
 
@@ -454,7 +260,7 @@ describe("store endpoint: send — ownership verification", () => {
 		});
 	});
 
-	it("allows the card owner to send their card", async () => {
+	it("lets the card owner record delivery intent without claiming delivery", async () => {
 		const card = await seedGiftCard(data, { customerId: "cust_1" });
 
 		const result = await simulateSend(
@@ -473,8 +279,16 @@ describe("store endpoint: send — ownership verification", () => {
 		if (!("delivered" in result)) {
 			throw new Error("expected 'delivered' in result");
 		}
-		expect(result.delivered).toBe(true);
+		expect(result.delivered).toBe(false);
+		expect(result.deliveryMetadataRecorded).toBe(true);
 		expect(result.recipientEmail).toBe("friend@example.com");
+		const recorded = await data.get("giftCard", card.id);
+		expect(recorded).toMatchObject({
+			recipientEmail: "friend@example.com",
+			deliveryMethod: "email",
+			delivered: false,
+		});
+		expect(recorded).not.toHaveProperty("deliveredAt");
 	});
 
 	it("allows the purchaser to send a card they bought for someone", async () => {
@@ -495,7 +309,8 @@ describe("store endpoint: send — ownership verification", () => {
 		if (!("delivered" in result)) {
 			throw new Error("expected 'delivered' in result");
 		}
-		expect(result.delivered).toBe(true);
+		expect(result.delivered).toBe(false);
+		expect(result.deliveryMetadataRecorded).toBe(true);
 	});
 
 	it("returns 400 when a non-owner tries to send someone else's card", async () => {
@@ -511,7 +326,7 @@ describe("store endpoint: send — ownership verification", () => {
 		);
 
 		expect(result).toEqual({
-			error: "Gift card not found, not owned by you, or already sent",
+			error: "Gift card delivery metadata could not be recorded",
 			status: 400,
 		});
 	});
@@ -533,7 +348,7 @@ describe("store endpoint: send — ownership verification", () => {
 		);
 
 		expect(result).toEqual({
-			error: "Gift card not found, not owned by you, or already sent",
+			error: "Gift card delivery metadata could not be recorded",
 			status: 400,
 		});
 	});
@@ -554,7 +369,7 @@ describe("store endpoint: send — ownership verification", () => {
 		);
 
 		expect(result).toEqual({
-			error: "Gift card not found, not owned by you, or already sent",
+			error: "Gift card delivery metadata could not be recorded",
 			status: 400,
 		});
 	});
@@ -570,156 +385,9 @@ describe("store endpoint: send — ownership verification", () => {
 		);
 
 		expect(result).toEqual({
-			error: "Gift card not found, not owned by you, or already sent",
+			error: "Gift card delivery metadata could not be recorded",
 			status: 400,
 		});
-	});
-});
-
-describe("store endpoint: top-up — ownership enforcement", () => {
-	let data: DataService;
-
-	beforeEach(() => {
-		data = createMockDataService();
-	});
-
-	it("returns 401 when no session is provided", async () => {
-		const result = await simulateTopUp(
-			data,
-			{ giftCardId: "any", amount: 1000 },
-			null,
-		);
-		expect(result).toEqual({
-			error: "Authentication required",
-			status: 401,
-		});
-	});
-
-	it("allows the card owner to top up their card", async () => {
-		const card = await seedGiftCard(data, {
-			customerId: "cust_1",
-			initialBalance: 2000,
-		});
-
-		const result = await simulateTopUp(
-			data,
-			{ giftCardId: card.id, amount: 3000 },
-			{ userId: "cust_1" },
-		);
-
-		expect(result).toEqual({
-			newBalance: 5000,
-			currency: "USD",
-			amountAdded: 3000,
-		});
-	});
-
-	it("returns 400 when a non-owner tries to top up", async () => {
-		const card = await seedGiftCard(data, { customerId: "cust_1" });
-
-		const result = await simulateTopUp(
-			data,
-			{ giftCardId: card.id, amount: 1000 },
-			{ userId: "cust_attacker" },
-		);
-
-		expect(result).toEqual({
-			error:
-				"Gift card not found, not owned by you, disabled, or invalid amount",
-			status: 400,
-		});
-	});
-
-	it("returns 400 for a disabled card", async () => {
-		const card = await seedGiftCard(data, {
-			customerId: "cust_1",
-			status: "disabled",
-		});
-
-		const result = await simulateTopUp(
-			data,
-			{ giftCardId: card.id, amount: 1000 },
-			{ userId: "cust_1" },
-		);
-
-		expect(result).toEqual({
-			error:
-				"Gift card not found, not owned by you, disabled, or invalid amount",
-			status: 400,
-		});
-	});
-
-	it("returns 400 for a nonexistent card", async () => {
-		const result = await simulateTopUp(
-			data,
-			{ giftCardId: "nonexistent", amount: 1000 },
-			{ userId: "cust_1" },
-		);
-
-		expect(result).toEqual({
-			error:
-				"Gift card not found, not owned by you, disabled, or invalid amount",
-			status: 400,
-		});
-	});
-
-	it("accumulates balance across multiple top-ups", async () => {
-		const card = await seedGiftCard(data, {
-			customerId: "cust_1",
-			initialBalance: 1000,
-		});
-
-		const first = await simulateTopUp(
-			data,
-			{ giftCardId: card.id, amount: 2000 },
-			{ userId: "cust_1" },
-		);
-		expect(first).toEqual({
-			newBalance: 3000,
-			currency: "USD",
-			amountAdded: 2000,
-		});
-
-		const second = await simulateTopUp(
-			data,
-			{ giftCardId: card.id, amount: 500 },
-			{ userId: "cust_1" },
-		);
-		expect(second).toEqual({
-			newBalance: 3500,
-			currency: "USD",
-			amountAdded: 500,
-		});
-	});
-
-	it("reactivates a depleted card on top-up", async () => {
-		const card = await seedGiftCard(data, {
-			customerId: "cust_1",
-			initialBalance: 1000,
-			currentBalance: 0,
-			status: "depleted",
-		});
-
-		// Depleted cards can still be topped up — topUp checks for disabled, not depleted
-		const result = await simulateTopUp(
-			data,
-			{ giftCardId: card.id, amount: 2000 },
-			{ userId: "cust_1" },
-		);
-
-		expect(result).toEqual({
-			newBalance: 2000,
-			currency: "USD",
-			amountAdded: 2000,
-		});
-
-		// Card should be active again
-		const balance = await simulateCheckBalance(data, card.code);
-		expect("status" in balance).toBe(true);
-		if (!("status" in balance)) {
-			throw new Error("expected 'status' in balance");
-		}
-		expect(balance.status).toBe("active");
 	});
 });
 

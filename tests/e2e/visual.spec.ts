@@ -33,6 +33,86 @@ const SCREENSHOT_OPTS = {
 
 const VISUAL_FIXED_TIME = new Date("2026-08-25T12:00:00.000Z");
 const VISUAL_COPYRIGHT_YEAR = "2026";
+const VISUAL_CHECKOUT_CART = {
+	id: "cart_visual_populated",
+	items: [
+		{
+			id: "cart_item_regent_loafer",
+			productId: "product_regent_loafer",
+			variantId: "variant_walnut_10",
+			quantity: 1,
+			product: {
+				name: "Regent Penny Loafer",
+				price: 18_900,
+				images: [],
+				slug: "regent-penny-loafer",
+			},
+			variant: {
+				name: "Walnut / 10",
+				price: 18_900,
+			},
+		},
+		{
+			id: "cart_item_leather_care",
+			productId: "product_leather_care",
+			variantId: null,
+			quantity: 2,
+			product: {
+				name: "Italian Leather Care Kit",
+				price: 2_400,
+				images: [],
+				slug: "italian-leather-care-kit",
+			},
+			variant: null,
+		},
+	],
+	subtotal: 23_700,
+	itemCount: 2,
+};
+const VISUAL_CHECKOUT_SUMMARY = {
+	session: {
+		id: "merchant-ui-checkout-summary",
+		revision: 7,
+		subtotal: 23_700,
+		taxAmount: 1_848,
+		shippingAmount: 1_200,
+		discountAmount: 2_500,
+		giftCardAmount: -500,
+		storeCreditAmount: 0,
+		total: 24_748,
+		currency: "USD",
+		discountCode: "WELCOME10",
+	},
+	lineItems: [
+		{
+			productId: "product_regent_loafer",
+			variantId: "variant_walnut_10",
+			name: "Regent Penny Loafer",
+			sku: "REG-WAL-10",
+			price: 18_900,
+			quantity: 1,
+		},
+		{
+			productId: "product_leather_care",
+			name: "Italian Leather Care Kit",
+			sku: "CARE-ITALIAN",
+			price: 2_400,
+			quantity: 2,
+		},
+	],
+};
+const VISUAL_CHECKOUT_AMOUNT_ONLY_GIFT_CARD_SESSION = {
+	id: "checkout_visual_amount_only_gift_card",
+	revision: 1,
+	subtotal: 23_700,
+	taxAmount: 0,
+	shippingAmount: 0,
+	discountAmount: 0,
+	giftCardAmount: -500,
+	storeCreditAmount: 0,
+	total: 24_200,
+	currency: "USD",
+};
 
 const visualApiTrackers = new WeakMap<
 	import("@playwright/test").Page,
@@ -119,6 +199,103 @@ async function installDeterministicAdminVisualData(
 		}
 		await route.fulfill({ json: response });
 	});
+}
+
+async function installDeterministicCheckoutVisualData(
+	page: import("@playwright/test").Page,
+) {
+	await page.route("**/api/cart/get", async (route) => {
+		if (route.request().method() !== "GET") {
+			await route.continue();
+			return;
+		}
+		await route.fulfill({ json: VISUAL_CHECKOUT_CART });
+	});
+	await page.route("**/api/store-credits/balance", async (route) => {
+		if (route.request().method() !== "GET") {
+			await route.continue();
+			return;
+		}
+		await route.fulfill({
+			json: { balance: 0, currency: "USD", status: "active" },
+		});
+	});
+}
+
+async function installDeterministicCheckoutSummaryVisualData(
+	page: import("@playwright/test").Page,
+	giftCardCode?: string,
+) {
+	await page.route(
+		"**/api/checkout/sessions/merchant-ui-checkout-summary",
+		async (route) => {
+			if (route.request().method() !== "GET") {
+				await route.continue();
+				return;
+			}
+			await route.fulfill({
+				json:
+					giftCardCode === undefined
+						? VISUAL_CHECKOUT_SUMMARY
+						: {
+								...VISUAL_CHECKOUT_SUMMARY,
+								session: {
+									...VISUAL_CHECKOUT_SUMMARY.session,
+									giftCardCode,
+								},
+							},
+			});
+		},
+	);
+}
+
+async function installNegativeGiftCardCheckoutData(
+	page: import("@playwright/test").Page,
+	giftCardCode?: string,
+) {
+	await installDeterministicCheckoutVisualData(page);
+	await page.route("**/api/checkout/sessions", async (route) => {
+		if (route.request().method() !== "POST") {
+			await route.continue();
+			return;
+		}
+		await route.fulfill({
+			json: {
+				session:
+					giftCardCode === undefined
+						? VISUAL_CHECKOUT_AMOUNT_ONLY_GIFT_CARD_SESSION
+						: {
+								...VISUAL_CHECKOUT_AMOUNT_ONLY_GIFT_CARD_SESSION,
+								giftCardCode,
+							},
+			},
+		});
+	});
+	await page.route("**/api/shipping/calculate", async (route) => {
+		if (route.request().method() !== "POST") {
+			await route.continue();
+			return;
+		}
+		await route.fulfill({ json: { rates: [] } });
+	});
+}
+
+async function submitDeterministicCheckoutInformation(
+	page: import("@playwright/test").Page,
+) {
+	await page
+		.getByRole("textbox", { name: /email/i })
+		.fill("shopper@example.test");
+	await page.getByRole("textbox", { name: /first name/i }).fill("Test");
+	await page.getByRole("textbox", { name: /last name/i }).fill("Shopper");
+	await page.getByRole("textbox", { name: /^Address/ }).fill("100 Main Street");
+	await page.getByRole("textbox", { name: /city/i }).fill("Austin");
+	await page.getByRole("textbox", { name: /state/i }).fill("TX");
+	await page.getByRole("textbox", { name: /postal/i }).fill("78701");
+	await page.getByRole("button", { name: "Continue to shipping" }).click();
+	await expect(
+		page.getByRole("heading", { name: "Shipping method" }),
+	).toBeVisible();
 }
 
 /** Navigate to a page and wait for it to fully settle. */
@@ -487,6 +664,156 @@ test.describe("Checkout — Visual", () => {
 		await expect(page).toHaveScreenshot("checkout-empty.png", SCREENSHOT_OPTS);
 	});
 
+	test("checkout page (populated cart)", async ({ page }) => {
+		await installDeterministicCheckoutVisualData(page);
+		await stableGoto(page, "/checkout");
+		const summary = page.getByTestId("checkout-order-summary");
+		await expect(summary).toBeVisible();
+		await expect(
+			summary.getByText("Regent Penny Loafer", { exact: true }),
+		).toBeVisible();
+		await expect(
+			summary.getByTestId("checkout-gift-card-unavailable"),
+		).toHaveText("Gift cards are unavailable during checkout.");
+		await expect(summary.locator("form")).toHaveCount(0);
+		await expect(
+			summary.getByRole("textbox", { name: "Gift card code" }),
+		).toHaveCount(0);
+		await page.evaluate(() => document.fonts.ready);
+		await expect(page).toHaveScreenshot(
+			"checkout-populated.png",
+			SCREENSHOT_OPTS,
+		);
+	});
+
+	test("checkout page retains amount-only gift card recovery", async ({
+		page,
+	}) => {
+		await installNegativeGiftCardCheckoutData(page);
+		await stableGoto(page, "/checkout");
+		await submitDeterministicCheckoutInformation(page);
+
+		const summary = page.getByTestId("checkout-order-summary");
+		const recovery = summary.getByTestId("checkout-retained-gift-card");
+		await expect(recovery).toBeVisible();
+		await expect(
+			recovery.getByTestId("checkout-retained-gift-card-label"),
+		).toHaveText("Stored gift card");
+		await expect(
+			recovery.getByRole("button", { name: "Remove" }),
+		).toBeVisible();
+		await expect(
+			summary.getByTestId("checkout-gift-card-unavailable"),
+		).toHaveCount(0);
+		await expect(
+			summary.getByTestId("checkout-retained-gift-card-adjustment"),
+		).toHaveText("Legacy gift card adjustment: +$5.00");
+		await expect(
+			summary.getByTestId("checkout-legacy-gift-card-adjustment-label"),
+		).toHaveText("Legacy gift card adjustment");
+		await expect(
+			summary.getByTestId("checkout-legacy-gift-card-adjustment-amount"),
+		).toHaveText("+$5.00");
+		await expect(summary.getByTestId("checkout-order-total")).toHaveText(
+			"$242.00",
+		);
+		await expect(summary).not.toContainText("−-$5.00");
+	});
+
+	test("checkout page shows code with negative legacy adjustment", async ({
+		page,
+	}) => {
+		await installNegativeGiftCardCheckoutData(page, "GIFT-LEGACY");
+		await stableGoto(page, "/checkout");
+		await submitDeterministicCheckoutInformation(page);
+
+		const summary = page.getByTestId("checkout-order-summary");
+		await expect(
+			summary.getByTestId("checkout-retained-gift-card-label"),
+		).toHaveText("GIFT-LEGACY");
+		await expect(
+			summary.getByTestId("checkout-retained-gift-card-adjustment"),
+		).toHaveText("Legacy gift card adjustment: +$5.00");
+		await expect(
+			summary.getByTestId("checkout-legacy-gift-card-adjustment-amount"),
+		).toHaveText("+$5.00");
+		await expect(summary.getByTestId("checkout-order-total")).toHaveText(
+			"$242.00",
+		);
+	});
+
+	test("checkout Module summary (populated)", async ({ page }) => {
+		await installDeterministicCheckoutSummaryVisualData(page);
+		await stableGoto(
+			page,
+			"/__merchant_ui_fixtures__?surface=checkout-summary",
+		);
+		const summary = page.getByTestId("checkout-module-summary");
+		await expect(summary).toBeVisible();
+		await expect(
+			summary.getByText("Regent Penny Loafer", { exact: true }),
+		).toBeVisible();
+		await expect(
+			summary.getByTestId("checkout-module-retained-gift-card"),
+		).toBeVisible();
+		await expect(
+			summary.getByTestId("checkout-module-retained-gift-card-label"),
+		).toHaveText("Stored gift card");
+		await expect(
+			summary
+				.getByTestId("checkout-module-retained-gift-card")
+				.getByRole("button", { name: "Remove" }),
+		).toBeVisible();
+		await expect(
+			summary.getByTestId("checkout-module-gift-card-unavailable"),
+		).toHaveCount(0);
+		await expect(
+			summary.getByTestId("checkout-module-retained-gift-card-adjustment"),
+		).toHaveText("Legacy gift card adjustment: +$5.00");
+		await expect(
+			summary.getByTestId("checkout-module-legacy-gift-card-adjustment-label"),
+		).toHaveText("Legacy gift card adjustment");
+		await expect(
+			summary.getByTestId("checkout-module-legacy-gift-card-adjustment-amount"),
+		).toHaveText("+$5.00");
+		await expect(summary.getByTestId("checkout-module-order-total")).toHaveText(
+			"$247.48",
+		);
+		await expect(summary).not.toContainText("−-$5.00");
+		await expect(summary.locator("form")).toHaveCount(0);
+		await expect(summary.locator('input[placeholder="Gift card"]')).toHaveCount(
+			0,
+		);
+		await page.evaluate(() => document.fonts.ready);
+		await expect(page).toHaveScreenshot(
+			"checkout-module-summary.png",
+			SCREENSHOT_OPTS,
+		);
+	});
+
+	test("checkout Module summary shows code with negative legacy adjustment", async ({
+		page,
+	}) => {
+		await installDeterministicCheckoutSummaryVisualData(page, "GIFT-LEGACY");
+		await stableGoto(
+			page,
+			"/__merchant_ui_fixtures__?surface=checkout-summary",
+		);
+		const summary = page.getByTestId("checkout-module-summary");
+		await expect(
+			summary.getByTestId("checkout-module-retained-gift-card-label"),
+		).toHaveText("GIFT-LEGACY");
+		await expect(
+			summary.getByTestId("checkout-module-retained-gift-card-adjustment"),
+		).toHaveText("Legacy gift card adjustment: +$5.00");
+		await expect(
+			summary.getByTestId("checkout-module-legacy-gift-card-adjustment-amount"),
+		).toHaveText("+$5.00");
+		await expect(summary.getByTestId("checkout-module-order-total")).toHaveText(
+			"$247.48",
+		);
+	});
+
 	test("order confirmation page", async ({ page }) => {
 		await stableGoto(page, "/checkout/confirmation");
 		await expect(page.locator("main")).toBeVisible({ timeout: 10_000 });
@@ -728,6 +1055,59 @@ test.describe("Admin — Authenticated Visual", () => {
 	test("admin gift cards", async ({ admin }) => {
 		await admin.page.goto("/admin/gift-cards");
 		await admin.page.waitForLoadState("load");
+		const main = admin.page.locator("#admin-main");
+		await expect(main.getByTestId("gift-card-read-only-notice")).toBeVisible({
+			timeout: 15_000,
+		});
+
+		const viewportWidth = admin.page.viewportSize()?.width ?? 0;
+		const showsDesktopTable = viewportWidth >= 768;
+		const list = showsDesktopTable
+			? main.getByTestId("gift-card-list-desktop")
+			: main.getByTestId("gift-card-list-mobile");
+		const details = showsDesktopTable
+			? main.getByTestId("gift-card-details-table-gift_card_visual_001")
+			: main.getByTestId("gift-card-details-mobile-gift_card_visual_001");
+		await expect(list).toBeVisible();
+		await expect(
+			list.getByText("GIFT-VISUAL-ALPHA-2026-0001", { exact: true }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(details).toBeVisible();
+
+		const isTablet = viewportWidth === 768;
+		const desktopTable = main.getByTestId("gift-card-list-desktop");
+		const scroller = desktopTable.locator("xpath=..");
+		await expect
+			.poll(async () => {
+				if (!isTablet) return true;
+				return scroller.evaluate(
+					(element) => element.scrollWidth > element.clientWidth,
+				);
+			})
+			.toBe(true);
+		if (isTablet) {
+			await scroller.evaluate((element) => {
+				element.scrollLeft = element.scrollWidth;
+			});
+		}
+		if (!showsDesktopTable) {
+			await details.scrollIntoViewIfNeeded();
+		}
+		await expect
+			.poll(async () => {
+				if (!isTablet) return true;
+				const scrollerBox = await scroller.boundingBox();
+				const detailsBox = await details.boundingBox();
+				if (!scrollerBox || !detailsBox) return false;
+				const scrollerRight = scrollerBox.x + scrollerBox.width;
+				const detailsRight = detailsBox.x + detailsBox.width;
+				return (
+					detailsBox.x >= scrollerBox.x &&
+					detailsRight <= scrollerRight + 1 &&
+					detailsRight >= scrollerRight - 48
+				);
+			})
+			.toBe(true);
 		await expect(admin.page).toHaveScreenshot(
 			"admin-gift-cards.png",
 			SCREENSHOT_OPTS,

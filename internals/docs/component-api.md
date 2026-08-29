@@ -1272,7 +1272,7 @@ Registered as admin pages — accessed via the admin sidebar.
 
 ## `@86d-app/giftcards`
 
-Digital gift cards with purchasing, gifting, balance management, top-ups, analytics, and contained redemption internals.
+Read-only gift card records, balance and status lookup, owned-card delivery metadata, and analytics. Issuance, funding, redemption, status mutation, and deletion stay unavailable until complete Workflows own those operations with durable evidence.
 
 ### Store components
 

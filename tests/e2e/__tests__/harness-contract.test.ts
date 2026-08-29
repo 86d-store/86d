@@ -191,6 +191,8 @@ describe("E2E harness contract", () => {
 			"/api/admin/abandoned-carts",
 			"/api/admin/carts",
 			"/api/admin/customers",
+			"/api/admin/gift-cards",
+			"/api/admin/gift-cards/stats",
 			"/api/admin/inventory/low-stock",
 			"/api/admin/orders",
 			"/api/admin/reviews",
@@ -199,6 +201,8 @@ describe("E2E harness contract", () => {
 		}
 		expect(visualSpec).toContain("No carts found");
 		expect(visualSpec).toContain("No abandoned carts found.");
+		expect(visualSpec).toContain("gift-card-list-desktop");
+		expect(visualSpec).toContain("element.scrollWidth > element.clientWidth");
 	});
 
 	it("isolates visual analytics writes and mutable analytics and checkout views", () => {

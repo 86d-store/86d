@@ -13,6 +13,31 @@ const ADMIN_VISUAL_ORDER = {
 	createdAt: "2026-08-24T12:00:00.000Z",
 };
 
+const ADMIN_VISUAL_GIFT_CARDS = [
+	{
+		id: "gift_card_visual_001",
+		code: "GIFT-VISUAL-ALPHA-2026-0001",
+		initialBalance: 25_000,
+		currentBalance: 18_750,
+		currency: "USD",
+		status: "active",
+		recipientEmail: "long.visual.recipient@example.com",
+		note: "Legacy launch reward",
+		createdAt: "2026-07-15T12:00:00.000Z",
+		expiresAt: "2027-07-15T12:00:00.000Z",
+	},
+	{
+		id: "gift_card_visual_002",
+		code: "GIFT-VISUAL-BETA-2026-0002",
+		initialBalance: 10_000,
+		currentBalance: 0,
+		currency: "USD",
+		status: "depleted",
+		recipientEmail: "second.visual.recipient@example.com",
+		createdAt: "2026-06-01T12:00:00.000Z",
+	},
+];
+
 const ADMIN_VISUAL_RESPONDERS: Record<
 	AdminVisualEndpointPath,
 	AdminVisualResponder
@@ -76,6 +101,22 @@ const ADMIN_VISUAL_RESPONDERS: Record<
 		},
 		refundVolume: 0,
 		refundCount: 0,
+	}),
+	"/api/admin/gift-cards": () => ({
+		cards: ADMIN_VISUAL_GIFT_CARDS,
+		total: ADMIN_VISUAL_GIFT_CARDS.length,
+	}),
+	"/api/admin/gift-cards/stats": () => ({
+		stats: {
+			totalIssued: 2,
+			totalActive: 1,
+			totalDepleted: 1,
+			totalDisabled: 0,
+			totalExpired: 0,
+			totalIssuedValue: 35_000,
+			totalCurrentBalance: 18_750,
+			currency: "USD",
+		},
 	}),
 	"/api/admin/checkout/sessions": () => ({
 		sessions: [],

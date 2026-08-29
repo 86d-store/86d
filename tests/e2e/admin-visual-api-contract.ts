@@ -97,6 +97,19 @@ export const ADMIN_VISUAL_ENDPOINT_CONTRACTS = [
 		},
 	},
 	{
+		path: "/api/admin/gift-cards",
+		requestPath: "/api/admin/gift-cards?take=1&skip=0",
+		expected: {
+			kind: "success",
+			fields: { cards: "array", total: "number" },
+		},
+	},
+	{
+		path: "/api/admin/gift-cards/stats",
+		requestPath: "/api/admin/gift-cards/stats",
+		expected: { kind: "success", fields: { stats: "object" } },
+	},
+	{
 		path: "/api/admin/checkout/sessions",
 		requestPath: "/api/admin/checkout/sessions?page=1&limit=1",
 		expected: {

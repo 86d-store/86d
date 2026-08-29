@@ -6,8 +6,8 @@ import {
 	CaretUpDownIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { Subscribe, type SubscribeSource } from "@tanstack/react-table";
-import { Button } from "~/button";
-import { cn } from "~/lib/utils";
+import { Button } from "../button";
+import { cn } from "../lib/utils";
 
 type SortDirection = false | "asc" | "desc";
 type SortingState = Array<{ id: string; desc: boolean }>;

@@ -44,7 +44,6 @@ function makeController(
 		update: vi.fn().mockResolvedValue(makeSession()),
 		applyDiscount: vi.fn().mockResolvedValue(makeSession()),
 		removeDiscount: vi.fn().mockResolvedValue(makeSession()),
-		applyGiftCard: vi.fn().mockResolvedValue(makeSession()),
 		removeGiftCard: vi.fn().mockResolvedValue(makeSession()),
 		applyStoreCredit: vi.fn().mockResolvedValue(makeSession()),
 		removeStoreCredit: vi.fn().mockResolvedValue(makeSession()),

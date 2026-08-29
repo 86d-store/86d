@@ -1,47 +1,18 @@
-<div className="space-y-6">
-  <h1 className="font-bold text-2xl text-foreground">Gift Cards</h1>
-  <div className="flex items-center justify-between">
-    <div className="flex items-center gap-3">
-      <select
-        value={props.statusFilter}
-        onChange={(e) => props.onStatusFilterChange(e.target.value)}
-        aria-label="Filter by status"
-        className="rounded-md border border-border bg-background px-3 py-1.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-      >
-        <option value="">All Statuses</option>
-        <option value="active">Active</option>
-        <option value="disabled">Disabled</option>
-        <option value="expired">Expired</option>
-        <option value="depleted">Depleted</option>
-      </select>
-    </div>
-    <button
-      type="button"
-      onClick={props.onCreateClick}
-      className="rounded-md bg-foreground px-3 py-1.5 font-medium text-background text-sm hover:opacity-90"
-    >
-      + Issue Gift Card
-    </button>
+<div className="space-y-6" data-testid="gift-card-overview">
+  <div>
+    <h1 className="font-bold text-2xl text-foreground text-balance">
+      Gift Cards
+    </h1>
+    <p className="mt-1 text-muted-foreground text-pretty text-sm">
+      Review issued cards, balances, statuses, and transaction history.
+    </p>
   </div>
 
-  {props.createForm}
+  {props.noticeContent}
 
-  {props.error && (
-    <div className="rounded-lg bg-destructive/10 p-3 text-destructive text-sm">
-      {props.error}
-    </div>
-  )}
+  {props.statsContent}
 
-  {props.loading ? (
-    <div className="py-16 text-center">
-      <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-muted border-t-foreground" />
-      <p className="mt-4 text-muted-foreground text-sm">
-        Loading gift cards...
-      </p>
-    </div>
-  ) : (
-    <div className="rounded-lg border border-border bg-card">
-      {props.tableContent}
-    </div>
-  )}
+  <h2 className="font-semibold text-foreground text-lg text-balance">Cards</h2>
+
+  {props.tableContent}
 </div>

@@ -7,6 +7,7 @@
    classes like `dark:flex` / `dark:sm:flex` never emit CSS and theme toggles stay `display:none`. */
 @source "../../../templates/**/*.mdx";
 @source "../../../modules/**/*.{mdx,tsx}";
+@source "../../../packages/ui/src/**/*.{ts,tsx}";
 
 @custom-variant dark (&:where(.dark, .dark *));
 

@@ -36,7 +36,7 @@ npm install -g 86d
 | `86d dev` | Start the store development server |
 | `86d init [--yes\|-y]` | Configure a local store (env, deps, migrate, seed) |
 | `86d status` | Show project health and configuration |
-| `86d module build [dir]` | Compile a module (TypeScript + non-TS assets) |
+| `86d module build [dir]` | Clean `dist`, then compile TypeScript and copy non-TS assets |
 | `86d module create <name>` | Scaffold a new module |
 | `86d module list` | List all modules |
 | `86d module info <name>` | Show module details |

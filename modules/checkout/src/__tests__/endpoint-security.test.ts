@@ -2,6 +2,7 @@ import { createMockDataService } from "@86d-app/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { CheckoutLineItem } from "../service";
 import { createCheckoutController } from "../service-impl";
+import { seedLegacyStoredGiftCard } from "./legacy-gift-card-test-utils";
 
 /**
  * Security regression tests for checkout endpoints.
@@ -210,7 +211,7 @@ describe("checkout endpoint security", () => {
 
 	// -- Discount Integrity ------------------------------------------------
 
-	describe("discount and gift card integrity", () => {
+	describe("discount and legacy gift card integrity", () => {
 		it("applying discount to completed session returns null", async () => {
 			const session = await makeSession(controller, {
 				customerId: "cust_1",
@@ -228,23 +229,6 @@ describe("checkout endpoint security", () => {
 			const fetched = await controller.getById(session.id);
 			expect(fetched?.discountCode).toBeUndefined();
 			expect(fetched?.discountAmount).toBe(0);
-		});
-
-		it("applying gift card to completed session returns null", async () => {
-			const session = await makeSession(controller, {
-				customerId: "cust_1",
-				shippingAddress: VALID_ADDRESS,
-			});
-			await controller.complete(session.id, "order_1");
-
-			const result = await controller.applyGiftCard(session.id, {
-				code: "GC_STOLEN",
-				giftCardAmount: 9999,
-			});
-			expect(result).toBeNull();
-
-			const fetched = await controller.getById(session.id);
-			expect(fetched?.giftCardCode).toBeUndefined();
 		});
 
 		it("removeDiscount on completed session returns null", async () => {
@@ -269,9 +253,9 @@ describe("checkout endpoint security", () => {
 			const session = await makeSession(controller, {
 				customerId: "cust_1",
 			});
-			await controller.applyGiftCard(session.id, {
+			await seedLegacyStoredGiftCard(mockData, session.id, {
 				code: "GC_VALID",
-				giftCardAmount: 2000,
+				amount: 2000,
 			});
 			await controller.complete(session.id, "order_1");
 

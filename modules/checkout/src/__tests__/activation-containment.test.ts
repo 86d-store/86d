@@ -1,6 +1,11 @@
-import { createMockSession } from "@86d-app/core/test-utils";
+import { existsSync } from "node:fs";
+import {
+	createMockDataService,
+	createMockSession,
+} from "@86d-app/core/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import type { CheckoutSession } from "../service";
+import { createCheckoutController } from "../service-impl";
 import {
 	capturePaymentUnavailable,
 	completeSessionUnavailable,
@@ -11,6 +16,7 @@ import {
 import { createSession } from "../store/endpoints/create-session";
 import { getShippingRates } from "../store/endpoints/get-shipping-rates";
 import { createGuestProofMetadata } from "../store/endpoints/guest-proof";
+import { storeEndpoints } from "../store/endpoints/routes";
 import { updateSession } from "../store/endpoints/update-session";
 
 const shippingAddress = {
@@ -200,6 +206,24 @@ function guestCreateInput(
 }
 
 describe("checkout activation containment", () => {
+	it("withdraws gift-card application while retaining legacy removal", () => {
+		const controller = createCheckoutController(createMockDataService());
+
+		expect(storeEndpoints).not.toHaveProperty(
+			"/checkout/sessions/:id/gift-card",
+		);
+		expect(storeEndpoints).toHaveProperty(
+			"/checkout/sessions/:id/gift-card/remove",
+		);
+		expect(
+			existsSync(
+				new URL("../store/endpoints/apply-gift-card.ts", import.meta.url),
+			),
+		).toBe(false);
+		expect(controller).not.toHaveProperty("applyGiftCard");
+		expect(controller).toHaveProperty("removeGiftCard");
+	});
+
 	it("fails before persistence when an authoritative Cart snapshot is unavailable", async () => {
 		const create = vi.fn();
 		const result = await createSession(

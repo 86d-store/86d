@@ -162,28 +162,6 @@ export type StoreCreditCheckController = {
 };
 
 /**
- * Minimal interface for gift card balance checks.
- * Checkout accesses the gift card controller through the runtime context —
- * no direct module import, just a structural contract.
- */
-export type GiftCardCheckController = {
-	checkBalance(code: string): Promise<{
-		balance: number;
-		currency: string;
-		status: string;
-	} | null>;
-
-	redeem(
-		code: string,
-		amount: number,
-		orderId?: string | undefined,
-	): Promise<{
-		transaction: { id: string; amount: number; balanceAfter: number };
-		giftCard: { id: string; currentBalance: number; status: string };
-	} | null>;
-};
-
-/**
  * Minimal interface for calculating taxes based on address and line items.
  * Checkout accesses the tax controller through the runtime context —
  * no direct module import, just a structural contract.
@@ -408,7 +386,6 @@ export type CheckoutController = ModuleController & {
 		taxAmount?: number | undefined;
 		shippingAmount?: number | undefined;
 		discountAmount?: number | undefined;
-		giftCardAmount?: number | undefined;
 		storeCreditAmount?: number | undefined;
 		total: number;
 		lineItems: CheckoutLineItem[];
@@ -455,16 +432,6 @@ export type CheckoutController = ModuleController & {
 	/** Remove applied discount */
 	removeDiscount(
 		id: string,
-		expectedRevision?: number | undefined,
-	): Promise<CheckoutSession | null>;
-
-	/** Apply a gift card and update giftCardAmount */
-	applyGiftCard(
-		id: string,
-		params: {
-			code: string;
-			giftCardAmount: number;
-		},
 		expectedRevision?: number | undefined,
 	): Promise<CheckoutSession | null>;
 

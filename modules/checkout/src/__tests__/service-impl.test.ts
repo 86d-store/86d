@@ -2,6 +2,7 @@ import { createMockDataService } from "@86d-app/core/test-utils";
 import { describe, expect, it } from "vitest";
 import type { CheckoutLineItem } from "../service";
 import { createCheckoutController } from "../service-impl";
+import { seedLegacyStoredGiftCard } from "./legacy-gift-card-test-utils";
 
 const sampleLineItems: CheckoutLineItem[] = [
 	{ productId: "p1", name: "Widget", price: 1000, quantity: 2 },
@@ -544,153 +545,17 @@ describe("expireStale", () => {
 });
 
 // ---------------------------------------------------------------------------
-// applyGiftCard
-// ---------------------------------------------------------------------------
-
-describe("applyGiftCard", () => {
-	it("applies a gift card and recalculates total", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
-		// subtotal=4000 tax=400 shipping=500 total=4900
-		const session = await ctrl.create(makeSession());
-		const updated = await ctrl.applyGiftCard(session.id, {
-			code: "GC-100",
-			giftCardAmount: 1000,
-		});
-
-		expect(updated?.giftCardCode).toBe("GC-100");
-		expect(updated?.giftCardAmount).toBe(1000);
-		// 4000 + 400 + 500 - 0 - 1000 = 3900
-		expect(updated?.total).toBe(3900);
-	});
-
-	it("clamps total to zero when gift card exceeds balance", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
-		const session = await ctrl.create(makeSession());
-		const updated = await ctrl.applyGiftCard(session.id, {
-			code: "GC-BIG",
-			giftCardAmount: 99999,
-		});
-
-		expect(updated?.giftCardAmount).toBe(99999);
-		expect(updated?.total).toBe(0);
-	});
-
-	it("replaces a previously applied gift card", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
-		const session = await ctrl.create(makeSession());
-		await ctrl.applyGiftCard(session.id, {
-			code: "GC-FIRST",
-			giftCardAmount: 500,
-		});
-		const updated = await ctrl.applyGiftCard(session.id, {
-			code: "GC-SECOND",
-			giftCardAmount: 2000,
-		});
-
-		expect(updated?.giftCardCode).toBe("GC-SECOND");
-		expect(updated?.giftCardAmount).toBe(2000);
-		// 4000 + 400 + 500 - 0 - 2000 = 2900
-		expect(updated?.total).toBe(2900);
-	});
-
-	it("works together with an existing discount", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
-		const session = await ctrl.create(makeSession());
-		await ctrl.applyDiscount(session.id, {
-			code: "SAVE500",
-			discountAmount: 500,
-			freeShipping: false,
-		});
-		const updated = await ctrl.applyGiftCard(session.id, {
-			code: "GC-200",
-			giftCardAmount: 200,
-		});
-
-		// subtotal=4000 tax=400 shipping=500 discount=500 giftCard=200
-		// 4000 + 400 + 500 - 500 - 200 = 4200
-		expect(updated?.total).toBe(4200);
-		expect(updated?.discountAmount).toBe(500);
-		expect(updated?.giftCardAmount).toBe(200);
-	});
-
-	it("returns null for a completed session", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
-		const session = await ctrl.create(makeSession());
-		await ctrl.complete(session.id, "order-1");
-
-		const result = await ctrl.applyGiftCard(session.id, {
-			code: "GC-100",
-			giftCardAmount: 1000,
-		});
-		expect(result).toBeNull();
-	});
-
-	it("returns null for an expired session", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
-		const session = await ctrl.create(makeSession({ ttl: -1 }));
-		await ctrl.expireStale();
-
-		const result = await ctrl.applyGiftCard(session.id, {
-			code: "GC-100",
-			giftCardAmount: 1000,
-		});
-		expect(result).toBeNull();
-	});
-
-	it("returns null for a missing session", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
-		const result = await ctrl.applyGiftCard("nonexistent", {
-			code: "GC-100",
-			giftCardAmount: 1000,
-		});
-		expect(result).toBeNull();
-	});
-
-	it("applies to a processing session", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
-		const session = await ctrl.create(
-			makeSession({
-				customerId: "cust-1",
-				shippingAddress: sampleAddress,
-			}),
-		);
-		await ctrl.confirm(session.id);
-		const updated = await ctrl.applyGiftCard(session.id, {
-			code: "GC-300",
-			giftCardAmount: 300,
-		});
-
-		expect(updated?.giftCardCode).toBe("GC-300");
-		expect(updated?.status).toBe("processing");
-		// 4000 + 400 + 500 - 0 - 300 = 4600
-		expect(updated?.total).toBe(4600);
-	});
-
-	it("applies zero-amount gift card", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
-		const session = await ctrl.create(makeSession());
-		const updated = await ctrl.applyGiftCard(session.id, {
-			code: "GC-ZERO",
-			giftCardAmount: 0,
-		});
-
-		expect(updated?.giftCardCode).toBe("GC-ZERO");
-		expect(updated?.giftCardAmount).toBe(0);
-		expect(updated?.total).toBe(4900);
-	});
-});
-
-// ---------------------------------------------------------------------------
 // removeGiftCard
 // ---------------------------------------------------------------------------
 
 describe("removeGiftCard", () => {
 	it("removes gift card and restores original total", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
+		const data = createMockDataService();
+		const ctrl = createCheckoutController(data);
 		const session = await ctrl.create(makeSession());
-		await ctrl.applyGiftCard(session.id, {
+		await seedLegacyStoredGiftCard(data, session.id, {
 			code: "GC-500",
-			giftCardAmount: 500,
+			amount: 500,
 		});
 		const restored = await ctrl.removeGiftCard(session.id);
 
@@ -701,16 +566,17 @@ describe("removeGiftCard", () => {
 	});
 
 	it("preserves discount when removing gift card", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
+		const data = createMockDataService();
+		const ctrl = createCheckoutController(data);
 		const session = await ctrl.create(makeSession());
 		await ctrl.applyDiscount(session.id, {
 			code: "SAVE500",
 			discountAmount: 500,
 			freeShipping: false,
 		});
-		await ctrl.applyGiftCard(session.id, {
+		await seedLegacyStoredGiftCard(data, session.id, {
 			code: "GC-200",
-			giftCardAmount: 200,
+			amount: 200,
 		});
 		const restored = await ctrl.removeGiftCard(session.id);
 
@@ -1124,7 +990,8 @@ describe("getStats", () => {
 	});
 
 	it("calculates total revenue from completed sessions only", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
+		const data = createMockDataService();
+		const ctrl = createCheckoutController(data);
 
 		// completed with total 4900
 		const c1 = await ctrl.create(makeSession());
@@ -1132,7 +999,10 @@ describe("getStats", () => {
 
 		// completed with total 3900 (after gift card)
 		const c2 = await ctrl.create(makeSession());
-		await ctrl.applyGiftCard(c2.id, { code: "GC", giftCardAmount: 1000 });
+		await seedLegacyStoredGiftCard(data, c2.id, {
+			code: "GC",
+			amount: 1000,
+		});
 		await ctrl.complete(c2.id, "order-2");
 
 		// abandoned - should not count toward revenue
@@ -1148,7 +1018,8 @@ describe("getStats", () => {
 	});
 
 	it("calculates average order value correctly", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
+		const data = createMockDataService();
+		const ctrl = createCheckoutController(data);
 
 		// completed with total 4900
 		const c1 = await ctrl.create(makeSession());
@@ -1156,7 +1027,10 @@ describe("getStats", () => {
 
 		// completed with total 3900
 		const c2 = await ctrl.create(makeSession());
-		await ctrl.applyGiftCard(c2.id, { code: "GC", giftCardAmount: 1000 });
+		await seedLegacyStoredGiftCard(data, c2.id, {
+			code: "GC",
+			amount: 1000,
+		});
 		await ctrl.complete(c2.id, "order-2");
 
 		const stats = await ctrl.getStats();
@@ -1413,17 +1287,16 @@ describe("create – expanded", () => {
 		expect(session.shippingAddress).toBeUndefined();
 	});
 
-	it("creates a session with pre-applied discount and gift card amounts", async () => {
+	it("creates a session with a pre-applied discount only", async () => {
 		const ctrl = createCheckoutController(createMockDataService());
 		const session = await ctrl.create(
 			makeSession({
 				discountAmount: 300,
-				giftCardAmount: 200,
-				total: 3900, // 4000 + 400 + 500 - 300 - 200 = 4400? But total is passed in
+				total: 4600,
 			}),
 		);
 
 		expect(session.discountAmount).toBe(300);
-		expect(session.giftCardAmount).toBe(200);
+		expect(session.giftCardAmount).toBe(0);
 	});
 });

@@ -19,8 +19,6 @@ export function useCheckoutApi() {
 			client.module("checkout").store["/checkout/sessions/:id/discount"],
 		removeDiscount:
 			client.module("checkout").store["/checkout/sessions/:id/discount/remove"],
-		applyGiftCard:
-			client.module("checkout").store["/checkout/sessions/:id/gift-card"],
 		removeGiftCard:
 			client.module("checkout").store[
 				"/checkout/sessions/:id/gift-card/remove"

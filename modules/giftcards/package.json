@@ -1,7 +1,7 @@
 {
 	"name": "@86d-app/giftcards",
 	"version": "0.0.42",
-	"description": "Gift card issuance, balance management, and payment integration for 86d commerce platform",
+	"description": "Read-only gift card records, balance lookup, and contained delivery metadata for 86d commerce platform",
 	"keywords": [
 		"commerce",
 		"gift-cards",
@@ -53,13 +53,17 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-app/core": "workspace:*",
+		"@86d-app/ui": "workspace:*",
+		"@tanstack/react-table": "9.1.2"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",
 		"@biomejs/biome": "catalog:",
 		"@types/mdx": "catalog:mdx",
 		"@types/react": "catalog:react",
+		"@types/react-dom": "catalog:react",
+		"react-dom": "catalog:react",
 		"typescript": "catalog:",
 		"vitest": "catalog:vite"
 	},

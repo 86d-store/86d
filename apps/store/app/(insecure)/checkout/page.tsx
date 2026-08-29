@@ -102,6 +102,7 @@ interface CheckoutSessionData {
 	shippingAmount: number;
 	discountAmount: number;
 	giftCardAmount: number;
+	giftCardCode?: string | null;
 	storeCreditAmount: number;
 	total: number;
 	currency: string;
@@ -141,6 +142,34 @@ function formatPrice(cents: number, currency = "USD"): string {
 		style: "currency",
 		currency,
 	}).format(cents / 100);
+}
+
+function hasRetainedLegacyGiftCard({
+	giftCardCode,
+	giftCardAmount,
+}: {
+	giftCardCode: string | null | undefined;
+	giftCardAmount: number;
+}): boolean {
+	return giftCardCode !== undefined || giftCardAmount !== 0;
+}
+
+function legacyGiftCardRecoveryLabel(
+	giftCardCode: string | null | undefined,
+): string {
+	return giftCardCode?.trim() || "Stored gift card";
+}
+
+function legacyGiftCardAdjustmentPresentation(
+	giftCardAmount: number,
+	currency: string,
+): { label: string; signedAmount: string } | null {
+	if (giftCardAmount >= 0) return null;
+
+	return {
+		label: "Legacy gift card adjustment",
+		signedAmount: `+${formatPrice(Math.abs(giftCardAmount), currency)}`,
+	};
 }
 
 const STEPS: CheckoutStep[] = ["information", "shipping", "payment", "review"];
@@ -357,9 +386,7 @@ function OrderSummary({
 	onRemoveDiscount,
 	applyingDiscount,
 	giftCardCode,
-	onApplyGiftCard,
 	onRemoveGiftCard,
-	applyingGiftCard,
 	storeCreditBalance,
 	storeCreditApplied,
 	onApplyStoreCredit,
@@ -372,10 +399,8 @@ function OrderSummary({
 	onApplyDiscount: (code: string) => void;
 	onRemoveDiscount: () => void;
 	applyingDiscount: boolean;
-	giftCardCode: string;
-	onApplyGiftCard: (code: string) => void;
+	giftCardCode: string | null | undefined;
 	onRemoveGiftCard: () => void;
-	applyingGiftCard: boolean;
 	storeCreditBalance: number;
 	storeCreditApplied: boolean;
 	onApplyStoreCredit: () => void;
@@ -383,20 +408,31 @@ function OrderSummary({
 	applyingStoreCredit: boolean;
 }) {
 	const [promoInput, setPromoInput] = useState("");
-	const [giftCardInput, setGiftCardInput] = useState("");
 
 	const subtotal = session?.subtotal ?? cart?.subtotal ?? 0;
 	const shipping = session?.shippingAmount ?? 0;
 	const discount = session?.discountAmount ?? 0;
 	const giftCard = session?.giftCardAmount ?? 0;
+	const showGiftCardRecovery = hasRetainedLegacyGiftCard({
+		giftCardCode,
+		giftCardAmount: giftCard,
+	});
+	const giftCardLabel = legacyGiftCardRecoveryLabel(giftCardCode);
 	const storeCredit = session?.storeCreditAmount ?? 0;
 	const tax = session?.taxAmount ?? 0;
 	const total = session?.total ?? subtotal;
 	const currency = session?.currency ?? "USD";
 	const fmt = (cents: number) => formatPrice(cents, currency);
+	const legacyGiftCardAdjustment = legacyGiftCardAdjustmentPresentation(
+		giftCard,
+		currency,
+	);
 
 	return (
-		<div className="rounded-xl border border-border/40 bg-muted/30 p-5">
+		<div
+			className="rounded-xl border border-border/40 bg-muted/30 p-5"
+			data-testid="checkout-order-summary"
+		>
 			<h3 className="mb-4 font-bold text-foreground text-sm tracking-tight">
 				Order summary
 			</h3>
@@ -522,29 +558,18 @@ function OrderSummary({
 			)}
 
 			{/* Gift card */}
-			{!giftCardCode ? (
-				<div className="mb-4 flex gap-2">
-					<input
-						type="text"
-						value={giftCardInput}
-						onChange={(e) => setGiftCardInput(e.target.value.toUpperCase())}
-						placeholder="Gift card code"
-						aria-label="Gift card code"
-						className="min-w-0 flex-1 rounded-lg border border-border/60 bg-background px-3 py-2 font-mono text-foreground text-sm uppercase outline-none transition-colors placeholder:text-muted-foreground/50 placeholder:normal-case focus:border-foreground/30"
-					/>
-					<button
-						type="button"
-						onClick={() => {
-							if (giftCardInput.trim()) onApplyGiftCard(giftCardInput.trim());
-						}}
-						disabled={applyingGiftCard || !giftCardInput.trim()}
-						className="rounded-lg border border-border/60 bg-background px-3.5 py-2 font-medium text-foreground text-sm transition-colors hover:bg-muted disabled:opacity-50"
-					>
-						{applyingGiftCard ? "..." : "Apply"}
-					</button>
-				</div>
+			{!showGiftCardRecovery ? (
+				<p
+					className="mb-4 text-muted-foreground text-xs"
+					data-testid="checkout-gift-card-unavailable"
+				>
+					Gift cards are unavailable during checkout.
+				</p>
 			) : (
-				<div className="mb-4 flex items-center justify-between rounded-lg bg-background px-3 py-2">
+				<div
+					className="mb-4 flex items-center justify-between rounded-lg bg-background px-3 py-2"
+					data-testid="checkout-retained-gift-card"
+				>
 					<div className="flex items-center gap-2">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -562,9 +587,23 @@ function OrderSummary({
 							<rect x="2" y="4" width="20" height="16" rx="2" />
 							<path d="M2 10h20" />
 						</svg>
-						<span className="font-medium font-mono text-foreground text-sm">
-							{giftCardCode}
-						</span>
+						<div>
+							<span
+								className="block font-medium font-mono text-foreground text-sm"
+								data-testid="checkout-retained-gift-card-label"
+							>
+								{giftCardLabel}
+							</span>
+							{legacyGiftCardAdjustment && (
+								<p
+									className="text-amber-700 text-xs dark:text-amber-400"
+									data-testid="checkout-retained-gift-card-adjustment"
+								>
+									{legacyGiftCardAdjustment.label}:{" "}
+									{legacyGiftCardAdjustment.signedAmount}
+								</p>
+							)}
+						</div>
 					</div>
 					<button
 						type="button"
@@ -673,6 +712,25 @@ function OrderSummary({
 						</span>
 					</div>
 				)}
+				{legacyGiftCardAdjustment && (
+					<div
+						className="flex justify-between text-sm"
+						data-testid="checkout-legacy-gift-card-adjustment"
+					>
+						<span
+							className="text-muted-foreground"
+							data-testid="checkout-legacy-gift-card-adjustment-label"
+						>
+							{legacyGiftCardAdjustment.label}
+						</span>
+						<span
+							className="text-amber-700 tabular-nums dark:text-amber-400"
+							data-testid="checkout-legacy-gift-card-adjustment-amount"
+						>
+							{legacyGiftCardAdjustment.signedAmount}
+						</span>
+					</div>
+				)}
 				{storeCredit > 0 && (
 					<div className="flex justify-between text-sm">
 						<span className="text-muted-foreground">Store credit</span>
@@ -689,7 +747,10 @@ function OrderSummary({
 				)}
 				<div className="flex justify-between border-border/40 border-t pt-3">
 					<span className="font-bold text-foreground">Total</span>
-					<span className="font-bold font-display text-foreground text-lg tabular-nums">
+					<span
+						className="font-bold font-display text-foreground text-lg tabular-nums"
+						data-testid="checkout-order-total"
+					>
 						{fmt(total)}
 					</span>
 				</div>
@@ -728,7 +789,6 @@ const CheckoutPage = observer(function CheckoutPage() {
 	const [shippingRates, setShippingRates] = useState<ShippingRate[]>([]);
 	const [selectedRate, setSelectedRate] = useState<string | null>(null);
 	const [discountCode, setDiscountCode] = useState("");
-	const [giftCardCode, setGiftCardCode] = useState("");
 	const [storeCreditApplied, setStoreCreditApplied] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [paymentClientSecret, setPaymentClientSecret] = useState<string | null>(
@@ -775,11 +835,6 @@ const CheckoutPage = observer(function CheckoutPage() {
 		.module("checkout")
 		.store["/checkout/sessions/:id/discount/remove"].useMutation({
 			onError: () => setError("Failed to remove discount"),
-		});
-	const applyGiftCardMut = client
-		.module("checkout")
-		.store["/checkout/sessions/:id/gift-card"].useMutation({
-			onError: () => setError("Invalid gift card code"),
 		});
 	const removeGiftCardMut = client
 		.module("checkout")
@@ -1353,29 +1408,6 @@ const CheckoutPage = observer(function CheckoutPage() {
 		}
 	}, [co, session, removeDiscountMut]);
 
-	// ── Apply gift card
-	const handleApplyGiftCard = useCallback(
-		async (code: string) => {
-			if (!co.sessionId || !session) return;
-			setError(null);
-			try {
-				const result: SessionResult = await applyGiftCardMut.mutateAsync({
-					params: { id: co.sessionId },
-					expectedRevision: session.revision,
-					code,
-				});
-				const sess = result.session;
-				if (sess) {
-					setSession(sess);
-					setGiftCardCode(code.toUpperCase());
-				}
-			} catch {
-				// Error handled by mutation onError
-			}
-		},
-		[co, session, applyGiftCardMut],
-	);
-
 	// ── Remove gift card
 	const handleRemoveGiftCard = useCallback(async () => {
 		if (!co.sessionId || !session) return;
@@ -1388,7 +1420,6 @@ const CheckoutPage = observer(function CheckoutPage() {
 			const sess = result.session;
 			if (sess) {
 				setSession(sess);
-				setGiftCardCode("");
 			}
 		} catch {
 			// Error handled by mutation onError
@@ -2067,10 +2098,8 @@ const CheckoutPage = observer(function CheckoutPage() {
 							onApplyDiscount={handleApplyDiscount}
 							onRemoveDiscount={handleRemoveDiscount}
 							applyingDiscount={applyDiscountMut.isPending}
-							giftCardCode={giftCardCode}
-							onApplyGiftCard={handleApplyGiftCard}
+							giftCardCode={session?.giftCardCode}
 							onRemoveGiftCard={handleRemoveGiftCard}
-							applyingGiftCard={applyGiftCardMut.isPending}
 							storeCreditBalance={storeCreditData?.balance ?? 0}
 							storeCreditApplied={storeCreditApplied}
 							onApplyStoreCredit={handleApplyStoreCredit}

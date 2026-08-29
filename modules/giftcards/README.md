@@ -21,7 +21,7 @@
 
 # Gift Cards Module
 
-Gift card system for 86d commerce: purchasing, gifting, top-ups, balance management, bulk issuance, analytics, and transactionally locked redemption internals.
+Read-only gift card records, balance and status lookup, owned-card delivery metadata, and analytics for 86d commerce. Issuance, purchase, top-up, credit, redemption, status mutation, and deletion are unavailable until complete Workflows own those operations with durable evidence.
 
 ## Installation
 
@@ -34,96 +34,74 @@ npm install @86d-app/giftcards
 ```ts
 import giftCards from "@86d-app/giftcards";
 
-const module = giftCards({
-  defaultCurrency: "USD",
-  maxBalance: 50000,
-  denominations: "1000,2500,5000,10000",
-  maxBulkCount: 100,
-});
+const module = giftCards();
 ```
 
 ## Configuration
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `defaultCurrency` | `string` | `"USD"` | Default currency for new gift cards |
-| `maxBalance` | `number` | — | Maximum allowed balance per card |
-| `denominations` | `string` | — | Comma-separated allowed amounts (e.g. `"1000,2500,5000"`) |
-| `maxBulkCount` | `number` | `100` | Maximum cards per bulk creation |
+The contained projection has no Module-specific configuration.
 
 ## Store Endpoints
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | `GET` | `/gift-cards/check?code=...` | No | Check balance and status by code |
-| `POST` | `/gift-cards/purchase` | Yes | Purchase a new gift card (for self or as gift) |
-| `POST` | `/gift-cards/send` | Yes | Send an owned gift card to a recipient via email |
+| `POST` | `/gift-cards/send` | Yes | Record intended email-delivery metadata for an owned card without confirming delivery |
 | `GET` | `/gift-cards/my-cards` | Yes | List authenticated customer's gift cards |
-| `POST` | `/gift-cards/top-up` | Yes | Add balance to an owned gift card |
 
 ## Admin Endpoints
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/admin/gift-cards` | List all gift cards (filterable by status, customerId) |
-| `POST` | `/admin/gift-cards/create` | Issue a new gift card |
-| `POST` | `/admin/gift-cards/bulk-create` | Create multiple gift cards at once |
+| `GET` | `/admin/gift-cards` | List gift cards with server-wide search, status filtering, sorting, and pagination |
 | `GET` | `/admin/gift-cards/stats` | Get gift card analytics and statistics |
-| `POST` | `/admin/gift-cards/disable-expired` | Batch disable all expired cards |
 | `GET` | `/admin/gift-cards/:id` | Get a gift card by ID |
-| `POST` | `/admin/gift-cards/:id/update` | Update gift card details |
-| `POST` | `/admin/gift-cards/:id/delete` | Delete a gift card and its transactions |
-| `POST` | `/admin/gift-cards/:id/credit` | Add balance to a card (refund/bonus) |
 | `GET` | `/admin/gift-cards/:id/transactions` | List transactions for a card |
+
+The store admin overview is read-only. Its searchable, sortable record table
+persists status, sort, search, and column-visibility preferences in the browser,
+and opens card balances and transaction history without exposing mutation
+controls.
 
 ## Controller API
 
 ```ts
 interface GiftCardController {
-  // Core CRUD
-  create(params: CreateGiftCardParams): Promise<GiftCard>;
   get(id: string): Promise<GiftCard | null>;
   getByCode(code: string): Promise<GiftCard | null>;
   list(params?: { status?; customerId?; take?; skip? }): Promise<GiftCard[]>;
-  update(id: string, data: Partial<Pick<GiftCard, "status" | "expiresAt" | "note" | "recipientEmail" | "recipientName" | "delivered" | "deliveredAt">>): Promise<GiftCard | null>;
-  delete(id: string): Promise<boolean>;
+  listAdminPage(params?: {
+    status?: string;
+    customerId?: string;
+    search?: string;
+    sort?: "code" | "balance" | "status" | "recipient" | "createdAt";
+    direction?: "asc" | "desc";
+    take?: number;
+    skip?: number;
+  }): Promise<{ cards: GiftCard[]; total: number }>;
   countAll(): Promise<number>;
 
-  // Balance operations
   checkBalance(code: string): Promise<{ balance; currency; status } | null>;
-  redeem(code: string, amount: number, orderId?: string): Promise<RedeemResult | null>;
-  credit(id: string, amount: number, note?: string, orderId?: string): Promise<RedeemResult | null>;
   listTransactions(giftCardId: string, params?: { take?; skip? }): Promise<GiftCardTransaction[]>;
 
-  // Customer-facing
-  purchase(params: PurchaseGiftCardParams): Promise<GiftCard>;
-  topUp(params: TopUpParams): Promise<RedeemResult | null>;
   sendGiftCard(params: SendGiftCardParams): Promise<GiftCard | null>;
   listByCustomer(customerId: string, params?: { take?; skip? }): Promise<GiftCard[]>;
-
-  // Admin operations
-  bulkCreate(params: BulkCreateParams): Promise<GiftCard[]>;
   getStats(): Promise<GiftCardStats>;
-  disableExpired(): Promise<number>;
 }
 ```
 
-`redeem()` is an internal orchestration primitive. It fails closed without transactional row locking. The module does not expose standalone redemption, and its Checkout capability returns an unavailable decision until a complete Checkout Workflow can coordinate the debit and Order with durable evidence and closed repair behavior.
+The controller intentionally has no money or destructive mutation primitive. Store and admin transports expose only the non-money operations listed above, and the Checkout capability returns an unavailable decision for both application and redemption until a complete Checkout Workflow can coordinate the discount, debit, Payment, and Order with durable evidence, idempotency, and closed repair behavior. Legacy card and transaction fields remain readable so existing records can be inspected.
 
 ## Types
 
 ```ts
-type GiftCardStatus = "active" | "disabled" | "expired" | "depleted";
-type TransactionType = "debit" | "credit" | "purchase" | "topup";
-type DeliveryMethod = "email" | "physical" | "digital";
-
 interface GiftCard {
   id: string;
-  code: string;                    // GIFT-XXXX-XXXX-XXXX
+  code: string;                    // common legacy format: GIFT-XXXX-XXXX-XXXX
   initialBalance: number;
   currentBalance: number;
   currency: string;
-  status: GiftCardStatus;
+  status: string;                  // common: active, disabled, expired, depleted
   expiresAt?: string;
   recipientEmail?: string;
   recipientName?: string;
@@ -132,7 +110,7 @@ interface GiftCard {
   senderName?: string;
   senderEmail?: string;
   message?: string;                // personal message
-  deliveryMethod?: DeliveryMethod;
+  deliveryMethod?: string;         // common: email, physical, digital
   delivered?: boolean;
   deliveredAt?: Date;
   scheduledDeliveryAt?: string;
@@ -145,7 +123,7 @@ interface GiftCard {
 interface GiftCardTransaction {
   id: string;
   giftCardId: string;
-  type: TransactionType;
+  type: string;                    // common: debit, credit, purchase, topup
   amount: number;
   balanceAfter: number;
   orderId?: string;
@@ -180,10 +158,10 @@ Balance checker — customer enters code to check balance.
 
 ## Notes
 
-- Gift card codes use uppercase alphanumeric characters, excluding ambiguous chars (0/O/1/I/L)
+- Legacy records commonly use uppercase `GIFT-XXXX-XXXX-XXXX` codes; this contained projection accepts arbitrary stored strings and does not generate codes
 - Balance check (`/gift-cards/check`) is public — no authentication required
-- Standalone gift card redemption is not exposed
+- Gift card money and destructive mutations are not exposed through Store, admin, or controller surfaces
 - Authenticated store endpoints derive customer identity from the session
-- Purchasing a gift card for someone else does not assign `customerId` — only `purchasedByCustomerId` is set
-- Cards that have already been delivered cannot be re-sent to prevent forwarding abuse
-- The `disableExpired` admin endpoint is idempotent — only active cards with past expiration are affected
+- `sendGiftCard()` records intended delivery metadata but does not itself deliver a message or set `delivered`/`deliveredAt`; the endpoint returns `deliveryMetadataRecorded: true` and `delivered: false`, and it fails closed without owner-local row locking
+- Expired cards and cards with any existing delivery marker cannot be recorded again, which prevents forwarding and partial-state overwrite through this surface
+- Legacy money fields and transaction types are retained only for read compatibility

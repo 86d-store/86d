@@ -6,7 +6,7 @@ export type GiftCard = {
 	initialBalance: number;
 	currentBalance: number;
 	currency: string;
-	status: "active" | "disabled" | "expired" | "depleted";
+	status: string;
 	expiresAt?: string | undefined;
 	recipientEmail?: string | undefined;
 	recipientName?: string | undefined;
@@ -15,7 +15,7 @@ export type GiftCard = {
 	senderName?: string | undefined;
 	senderEmail?: string | undefined;
 	message?: string | undefined;
-	deliveryMethod?: "email" | "physical" | "digital" | undefined;
+	deliveryMethod?: string | undefined;
 	delivered?: boolean | undefined;
 	deliveredAt?: Date | undefined;
 	scheduledDeliveryAt?: string | undefined;
@@ -28,54 +28,13 @@ export type GiftCard = {
 export type GiftCardTransaction = {
 	id: string;
 	giftCardId: string;
-	type: "debit" | "credit" | "purchase" | "topup";
+	type: string;
 	amount: number;
 	balanceAfter: number;
 	orderId?: string | undefined;
 	customerId?: string | undefined;
 	note?: string | undefined;
 	createdAt: Date;
-};
-
-export type CreateGiftCardParams = {
-	initialBalance: number;
-	currency?: string | undefined;
-	expiresAt?: string | undefined;
-	recipientEmail?: string | undefined;
-	recipientName?: string | undefined;
-	customerId?: string | undefined;
-	purchasedByCustomerId?: string | undefined;
-	senderName?: string | undefined;
-	senderEmail?: string | undefined;
-	message?: string | undefined;
-	deliveryMethod?: "email" | "physical" | "digital" | undefined;
-	scheduledDeliveryAt?: string | undefined;
-	purchaseOrderId?: string | undefined;
-	note?: string | undefined;
-};
-
-export type PurchaseGiftCardParams = {
-	amount: number;
-	currency?: string | undefined;
-	/** Purchasing customer ID (derived from session) */
-	customerId: string;
-	/** Purchasing customer email (derived from session) */
-	customerEmail: string;
-	/** If buying as a gift */
-	recipientEmail?: string | undefined;
-	recipientName?: string | undefined;
-	senderName?: string | undefined;
-	message?: string | undefined;
-	deliveryMethod?: "email" | "digital" | undefined;
-	scheduledDeliveryAt?: string | undefined;
-};
-
-export type TopUpParams = {
-	/** Gift card ID */
-	giftCardId: string;
-	/** Customer performing the top-up (derived from session) */
-	customerId: string;
-	amount: number;
 };
 
 export type SendGiftCardParams = {
@@ -89,14 +48,6 @@ export type SendGiftCardParams = {
 	message?: string | undefined;
 };
 
-export type BulkCreateParams = {
-	count: number;
-	initialBalance: number;
-	currency?: string | undefined;
-	expiresAt?: string | undefined;
-	note?: string | undefined;
-};
-
 export type GiftCardStats = {
 	totalIssued: number;
 	totalActive: number;
@@ -108,14 +59,35 @@ export type GiftCardStats = {
 	totalOutstandingBalance: number;
 };
 
-export type RedeemResult = {
-	transaction: GiftCardTransaction;
-	giftCard: GiftCard;
+export const GIFT_CARD_ADMIN_SORT_FIELDS = [
+	"code",
+	"balance",
+	"status",
+	"recipient",
+	"createdAt",
+] as const;
+
+export type GiftCardAdminSortField =
+	(typeof GIFT_CARD_ADMIN_SORT_FIELDS)[number];
+
+export type GiftCardSortDirection = "asc" | "desc";
+
+export type GiftCardAdminListParams = {
+	status?: string | undefined;
+	customerId?: string | undefined;
+	search?: string | undefined;
+	sort?: GiftCardAdminSortField | undefined;
+	direction?: GiftCardSortDirection | undefined;
+	take?: number | undefined;
+	skip?: number | undefined;
+};
+
+export type GiftCardAdminListPage = {
+	cards: GiftCard[];
+	total: number;
 };
 
 export type GiftCardController = ModuleController & {
-	create(params: CreateGiftCardParams): Promise<GiftCard>;
-
 	get(id: string): Promise<GiftCard | null>;
 
 	getByCode(code: string): Promise<GiftCard | null>;
@@ -127,42 +99,16 @@ export type GiftCardController = ModuleController & {
 		skip?: number | undefined;
 	}): Promise<GiftCard[]>;
 
-	update(
-		id: string,
-		data: Partial<
-			Pick<
-				GiftCard,
-				| "status"
-				| "expiresAt"
-				| "note"
-				| "recipientEmail"
-				| "recipientName"
-				| "delivered"
-				| "deliveredAt"
-			>
-		>,
-	): Promise<GiftCard | null>;
-
-	delete(id: string): Promise<boolean>;
+	/** Query one admin page after applying filters and ordering to all records */
+	listAdminPage(
+		params?: GiftCardAdminListParams,
+	): Promise<GiftCardAdminListPage>;
 
 	checkBalance(code: string): Promise<{
 		balance: number;
 		currency: string;
 		status: string;
 	} | null>;
-
-	redeem(
-		code: string,
-		amount: number,
-		orderId?: string | undefined,
-	): Promise<RedeemResult | null>;
-
-	credit(
-		id: string,
-		amount: number,
-		note?: string | undefined,
-		orderId?: string | undefined,
-	): Promise<RedeemResult | null>;
 
 	listTransactions(
 		giftCardId: string,
@@ -174,13 +120,7 @@ export type GiftCardController = ModuleController & {
 
 	countAll(): Promise<number>;
 
-	/** Purchase a gift card (customer-facing) */
-	purchase(params: PurchaseGiftCardParams): Promise<GiftCard>;
-
-	/** Top up an existing gift card */
-	topUp(params: TopUpParams): Promise<RedeemResult | null>;
-
-	/** Send a gift card to a recipient via email */
+	/** Record intended email-delivery metadata without confirming delivery */
 	sendGiftCard(params: SendGiftCardParams): Promise<GiftCard | null>;
 
 	/** List gift cards for a specific customer */
@@ -192,12 +132,6 @@ export type GiftCardController = ModuleController & {
 		},
 	): Promise<GiftCard[]>;
 
-	/** Bulk create gift cards (admin) */
-	bulkCreate(params: BulkCreateParams): Promise<GiftCard[]>;
-
 	/** Get gift card statistics (admin) */
 	getStats(): Promise<GiftCardStats>;
-
-	/** Disable all expired gift cards */
-	disableExpired(): Promise<number>;
 };

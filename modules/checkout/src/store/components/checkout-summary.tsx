@@ -5,7 +5,12 @@ import { type FormEvent, useState } from "react";
 import type { CheckoutLineItem } from "../../service";
 import { checkoutState } from "../../state";
 import { useCheckoutApi } from "./_hooks";
-import { formatPrice } from "./_utils";
+import {
+	formatPrice,
+	hasRetainedLegacyGiftCard,
+	legacyGiftCardAdjustmentPresentation,
+	legacyGiftCardRecoveryLabel,
+} from "./_utils";
 import CheckoutSummaryTemplate from "./checkout-summary.mdx";
 
 interface SummarySession {
@@ -21,7 +26,7 @@ interface SummarySession {
 	giftCardCode?: string | null;
 }
 
-/** Sidebar showing line items, totals, and promo/gift card/store credit entry. */
+/** Sidebar for totals, promo/store-credit entry, and legacy gift-card removal. */
 export const CheckoutSummary = observer(() => {
 	const api = useCheckoutApi();
 	const sessionId = checkoutState.sessionId;
@@ -40,8 +45,6 @@ export const CheckoutSummary = observer(() => {
 
 	const [promoCode, setPromoCode] = useState("");
 	const [promoError, setPromoError] = useState("");
-	const [giftCode, setGiftCode] = useState("");
-	const [giftError, setGiftError] = useState("");
 	const [storeCreditError, setStoreCreditError] = useState("");
 
 	const applyDiscountMutation = api.applyDiscount.useMutation({
@@ -57,17 +60,6 @@ export const CheckoutSummary = observer(() => {
 
 	const removeDiscountMutation = api.removeDiscount.useMutation({
 		onSuccess: () => void api.getSession.invalidate(),
-	});
-
-	const applyGiftCardMutation = api.applyGiftCard.useMutation({
-		onSuccess: () => {
-			setGiftCode("");
-			setGiftError("");
-			void api.getSession.invalidate();
-		},
-		onError: () => {
-			setGiftError("Invalid gift card code.");
-		},
 	});
 
 	const removeGiftCardMutation = api.removeGiftCard.useMutation({
@@ -105,18 +97,6 @@ export const CheckoutSummary = observer(() => {
 		removeDiscountMutation.mutate({
 			params: { id: sessionId },
 			expectedRevision: session.revision,
-		});
-	};
-
-	const handleApplyGiftCard = (e: FormEvent) => {
-		e.preventDefault();
-		const code = giftCode.trim();
-		if (!code || !sessionId || !session) return;
-		setGiftError("");
-		applyGiftCardMutation.mutate({
-			params: { id: sessionId },
-			expectedRevision: session.revision,
-			code,
 		});
 	};
 
@@ -166,7 +146,14 @@ export const CheckoutSummary = observer(() => {
 			giftCardAmount={
 				session.giftCardAmount > 0 ? formatPrice(session.giftCardAmount) : null
 			}
-			giftCardCode={session.giftCardCode ?? null}
+			legacyGiftCardAdjustment={legacyGiftCardAdjustmentPresentation(
+				session.giftCardAmount,
+			)}
+			giftCardLabel={legacyGiftCardRecoveryLabel(session.giftCardCode)}
+			showGiftCardRecovery={hasRetainedLegacyGiftCard({
+				giftCardCode: session.giftCardCode,
+				giftCardAmount: session.giftCardAmount,
+			})}
 			storeCreditAmount={
 				session.storeCreditAmount > 0
 					? formatPrice(session.storeCreditAmount)
@@ -176,9 +163,6 @@ export const CheckoutSummary = observer(() => {
 			promoCode={promoCode}
 			promoError={promoError}
 			promoLoading={applyDiscountMutation.isPending}
-			giftCode={giftCode}
-			giftError={giftError}
-			giftLoading={applyGiftCardMutation.isPending}
 			storeCreditError={storeCreditError}
 			storeCreditLoading={
 				applyStoreCreditMutation.isPending ||
@@ -187,8 +171,6 @@ export const CheckoutSummary = observer(() => {
 			onPromoCodeChange={setPromoCode}
 			onApplyPromo={handleApplyPromo}
 			onRemovePromo={handleRemovePromo}
-			onGiftCodeChange={setGiftCode}
-			onApplyGiftCard={handleApplyGiftCard}
 			onRemoveGiftCard={handleRemoveGiftCard}
 			onApplyStoreCredit={handleApplyStoreCredit}
 			onRemoveStoreCredit={handleRemoveStoreCredit}

@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "~/lib/utils";
+import { cn } from "./lib/utils";
 import { Button as ButtonPrimitive } from "./shadcn/button";
 
 export const buttonVariants = cva("", {

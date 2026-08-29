@@ -3,7 +3,6 @@ import {
 	cartSnapshotCapability,
 	customerIdentityResolveCapability,
 	discountCodeCapability,
-	giftCardCheckoutCapability,
 	inventoryCheckoutCapability,
 	orderCreateCapability,
 	paymentCheckoutCapability,
@@ -62,7 +61,6 @@ export type {
 	CheckoutSession,
 	CheckoutStatus,
 	DiscountController,
-	GiftCardCheckController,
 	InventoryCheckController,
 	PaymentProcessController,
 	ShippingRateController,
@@ -88,7 +86,8 @@ export interface CheckoutOptions extends ModuleConfig {
  *
  * Accepts required Product resolution and Order creation capabilities, plus
  * explicit optional capabilities for Inventory, Tax, Shipping, Discounts,
- * Gift Cards, Store Credits, Payments, Price Lists, and Multi-currency.
+ * Store Credits, Payments, Price Lists, and Multi-currency. Gift-card
+ * application remains withdrawn until its complete Workflow exists.
  * Providers remain authoritative and receive only their owner-scoped context.
  */
 export default function checkout(options?: CheckoutOptions): Module {
@@ -120,10 +119,6 @@ export default function checkout(options?: CheckoutOptions): Module {
 					operations: ["validate"],
 					optional: true,
 				}),
-				acceptCapability(giftCardCheckoutCapability, {
-					operations: ["balance"],
-					optional: true,
-				}),
 				acceptCapability(storeCreditCheckoutCapability, {
 					operations: ["balance"],
 					optional: true,
@@ -151,10 +146,6 @@ export default function checkout(options?: CheckoutOptions): Module {
 			},
 			inventory: {
 				read: ["stockQuantity", "stockAvailability"],
-				optional: true,
-			},
-			"gift-cards": {
-				read: ["giftCardBalance", "giftCardStatus"],
 				optional: true,
 			},
 			payments: {

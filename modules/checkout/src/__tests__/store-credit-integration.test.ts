@@ -2,6 +2,7 @@ import { createMockDataService } from "@86d-app/core/test-utils";
 import { describe, expect, it } from "vitest";
 import type { CheckoutLineItem, StoreCreditCheckController } from "../service";
 import { createCheckoutController } from "../service-impl";
+import { seedLegacyStoredGiftCard } from "./legacy-gift-card-test-utils";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -72,7 +73,8 @@ describe("applyStoreCredit", () => {
 	});
 
 	it("works alongside a gift card (all three deductions stack)", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
+		const data = createMockDataService();
+		const ctrl = createCheckoutController(data);
 		const session = await ctrl.create(makeSession());
 
 		await ctrl.applyDiscount(session.id, {
@@ -80,9 +82,9 @@ describe("applyStoreCredit", () => {
 			discountAmount: 200,
 			freeShipping: false,
 		});
-		await ctrl.applyGiftCard(session.id, {
+		await seedLegacyStoredGiftCard(data, session.id, {
 			code: "GIFT-ABCD",
-			giftCardAmount: 500,
+			amount: 500,
 		});
 		const updated = await ctrl.applyStoreCredit(session.id, {
 			storeCreditAmount: 300,
@@ -132,7 +134,8 @@ describe("removeStoreCredit", () => {
 	});
 
 	it("preserves discount and gift card when removing store credit", async () => {
-		const ctrl = createCheckoutController(createMockDataService());
+		const data = createMockDataService();
+		const ctrl = createCheckoutController(data);
 		const session = await ctrl.create(makeSession());
 
 		await ctrl.applyDiscount(session.id, {
@@ -140,9 +143,9 @@ describe("removeStoreCredit", () => {
 			discountAmount: 500,
 			freeShipping: false,
 		});
-		await ctrl.applyGiftCard(session.id, {
+		await seedLegacyStoredGiftCard(data, session.id, {
 			code: "GIFT-1234",
-			giftCardAmount: 600,
+			amount: 600,
 		});
 		await ctrl.applyStoreCredit(session.id, { storeCreditAmount: 400 });
 

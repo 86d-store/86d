@@ -7,14 +7,14 @@ import {
 import { inventoryCheckoutV2Capability } from "@86d-app/core/inventory-reservation-capability";
 import { createMockTransactionRunner } from "@86d-app/core/test-utils";
 import { getProcessEnv, setProcessEnv } from "env/process-env";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createCheckoutFinalizationStore } from "../finalization";
 import {
 	createCheckoutFinalizationHandlers,
 	createCheckoutFinalizationTransport,
-	handlePaymentConnection,
 	isPaymentLiveActivated,
 } from "../finalizer-handlers";
+import type { CheckoutSession } from "../service";
 import { createCheckoutController } from "../service-impl";
 import { createTransactionTestStore } from "./transaction-test-utils";
 
@@ -27,6 +27,27 @@ const address = {
 	postalCode: "78701",
 	country: "US",
 };
+
+const legacyGiftCardCases: ReadonlyArray<{
+	label: string;
+	fields: Partial<Pick<CheckoutSession, "giftCardAmount" | "giftCardCode">>;
+}> = [
+	{ label: "stored code", fields: { giftCardCode: "GIFT-LEGACY" } },
+	{ label: "stored amount", fields: { giftCardAmount: 1_000 } },
+];
+
+const resumableExecutableSteps = [
+	"checkout_revision",
+	"accepted_offer",
+	"shipping_and_tax",
+	"inventory",
+	"payment_connection",
+	"payment_outcome",
+	"order",
+	"commerce_commit",
+	"payment_settlement",
+	"checkout_completion",
+] as const;
 
 function paypalConnection(
 	overrides: Partial<{
@@ -195,6 +216,171 @@ function taxOnlyInvoker(
 }
 
 describe("Checkout finalization handlers", () => {
+	it("keeps payment step helpers private behind the contained handler factory", async () => {
+		const finalizerHandlersModule = await import("../finalizer-handlers");
+		expect(finalizerHandlersModule).not.toHaveProperty(
+			"handlePaymentConnection",
+		);
+		expect(finalizerHandlersModule).not.toHaveProperty("handlePaymentOutcome");
+		expect(finalizerHandlersModule).not.toHaveProperty(
+			"handlePaymentSettlement",
+		);
+	});
+
+	it.each(legacyGiftCardCases)(
+		"contains a legacy gift-card $label before capabilities or completion",
+		async ({ fields }) => {
+			const storage = createTransactionTestStore();
+			const checkout = createCheckoutController(storage.data);
+			await checkout.create({
+				id: "checkout-1",
+				subtotal: 1_000,
+				total: 0,
+				discountAmount: 1_000,
+				lineItems: [
+					{ productId: "p1", name: "Widget", price: 1_000, quantity: 1 },
+				],
+				shippingAddress: address,
+			});
+			const stored = await storage.data.get("checkoutSession", "checkout-1");
+			if (!stored) throw new Error("Expected the Checkout fixture to exist");
+			await storage.data.upsert("checkoutSession", "checkout-1", {
+				...stored,
+				...fields,
+			});
+
+			const capabilities: CapabilityInvoker = {
+				async invoke() {
+					throw new Error("Legacy gift-card containment must run first");
+				},
+			};
+			const store = createCheckoutFinalizationStore(storage.transactions);
+			const admitted = await store.admit(admission());
+			const handlers = createCheckoutFinalizationHandlers({
+				checkout,
+				capabilities,
+			});
+
+			const run = await createCheckoutFinalizationTransport({
+				store,
+				handlers,
+			}).run({ finalizationId: admitted.finalization.id });
+
+			expect(run.finalization).toMatchObject({
+				state: "needs_attention",
+				currentStep: "checkout_revision",
+				needsAttention: { code: "GIFT_CARD_WORKFLOW_REQUIRED" },
+				result: {},
+			});
+			const unchanged = await checkout.getById("checkout-1");
+			expect(unchanged?.status).toBe("pending");
+			expect(unchanged?.orderId).toBeUndefined();
+		},
+	);
+
+	it.each(
+		legacyGiftCardCases.flatMap(({ label, fields }) =>
+			resumableExecutableSteps.map((step) => ({ label, fields, step })),
+		),
+	)(
+		"contains a legacy gift-card $label when resuming at $step",
+		async ({ fields, step }) => {
+			const storage = createTransactionTestStore();
+			const checkout = createCheckoutController(storage.data);
+			await checkout.create({
+				id: "checkout-1",
+				subtotal: 1_000,
+				total: 0,
+				discountAmount: 1_000,
+				lineItems: [
+					{ productId: "p1", name: "Widget", price: 1_000, quantity: 1 },
+				],
+				shippingAddress: address,
+			});
+			const stored = await storage.data.get("checkoutSession", "checkout-1");
+			if (!stored) throw new Error("Expected the Checkout fixture to exist");
+			await storage.data.upsert("checkoutSession", "checkout-1", {
+				...stored,
+				...fields,
+			});
+
+			const store = createCheckoutFinalizationStore(storage.transactions);
+			const admitted = await store.admit(admission());
+			let seededFinalization = admitted.finalization;
+			const resumeIndex = resumableExecutableSteps.indexOf(step);
+			for (let index = 0; index < resumeIndex; index += 1) {
+				const currentStep = resumableExecutableSteps[index];
+				const nextStep = resumableExecutableSteps[index + 1];
+				if (!currentStep || !nextStep) {
+					throw new Error("Expected a valid Finalization checkpoint pair");
+				}
+				const recorded = await store.recordAttempt({
+					finalizationId: seededFinalization.id,
+					attemptKey: `resume-seed:${currentStep}:${seededFinalization.attemptCount}`,
+					expectedAttemptCount: seededFinalization.attemptCount,
+					expectedState:
+						seededFinalization.state === "pending" ? "pending" : "running",
+					expectedStep: currentStep,
+					outcome: { type: "advanced", nextStep },
+					...(currentStep === "order"
+						? { result: { orderId: "order-resume-seed" } }
+						: {}),
+				});
+				seededFinalization = recorded.finalization;
+			}
+			expect(seededFinalization.currentStep).toBe(step);
+
+			const invoke = vi.fn(async () => {
+				throw new Error(
+					"A contained Finalization must not invoke a capability",
+				);
+			});
+			const getConnection = vi.fn(async () => {
+				throw new Error("A contained Finalization must not read a Connection");
+			});
+			const getPayment = vi.fn(async () => {
+				throw new Error("A contained Finalization must not read a Payment");
+			});
+			const submitOperation = vi.fn(async () => {
+				throw new Error("A contained Finalization must not submit a Payment");
+			});
+			const resolvePaymentAggregate = vi.fn(async () => {
+				throw new Error("A contained Finalization must not resolve a Payment");
+			});
+			const getLineItems = vi.spyOn(checkout, "getLineItems");
+			const update = vi.spyOn(checkout, "update");
+			const complete = vi.spyOn(checkout, "complete");
+			const handlers = createCheckoutFinalizationHandlers({
+				checkout,
+				capabilities: { invoke } as unknown as CapabilityInvoker,
+				paymentConnections: { getConnection },
+				paymentAggregates: { get: getPayment },
+				managedPaymentClient: { configured: true, submitOperation },
+				resolvePaymentAggregate,
+			});
+
+			const run = await createCheckoutFinalizationTransport({
+				store,
+				handlers,
+			}).run({ finalizationId: admitted.finalization.id });
+
+			expect(run.attemptsRecorded).toBe(1);
+			expect(run.finalization).toMatchObject({
+				state: "needs_attention",
+				currentStep: step,
+				needsAttention: { code: "GIFT_CARD_WORKFLOW_REQUIRED" },
+			});
+			expect(invoke).not.toHaveBeenCalled();
+			expect(getConnection).not.toHaveBeenCalled();
+			expect(getPayment).not.toHaveBeenCalled();
+			expect(submitOperation).not.toHaveBeenCalled();
+			expect(resolvePaymentAggregate).not.toHaveBeenCalled();
+			expect(getLineItems).not.toHaveBeenCalled();
+			expect(update).not.toHaveBeenCalled();
+			expect(complete).not.toHaveBeenCalled();
+		},
+	);
+
 	it("stops at shipping_and_tax with TAX_REVIEW_REQUIRED and never invents zero tax", async () => {
 		const storage = createTransactionTestStore();
 		const checkout = createCheckoutController(storage.data);
@@ -389,18 +575,20 @@ describe("Checkout finalization handlers", () => {
 		const admitted = await store.admit(admission());
 		const finalization = admitted.finalization;
 
-		const outcome = await handlePaymentConnection(
-			{
-				checkout,
-				capabilities: taxOnlyInvoker("CALCULATED"),
-				paymentConnections: {
-					async getConnection() {
-						return null;
-					},
+		const handler = createCheckoutFinalizationHandlers({
+			checkout,
+			capabilities: taxOnlyInvoker("CALCULATED"),
+			paymentConnections: {
+				async getConnection() {
+					return null;
 				},
 			},
+		}).payment_connection;
+		if (!handler) throw new Error("Expected a payment_connection handler");
+		const outcome = await handler({
 			finalization,
-		);
+			step: "payment_connection",
+		});
 
 		expect(outcome.outcome).toMatchObject({
 			type: "needs_attention",

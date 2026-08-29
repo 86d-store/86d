@@ -5,7 +5,7 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { readProcessEnv } from "env/process-env";
 import { copyPackageAssets } from "../copy-package-assets.js";
@@ -24,6 +24,8 @@ export function buildModule(args: string[]): void {
 		error(`No tsconfig.json in ${pkgDir}`);
 		process.exit(1);
 	}
+
+	rmSync(join(pkgDir, "dist"), { recursive: true, force: true });
 
 	info(`Building module in ${pkgDir}`);
 

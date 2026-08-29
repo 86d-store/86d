@@ -16,12 +16,13 @@ import type {
 	CheckoutFinalizationStore,
 } from "./finalization";
 import {
+	type CheckoutFinalizationStepHandler,
 	type CheckoutFinalizationStepHandlers,
 	type CheckoutFinalizationStepOutcome,
 	type CheckoutFinalizer,
 	createCheckoutFinalizer,
 } from "./finalizer";
-import type { CheckoutController } from "./service";
+import type { CheckoutController, CheckoutSession } from "./service";
 import { recalculateTax } from "./store/endpoints/recalculate-tax";
 
 const MANAGED_PAYMENT_PROVIDER = "86d_payments";
@@ -76,6 +77,19 @@ function retryable(
 	};
 }
 
+function legacyGiftCardContainment(
+	session: CheckoutSession,
+): CheckoutFinalizationStepOutcome | undefined {
+	if (session.giftCardCode === undefined && session.giftCardAmount === 0) {
+		return undefined;
+	}
+
+	return needsAttention(
+		"GIFT_CARD_WORKFLOW_REQUIRED",
+		"A legacy gift-card application cannot be finalized without coordinated redemption evidence.",
+	);
+}
+
 export function isManagedPaymentProvider(provider: string): boolean {
 	return provider === MANAGED_PAYMENT_PROVIDER;
 }
@@ -124,9 +138,27 @@ export function createCheckoutFinalizationHandlers(
 	deps: CheckoutFinalizationHandlerDependencies,
 ): CheckoutFinalizationStepHandlers {
 	const leaseSeconds = deps.reservationLeaseSeconds ?? 900;
+	const containLegacyGiftCard = (
+		handler: CheckoutFinalizationStepHandler,
+	): CheckoutFinalizationStepHandler => {
+		return async (context) => {
+			const session = await deps.checkout.getById(
+				context.finalization.checkoutId,
+			);
+			if (!session) {
+				return needsAttention(
+					"CHECKOUT_NOT_FOUND",
+					"The Checkout session named by this Finalization is gone.",
+				);
+			}
+			const containment = legacyGiftCardContainment(session);
+			if (containment) return containment;
+			return handler(context);
+		};
+	};
 
 	return {
-		async checkout_revision({ finalization }) {
+		checkout_revision: containLegacyGiftCard(async ({ finalization }) => {
 			const session = await deps.checkout.getById(finalization.checkoutId);
 			if (!session) {
 				return needsAttention(
@@ -141,46 +173,46 @@ export function createCheckoutFinalizationHandlers(
 				);
 			}
 			return advance("checkout_revision");
-		},
+		}),
 
-		async accepted_offer({ finalization }) {
+		accepted_offer: containLegacyGiftCard(async ({ finalization }) => {
 			if (!finalization.acceptedInput.acceptedOfferId) {
 				return needsAttention("ACCEPTED_OFFER_REQUIRED");
 			}
 			return advance("accepted_offer");
-		},
+		}),
 
-		async shipping_and_tax({ finalization }) {
+		shipping_and_tax: containLegacyGiftCard(async ({ finalization }) => {
 			return handleShippingAndTax(deps, finalization);
-		},
+		}),
 
-		async inventory({ finalization }) {
+		inventory: containLegacyGiftCard(async ({ finalization }) => {
 			return handleInventory(deps, finalization, leaseSeconds);
-		},
+		}),
 
-		async payment_connection({ finalization }) {
+		payment_connection: containLegacyGiftCard(async ({ finalization }) => {
 			return handlePaymentConnection(deps, finalization);
-		},
+		}),
 
-		async payment_outcome({ finalization }) {
+		payment_outcome: containLegacyGiftCard(async ({ finalization }) => {
 			return handlePaymentOutcome(deps, finalization);
-		},
+		}),
 
-		async order({ finalization }) {
+		order: containLegacyGiftCard(async ({ finalization }) => {
 			return handleOrder(deps, finalization);
-		},
+		}),
 
-		async commerce_commit() {
+		commerce_commit: containLegacyGiftCard(async () => {
 			return advance("commerce_commit");
-		},
+		}),
 
-		async payment_settlement({ finalization }) {
+		payment_settlement: containLegacyGiftCard(async ({ finalization }) => {
 			return handlePaymentSettlement(deps, finalization);
-		},
+		}),
 
-		async checkout_completion({ finalization }) {
+		checkout_completion: containLegacyGiftCard(async ({ finalization }) => {
 			return handleCheckoutCompletion(deps, finalization);
-		},
+		}),
 	};
 }
 
@@ -225,7 +257,7 @@ async function resolvePayment(
 	return null;
 }
 
-export async function handlePaymentConnection(
+async function handlePaymentConnection(
 	deps: CheckoutFinalizationHandlerDependencies,
 	finalization: CheckoutFinalization,
 ): Promise<CheckoutFinalizationStepOutcome> {
@@ -368,7 +400,7 @@ function paymentOutcomeSatisfied(
 	return payment.capturedAmount >= payment.expectedAmount;
 }
 
-export async function handlePaymentOutcome(
+async function handlePaymentOutcome(
 	deps: CheckoutFinalizationHandlerDependencies,
 	finalization: CheckoutFinalization,
 ): Promise<CheckoutFinalizationStepOutcome> {
@@ -493,7 +525,7 @@ export async function handlePaymentOutcome(
 	return advance("payment_outcome");
 }
 
-export async function handlePaymentSettlement(
+async function handlePaymentSettlement(
 	deps: CheckoutFinalizationHandlerDependencies,
 	finalization: CheckoutFinalization,
 ): Promise<CheckoutFinalizationStepOutcome> {
@@ -581,13 +613,14 @@ async function handleOrder(
 	deps: CheckoutFinalizationHandlerDependencies,
 	finalization: CheckoutFinalization,
 ): Promise<CheckoutFinalizationStepOutcome> {
-	if (finalization.result.orderId) {
-		return advance("order");
-	}
-
 	const session = await deps.checkout.getById(finalization.checkoutId);
 	if (!session) {
 		return needsAttention("CHECKOUT_NOT_FOUND");
+	}
+	const giftCardContainment = legacyGiftCardContainment(session);
+	if (giftCardContainment) return giftCardContainment;
+	if (finalization.result.orderId) {
+		return advance("order");
 	}
 	const lineItems = await deps.checkout.getLineItems(finalization.checkoutId);
 	if (lineItems.length === 0) {
@@ -712,17 +745,19 @@ async function handleCheckoutCompletion(
 	deps: CheckoutFinalizationHandlerDependencies,
 	finalization: CheckoutFinalization,
 ): Promise<CheckoutFinalizationStepOutcome> {
+	const session = await deps.checkout.getById(finalization.checkoutId);
+	if (!session) {
+		return needsAttention("CHECKOUT_NOT_FOUND");
+	}
+	const giftCardContainment = legacyGiftCardContainment(session);
+	if (giftCardContainment) return giftCardContainment;
+
 	const orderId = finalization.result.orderId;
 	if (!orderId) {
 		return needsAttention(
 			"ORDER_REQUIRED",
 			"Checkout completion requires the Order identity from prior checkpoints.",
 		);
-	}
-
-	const session = await deps.checkout.getById(finalization.checkoutId);
-	if (!session) {
-		return needsAttention("CHECKOUT_NOT_FOUND");
 	}
 
 	if (session.status === "completed" && session.orderId === orderId) {
