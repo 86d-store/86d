@@ -1,11 +1,13 @@
 import { getSession } from "auth/actions";
 import { verifyStoreAdminAccess } from "auth/store-access";
+import { LockKeyholeIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 import { AdminShell } from "~/components/admin/shell";
+import { PageState } from "~/components/page-state";
 import { getAdminNavGroups } from "~/lib/admin-registry";
 
 export const metadata = {
-	title: "Store Admin",
+	title: "Store admin",
 };
 
 export default async function AdminLayout({
@@ -19,26 +21,13 @@ export default async function AdminLayout({
 	const access = verifyStoreAdminAccess(session.user);
 	if (!access.hasAccess) {
 		return (
-			<div className="flex min-h-svh items-center justify-center bg-background p-4">
-				<div className="mx-auto max-w-md text-center">
-					<p className="font-bold font-mono text-6xl text-muted-foreground">
-						403
-					</p>
-					<h1 className="mt-4 font-semibold text-foreground text-xl">
-						Access denied
-					</h1>
-					<p className="mt-2 text-muted-foreground text-sm">
-						You don&apos;t have permission to access this store&apos;s admin
-						panel. Contact the store owner to request access.
-					</p>
-					<a
-						href="/"
-						className="mt-6 inline-block rounded-md bg-foreground px-4 py-2 font-medium text-background text-sm transition-colors hover:bg-foreground/90"
-					>
-						Go to storefront
-					</a>
-				</div>
-			</div>
+			<PageState
+				title="Store admin access needed"
+				description="Ask the store owner to give your account access to store admin. You can still visit the storefront."
+				icon={<LockKeyholeIcon aria-hidden="true" />}
+				actionHref="/"
+				actionLabel="Go to storefront"
+			/>
 		);
 	}
 

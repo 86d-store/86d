@@ -1,0 +1,57 @@
+import Link from "next/link";
+import { LogOutIcon } from "lucide-react";
+import { Text } from "@86d-app/ui/text";
+import { View } from "@86d-app/ui/view";
+import { Label } from "@86d-app/ui/shadcn/label";
+import { NativeSelect, NativeSelectOption, NativeSelectOptGroup } from "@86d-app/ui/shadcn/native-select";
+import { Separator } from "@86d-app/ui/shadcn/separator";
+import { StoreLink } from "~/components/store-action";
+import { cn } from "~/lib/utils";
+
+<View className="@container/account mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+  <header className="flex min-w-0 flex-wrap items-start justify-between gap-4">
+    <View className="flex min-w-0 flex-col gap-2">
+      <Text variant="h1" className="text-balance text-3xl lg:text-4xl">My account</Text>
+      <Text variant="p" className="text-pretty text-muted-foreground text-sm">Your orders, saved items, and account details.</Text>
+    </View>
+    <StoreLink href="/products">Continue shopping</StoreLink>
+  </header>
+  <Separator />
+  <View className="flex min-w-0 flex-col gap-8 lg:flex-row lg:gap-12">
+    <aside className="flex shrink-0 flex-col gap-5 lg:w-56" aria-label="Your account">
+      <View className="flex min-w-0 flex-col gap-1">
+        <Text className="truncate font-medium text-sm" title={props.userName}>{props.userName}</Text>
+        <Text className="truncate text-muted-foreground text-sm" title={props.userEmail}>{props.userEmail}</Text>
+      </View>
+      <View className="flex flex-col gap-2 lg:hidden">
+        <Label htmlFor="account-navigation">Account section</Label>
+        <NativeSelect id="account-navigation" value={props.activeHref} onChange={props.onNavigate} className="w-full [&_select]:h-11" data-testid="account-navigation-select">
+          {!props.activeHref ? <NativeSelectOption value="" disabled>Choose a section</NativeSelectOption> : null}
+          {props.groups.map((group) => (
+            <NativeSelectOptGroup key={group.label} label={group.label}>
+              {group.items.map((item) => <NativeSelectOption key={item.href} value={item.href}>{item.label}</NativeSelectOption>)}
+            </NativeSelectOptGroup>
+          ))}
+        </NativeSelect>
+      </View>
+      <nav className="hidden flex-col gap-6 lg:flex" aria-label="Account navigation">
+        {props.groups.map((group) => (
+          <View key={group.label} className="flex flex-col gap-2">
+            <Text className="px-3 font-medium text-muted-foreground text-xs">{group.label}</Text>
+            <ul className="flex flex-col gap-1">
+              {group.items.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} aria-current={item.active ? "page" : undefined} className={cn("flex min-h-10 items-center gap-3 rounded-md px-3 py-2 text-sm outline-none transition-colors duration-150 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none", item.active ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:text-foreground")}>
+                    {item.icon}{item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </View>
+        ))}
+      </nav>
+      <StoreLink href="/signout" variant="ghost" className="justify-start self-start lg:w-full"><LogOutIcon aria-hidden="true" data-icon="inline-start" />Sign out</StoreLink>
+    </aside>
+    <View className="min-w-0 flex-1">{props.children}</View>
+  </View>
+</View>

@@ -116,6 +116,7 @@
 		"@86d-app/toast": "workspace:*",
 		"@86d-app/uber-direct": "workspace:*",
 		"@86d-app/uber-eats": "workspace:*",
+		"@86d-app/ui": "workspace:*",
 		"@86d-app/vendors": "workspace:*",
 		"@86d-app/waitlist": "workspace:*",
 		"@86d-app/walmart": "workspace:*",

@@ -200,14 +200,13 @@ describe("merchant semantic color contrast", () => {
 		}
 	});
 
-	it("keeps the muted hero phrase readable at its large-text opacity", () => {
-		expect(templateHome).toContain("text-muted-foreground/70");
+	it("keeps homepage supporting copy readable at full opacity", () => {
+		expect(templateHome).toContain("text-muted-foreground");
+		expect(templateHome).not.toMatch(/text-muted-foreground\/\d+/);
 		const background = oklchToLinearRgb(
 			readProperty(storeTokens, "--neutral-25"),
 		);
 		const muted = oklchToLinearRgb(readProperty(storeTokens, "--neutral-600"));
-		expect(
-			contrast(composite(muted, background, 0.7), background),
-		).toBeGreaterThanOrEqual(3);
+		expect(contrast(muted, background)).toBeGreaterThanOrEqual(4.5);
 	});
 });

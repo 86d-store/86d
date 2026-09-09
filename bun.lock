@@ -6,7 +6,9 @@
       "name": "@86d-app/86d",
       "dependencies": {
         "@86d-app/registry": "workspace:*",
+        "@86d-app/ui": "workspace:*",
         "env": "workspace:*",
+        "lucide-react": "1.33.0",
         "tsx": "catalog:",
         "zod": "catalog:",
       },
@@ -146,6 +148,7 @@
         "@86d-app/toast": "workspace:*",
         "@86d-app/uber-direct": "workspace:*",
         "@86d-app/uber-eats": "workspace:*",
+        "@86d-app/ui": "workspace:*",
         "@86d-app/vendors": "workspace:*",
         "@86d-app/waitlist": "workspace:*",
         "@86d-app/walmart": "workspace:*",

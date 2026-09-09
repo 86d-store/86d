@@ -5,20 +5,20 @@ import { useRender } from "@base-ui/react/use-render";
 import { SidebarIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-import { useIsMobile } from "~/hooks/use-mobile";
-import { cn } from "~/lib/utils";
-import { Button } from "~/shadcn/button";
-import { Input } from "~/shadcn/input";
-import { Separator } from "~/shadcn/separator";
+import { useIsMobile } from "../hooks/use-mobile";
+import { cn } from "../lib/utils";
+import { Button } from "./button";
+import { Input } from "./input";
+import { Separator } from "./separator";
 import {
 	Sheet,
 	SheetContent,
 	SheetDescription,
 	SheetHeader,
 	SheetTitle,
-} from "~/shadcn/sheet";
-import { Skeleton } from "~/shadcn/skeleton";
-import { Tooltip, TooltipContent, TooltipTrigger } from "~/shadcn/tooltip";
+} from "./sheet";
+import { Skeleton } from "./skeleton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;

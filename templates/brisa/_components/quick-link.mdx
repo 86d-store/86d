@@ -1,0 +1,13 @@
+import { ArrowUpRight } from "lucide-react";
+import { Text } from "@86d-app/ui/text";
+import { View } from "@86d-app/ui/view";
+import Link from "next/link";
+
+<Link href={props.href} className="group flex min-h-24 items-center gap-5 rounded-lg px-4 py-5 outline-none transition-colors duration-150 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring sm:px-5">
+  <Text className="self-start pt-1 font-mono text-xs tabular-nums text-muted-foreground" aria-hidden="true">{props.number}</Text>
+  <View className="flex min-w-0 flex-1 flex-col gap-1">
+    <Text className="font-display font-medium text-lg tracking-tight">{props.title}</Text>
+    <Text className="text-pretty text-sm leading-relaxed text-muted-foreground">{props.description}</Text>
+  </View>
+  <ArrowUpRight size={20} aria-hidden="true" className="shrink-0 text-muted-foreground group-hover:text-foreground" />
+</Link>

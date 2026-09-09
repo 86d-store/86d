@@ -28,7 +28,7 @@ describe("merchant UI coverage manifest (store admin)", () => {
 			readdirSync(
 				new URL("../%255F_merchant_ui_fixtures__", import.meta.url),
 			).sort(),
-		).toEqual(["layout.tsx", "page.tsx"]);
+		).toEqual(["layout.tsx", "page.tsx", "store-ui"]);
 		expect(fixtureLayoutSource).toContain("assertMerchantUiFixturesEnabled();");
 		expect(fixtureLayoutSource).toContain(
 			'export const dynamic = "force-dynamic";',

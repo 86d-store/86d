@@ -1,0 +1,14 @@
+import { Skeleton } from "@86d-app/ui/shadcn/skeleton";
+import { View } from "@86d-app/ui/view";
+
+<View role="status" aria-label="Loading recent orders" className="flex flex-col divide-y divide-border rounded-xl border border-border" data-testid="account-orders-loading">
+  {["first", "second", "third"].map((key) => (
+    <View key={key} className="flex items-start justify-between gap-4 p-5">
+      <View className="flex min-w-0 flex-1 flex-col gap-3">
+        <Skeleton className="h-4 w-32 max-w-full" />
+        <Skeleton className="h-4 w-44 max-w-full" />
+      </View>
+      <Skeleton className="h-4 w-16 shrink-0" />
+    </View>
+  ))}
+</View>

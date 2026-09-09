@@ -1,16 +1,14 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import { useEffect } from "react";
 
-/**
- * Drops `data-theme-preload` once after mount so first-paint critical CSS (!important)
- * does not override Tailwind — without re-running on every `resolvedTheme` change (which
- * caused visible flicker).
- */
 export function ThemePreloadRelease() {
+	const { resolvedTheme } = useTheme();
 	useEffect(() => {
+		if (!resolvedTheme) return;
 		document.documentElement.removeAttribute("data-theme-preload");
-	}, []);
+	}, [resolvedTheme]);
 
 	return null;
 }

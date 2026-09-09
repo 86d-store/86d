@@ -47,11 +47,20 @@ describe("@86d-app/ui package manifest", () => {
 			"./badge",
 			"./button",
 			"./card",
+			"./empty",
 			"./data-table/column-header",
 			"./data-table/empty-row",
 			"./data-table/skeleton-rows",
 			"./shadcn/input",
+			"./shadcn/breadcrumb",
+			"./shadcn/button",
+			"./shadcn/collapsible",
+			"./shadcn/empty",
+			"./shadcn/item",
 			"./shadcn/native-select",
+			"./shadcn/separator",
+			"./shadcn/sheet",
+			"./shadcn/sidebar",
 			"./shadcn/skeleton",
 			"./shadcn/table",
 			"./text",
@@ -66,6 +75,10 @@ describe("@86d-app/ui package manifest", () => {
 				default: expect.stringMatching(/^\.\/dist\/.+\.js$/),
 			});
 		}
+		expect(pkg.exports?.["./lib/utils"]).toEqual({
+			types: "./src/lib/utils.ts",
+			default: "./src/lib/utils.ts",
+		});
 	});
 
 	it("does not depend on private workspace packages", () => {

@@ -47,7 +47,9 @@
 	},
 	"dependencies": {
 		"@86d-app/registry": "workspace:*",
+		"@86d-app/ui": "workspace:*",
 		"env": "workspace:*",
+		"lucide-react": "1.33.0",
 		"tsx": "catalog:",
 		"zod": "catalog:"
 	},

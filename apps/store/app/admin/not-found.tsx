@@ -1,31 +1,14 @@
-import { TriangleAlertIcon } from "lucide-react";
-import { buttonVariants } from "~/components/ui/button-variants";
-import {
-	Empty,
-	EmptyContent,
-	EmptyDescription,
-	EmptyHeader,
-	EmptyMedia,
-	EmptyTitle,
-} from "~/components/ui/empty";
+import { SearchXIcon } from "lucide-react";
+import { PageState } from "~/components/page-state";
 
-export default function AdminNotFound() {
+export default function NotFound() {
 	return (
-		<Empty className="min-h-[60vh]">
-			<EmptyHeader>
-				<EmptyMedia variant="icon">
-					<TriangleAlertIcon />
-				</EmptyMedia>
-				<EmptyTitle>Page not found</EmptyTitle>
-				<EmptyDescription>
-					This admin page doesn&apos;t exist or has been removed.
-				</EmptyDescription>
-			</EmptyHeader>
-			<EmptyContent>
-				<a href="/admin" className={buttonVariants()}>
-					Back to dashboard
-				</a>
-			</EmptyContent>
-		</Empty>
+		<PageState
+			title="Page not found"
+			description="This store admin page doesn’t exist or has been removed. Return to your dashboard to continue."
+			icon={<SearchXIcon aria-hidden="true" />}
+			actionHref="/admin"
+			actionLabel="Back to dashboard"
+		/>
 	);
 }

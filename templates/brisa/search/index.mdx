@@ -1,10 +1,7 @@
-<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+import Container from "../_components/container.mdx";
+import PageHeading from "../_components/page-heading.mdx";
 
-<div className="mb-8 sm:mb-10">
-  <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Search</h1>
-  <p className="mt-1.5 text-sm text-muted-foreground">Find exactly what you&apos;re looking for</p>
-</div>
-
-<SearchPage />
-
-</div>
+<Container className="flex flex-col gap-8 py-10 sm:gap-10 sm:py-14">
+  <PageHeading eyebrow="Find your favorite" title="Search" description="Find a product by name, category, or a detail you remember." />
+  <SearchPage />
+</Container>

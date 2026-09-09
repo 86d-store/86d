@@ -1,0 +1,10 @@
+import { Text } from "@86d-app/ui/text";
+
+<header className="flex flex-col gap-4 border-border border-b pb-8 sm:pb-10">
+  {props.eyebrow && <Text variant="p" className="font-mono text-xs text-muted-foreground">{props.eyebrow}</Text>}
+  <Text variant="h1" className="max-w-3xl text-balance font-display font-medium text-4xl leading-tight tracking-tight sm:text-5xl">
+    {props.title}
+  </Text>
+  {props.description && <Text variant="p" className="max-w-xl text-pretty text-base leading-relaxed text-muted-foreground">{props.description}</Text>}
+  {props.children}
+</header>

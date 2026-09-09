@@ -1,0 +1,88 @@
+{
+	"viewport": {
+		"width": 375,
+		"height": 667
+	},
+	"playbackRate": 0.1,
+	"enterIntermediate": {
+		"opacity": "0.205859",
+		"translate": "31.7656px",
+		"rect": {
+			"x": 125.51563262939453,
+			"y": 0,
+			"width": 281.25,
+			"height": 667,
+			"top": 0,
+			"right": 406.76563262939453,
+			"bottom": 667,
+			"left": 125.51563262939453
+		},
+		"animations": [
+			{
+				"playState": "running",
+				"currentTime": 9.160000000000002,
+				"duration": 150
+			},
+			{
+				"playState": "running",
+				"currentTime": 9.160000000000002,
+				"duration": 150
+			}
+		]
+	},
+	"enterSettled": {
+		"opacity": "1",
+		"translate": "none",
+		"rect": {
+			"x": 93.75,
+			"y": 0,
+			"width": 281.25,
+			"height": 667,
+			"top": 0,
+			"right": 375,
+			"bottom": 667,
+			"left": 93.75
+		},
+		"animations": []
+	},
+	"exitIntermediate": {
+		"opacity": "0.893783",
+		"translate": "4.24868px",
+		"rect": {
+			"x": 97.99867248535156,
+			"y": 0,
+			"width": 281.25,
+			"height": 667,
+			"top": 0,
+			"right": 379.24867248535156,
+			"bottom": 667,
+			"left": 97.99867248535156
+		},
+		"animations": [
+			{
+				"playState": "running",
+				"currentTime": 4.1800000000000175,
+				"duration": 150
+			},
+			{
+				"playState": "running",
+				"currentTime": 4.1800000000000175,
+				"duration": 150
+			}
+		]
+	},
+	"escapeFocusRestored": true,
+	"reduced": [
+		{
+			"slot": "sheet-overlay",
+			"transitionDuration": "0s",
+			"running": 0
+		},
+		{
+			"slot": "sheet-content",
+			"transitionDuration": "0s",
+			"running": 0
+		}
+	],
+	"pageErrors": []
+}

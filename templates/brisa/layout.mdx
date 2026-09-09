@@ -1,10 +1,10 @@
-import Footer from "./footer.mdx";
+import { StoreFooter } from "./_components/footer";
 
 <a
   href="#main-content"
   className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:font-medium focus:text-foreground focus:text-sm focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
 >
-  Skip to main content
+  {"Skip to main content"}
 </a>
 
 <AnnouncementBar position="top" />
@@ -20,12 +20,12 @@ import Footer from "./footer.mdx";
   actions={<CartButton />}
 />
 
-<main id="main-content" className="min-h-[calc(100dvh-4rem)]">
+<main id="main-content" tabIndex={-1} className="min-h-[calc(100dvh-4.5rem)] outline-none">
   <Cart />
   {props.children}
 </main>
 
-<Footer
+<StoreFooter
   logo={{
     url: "/",
     lightSrc: props.config.logo.light,
@@ -53,12 +53,19 @@ import Footer from "./footer.mdx";
       ],
     },
     {
-      title: "Account",
+      title: "Help",
       links: [
         { name: "Orders", href: "/account/orders" },
         { name: "Track order", href: "/track" },
         { name: "My account", href: "/account" },
         { name: "Search", href: "/search" },
+      ],
+    },
+    {
+      title: "Legal",
+      links: [
+        { name: "Terms of service", href: "/terms" },
+        { name: "Privacy policy", href: "/privacy" },
       ],
     },
   ]}

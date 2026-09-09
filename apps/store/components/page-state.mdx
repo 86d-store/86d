@@ -1,0 +1,15 @@
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@86d-app/ui/shadcn/empty";
+import { StoreAction, StoreLink } from "./store-action";
+
+<Empty className="min-h-[60svh] px-4 py-12" data-testid="page-state">
+  <EmptyHeader>
+    <EmptyMedia variant="icon">{props.icon}</EmptyMedia>
+    <EmptyTitle><h1>{props.title}</h1></EmptyTitle>
+    <EmptyDescription className="text-pretty">{props.description}</EmptyDescription>
+  </EmptyHeader>
+  <EmptyContent className="flex-row flex-wrap justify-center gap-3">
+    {props.onRetry ? <StoreAction onClick={props.onRetry}>Try again</StoreAction> : null}
+    <StoreLink href={props.actionHref} variant={props.onRetry ? "outline" : "default"}>{props.actionLabel}</StoreLink>
+    {props.secondaryHref ? <StoreLink href={props.secondaryHref}>{props.secondaryLabel}</StoreLink> : null}
+  </EmptyContent>
+</Empty>

@@ -98,7 +98,51 @@
 			"types": "./src/view.tsx",
 			"default": "./src/view.tsx"
 		},
-		"./*": "./src/*"
+		"./empty": {
+			"types": "./src/empty.tsx",
+			"default": "./src/empty.tsx"
+		},
+		"./lib/utils": {
+			"types": "./src/lib/utils.ts",
+			"default": "./src/lib/utils.ts"
+		},
+		"./shadcn/breadcrumb": {
+			"types": "./src/shadcn/breadcrumb.tsx",
+			"default": "./src/shadcn/breadcrumb.tsx"
+		},
+		"./shadcn/button": {
+			"types": "./src/shadcn/button.tsx",
+			"default": "./src/shadcn/button.tsx"
+		},
+		"./shadcn/collapsible": {
+			"types": "./src/shadcn/collapsible.tsx",
+			"default": "./src/shadcn/collapsible.tsx"
+		},
+		"./shadcn/empty": {
+			"types": "./src/shadcn/empty.tsx",
+			"default": "./src/shadcn/empty.tsx"
+		},
+		"./shadcn/item": {
+			"types": "./src/shadcn/item.tsx",
+			"default": "./src/shadcn/item.tsx"
+		},
+		"./shadcn/separator": {
+			"types": "./src/shadcn/separator.tsx",
+			"default": "./src/shadcn/separator.tsx"
+		},
+		"./shadcn/sheet": {
+			"types": "./src/shadcn/sheet.tsx",
+			"default": "./src/shadcn/sheet.tsx"
+		},
+		"./shadcn/sidebar": {
+			"types": "./src/shadcn/sidebar.tsx",
+			"default": "./src/shadcn/sidebar.tsx"
+		},
+		"./*": "./src/*",
+		"./shadcn/alert": {
+			"types": "./src/shadcn/alert.tsx",
+			"default": "./src/shadcn/alert.tsx"
+		}
 	},
 	"files": [
 		"dist",
@@ -242,9 +286,53 @@
 				"types": "./dist/view.d.ts",
 				"default": "./dist/view.js"
 			},
+			"./empty": {
+				"types": "./dist/empty.d.ts",
+				"default": "./dist/empty.js"
+			},
+			"./lib/utils": {
+				"types": "./dist/lib/utils.d.ts",
+				"default": "./dist/lib/utils.js"
+			},
+			"./shadcn/breadcrumb": {
+				"types": "./dist/shadcn/breadcrumb.d.ts",
+				"default": "./dist/shadcn/breadcrumb.js"
+			},
+			"./shadcn/button": {
+				"types": "./dist/shadcn/button.d.ts",
+				"default": "./dist/shadcn/button.js"
+			},
+			"./shadcn/collapsible": {
+				"types": "./dist/shadcn/collapsible.d.ts",
+				"default": "./dist/shadcn/collapsible.js"
+			},
+			"./shadcn/empty": {
+				"types": "./dist/shadcn/empty.d.ts",
+				"default": "./dist/shadcn/empty.js"
+			},
+			"./shadcn/item": {
+				"types": "./dist/shadcn/item.d.ts",
+				"default": "./dist/shadcn/item.js"
+			},
+			"./shadcn/separator": {
+				"types": "./dist/shadcn/separator.d.ts",
+				"default": "./dist/shadcn/separator.js"
+			},
+			"./shadcn/sheet": {
+				"types": "./dist/shadcn/sheet.d.ts",
+				"default": "./dist/shadcn/sheet.js"
+			},
+			"./shadcn/sidebar": {
+				"types": "./dist/shadcn/sidebar.d.ts",
+				"default": "./dist/shadcn/sidebar.js"
+			},
 			"./*": {
 				"types": "./dist/*.d.ts",
 				"default": "./dist/*.js"
+			},
+			"./shadcn/alert": {
+				"types": "./dist/shadcn/alert.d.ts",
+				"default": "./dist/shadcn/alert.js"
 			}
 		}
 	}

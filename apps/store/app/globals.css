@@ -14,6 +14,7 @@
 @layer base {
 	:root {
 		--font-display: "Zalando Sans", ui-sans-serif, system-ui, sans-serif;
+		--font-heading: var(--font-display);
 		--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 		--font-serif: "Merriweather", ui-serif, Georgia, "Times New Roman", serif;
 		--font-mono:
@@ -28,7 +29,12 @@
 		@apply bg-background text-foreground;
 	}
 	html {
-		@apply font-sans;
+		@apply font-sans antialiased;
+	}
+	h1,
+	h2,
+	h3 {
+		text-wrap: balance;
 	}
 }
 
@@ -66,4 +72,17 @@
 
 .font-display {
 	font-family: var(--font-display, var(--font-sans));
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-marquee,
+	.animate-fade-in {
+		animation: none;
+	}
+
+	[data-slot="sheet-content"],
+	[data-slot="sheet-overlay"] {
+		animation: none;
+		transition: none;
+	}
 }
