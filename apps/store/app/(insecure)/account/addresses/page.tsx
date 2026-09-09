@@ -536,7 +536,7 @@ export default function AddressesPage() {
 												<StatusBadge
 													status="default"
 													label="Default"
-													variant="success"
+													variant="constructive"
 												/>
 											)}
 										</div>

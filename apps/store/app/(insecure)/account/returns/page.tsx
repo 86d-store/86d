@@ -95,7 +95,7 @@ function ReturnTimeline({ status }: { status: string }) {
 	if (status === "rejected") {
 		return (
 			<div className="flex items-center gap-1.5">
-				<div className="flex size-5 items-center justify-center rounded-full bg-status-danger-bg">
+				<div className="flex size-5 items-center justify-center rounded-full bg-destructive-50">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="10"
@@ -105,14 +105,14 @@ function ReturnTimeline({ status }: { status: string }) {
 						stroke="currentColor"
 						strokeWidth="3"
 						strokeLinecap="round"
-						className="text-status-danger"
+						className="text-destructive-600"
 						aria-hidden="true"
 					>
 						<path d="M18 6 6 18" />
 						<path d="m6 6 12 12" />
 					</svg>
 				</div>
-				<span className="font-medium text-status-danger text-xs">
+				<span className="font-medium text-destructive-600 text-xs">
 					Return rejected
 				</span>
 			</div>
@@ -270,7 +270,7 @@ export default function ReturnsPage() {
 									</div>
 									<div className="shrink-0 text-right">
 										{r.refundAmount != null && (
-											<p className="font-medium text-sm text-status-success">
+											<p className="font-medium text-constructive-600 text-sm">
 												{formatPrice(r.refundAmount)}
 											</p>
 										)}

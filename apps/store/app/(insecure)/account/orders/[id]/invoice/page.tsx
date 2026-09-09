@@ -324,24 +324,24 @@ export default function CustomerInvoicePage() {
 						</div>
 						{invoice.discountAmount > 0 && (
 							<div className="flex justify-between text-sm">
-								<span className="text-status-success">Discount</span>
-								<span className="text-status-success tabular-nums">
+								<span className="text-constructive-600">Discount</span>
+								<span className="text-constructive-600 tabular-nums">
 									-{formatPrice(invoice.discountAmount, invoice.currency)}
 								</span>
 							</div>
 						)}
 						{(invoice.giftCardAmount ?? 0) > 0 && (
 							<div className="flex justify-between text-sm">
-								<span className="text-status-success">Gift card</span>
-								<span className="text-status-success tabular-nums">
+								<span className="text-constructive-600">Gift card</span>
+								<span className="text-constructive-600 tabular-nums">
 									-{formatPrice(invoice.giftCardAmount ?? 0, invoice.currency)}
 								</span>
 							</div>
 						)}
 						{(invoice.storeCreditAmount ?? 0) > 0 && (
 							<div className="flex justify-between text-sm">
-								<span className="text-status-success">Store credit</span>
-								<span className="text-status-success tabular-nums">
+								<span className="text-constructive-600">Store credit</span>
+								<span className="text-constructive-600 tabular-nums">
 									-
 									{formatPrice(
 										invoice.storeCreditAmount ?? 0,

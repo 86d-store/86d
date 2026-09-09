@@ -699,7 +699,7 @@ function OrderSummary({
 				{discount > 0 && (
 					<div className="flex justify-between text-sm">
 						<span className="text-muted-foreground">Discount</span>
-						<span className="text-status-success tabular-nums">
+						<span className="text-constructive-600 tabular-nums">
 							-{fmt(discount)}
 						</span>
 					</div>
@@ -707,7 +707,7 @@ function OrderSummary({
 				{giftCard > 0 && (
 					<div className="flex justify-between text-sm">
 						<span className="text-muted-foreground">Gift card</span>
-						<span className="text-status-success tabular-nums">
+						<span className="text-constructive-600 tabular-nums">
 							-{fmt(giftCard)}
 						</span>
 					</div>
@@ -734,7 +734,7 @@ function OrderSummary({
 				{storeCredit > 0 && (
 					<div className="flex justify-between text-sm">
 						<span className="text-muted-foreground">Store credit</span>
-						<span className="text-status-success tabular-nums">
+						<span className="text-constructive-600 tabular-nums">
 							-{fmt(storeCredit)}
 						</span>
 					</div>

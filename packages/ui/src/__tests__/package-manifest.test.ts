@@ -1,5 +1,6 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
@@ -77,5 +78,27 @@ describe("@86d-app/ui package manifest", () => {
 		expect(deps.utils).toBeUndefined();
 		expect(deps.validators).toBeUndefined();
 		expect(deps["@tanstack/react-table"]).toBe("9.1.2");
+	});
+
+	it("ships every font import through a direct dependency with available assets", () => {
+		const stylesheet = readFileSync(join(pkgRoot, "src/globals.css"), "utf8");
+		const require = createRequire(join(pkgRoot, "package.json"));
+		const fonts = [...stylesheet.matchAll(/@import "(@fontsource[^"]+)";/g)];
+		expect(fonts.length).toBeGreaterThan(0);
+		for (const font of fonts) {
+			const specifier = font[1];
+			if (!specifier) throw new Error("Missing font stylesheet import");
+			const dependency = specifier.split("/").slice(0, 2).join("/");
+			expect(pkg.dependencies?.[dependency]).toBeDefined();
+			const fontPath = require.resolve(specifier);
+			const fontStyles = readFileSync(fontPath, "utf8");
+			const assets = [...fontStyles.matchAll(/url\(([^)]+)\)/g)];
+			expect(assets.length).toBeGreaterThan(0);
+			for (const asset of assets) {
+				const path = asset[1]?.replace(/^['"]|['"]$/g, "");
+				if (!path) throw new Error("Missing font asset URL");
+				expect(existsSync(resolve(dirname(fontPath), path))).toBe(true);
+			}
+		}
 	});
 });

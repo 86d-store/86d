@@ -439,7 +439,7 @@
       "source": "local",
       "packageName": "@86d-app/products",
       "version": "0.0.42",
-      "integrity": "sha256-fcade6f8ff7a7060f5f0e9cb1acfeb5118926f5a6d7145a9e73a24bcdf582789",
+      "integrity": "sha256-12fef23a07c6744ef4e6e66a0356b3587da9be8c28be53d936191e49a4b8de63",
       "localPath": "modules/products"
     },
     "qr-code": {
@@ -702,5 +702,5 @@
       "localPath": "modules/x-shop"
     }
   },
-  "generatedAt": "2026-09-09T01:18:53.112Z"
+  "generatedAt": "2026-09-09T03:18:25.236Z"
 }

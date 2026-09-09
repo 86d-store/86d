@@ -29,11 +29,19 @@ npm install @86d-app/ui
 
 Peer dependencies: `react`, `react-dom`, `next`, `zod`, and `@tanstack/react-table@9.1.2`.
 
-Import the token stylesheet once in the application CSS:
+Import the shared stylesheet once in the application CSS:
 
 ```css
 @import "@86d-app/ui/globals.css";
 ```
+
+This entry point includes Tailwind, the shared fonts, typography, color tokens, motion utilities, and base component styles. Application stylesheets keep their source scanning and application-specific rules; they do not redefine the shared defaults.
+
+Fonts are self-hosted through this package's Fontsource dependencies: Zalando Sans for body and display text, Zalando Sans SemiExpanded Variable for headings, Merriweather for serif text, and IBM Plex Mono for code. Use `font-sans`, `font-display`, `font-heading`, `font-serif`, and `font-mono`; a separate font import in the application layout is unnecessary.
+
+Primary, secondary, constructive, caution, destructive, and neutral each expose steps `25`, `50`, `100`, `200`, `300`, `400`, `500`, `600`, `700`, `800`, `900`, `950`, and `1000`. Secondary follows the neutral ramp. The raw `--primary-100` palette values remain fixed, while `--primary-step-100` and Tailwind utilities such as `bg-primary-100` follow the active appearance. Dark mode reverses the steps (`25` ↔ `1000`, `50` ↔ `950`, …, `500` stays fixed), so semantic classes work in either mode.
+
+Existing color values, semantic assignments, fixed chart colors, and explicit dark overrides preserve the UI specification. Backgrounds, borders, code, and selection reference the shared ramps. Status styling uses the canonical families directly, such as `bg-constructive-50 text-constructive-600`, `bg-caution-50 text-caution-600`, and `bg-destructive-50 text-destructive-600`.
 
 ## Data tables
 

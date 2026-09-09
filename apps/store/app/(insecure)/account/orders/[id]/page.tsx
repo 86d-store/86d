@@ -562,7 +562,7 @@ export default function OrderDetailPage() {
 					{order.discountAmount > 0 && (
 						<div className="flex justify-between">
 							<span className="text-muted-foreground">Discount</span>
-							<span className="text-status-success tabular-nums">
+							<span className="text-constructive-600 tabular-nums">
 								-{formatPrice(order.discountAmount, order.currency)}
 							</span>
 						</div>
@@ -570,7 +570,7 @@ export default function OrderDetailPage() {
 					{(order.giftCardAmount ?? 0) > 0 && (
 						<div className="flex justify-between">
 							<span className="text-muted-foreground">Gift card</span>
-							<span className="text-status-success tabular-nums">
+							<span className="text-constructive-600 tabular-nums">
 								-{formatPrice(order.giftCardAmount ?? 0, order.currency)}
 							</span>
 						</div>
@@ -578,7 +578,7 @@ export default function OrderDetailPage() {
 					{(order.storeCreditAmount ?? 0) > 0 && (
 						<div className="flex justify-between">
 							<span className="text-muted-foreground">Store credit</span>
-							<span className="text-status-success tabular-nums">
+							<span className="text-constructive-600 tabular-nums">
 								-{formatPrice(order.storeCreditAmount ?? 0, order.currency)}
 							</span>
 						</div>
@@ -688,7 +688,7 @@ export default function OrderDetailPage() {
 
 					{returnSuccess && (
 						<div
-							className="rounded-lg border border-status-success/20 bg-status-success-bg px-3 py-2 text-sm text-status-success"
+							className="rounded-lg border border-constructive-600/20 bg-constructive-50 px-3 py-2 text-constructive-600 text-sm"
 							role="status"
 						>
 							Return request submitted successfully.
@@ -868,7 +868,7 @@ export default function OrderDetailPage() {
 											</div>
 										)}
 										{r.refundAmount != null && r.refundAmount > 0 && (
-											<p className="mt-1.5 font-medium text-sm text-status-success">
+											<p className="mt-1.5 font-medium text-constructive-600 text-sm">
 												Refund: {formatPrice(r.refundAmount, order.currency)}
 											</p>
 										)}

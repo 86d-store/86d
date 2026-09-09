@@ -207,7 +207,7 @@ export default function MyReviewsPage() {
 											<StarRating rating={review.rating} />
 											<StatusBadge status={review.status} />
 											{review.isVerifiedPurchase && (
-												<span className="inline-flex items-center gap-1 text-status-success text-xs">
+												<span className="inline-flex items-center gap-1 text-constructive-600 text-xs">
 													<svg
 														xmlns="http://www.w3.org/2000/svg"
 														width="12"
@@ -266,8 +266,8 @@ export default function MyReviewsPage() {
 
 								{/* Rejection note */}
 								{review.status === "rejected" && review.moderationNote && (
-									<div className="mt-3 rounded-lg bg-status-danger-bg/50 p-3">
-										<p className="mb-1 text-status-danger text-xs">
+									<div className="mt-3 rounded-lg bg-destructive-50/50 p-3">
+										<p className="mb-1 text-destructive-600 text-xs">
 											Moderation note
 										</p>
 										<p className="text-foreground text-sm">

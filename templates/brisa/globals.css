@@ -4,11 +4,11 @@
  * These styles extend the store's globals.css. Import this file in your
  * store layout if you want template-specific overrides.
  *
- * The store's globals.css already includes:
+ * The store imports @86d-app/ui/globals.css, which already includes:
  *  - Tailwind base, utilities, components
- *  - Shadcn color tokens (OKLCH)
+ *  - Shared semantic color steps and their dark-mode inversion (OKLCH)
  *  - animate-marquee, animate-fade-in keyframes
- *  - .font-display fallback
+ *  - Shared fonts and the font-display utility
  */
 
 /* ─── Template-specific prose styling ──────────────────────────────────── */

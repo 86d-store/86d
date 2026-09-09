@@ -1,6 +1,22 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "@fontsource-variable/zalando-sans-semiexpanded/wght.css";
+@import "@fontsource-variable/zalando-sans-semiexpanded/wght-italic.css";
+@import "@fontsource/zalando-sans/latin-400.css";
+@import "@fontsource/zalando-sans/latin-500.css";
+@import "@fontsource/zalando-sans/latin-600.css";
+@import "@fontsource/zalando-sans/latin-700.css";
+@import "@fontsource/zalando-sans/latin-800.css";
+@import "@fontsource/zalando-sans/latin-900.css";
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
+@import "@fontsource/ibm-plex-mono/latin-600.css";
+@import "@fontsource/merriweather/latin-400.css";
+@import "@fontsource/merriweather/latin-700.css";
+@import "@fontsource/zalando-sans/latin-400-italic.css";
+@import "@fontsource/zalando-sans/latin-700-italic.css";
+@import "@fontsource/zalando-sans/latin-900-italic.css";
 
 @plugin "@toolwind/corner-shape";
 @plugin "@tailwindcss/typography";
@@ -23,6 +39,20 @@
 	--neutral-900: oklch(22.47% 0.02 243.77);
 	--neutral-950: oklch(14.44% 0.02 240.15);
 	--neutral-1000: oklch(7.00% 0.015 240);
+
+	--secondary-25: var(--neutral-25);
+	--secondary-50: var(--neutral-50);
+	--secondary-100: var(--neutral-100);
+	--secondary-200: var(--neutral-200);
+	--secondary-300: var(--neutral-300);
+	--secondary-400: var(--neutral-400);
+	--secondary-500: var(--neutral-500);
+	--secondary-600: var(--neutral-600);
+	--secondary-700: var(--neutral-700);
+	--secondary-800: var(--neutral-800);
+	--secondary-900: var(--neutral-900);
+	--secondary-950: var(--neutral-950);
+	--secondary-1000: var(--neutral-1000);
 
 	--primary-25: oklch(98.00% 0.01 241.73);
 	--primary-50: oklch(97.10% 0.02 241.73);
@@ -97,6 +127,20 @@
 	--neutral: var(--neutral-step-500);
 	--neutral-foreground: var(--neutral-step-950);
 
+	--secondary-step-25: var(--secondary-25);
+	--secondary-step-50: var(--secondary-50);
+	--secondary-step-100: var(--secondary-100);
+	--secondary-step-200: var(--secondary-200);
+	--secondary-step-300: var(--secondary-300);
+	--secondary-step-400: var(--secondary-400);
+	--secondary-step-500: var(--secondary-500);
+	--secondary-step-600: var(--secondary-600);
+	--secondary-step-700: var(--secondary-700);
+	--secondary-step-800: var(--secondary-800);
+	--secondary-step-900: var(--secondary-900);
+	--secondary-step-950: var(--secondary-950);
+	--secondary-step-1000: var(--secondary-1000);
+
 	--primary-step-25: var(--primary-25);
 	--primary-step-50: var(--primary-50);
 	--primary-step-100: var(--primary-100);
@@ -111,8 +155,8 @@
 	--primary-step-950: var(--primary-950);
 	--primary-step-1000: var(--primary-1000);
 
-	--primary: var(--primary-step-800);
-	--primary-foreground: var(--primary-step-25);
+	--primary: var(--primary-step-500);
+	--primary-foreground: var(--primary-25);
 
 	--caution-step-25: var(--caution-25);
 	--caution-step-50: var(--caution-50);
@@ -174,7 +218,7 @@
 	--secondary: var(--neutral-step-100);
 	--secondary-foreground: var(--neutral-step-900);
 	--muted: var(--neutral-step-100);
-	--muted-foreground: var(--neutral-step-600);
+	--muted-foreground: var(--neutral-step-500);
 	--accent: var(--neutral-step-200);
 	--accent-foreground: var(--neutral-step-900);
 	--border: var(--neutral-step-200);
@@ -189,6 +233,15 @@
 	--chart-3: oklch(0.398 0.07 227.392);
 	--chart-4: oklch(0.828 0.189 84.429);
 	--chart-5: oklch(0.769 0.188 70.08);
+	--surface: var(--neutral-step-100);
+	--surface-foreground: var(--neutral-step-950);
+	--code: var(--neutral-step-100);
+	--code-foreground: var(--neutral-step-950);
+	--code-highlight: var(--neutral-step-200);
+	--code-number: var(--neutral-step-600);
+	--selection: var(--primary-step-200);
+	--selection-foreground: var(--primary-step-950);
+
 	--radius: 0.625rem;
 	--sidebar: var(--card);
 	--sidebar-foreground: var(--card-foreground);
@@ -214,6 +267,20 @@
 	--neutral-step-900: var(--neutral-100);
 	--neutral-step-950: var(--neutral-50);
 	--neutral-step-1000: var(--neutral-25);
+
+	--secondary-step-25: var(--secondary-1000);
+	--secondary-step-50: var(--secondary-950);
+	--secondary-step-100: var(--secondary-900);
+	--secondary-step-200: var(--secondary-800);
+	--secondary-step-300: var(--secondary-700);
+	--secondary-step-400: var(--secondary-600);
+	--secondary-step-500: var(--secondary-500);
+	--secondary-step-600: var(--secondary-400);
+	--secondary-step-700: var(--secondary-300);
+	--secondary-step-800: var(--secondary-200);
+	--secondary-step-900: var(--secondary-100);
+	--secondary-step-950: var(--secondary-50);
+	--secondary-step-1000: var(--secondary-25);
 
 	--primary-step-25: var(--primary-1000);
 	--primary-step-50: var(--primary-950);
@@ -273,23 +340,26 @@
 
 	--card: var(--neutral-step-50);
 	--popover: var(--neutral-step-50);
+	--input: var(--neutral-step-100);
 	--secondary: var(--neutral-step-100);
 	--secondary-foreground: var(--neutral-step-900);
-	/* --muted: var(--neutral-step-100);
-	--muted-foreground: var(--neutral-step-500);
-	--accent: var(--neutral-step-100);
-	--accent-foreground: var(--neutral-step-900);
-	--border: var(--neutral-step-200);
-	--border-primary: var(--primary-step-200);
-	--border-caution: var(--caution-step-200);
-	--border-constructive: var(--constructive-step-200);
-	--border-destructive: var(--destructive-step-200); */
-	--input: var(--neutral-step-100);
 	--ring: var(--neutral-step-500);
 	--sidebar-ring: var(--neutral-step-500);
 }
 
+@theme static {
+	--font-sans: "Zalando Sans", ui-sans-serif, system-ui, sans-serif;
+	--font-heading:
+		"Zalando Sans SemiExpanded Variable", ui-sans-serif, system-ui, sans-serif;
+	--font-display: "Zalando Sans", ui-sans-serif, system-ui, sans-serif;
+	--font-serif: "Merriweather", ui-serif, Georgia, "Times New Roman", serif;
+	--font-mono:
+		"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+		"Liberation Mono", "Courier New", monospace;
+}
+
 @theme inline {
+	--color-neutral-25: var(--neutral-step-25);
 	--color-neutral-50: var(--neutral-step-50);
 	--color-neutral-100: var(--neutral-step-100);
 	--color-neutral-200: var(--neutral-step-200);
@@ -305,6 +375,20 @@
 
 	--color-neutral: var(--neutral);
 	--color-neutral-foreground: var(--neutral-foreground);
+
+	--color-secondary-25: var(--secondary-step-25);
+	--color-secondary-50: var(--secondary-step-50);
+	--color-secondary-100: var(--secondary-step-100);
+	--color-secondary-200: var(--secondary-step-200);
+	--color-secondary-300: var(--secondary-step-300);
+	--color-secondary-400: var(--secondary-step-400);
+	--color-secondary-500: var(--secondary-step-500);
+	--color-secondary-600: var(--secondary-step-600);
+	--color-secondary-700: var(--secondary-step-700);
+	--color-secondary-800: var(--secondary-step-800);
+	--color-secondary-900: var(--secondary-step-900);
+	--color-secondary-950: var(--secondary-step-950);
+	--color-secondary-1000: var(--secondary-step-1000);
 
 	--color-primary-25: var(--primary-step-25);
 	--color-primary-50: var(--primary-step-50);
@@ -375,12 +459,9 @@
 	--color-destructive-foreground: var(--destructive-foreground);
 
 	--container-8xl: 96rem;
+	--breakpoint-xs: 320px;
 	--breakpoint-3xl: 1600px;
 	--breakpoint-4xl: 2000px;
-	--font-sans: var(--font-sans);
-	--font-heading: var(--font-heading);
-	--font-serif: var(--font-serif);
-	--font-mono: var(--font-mono);
 	--radius-sm: calc(var(--radius) * 0.6);
 	--radius-md: calc(var(--radius) * 0.8);
 	--radius-lg: var(--radius);
@@ -396,8 +477,6 @@
 	--color-popover-foreground: var(--popover-foreground);
 	--color-secondary: var(--secondary);
 	--color-secondary-foreground: var(--secondary-foreground);
-	--color-neutral: var(--neutral);
-	--color-neutral-foreground: var(--neutral-foreground);
 	--color-muted: var(--muted);
 	--color-muted-foreground: var(--muted-foreground);
 	--color-accent: var(--accent);
@@ -536,7 +615,7 @@
 	}
 	html,
 	body {
-		@apply font-sans bg-background! text-foreground;
+		@apply font-sans antialiased bg-background text-foreground;
 	}
 	h1,
 	h2,
@@ -545,6 +624,7 @@
 	h5,
 	h6 {
 		@apply font-heading;
+		text-wrap: balance;
 	}
 	button:not(:disabled),
 	[role="button"]:not(:disabled),
@@ -570,5 +650,50 @@
 	[data-slot="sheet-overlay"],
 	[data-slot="alert-dialog-overlay"] {
 		@apply bg-background/50 backdrop-blur-xs;
+	}
+}
+
+@keyframes marquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@utility animate-marquee {
+	animation: marquee 30s linear infinite;
+}
+
+@utility animate-fade-in {
+	animation: fade-in 0.5s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-marquee,
+	.animate-fade-in,
+	.animate-shiny-text,
+	.animate-gradient,
+	.animate-aurora,
+	.animate-shine {
+		animation: none;
+	}
+
+	[data-slot="sheet-content"],
+	[data-slot="sheet-overlay"] {
+		animation: none;
+		transition: none;
 	}
 }

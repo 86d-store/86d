@@ -159,7 +159,7 @@ export default function SubscriptionsPage() {
 												<p>Trial ends {formatDate(sub.trialEnd)}</p>
 											)}
 											{sub.cancelAtPeriodEnd && (
-												<p className="font-medium text-status-warning">
+												<p className="font-medium text-caution-600">
 													Cancels at end of period
 												</p>
 											)}

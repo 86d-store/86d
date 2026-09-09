@@ -207,7 +207,7 @@ function ConfirmationContent() {
 		<div className="mx-auto max-w-2xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
 			{/* Success icon */}
 			<div className="mb-6 flex justify-center">
-				<div className="flex size-16 items-center justify-center rounded-full bg-status-success-bg">
+				<div className="flex size-16 items-center justify-center rounded-full bg-constructive-50">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="32"
@@ -218,7 +218,7 @@ function ConfirmationContent() {
 						strokeWidth="2"
 						strokeLinecap="round"
 						strokeLinejoin="round"
-						className="text-status-success"
+						className="text-constructive-600"
 						aria-hidden="true"
 					>
 						<path d="M20 6 9 17l-5-5" />
@@ -317,19 +317,19 @@ function ConfirmationContent() {
 								</div>
 							)}
 							{summary.discountAmount > 0 && (
-								<div className="flex justify-between text-status-success">
+								<div className="flex justify-between text-constructive-600">
 									<span>Discount</span>
 									<span>-{formatPrice(summary.discountAmount, currency)}</span>
 								</div>
 							)}
 							{summary.giftCardAmount > 0 && (
-								<div className="flex justify-between text-status-success">
+								<div className="flex justify-between text-constructive-600">
 									<span>Gift card</span>
 									<span>-{formatPrice(summary.giftCardAmount, currency)}</span>
 								</div>
 							)}
 							{(summary.storeCreditAmount ?? 0) > 0 && (
-								<div className="flex justify-between text-status-success">
+								<div className="flex justify-between text-constructive-600">
 									<span>Store credit</span>
 									<span>
 										-{formatPrice(summary.storeCreditAmount ?? 0, currency)}

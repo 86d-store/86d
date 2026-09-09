@@ -71,7 +71,7 @@ export function BulkPricingSection({
 								{formatPrice(tp.unitPrice)} each
 								{tp.savingsPercent > 0 && (
 									<span
-										className={`ml-1.5 ${isActive ? "text-background/70" : "text-status-success"}`}
+										className={`ml-1.5 ${isActive ? "text-background/70" : "text-constructive-600"}`}
 									>
 										{Math.round(tp.savingsPercent)}% off
 									</span>

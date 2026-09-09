@@ -3,7 +3,6 @@ import type { Metadata, Viewport } from "next";
 import { cookies, headers } from "next/headers";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "~/components/ui/sonner";
-import "./_brand-fonts";
 import "./globals.css";
 import { GoogleTagManager } from "@next/third-parties/google";
 import { StoreQueryProvider } from "components/providers";
@@ -40,8 +39,8 @@ export const viewport: Viewport = {
 };
 
 /** Matches `globals.css` :root / .dark --background for first paint before Tailwind vars apply. */
-const THEME_BG_LIGHT = "oklch(1 0 0)";
-const THEME_BG_DARK = "oklch(0.145 0 0)";
+const THEME_BG_LIGHT = "oklch(99.23% 0 247.73)";
+const THEME_BG_DARK = "oklch(7.00% 0.015 240)";
 const isVercelProduction =
 	env.NODE_ENV === "production" && getProcessEnv("VERCEL_ENV") === "production";
 

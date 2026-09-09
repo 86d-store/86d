@@ -195,7 +195,7 @@ export default function ProfilePage() {
 						</div>
 					)}
 					{success && (
-						<output className="mt-4 block rounded-lg border border-status-success/20 bg-status-success-bg px-4 py-3 text-sm text-status-success">
+						<output className="mt-4 block rounded-lg border border-constructive-600/20 bg-constructive-50 px-4 py-3 text-constructive-600 text-sm">
 							Profile updated successfully.
 						</output>
 					)}
