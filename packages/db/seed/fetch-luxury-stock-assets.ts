@@ -3,7 +3,7 @@
  * Downloads pinned Unsplash / Pexels stock photos, resizes to seed dimensions, writes WebP
  * under packages/db/seed/assets/luxury-house/ and refreshes manifest.json attribution.
  *
- * Run from public/: bun run seed:fetch-luxury-assets
+ * Run from 86d-store/: bun run seed:fetch-luxury-assets
  */
 
 import { createHash } from "node:crypto";

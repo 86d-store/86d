@@ -1,20 +1,20 @@
 # 86d.store Store Runtime (public)
 
-`public/` is the MIT-licensed 86d.store Store Runtime: one storefront, store admin, and authoritative commerce database per single-tenant Store. It runs standalone through Docker. The optional Control Plane in sibling `private/` may provision and operate it; standalone operation never acquires a Control Plane dependency.
+This repository contains the MIT-licensed 86d.store Store Runtime: one storefront, store admin, and authoritative commerce database per single-tenant Store. It runs standalone through Docker. The optional managed product 86d.app may provision and operate it; standalone operation never acquires a Control Plane dependency.
 
 This is a strict TypeScript Bun monorepo orchestrated by Turborepo.
 
 ## Change protocol
 
-1. **Route the context.** Read workspace `../AGENTS.md` when it exists, then this guide, then every nearer `AGENTS.md` down to the files you will touch.
-   - Product behavior, authority, payments, Checkout, Fulfillment, managed credentials, Modules, and agent surfaces: start at `../prd/README.md` and follow every reading route it names for the branch.
-   - Visual or interaction work: also read `../prd/experience.md`, especially [Composition](../prd/experience.md#composition), before implementation. It owns UI/UX law; this guide owns repository mechanics.
-   - Maturity or shipment claims: also read `../prd/current-state.md`, `../prd/launch.md`, and the relevant evidence. Code, endpoints, packages, and generated metadata do not prove maturity.
-   - The PRD is target authority; code is current implementation. Resolve a difference through an explicit migration — never by silently treating either as the other.
+1. **Route the context.** Read this guide, [README.md](./README.md), [CONTRIBUTING.md](./CONTRIBUTING.md), and every nearer `AGENTS.md` down to the files you will touch.
+   - Product behavior, authority, payments, Checkout, Fulfillment, managed credentials, and agent surfaces: use the task's stated contract and the owning package or Module documentation. Inspect local implementation and tests before describing current behavior. Module contracts follow the [routes below](#module-contracts).
+   - Visual or interaction work: read [UI and composition](#ui-and-composition), [Product language](#product-language), and their linked repository references before implementation.
+   - Maturity or shipment claims: read the current README warnings, the capability's `maturity` and `maturityEvidence` in [the registry](./apps/registry/registry.json), and the available supporting evidence. Code, endpoints, packages, and generated metadata do not prove maturity. Missing evidence cannot justify a promotion.
+   - The task's accepted design describes target behavior; code records current implementation. Resolve a difference through an explicit migration rather than silently treating either as the other.
    - Done when every named route for this branch is loaded and the authority boundary below is clear.
 2. **Protect the authority boundary.** The Store Runtime owns commerce facts. The Control Plane owns only managed-service facts. Humans and agents use the same versioned Command contracts; raw transport is private implementation detail.
    - Done when the change cannot invent a second ownership of managed-service facts or a Control Plane dependency for standalone operation.
-3. **Implement a complete _slice_.** Include its public interface, required durable persistence, closed failure behavior, focused tests, nearest documentation projection, and explicit evidence update when the canonical context requires one.
+3. **Implement a complete _slice_.** Include its public interface, required durable persistence, closed failure behavior, focused tests, nearest documentation projection, and explicit evidence update when the task's acceptance criteria require one.
    - Done when every required artifact for the slice exists or is explicitly out of scope with a written reason.
 4. **Verify the _slice_.** Apply the [Module integrity gate](#module-integrity-gate), run focused tests while iterating, then run every required pre-commit gate under [Git and commits](#git-and-commits).
    - Done when every required gate is _green_ (exit 0, no warnings, no errors).
@@ -39,11 +39,21 @@ This gate applies to **every _slice_**, not only CI. GitHub Setup, Release, and 
 ## Context routes
 
 - Store routes, storefront, store admin, and theme work: `apps/store/AGENTS.md`; Module usage examples: `apps/store/EXAMPLES.md`.
-- Module work: `../prd/contexts/store-runtime/module-system.md`, the target Module's `AGENTS.md`, and the closest package guides for any shared runtime code.
+- Module work: [Module contracts](#module-contracts), the target Module's `AGENTS.md`, and the closest package guides for any shared runtime code.
 - Template work: `templates/brisa/AGENTS.md` or the target template's nearest guide.
 - CLI work: `packages/cli/AGENTS.md`.
 - Registry or lock work: `packages/registry/AGENTS.md`.
 - E2E work: `tests/e2e/AGENTS.md`, with the stricter waiting rules in [Testing](#testing) taking precedence over stale examples there.
+
+## Module contracts
+
+Read the routes that match the contract you are changing, together with the target Module's guide and tests:
+
+- **Storage declarations or isolation:** read the [storage declaration](./packages/core/src/schema/declaration.ts), [validation](./packages/core/src/schema/storage-validate.ts), [schema compiler](./packages/core/src/schema/compile/index.ts), and [isolation compiler](./packages/core/src/schema/isolation.ts). These define the accepted storage branches and their compiled database boundaries.
+- **Cross-Module capabilities, requirements, hooks, or readers:** read [capabilities](./packages/core/src/capabilities.ts), [requirement compatibility](./packages/core/src/contracts.ts), and the [execution-graph compiler](./packages/core/src/graph/compile.ts). Inspect the owner and consumer declarations and their tests; legacy field metadata does not grant data access.
+- **Durable events, delivery, or retries:** read the [event and transaction contracts](./packages/core/src/durable-events.ts) and [runtime dispatcher](./packages/runtime/src/durable-event-dispatcher.ts), with their adjacent tests for atomicity, ordering, retry, and terminal failure behavior.
+
+Shared framework edits also load the guide for each package being changed: [Core](./packages/core/AGENTS.md), [Runtime](./packages/runtime/AGENTS.md), or [DB](./packages/db/AGENTS.md). These repository sources describe the implemented contracts; apply an explicitly requested contract change through its source, tests, and nearest documentation together.
 
 ## Module and runtime patterns
 
@@ -118,15 +128,15 @@ The canonical registry manifest is the published `apps/registry/registry.json` f
 
 ## UI and composition
 
-Visual and interaction law lives in [`experience.md#composition`](../prd/experience.md#composition).
+Read the [shared UI package](./packages/ui/README.md) for primitives, compositions, tokens, and import paths. Use the [component API reference](./internals/docs/component-api.md) to find existing Module components, then verify their current props in source.
 
 - Preserve existing UI composed from `@86d-app/ui`, Module `admin/components/` and `store/components/`, route `_components/`, or template `.tsx` + `.mdx` pairs. Wire data, loading, and error states through what exists.
 - The only replacement agents should make is substituting ad hoc `div`/`span`/`p` or heavily classNamed layout/text for the matching `@86d-app/ui` primitive or Module component when one exists.
-- Do not replace one composed surface with another unless `experience.md` and the active plan explicitly require it.
+- Do not replace one composed surface with another unless the task's stated contract explicitly requires it.
 
 ## Product language
 
-Before editing merchant-reachable UI, email, support, pricing, errors, or agent prose, read `../prd/product.md#the-merchant-sees-86d-never-our-suppliers` and `../prd/experience.md#copy` in the full workspace.
+Apply these rules when editing merchant-reachable UI, email, support, pricing, errors, or agent prose:
 
 - `86d.app` is the optional managed product; `86d Console` is its human interface.
 - `86d.store` or `Store Runtime` names this deployed product. `storefront` is the shopper surface; `store admin` is the merchant interface inside one runtime.
@@ -142,7 +152,7 @@ Before editing merchant-reachable UI, email, support, pricing, errors, or agent 
 - Unit tests use Vitest. External-provider fixtures match the provider's real JSON shape so a broken adapter cannot pass against an invented fixture.
 - Playwright needs an already running, seeded Store; authenticated setup fails when it cannot create the admin session. Import from `./fixtures/test-fixtures`, use `data-testid` selectors, and wait with web-first assertions.
 - New tests never use `waitForTimeout()` or `waitForLoadState("networkidle")`. The `networkidle` pattern in a nearer guide is stale and does not override this rule.
-- Cover every page route, admin and storefront screen, empty state, and error state. Visual coverage runs in light and dark at desktop (1280×720), tablet (768×1024), and mobile (375×667); `tests/playwright.config.ts` remains the executable source of truth. Read `../prd/experience.md` for the cross-product visual contract.
+- Cover every page route, admin and storefront screen, empty state, and error state. Visual coverage runs in light and dark at desktop (1280×720), tablet (768×1024), and mobile (375×667); `tests/playwright.config.ts` remains the executable source of truth. Follow [UI and composition](#ui-and-composition) and the existing local visual baselines.
 
 ## Git and commits
 
@@ -179,10 +189,10 @@ Commit guardrails:
 
 ## Version and release guardrails
 
-One shared version line covers the root, CLI, publishable packages and Modules, versioned private workspace packages, and `@86d-app/contracts`. Contract `package.json`, `CONTRACTS_PACKAGE_VERSION`, conformance artifact version, and the private `vendor/` pin move together.
+One shared version line covers the root, CLI, publishable packages and Modules, versioned private workspace packages, and `@86d-app/contracts`. Contract `package.json`, `CONTRACTS_PACKAGE_VERSION`, conformance artifact version, and downstream exact consumer pins move together. Coordinate pin updates with the downstream owners; this repository's contributors do not need those consumers' checkouts.
 
 - After release-worthy work is committed, use `bun run bump-version`; minor is the default. Use patch or major only when the operator names it. The script self-skips when it bumped within 24 hours unless `--force` is passed. Never hand-edit a `version` field.
-- The bump updates every package on the shared line plus `apps/registry/registry.json` and `apps/registry/registry.lock.json`. Commit it as `chore(repo): bump version to X.Y.Z`. Refresh generated contracts and the private vendor pin when contracts changed.
+- The bump updates every package on the shared line plus `apps/registry/registry.json` and `apps/registry/registry.lock.json`. Commit it as `chore(repo): bump version to X.Y.Z`. Refresh generated contracts and coordinate the matching downstream exact-pin updates with their owners when contracts changed.
 - A new package joins the current shared version when created.
 - Before changing release mechanics, read `.github/workflows/release.yml`, `internals/github/ci-cd/action.yml`, and the publish scripts instead of copying their matrix here. Release follows successful CI on `main`; e2e is separate. Publish only with no pending Changesets and versions ahead of npm.
 - Container publication follows only a successful same-repository `push` CI run on `main`, uses that run's exact head SHA, and remains behind the operator-approved `docker-publish` environment. Recovery also requires the exact `@86d-app/registry@<version>` Changesets tag at that SHA and the matching npm publication; it never invents a release from user input, a branch name, or a mutable tag.

@@ -6,7 +6,7 @@ Playwright suite for the Store Runtime against a live, seeded Store.
 
 ## Change protocol
 
-1. **Route.** Read the parent guide (especially Testing) and this file. Visual coverage also follows workspace `prd/experience.md` via the parent.
+1. **Route.** Read the parent guide (especially Testing) and this file. Visual coverage follows parent [UI and composition](../../AGENTS.md#ui-and-composition), [Product language](../../AGENTS.md#product-language), and the local Playwright configuration and baselines.
 2. **Implement** using the local patterns below. New tests use web-first assertions and `data-testid` selectors.
 3. **Verify.** Run Playwright against an already running, seeded Store. Full pre-commit gates live in the parent guide. After `modules/` changes, prove `bun run generate:modules -- --frozen` from repo root.
    - Done when focused e2e coverage for the change passes and every required parent gate for the _slice_ is _green_.

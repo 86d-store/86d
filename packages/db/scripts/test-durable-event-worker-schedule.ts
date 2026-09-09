@@ -6,7 +6,7 @@
  * - Web API route source does not drain the outbox
  * - A worker drain claims work; a restart after lease expiry reclaims in-flight rows
  *
- * Usage (from public/packages/db):
+ * Usage (from 86d-store/packages/db):
  *   bun scripts/test-durable-event-worker-schedule.ts
  */
 import assert from "node:assert/strict";

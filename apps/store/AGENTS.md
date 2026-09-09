@@ -6,7 +6,7 @@ Customer-facing storefront and per-store admin in one Next.js app.
 
 ## Change protocol
 
-1. **Route.** Read the parent guide and this file. Module usage examples: [`EXAMPLES.md`](./EXAMPLES.md). Visual or interaction work also loads workspace `prd/experience.md` per the parent.
+1. **Route.** Read the parent guide and this file. Module usage examples: [`EXAMPLES.md`](./EXAMPLES.md). Visual or interaction work follows parent [UI and composition](../../AGENTS.md#ui-and-composition) and [Product language](../../AGENTS.md#product-language).
 2. **Implement** using the local patterns below. Merchant-reachable copy follows parent product language.
 3. **Verify.** Focused checks while iterating: `bun run typecheck` and package tests from repo root as needed. Full pre-commit gates live in the parent guide. After `modules/` changes, prove `bun run generate:modules -- --frozen` from repo root.
    - Done when every required parent gate for the _slice_ is _green_.

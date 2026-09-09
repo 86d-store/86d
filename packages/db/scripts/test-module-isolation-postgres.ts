@@ -4,7 +4,7 @@
  * Spins a disposable postgres:16-alpine, applies framework + curated Module DDL
  * (including compiled isolation), asserts catalog facts, and runs denial probes.
  *
- * Usage (from public/):
+ * Usage (from 86d-store/):
  *   bun packages/db/scripts/test-module-isolation-postgres.ts
  */
 import assert from "node:assert/strict";
@@ -42,7 +42,7 @@ const STATEMENT_TIMEOUT_MS = 5_000;
 
 const privilegeMatrixPath = join(
 	repoRoot,
-	"../prd/evidence/module-privilege-matrix.json",
+	"../context/86d/evidence/module-privilege-matrix.json",
 );
 
 type PrivilegeMatrix = {

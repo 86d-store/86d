@@ -2,14 +2,14 @@
 
 Default store template: layout, pages, and theme via MDX and Module components.
 
-**Parent:** repository root [`AGENTS.md`](../../AGENTS.md) owns change protocol, Module integrity (_frozen_ lock), TypeScript, security, product language, testing, and commit gates. This guide owns local mechanics only.
+**Scope:** This guide owns template-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and installed Module and UI contracts.
 
 ## Change protocol
 
-1. **Route.** Read the parent guide and this file. Storefront/admin theme work also uses [`apps/store/AGENTS.md`](../../apps/store/AGENTS.md). Visual work loads workspace `prd/experience.md` per the parent.
-2. **Implement** using the local patterns below. Merchant-reachable copy follows parent product language.
-3. **Verify.** Focused store checks while iterating. Full pre-commit gates live in the parent guide. After `modules/` changes, prove `bun run generate:modules -- --frozen` from repo root.
-   - Done when every required parent gate for the _slice_ is _green_.
+1. **Route.** Read this guide and [`README.md`](./README.md). In the 86d.store source checkout, also read the [Store guide](../../apps/store/AGENTS.md), root [UI and composition](../../AGENTS.md#ui-and-composition), and [Product language](../../AGENTS.md#product-language).
+2. **Implement** using the local patterns below and the current project's UI and copy rules.
+3. **Verify.** Run the current project's Store and template checks. Source-checkout work also follows the root pre-commit gates, including the frozen registry check after Module changes.
+   - Done when the current project's required checks pass.
 
 ## Structure
 
