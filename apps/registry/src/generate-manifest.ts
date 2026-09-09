@@ -12,11 +12,18 @@
  *
  * Usage:
  *   bun run generate:registry
+ *   bun run generate:registry --local
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import {
+	existsSync,
+	mkdirSync,
+	readdirSync,
+	readFileSync,
+	writeFileSync,
+} from "node:fs";
+import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Module } from "@86d-app/core/types/module";
 import {
@@ -27,7 +34,6 @@ import { registryManifestPath } from "@86d-app/registry/paths";
 import { workspaceRootFromImportMeta } from "../../../internals/lib/workspace-root.ts";
 
 const WORKSPACE_ROOT = workspaceRootFromImportMeta(import.meta.url);
-const OUTPUT_PATH = registryManifestPath(WORKSPACE_ROOT);
 const MODULES_ROOT = join(WORKSPACE_ROOT, "modules");
 
 /** The Module contract version the Store Runtime must understand. */
@@ -148,12 +154,22 @@ async function loadDeclarations(): Promise<Record<string, ModuleDeclarations>> {
 	return declarations;
 }
 
-assertTrackedSourceIsClean();
-const commit = resolveCommit();
-if (!commit) {
+const args = process.argv.slice(2).filter((arg) => arg !== "--");
+if (args.length > 1 || args.some((arg) => arg !== "--local")) {
 	throw new Error(
-		"A resolved git commit is required to generate registry.json.",
+		"Usage: bun run generate:registry [--local]. Local metadata omits commit pins.",
 	);
+}
+let commit: string | undefined;
+const local = args.includes("--local");
+if (!local) {
+	assertTrackedSourceIsClean();
+	commit = resolveCommit();
+	if (!commit) {
+		throw new Error(
+			"A resolved git commit is required to generate registry.json.",
+		);
+	}
 }
 const storeRuntime = storeRuntimeVersion();
 const declarations = await loadDeclarations();
@@ -161,7 +177,7 @@ const declarations = await loadDeclarations();
 const manifest = buildManifest(WORKSPACE_ROOT, {
 	baseUrl: "https://github.com/86d-app/86d",
 	defaultRef: "main",
-	commit,
+	...(commit ? { commit } : {}),
 	...(storeRuntime
 		? {
 				storeRuntimeVersion: storeRuntime,
@@ -180,4 +196,8 @@ const _byMaturity = Object.values(manifest.modules).reduce<
 	return totals;
 }, {});
 
-writeFileSync(OUTPUT_PATH, `${JSON.stringify(manifest, null, "\t")}\n`);
+const outputPath = local
+	? join(WORKSPACE_ROOT, ".86d", "registry.local.json")
+	: registryManifestPath(WORKSPACE_ROOT);
+mkdirSync(dirname(outputPath), { recursive: true });
+writeFileSync(outputPath, `${JSON.stringify(manifest, null, "\t")}\n`);

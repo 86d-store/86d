@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/ui",
-	"version": "0.0.42",
+	"version": "0.1.0",
 	"description": "Shared merchant UI primitives, Console compositions, and TanStack Table data tables for 86d",
 	"keywords": [
 		"86d",

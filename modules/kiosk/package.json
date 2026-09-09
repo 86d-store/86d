@@ -1,6 +1,6 @@
 {
 	"name": "@86d-app/kiosk",
-	"version": "0.0.42",
+	"version": "0.1.0",
 	"description": "Kiosk station registration and legacy lifecycle records",
 	"keywords": [
 		"commerce",

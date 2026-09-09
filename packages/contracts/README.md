@@ -45,6 +45,10 @@ bun run generate:conformance
 
 Run twice and compare digests byte-for-byte before cutting a release.
 
+The generator reads the current version from `package.json`; the runtime exports the version embedded in the generated artifact. The shared `bun run bump-version` command regenerates conformance after updating package versions.
+
+Previous-minor compatibility uses a frozen historical artifact in `src/__tests__/fixtures/`, including its original request, rejection, transition, and hash fixtures. Before a later minor bump, preserve the current artifact under its versioned filename and update the generator's historical import. Generation fails when that snapshot does not cover the requested version; a major release requires an explicit compatibility policy update. Never replace historical fixtures with the current fixture suite. Contract tests replay both suites and check manifest, runtime, and artifact consistency.
+
 ## Release pack
 
 ```bash
