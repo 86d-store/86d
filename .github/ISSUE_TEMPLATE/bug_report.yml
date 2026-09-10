@@ -5,11 +5,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting a bug. Search [existing issues](https://github.com/86d-app/86d/issues) first.
+        Thanks for reporting a bug. Search [existing issues](https://github.com/86d-store/86d/issues) first.
 
-        - Questions and setup help → [Discussions (Help)](https://github.com/86d-app/86d/discussions/new?category=help)
-        - Features and ideas → [Discussions (Ideas)](https://github.com/86d-app/86d/discussions/new?category=ideas)
-        - Security → [SECURITY.md](https://github.com/86d-app/86d/blob/main/SECURITY.md) (private advisory or `security@86d.store`)
+        - Questions and setup help → [Discussions (Help)](https://github.com/86d-store/86d/discussions/new?category=help)
+        - Features and ideas → [Discussions (Ideas)](https://github.com/86d-store/86d/discussions/new?category=ideas)
+        - Security → [SECURITY.md](https://github.com/86d-store/86d/blob/main/SECURITY.md) (private advisory or `security@86d.store`)
   - type: dropdown
     id: area
     attributes:

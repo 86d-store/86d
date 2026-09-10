@@ -1,6 +1,6 @@
 {
 	"version": 1,
-	"baseUrl": "https://github.com/86d-app/86d",
+	"baseUrl": "https://github.com/86d-store/86d",
 	"defaultRef": "main",
 	"modules": {
 		"abandoned-carts": {

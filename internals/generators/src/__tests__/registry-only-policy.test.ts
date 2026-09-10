@@ -44,7 +44,7 @@ function officialInputs(): RegistryOnlyInputs {
 		config: { modules: ["@86d-app/products"] },
 		manifest: {
 			version: 1,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			templates: {},
 			modules: {
@@ -221,7 +221,7 @@ describe("validateRegistryOnlyResolvedModules", () => {
 			}
 			const manifest: RegistryOnlyInputs["manifest"] = {
 				version: 1,
-				baseUrl: "https://github.com/86d-app/86d",
+				baseUrl: "https://github.com/86d-store/86d",
 				defaultRef: "main",
 				modules: manifestModules,
 				templates: {},
@@ -528,7 +528,7 @@ describe("validateRegistryOnlyResolvedModules", () => {
 		};
 		const manifest = {
 			version: 1 as const,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			modules: {},
 			templates: {},
@@ -592,7 +592,7 @@ describe("validateRegistryOnlyResolvedModules", () => {
 		};
 		const manifest = {
 			version: 1 as const,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			modules: {},
 			templates: {},
@@ -682,7 +682,7 @@ describe("validateRegistryOnlyResolvedModules", () => {
 			};
 			const manifest = {
 				version: 1 as const,
-				baseUrl: "https://github.com/86d-app/86d",
+				baseUrl: "https://github.com/86d-store/86d",
 				defaultRef: "main",
 				modules: {},
 				templates: {},
@@ -875,7 +875,7 @@ describe("validateRegistryOnlyInputs", () => {
 			},
 			manifest: {
 				version: 1,
-				baseUrl: "https://github.com/86d-app/86d",
+				baseUrl: "https://github.com/86d-store/86d",
 				defaultRef: "main",
 				modules: {},
 				templates: {},
@@ -954,7 +954,7 @@ describe("validateRegistryOnlyInputs", () => {
 				config: { modules: [raw] },
 				manifest: {
 					version: 1,
-					baseUrl: "https://github.com/86d-app/86d",
+					baseUrl: "https://github.com/86d-store/86d",
 					defaultRef: "main",
 					modules: {},
 					templates: {},

@@ -60,7 +60,7 @@ export function buildManifest(
 
 	const baseManifest = {
 		version: 1 as const,
-		baseUrl: options?.baseUrl ?? "https://github.com/86d-app/86d",
+		baseUrl: options?.baseUrl ?? "https://github.com/86d-store/86d",
 		defaultRef: options?.defaultRef ?? "main",
 	};
 

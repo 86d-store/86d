@@ -22,7 +22,7 @@ const BANNER_SIZE = { width: 2400, height: 1400 };
 const LOGO_SIZE = { width: 1200, height: 1200 };
 
 const USER_AGENT =
-	"86d-seed-asset-fetch/1.0 (+https://github.com/86d-app/86d; stock photo pipeline)";
+	"86d-seed-asset-fetch/1.0 (+https://github.com/86d-store/86d; stock photo pipeline)";
 
 type SourceEntry = {
 	relativePath: string;

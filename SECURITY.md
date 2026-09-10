@@ -4,7 +4,7 @@
 
 Report security issues privately through either channel:
 
-- [GitHub Security Advisories](https://github.com/86d-app/86d/security/advisories)
+- [GitHub Security Advisories](https://github.com/86d-store/86d/security/advisories)
 - Email: [security@86d.store](mailto:security@86d.store)
 
 Do **not** open a public GitHub issue, pull request, or discussion for a security-relevant report. Keep secrets, personal data, and working exploit detail out of public channels.
@@ -32,8 +32,8 @@ In scope examples:
 
 Out of scope for this policy (use ordinary channels instead):
 
-- Setup failures, missing env vars, and local misconfiguration → [Issues](https://github.com/86d-app/86d/issues) or [Troubleshooting](https://86d.app/docs/operations/troubleshooting)
-- Feature requests and design questions → [Discussions](https://github.com/86d-app/86d/discussions)
+- Setup failures, missing env vars, and local misconfiguration → [Issues](https://github.com/86d-store/86d/issues) or [Troubleshooting](https://86d.app/docs/operations/troubleshooting)
+- Feature requests and design questions → [Discussions](https://github.com/86d-store/86d/discussions)
 - Dependency advisories with no practical impact on this repository (we still welcome a private note if you are unsure)
 
 ## Supported versions

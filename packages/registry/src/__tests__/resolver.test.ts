@@ -69,7 +69,7 @@ afterAll(() => {
 
 const testManifest: RegistryManifest = {
 	version: 1,
-	baseUrl: "https://github.com/86d-app/86d",
+	baseUrl: "https://github.com/86d-store/86d",
 	defaultRef: "main",
 	templates: {},
 	modules: {
@@ -405,7 +405,7 @@ describe("readLocalManifest", () => {
 			manifestPath,
 			JSON.stringify({
 				version: 1,
-				baseUrl: "https://github.com/86d-app/86d",
+				baseUrl: "https://github.com/86d-store/86d",
 				defaultRef: "main",
 				modules: {},
 				templates: {},
@@ -439,7 +439,7 @@ describe("readLocalManifest", () => {
 describe("getModuleDependencies", () => {
 	const depManifest: RegistryManifest = {
 		version: 1,
-		baseUrl: "https://github.com/86d-app/86d",
+		baseUrl: "https://github.com/86d-store/86d",
 		defaultRef: "main",
 		templates: {},
 		modules: {
@@ -525,7 +525,7 @@ describe("getModuleDependencies", () => {
 	it("throws on circular dependencies", () => {
 		const circularManifest: RegistryManifest = {
 			version: 1,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			templates: {},
 			modules: {
@@ -561,7 +561,7 @@ describe("getModuleDependencies", () => {
 	it("throws on three-node cycle", () => {
 		const manifest: RegistryManifest = {
 			version: 1,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			templates: {},
 			modules: {
@@ -610,7 +610,7 @@ describe("detectCircularDependencies", () => {
 	it("returns empty array for acyclic graph", () => {
 		const manifest: RegistryManifest = {
 			version: 1,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			templates: {},
 			modules: {
@@ -644,7 +644,7 @@ describe("detectCircularDependencies", () => {
 	it("detects cycles across all modules", () => {
 		const manifest: RegistryManifest = {
 			version: 1,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			templates: {},
 			modules: {

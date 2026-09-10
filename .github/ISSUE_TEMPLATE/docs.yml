@@ -7,9 +7,9 @@ body:
       value: |
         Use this for **in-repo** documentation (README, CONTRIBUTING, AGENTS.md, package READMEs).
 
-        Published product docs live in [86d-app/docs](https://github.com/86d-app/docs) — open issues there instead.
+        Published product docs live in [86d-store/docs](https://github.com/86d-store/docs) — open issues there instead.
 
-        Questions about how something works → [Discussions (Help)](https://github.com/86d-app/86d/discussions/new?category=help).
+        Questions about how something works → [Discussions (Help)](https://github.com/86d-store/86d/discussions/new?category=help).
   - type: input
     id: location
     attributes:

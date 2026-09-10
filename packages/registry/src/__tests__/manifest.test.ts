@@ -110,7 +110,7 @@ describe("buildManifest", () => {
 	it("builds manifest from local modules", () => {
 		const manifest = buildManifest(TMP_ROOT);
 		expect(manifest.version).toBe(1);
-		expect(manifest.baseUrl).toBe("https://github.com/86d-app/86d");
+		expect(manifest.baseUrl).toBe("https://github.com/86d-store/86d");
 		expect(manifest.defaultRef).toBe("main");
 	});
 

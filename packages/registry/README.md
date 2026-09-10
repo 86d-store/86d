@@ -100,7 +100,7 @@ Production image generation uses `mode: "registry-only"` with a validated local 
 import { buildManifest } from "@86d-app/registry";
 
 const manifest = buildManifest("/path/to/project", {
-  baseUrl: "https://github.com/86d-app/86d",
+  baseUrl: "https://github.com/86d-store/86d",
   defaultRef: "main",
 });
 // manifest.modules contains all discovered modules with metadata
@@ -197,7 +197,7 @@ The `apps/registry/registry.json` file indexes all available modules and templat
 ```json
 {
   "version": 1,
-  "baseUrl": "https://github.com/86d-app/86d",
+  "baseUrl": "https://github.com/86d-store/86d",
   "defaultRef": "main",
   "modules": {
     "products": {

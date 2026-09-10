@@ -52,7 +52,7 @@ afterAll(() => {
 
 const testManifest: RegistryManifest = {
 	version: 1,
-	baseUrl: "https://github.com/86d-app/86d",
+	baseUrl: "https://github.com/86d-store/86d",
 	defaultRef: "main",
 	modules: {},
 	templates: {
@@ -140,7 +140,7 @@ describe("resolveTemplate", () => {
 	it("resolves local GitHub template if already downloaded", () => {
 		// brisa exists locally and has config.json
 		const result = resolveTemplate(
-			"github:86d-app/86d/templates/brisa",
+			"github:86d-store/86d/templates/brisa",
 			TMP_ROOT,
 			testManifest,
 		);
@@ -192,11 +192,11 @@ describe("fetchTemplate", () => {
 
 	it("skips fetch when template already exists locally", async () => {
 		const spec: ModuleSpecifier = {
-			raw: "github:86d-app/86d/templates/brisa",
+			raw: "github:86d-store/86d/templates/brisa",
 			source: "github",
 			name: "brisa",
 			packageName: "@86d-app/brisa",
-			repo: "86d-app/86d",
+			repo: "86d-store/86d",
 			path: "templates/brisa",
 			ref: "main",
 		};

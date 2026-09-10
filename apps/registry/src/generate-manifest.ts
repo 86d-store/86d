@@ -175,7 +175,7 @@ const storeRuntime = storeRuntimeVersion();
 const declarations = await loadDeclarations();
 
 const manifest = buildManifest(WORKSPACE_ROOT, {
-	baseUrl: "https://github.com/86d-app/86d",
+	baseUrl: "https://github.com/86d-store/86d",
 	defaultRef: "main",
 	...(commit ? { commit } : {}),
 	...(storeRuntime

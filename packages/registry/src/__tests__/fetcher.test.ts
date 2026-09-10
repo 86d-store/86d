@@ -146,7 +146,7 @@ async function runExternalPreservationFixture(
 	);
 	const manifest: RegistryManifest = {
 		version: 1,
-		baseUrl: "https://github.com/86d-app/86d",
+		baseUrl: "https://github.com/86d-store/86d",
 		defaultRef: "main",
 		templates: {},
 		modules: {
@@ -599,7 +599,7 @@ describe("fetchModules", () => {
 			).toBe(0);
 			const manifest: RegistryManifest = {
 				version: 1,
-				baseUrl: "https://github.com/86d-app/86d",
+				baseUrl: "https://github.com/86d-store/86d",
 				defaultRef: "main",
 				templates: {},
 				modules: {
@@ -689,7 +689,7 @@ describe("fetchModules", () => {
 		if (!integrity) throw new Error("integrity fixture missing");
 		const manifest: RegistryManifest = {
 			version: 1,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			templates: {},
 			modules: {
@@ -772,7 +772,7 @@ describe("fetchModules", () => {
 
 		const manifest: RegistryManifest = {
 			version: 1,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			templates: {},
 			modules: Object.fromEntries(
@@ -892,7 +892,7 @@ describe("fetchModules", () => {
 		).toBe(0);
 		const manifest: RegistryManifest = {
 			version: 1,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			templates: {},
 			modules: {
@@ -1060,7 +1060,7 @@ describe("fetchModules", () => {
 		).toBe(0);
 		const manifest: RegistryManifest = {
 			version: 1,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			templates: {},
 			modules: {
@@ -1317,7 +1317,7 @@ describe("fetchModules", () => {
 		);
 		const manifest: RegistryManifest = {
 			version: 1,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			templates: {},
 			modules: manifestModules,
@@ -1392,7 +1392,7 @@ describe("fetchModules", () => {
 		).toBe(0);
 		const manifest: RegistryManifest = {
 			version: 1,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			templates: {},
 			modules: Object.fromEntries(
@@ -1528,7 +1528,7 @@ describe("fetchModule", () => {
 
 		const manifest: RegistryManifest = {
 			version: 1,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			modules: {},
 			templates: {},
@@ -1554,11 +1554,11 @@ describe("fetchModule", () => {
 
 	it("skips fetch for github source when module already exists", async () => {
 		const spec: ModuleSpecifier = {
-			raw: "github:86d-app/86d/modules/products",
+			raw: "github:86d-store/86d/modules/products",
 			source: "github",
 			name: "products",
 			packageName: "@86d-app/products",
-			repo: "86d-app/86d",
+			repo: "86d-store/86d",
 			path: "modules/products",
 			ref: "main",
 		};
@@ -1605,7 +1605,7 @@ describe("registry fetch verification", () => {
 	function manifestWith(entry: Record<string, unknown>) {
 		return {
 			version: 1 as const,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			templates: {},
 			modules: {

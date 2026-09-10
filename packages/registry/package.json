@@ -4,7 +4,7 @@
 	"description": "Module registry for 86d — resolve, fetch, and cache modules from local, GitHub, or npm sources",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/86d-app/86d.git",
+		"url": "https://github.com/86d-store/86d.git",
 		"directory": "packages/registry"
 	},
 	"license": "MIT",

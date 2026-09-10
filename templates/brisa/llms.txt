@@ -46,6 +46,6 @@ Anyone who sells online—regardless of what you sell or how large your operatio
 
 ## Links
 
-- [GitHub](https://github.com/86d-app/86d)
+- [GitHub](https://github.com/86d-store/86d)
 - [npm](https://www.npmjs.com/package/86d)
 - [X](https://x.com/86d_app)

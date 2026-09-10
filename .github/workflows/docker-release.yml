@@ -314,7 +314,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           outputs: type=image,"name=${{ env.GHCR_IMAGE }},${{ env.DOCKERHUB_IMAGE }}",push=true,push-by-digest=true
           labels: |
-            org.opencontainers.image.source=https://github.com/86d-app/86d
+            org.opencontainers.image.source=https://github.com/86d-store/86d
             org.opencontainers.image.revision=${{ steps.release.outputs.revision }}
             org.opencontainers.image.version=${{ steps.release.outputs.version }}
           build-args: |

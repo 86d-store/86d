@@ -43,7 +43,7 @@ describe("registryManifestSchema", () => {
 	it("validates a full manifest", () => {
 		const result = registryManifestSchema.safeParse({
 			version: 1,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			defaultRef: "main",
 			modules: {
 				products: {
@@ -61,7 +61,7 @@ describe("registryManifestSchema", () => {
 	it("rejects wrong version", () => {
 		const result = registryManifestSchema.safeParse({
 			version: 2,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			modules: {},
 		});
 		expect(result.success).toBe(false);
@@ -70,7 +70,7 @@ describe("registryManifestSchema", () => {
 	it("applies default ref", () => {
 		const result = registryManifestSchema.parse({
 			version: 1,
-			baseUrl: "https://github.com/86d-app/86d",
+			baseUrl: "https://github.com/86d-store/86d",
 			modules: {},
 		});
 		expect(result.defaultRef).toBe("main");

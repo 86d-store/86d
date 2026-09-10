@@ -14,7 +14,7 @@
 	"homepage": "https://86d.app",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/86d-app/86d.git",
+		"url": "https://github.com/86d-store/86d.git",
 		"directory": "modules/flash-sales"
 	},
 	"license": "MIT",

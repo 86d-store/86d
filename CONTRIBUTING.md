@@ -14,7 +14,7 @@ By participating, you agree to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 ## Setup
 
 ```bash
-git clone https://github.com/86d-app/86d
+git clone https://github.com/86d-store/86d
 cd 86d
 bun install
 bun run 86d init
@@ -146,7 +146,7 @@ You do not need to upstream a Module to publish it:
 
 ## Documentation
 
-Docs live in [86d-app/docs](https://github.com/86d-app/docs). See that repository's `CONTRIBUTING.md` for docs-specific guidelines.
+Docs live in [86d-store/docs](https://github.com/86d-store/docs). See that repository's `CONTRIBUTING.md` for docs-specific guidelines.
 
 ## License
 
@@ -154,6 +154,6 @@ By contributing, you agree that your contributions are licensed under the [MIT L
 
 ## Getting help
 
-- [Discussions](https://github.com/86d-app/86d/discussions) for help questions and feature ideas
-- [Issues](https://github.com/86d-app/86d/issues) for reproducible bugs (and in-repo docs problems)
+- [Discussions](https://github.com/86d-store/86d/discussions) for help questions and feature ideas
+- [Issues](https://github.com/86d-store/86d/issues) for reproducible bugs (and in-repo docs problems)
 - [SECURITY.md](SECURITY.md) for vulnerabilities — never open a public issue for those

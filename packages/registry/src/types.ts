@@ -148,7 +148,7 @@ export type RegistryTemplate = z.infer<typeof registryTemplateSchema>;
 export const registryManifestSchema = z.object({
 	/** Manifest format version. */
 	version: z.literal(1),
-	/** Base GitHub repo URL (e.g. "https://github.com/86d-app/86d"). */
+	/** Base GitHub repo URL (e.g. "https://github.com/86d-store/86d"). */
 	baseUrl: z.string(),
 	/** Default branch for fetching (e.g. "main"). */
 	defaultRef: z.string().default("main"),

@@ -91,7 +91,7 @@ External-provider paths earn maturity independently. An optional Integration may
 
 Templates use `.tsx` for logic and `.mdx` for presentation. Overrides live in `templates/<name>/components/mdx.tsx`; generated component registration spreads `...templateOverrides` last. CLI Module builds compile TypeScript and copy non-TS assets. The workspace CLI bin must exist at install time (`packages/cli/bin/86d.mjs`); a gitignored build output cannot be its workspace bin target.
 
-The canonical registry manifest is the published `apps/registry/registry.json` from `86d-app/86d`, not an arbitrary local copy. Resolution checks local workspace Modules before the registry and verifies fetched integrity. Inspect `packages/registry/AGENTS.md` before changing this behavior.
+The canonical registry manifest is the published `apps/registry/registry.json` from `86d-store/86d`, not an arbitrary local copy. Resolution checks local workspace Modules before the registry and verifies fetched integrity. Inspect `packages/registry/AGENTS.md` before changing this behavior.
 
 ## Deployment identity
 
