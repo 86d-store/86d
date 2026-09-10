@@ -449,31 +449,55 @@ describe("GET|POST /api/[...path]", () => {
 		});
 
 		it("returns 500 with structured error when router throws", async () => {
-			mockCreateApiRouter.mockReturnValue({
-				handler: vi.fn().mockRejectedValue(new Error("Registry unavailable")),
-			});
+			const diagnostic = vi
+				.spyOn(console, "error")
+				.mockImplementation(() => {});
+			try {
+				mockCreateApiRouter.mockReturnValue({
+					handler: vi.fn().mockRejectedValue(new Error("Registry unavailable")),
+				});
 
-			const res = await GET(makeRequest("/products"), makeCtx(["products"]));
-			const json = await res.json();
+				const res = await GET(makeRequest("/products"), makeCtx(["products"]));
+				const json = await res.json();
 
-			expect(res.status).toBe(500);
-			expect(json.error.code).toBe("INTERNAL_SERVER_ERROR");
+				expect(res.status).toBe(500);
+				expect(json.error.code).toBe("INTERNAL_SERVER_ERROR");
+				expect(diagnostic).toHaveBeenCalledExactlyOnceWith(
+					"API route unhandled error",
+					"/products",
+					new Error("Registry unavailable"),
+				);
+			} finally {
+				diagnostic.mockRestore();
+			}
 		});
 
 		it("logs errors when the router handler throws", async () => {
-			mockCreateApiRouter.mockReturnValue({
-				handler: vi.fn().mockRejectedValue(new Error("DB connection lost")),
-			});
+			const diagnostic = vi
+				.spyOn(console, "error")
+				.mockImplementation(() => {});
+			try {
+				mockCreateApiRouter.mockReturnValue({
+					handler: vi.fn().mockRejectedValue(new Error("DB connection lost")),
+				});
 
-			await GET(makeRequest("/products"), makeCtx(["products"]));
+				await GET(makeRequest("/products"), makeCtx(["products"]));
 
-			expect(mockLoggerError).toHaveBeenCalledWith(
-				"API route unhandled error",
-				expect.objectContaining({
-					path: "/products",
-					error: "DB connection lost",
-				}),
-			);
+				expect(mockLoggerError).toHaveBeenCalledWith(
+					"API route unhandled error",
+					expect.objectContaining({
+						path: "/products",
+						error: "DB connection lost",
+					}),
+				);
+				expect(diagnostic).toHaveBeenCalledExactlyOnceWith(
+					"API route unhandled error",
+					"/products",
+					new Error("DB connection lost"),
+				);
+			} finally {
+				diagnostic.mockRestore();
+			}
 		});
 	});
 

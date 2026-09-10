@@ -1,9 +1,9 @@
 import { getSession } from "auth/actions";
 import { redirect } from "next/navigation";
-import { AccountShell } from "~/components/account-shell";
+import { AccountShell } from "./_components/account-shell";
 
 export const metadata = {
-	title: "My Account",
+	title: "My account",
 };
 
 export default async function AccountLayout({

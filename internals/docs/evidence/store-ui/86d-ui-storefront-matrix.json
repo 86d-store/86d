@@ -1,0 +1,180 @@
+[
+	{
+		"width": 375,
+		"height": 667,
+		"theme": "light",
+		"status": 200,
+		"headlineVisible": true,
+		"discoveryLinks": 3,
+		"horizontalOverflow": false,
+		"pageErrors": [],
+		"hydrationErrors": [
+			"A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\n%s%s https://react.dev/link/hydration-mismatch \n\n  ...\n    <MDXContent config={{$schema:\"h...\", ...}} components={{...}}>\n      <a>\n      <AnnouncementBar>\n      <StoreNavbar>\n      <main>\n      <StoreFooter logo={{url:\"/\", ...}} storeName=\"86d Starte...\" sections={[...]}>\n        <MDXContent logo={{url:\"/\", ...}} storeName=\"86d Starte...\" sections={[...]} year={2026}>\n          <footer className=\"border-bor...\">\n            <MDXContent className=\"grid gap-1...\">\n              <View className=\"mx-auto w-...\">\n                <div data-slot=\"view\" className=\"mx-auto w-...\">\n                  <View className=\"flex flex-...\">\n                    <div data-slot=\"view\" className=\"flex flex-...\">\n                      <Text>\n                      <Text>\n                      <View className=\"w-full max...\">\n                        <div data-slot=\"view\" className=\"w-full max...\">\n                          <NewsletterForm compact={true} title=\"\" description=\"\">\n                            <MDXContent success={false} email=\"\" onEmailChange={function bound dispatchSetState} ...>\n                              <form onSubmit={function handleSubmit} className=\"space-y-2\">\n                                <div className=\"flex gap-2\">\n                                  <input\n                                    type=\"email\"\n                                    required={true}\n                                    value=\"\"\n                                    onChange={function onChange}\n                                    placeholder=\"you@example.com\"\n                                    className=\"min-w-0 flex-1 rounded-lg border border-input bg-background px-3 py-2 t...\"\n-                                   style={{caret-color:\"transparent\"}}\n                                  >\n                                  ...\n                  ...\n            ...\n      ...\n"
+		],
+		"screenshot": "/tmp/86d-ui-storefront-375-light.png",
+		"viewportScreenshot": "/tmp/86d-ui-storefront-375-light-viewport.png",
+		"geometry": {
+			"viewport": 375,
+			"rootWidth": 375,
+			"rootScrollWidth": 375,
+			"bodyScrollWidth": 375,
+			"headline": {
+				"x": 20,
+				"y": 161,
+				"width": 335,
+				"height": 151.171875,
+				"top": 161,
+				"right": 355,
+				"bottom": 312.171875,
+				"left": 20
+			}
+		}
+	},
+	{
+		"width": 768,
+		"height": 1024,
+		"theme": "light",
+		"status": 200,
+		"headlineVisible": true,
+		"discoveryLinks": 3,
+		"horizontalOverflow": false,
+		"pageErrors": [],
+		"hydrationErrors": [],
+		"screenshot": "/tmp/86d-ui-storefront-768-light.png",
+		"viewportScreenshot": "/tmp/86d-ui-storefront-768-light-viewport.png",
+		"geometry": {
+			"viewport": 768,
+			"rootWidth": 768,
+			"rootScrollWidth": 768,
+			"bodyScrollWidth": 768,
+			"headline": {
+				"x": 32,
+				"y": 177,
+				"width": 672,
+				"height": 126,
+				"top": 177,
+				"right": 704,
+				"bottom": 303,
+				"left": 32
+			}
+		}
+	},
+	{
+		"width": 1280,
+		"height": 720,
+		"theme": "light",
+		"status": 200,
+		"headlineVisible": true,
+		"discoveryLinks": 3,
+		"horizontalOverflow": false,
+		"pageErrors": [],
+		"hydrationErrors": [],
+		"screenshot": "/tmp/86d-ui-storefront-1280-light.png",
+		"viewportScreenshot": "/tmp/86d-ui-storefront-1280-light-viewport.png",
+		"geometry": {
+			"viewport": 1280,
+			"rootWidth": 1280,
+			"rootScrollWidth": 1280,
+			"bodyScrollWidth": 1280,
+			"headline": {
+				"x": 40,
+				"y": 193,
+				"width": 672,
+				"height": 151.1875,
+				"top": 193,
+				"right": 712,
+				"bottom": 344.1875,
+				"left": 40
+			}
+		}
+	},
+	{
+		"width": 375,
+		"height": 667,
+		"theme": "dark",
+		"status": 200,
+		"headlineVisible": true,
+		"discoveryLinks": 3,
+		"horizontalOverflow": false,
+		"pageErrors": [],
+		"hydrationErrors": [],
+		"screenshot": "/tmp/86d-ui-storefront-375-dark.png",
+		"viewportScreenshot": "/tmp/86d-ui-storefront-375-dark-viewport.png",
+		"geometry": {
+			"viewport": 375,
+			"rootWidth": 375,
+			"rootScrollWidth": 375,
+			"bodyScrollWidth": 375,
+			"headline": {
+				"x": 20,
+				"y": 161,
+				"width": 335,
+				"height": 151.171875,
+				"top": 161,
+				"right": 355,
+				"bottom": 312.171875,
+				"left": 20
+			}
+		}
+	},
+	{
+		"width": 768,
+		"height": 1024,
+		"theme": "dark",
+		"status": 200,
+		"headlineVisible": true,
+		"discoveryLinks": 3,
+		"horizontalOverflow": false,
+		"pageErrors": [],
+		"hydrationErrors": [],
+		"screenshot": "/tmp/86d-ui-storefront-768-dark.png",
+		"viewportScreenshot": "/tmp/86d-ui-storefront-768-dark-viewport.png",
+		"geometry": {
+			"viewport": 768,
+			"rootWidth": 768,
+			"rootScrollWidth": 768,
+			"bodyScrollWidth": 768,
+			"headline": {
+				"x": 32,
+				"y": 177,
+				"width": 672,
+				"height": 126,
+				"top": 177,
+				"right": 704,
+				"bottom": 303,
+				"left": 32
+			}
+		}
+	},
+	{
+		"width": 1280,
+		"height": 720,
+		"theme": "dark",
+		"status": 200,
+		"headlineVisible": true,
+		"discoveryLinks": 3,
+		"horizontalOverflow": false,
+		"pageErrors": [],
+		"hydrationErrors": [
+			"A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\n%s%s https://react.dev/link/hydration-mismatch \n\n  ...\n    <MDXContent config={{$schema:\"h...\", ...}} components={{...}}>\n      <a>\n      <AnnouncementBar>\n      ...\n        <header className=\"sticky top...\">\n          <MDXContent className=\"flex h-18 ...\">\n            <View className=\"mx-auto w-...\">\n              <div data-slot=\"view\" className=\"mx-auto w-...\">\n                <LinkComponent>\n                <nav>\n                <View className=\"ml-auto fl...\">\n                  <div data-slot=\"view\" className=\"ml-auto fl...\">\n                    <StoreSearchCommand>\n                      <ContributorQueryBridge>\n                      <ContributorQueryBridge>\n                      <ContributorQueryBridge>\n                      <ContributorQueryBridge>\n                      <ContributorQueryBridge>\n                      <ContributorQueryBridge>\n                      <ContributorQueryBridge>\n                      <ContributorQueryBridge>\n                      <InputGroup className=\"hidden max...\" onClick={function handleTriggerClick}>\n                        <fieldset data-slot=\"input-group\" className={\"group/in...\"} onClick={function handleTriggerClick}>\n                          <InputGroupInput placeholder=\"Search…\" readOnly={true} className=\"pointer-ev...\">\n                            <Input data-slot=\"input-grou...\" className=\"flex-1 rou...\" placeholder=\"Search…\" ...>\n                              <Input type={undefined} data-slot=\"input-grou...\" className=\"h-9 w-full...\" ...>\n                                <FieldControl ref={null} type={undefined} data-slot=\"input-grou...\" ...>\n                                  <input\n                                    id=\"base-ui-_R_18td5rlblb_\"\n                                    disabled={false}\n                                    name={undefined}\n                                    ref={function}\n                                    aria-labelledby={undefined}\n                                    autoFocus={false}\n                                    defaultValue={undefined}\n                                    onChange={function}\n                                    onFocus={function}\n                                    onBlur={function}\n                                    onKeyDown={function}\n                                    type={undefined}\n                                    data-slot=\"input-group-control\"\n                                    placeholder=\"Search…\"\n                                    readOnly={true}\n                                    className=\"h-9 w-full min-w-0 border-input px-2.5 py-1 text-base outline-none tran...\"\n-                                   style={{caret-color:\"transparent\"}}\n                                  >\n                          ...\n                      ...\n                    ...\n      <main>\n      <StoreFooter logo={{url:\"/\", ...}} storeName=\"86d Starte...\" sections={[...]}>\n        <MDXContent logo={{url:\"/\", ...}} storeName=\"86d Starte...\" sections={[...]} year={2026}>\n          <footer className=\"border-bor...\">\n            <MDXContent className=\"grid gap-1...\">\n              <View className=\"mx-auto w-...\">\n                <div data-slot=\"view\" className=\"mx-auto w-...\">\n                  <View className=\"flex flex-...\">\n                    <div data-slot=\"view\" className=\"flex flex-...\">\n                      <Text>\n                      <Text>\n                      <View className=\"w-full max...\">\n                        <div data-slot=\"view\" className=\"w-full max...\">\n                          <NewsletterForm compact={true} title=\"\" description=\"\">\n                            <MDXContent success={false} email=\"\" onEmailChange={function bound dispatchSetState} ...>\n                              <form onSubmit={function handleSubmit} className=\"space-y-2\">\n                                <div className=\"flex gap-2\">\n                                  <input\n                                    type=\"email\"\n                                    required={true}\n                                    value=\"\"\n                                    onChange={function onChange}\n                                    placeholder=\"you@example.com\"\n                                    className=\"min-w-0 flex-1 rounded-lg border border-input bg-background px-3 py-2 t...\"\n-                                   style={{caret-color:\"transparent\"}}\n                                  >\n                                  ...\n                  ...\n            ...\n      ...\n"
+		],
+		"screenshot": "/tmp/86d-ui-storefront-1280-dark.png",
+		"viewportScreenshot": "/tmp/86d-ui-storefront-1280-dark-viewport.png",
+		"geometry": {
+			"viewport": 1280,
+			"rootWidth": 1280,
+			"rootScrollWidth": 1280,
+			"bodyScrollWidth": 1280,
+			"headline": {
+				"x": 40,
+				"y": 193,
+				"width": 672,
+				"height": 151.1875,
+				"top": 193,
+				"right": 712,
+				"bottom": 344.1875,
+				"left": 40
+			}
+		}
+	}
+]

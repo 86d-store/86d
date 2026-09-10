@@ -1,0 +1,81 @@
+import Image from "next/image";
+import Link from "next/link";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@86d-app/ui/shadcn/breadcrumb";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@86d-app/ui/shadcn/collapsible";
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@86d-app/ui/shadcn/empty";
+import { Input } from "@86d-app/ui/shadcn/input";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator } from "@86d-app/ui/shadcn/sidebar";
+import { Icon } from "~/components/icon/icon";
+import { StoreAction } from "~/components/store-action";
+
+export function NavigationItems({ items, onNavigate }) {
+  return (
+    <SidebarMenu>
+      {items.map((item) => (
+        <SidebarMenuItem key={item.href + item.label}>
+          <SidebarMenuButton isActive={item.isActive} render={<Link href={item.href} onClick={onNavigate} aria-current={item.isActive ? "page" : undefined} />} className="h-11 transition-colors duration-150 motion-reduce:transition-none md:h-10">
+            {item.icon ? <Icon name={item.icon} /> : null}
+            <span>{item.label}</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      ))}
+    </SidebarMenu>
+  );
+}
+
+export function NavigationSection({ section, onNavigate, nested = false }) {
+  return section.label ? (
+    <Collapsible open={section.isOpen} onOpenChange={section.onOpenChange} className="flex flex-col gap-1">
+      <CollapsibleTrigger render={<SidebarMenuButton />} className="h-11 font-medium transition-colors duration-150 motion-reduce:transition-none md:h-10">
+        {section.icon ? <Icon name={section.icon} /> : null}
+        <span className="flex-1">{section.label}</span>
+        <Icon name={section.isOpen ? "chevron-down" : "chevron-right"} />
+      </CollapsibleTrigger>
+      <CollapsibleContent className={nested ? "ml-4 border-l border-sidebar-border pl-2" : "flex flex-col gap-2 pl-2"}>
+        {section.items.length ? <NavigationItems items={section.items} onNavigate={onNavigate} /> : null}
+        {section.sections.map((child) => <NavigationSection key={child.id} section={child} onNavigate={onNavigate} nested />)}
+      </CollapsibleContent>
+    </Collapsible>
+  ) : <NavigationItems items={section.items} onNavigate={onNavigate} />;
+}
+
+<>
+  <a href="#admin-main" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-background focus:px-4 focus:py-3 focus:font-medium focus:text-foreground focus:text-sm focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring">Skip to main content</a>
+  <Sidebar aria-label="Store administration" className="border-sidebar-border">
+    <SidebarHeader className="gap-4 p-4">
+      <div className="flex min-h-11 items-center gap-2">
+        <Link href="/admin" onClick={props.onNavigate} className="flex min-h-11 min-w-0 flex-1 items-center gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <Image src="/assets/icon/light.svg" alt="" width={28} height={28} unoptimized className="size-7 dark:hidden" />
+          <Image src="/assets/icon/dark.svg" alt="" width={28} height={28} unoptimized className="hidden size-7 dark:block" />
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="font-semibold text-sm">Store admin</span>
+            <span className="text-muted-foreground text-xs">Manage your store</span>
+          </span>
+        </Link>
+        <StoreAction static variant="ghost" size="icon" className="shrink-0 md:hidden" aria-label="Close navigation" onClick={props.onNavigate}><Icon name="x" /></StoreAction>
+      </div>
+      <Input type="search" value={props.search} onChange={props.onSearch} placeholder="Find a page…" aria-label="Find an admin page" className="h-11 md:h-10" />
+    </SidebarHeader>
+    <SidebarSeparator />
+    <SidebarContent className="gap-4 p-3">
+      <nav aria-label="Admin navigation" className="flex flex-col gap-4">
+        {props.items.length ? <NavigationItems items={props.items} onNavigate={props.onNavigate} /> : null}
+        {props.sections.map((section) => <NavigationSection key={section.id} section={section} onNavigate={props.onNavigate} />)}
+        {!props.items.length && !props.sections.length ? <Empty className="p-4"><EmptyHeader><EmptyTitle>No pages found</EmptyTitle><EmptyDescription>Try a different search.</EmptyDescription></EmptyHeader></Empty> : null}
+      </nav>
+    </SidebarContent>
+    <SidebarSeparator />
+    <SidebarFooter className="p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <NavigationItems items={props.footerItems} onNavigate={props.onNavigate} />
+    </SidebarFooter>
+  </Sidebar>
+  <SidebarInset className="min-w-0 overflow-hidden">
+    <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border px-4 md:px-6">
+      <StoreAction static variant="ghost" size="icon" className="shrink-0" aria-label="Toggle navigation" aria-expanded={props.isNavigationOpen} onClick={props.onToggleNavigation}><Icon name="menu" /></StoreAction>
+      <Breadcrumb className="min-w-0"><BreadcrumbList className="flex-nowrap">{props.showBreadcrumbRoot ? <><BreadcrumbItem className="hidden sm:inline-flex"><BreadcrumbLink render={<Link href="/admin" />} className="inline-flex min-h-10 items-center">Store admin</BreadcrumbLink></BreadcrumbItem><BreadcrumbSeparator className="hidden sm:block"><Icon name="chevron-right" /></BreadcrumbSeparator></> : null}<BreadcrumbItem className="min-w-0"><BreadcrumbPage className="truncate">{props.pageLabel}</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb>
+    </header>
+    <div id="admin-main" tabIndex={-1} className="@container/main min-h-0 flex-1 overflow-y-auto outline-none">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:p-6 @5xl/main:gap-8 @5xl/main:p-8">{props.children}</div>
+    </div>
+  </SidebarInset>
+</>

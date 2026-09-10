@@ -29,7 +29,10 @@ The default store template for [86d](https://86d.app). A clean, minimal e-commer
 - Dark/light mode with OKLCH color tokens
 - SEO-friendly pages with proper headings and meta
 - Module component integration (cart, products, blog, search, newsletter, etc.)
-- Marquee trust bar, featured products, collection grid
+- Editorial homepage with catalog discovery links, featured products, and collections
+- Shared MDX containers and headings across catalog, search, and journal pages
+- Responsive navigation using the shared Sheet primitive and one theme-control composition
+- One newsletter signup in the shared footer
 - Contact form with newsletter opt-in
 - Legal pages (terms, privacy)
 - Order tracking
@@ -71,7 +74,7 @@ Brisa names each bundled Module instead of using wildcard discovery. Registry en
 
 | Route | Template File | Description |
 |-------|---------------|-------------|
-| `/` | `index.mdx` | Homepage (hero, products, collections, newsletter, blog) |
+| `/` | `index.mdx` | Homepage (hero, discovery links, commerce sections, journal) |
 | `/products` | `products/layout.mdx` | Product catalog with filters |
 | `/products/:slug` | `products/[slug]/layout.mdx` | Product detail |
 | `/collections` | `collections/layout.mdx` | Collection grid |
@@ -112,9 +115,11 @@ Edit `layout.mdx` to change nav items:
 />
 ```
 
-### Footer Sections
+### Footer sections
 
-Edit the `sections` array in `layout.mdx` to change footer links.
+Edit the `sections` array passed to `StoreFooter` in `layout.mdx` to change footer links. Shop, Company, Help, and Legal use the same link-group presentation. The footer contains the storefront's shared newsletter signup; the homepage does not add a second form.
+
+`StoreFooter` in `_components/footer.tsx` accepts `logo`, `storeName`, and `sections`, derives the copyright year, and passes those values to `footer.mdx`. Logo configuration has `url`, `lightSrc`, `darkSrc`, `alt`, and `title`; each section has a `title` and `links` with `name` and `href`.
 
 ### Assets
 
@@ -123,5 +128,24 @@ Replace the SVG files in `assets/` with your own logo and favicon. Maintain the 
 ## Architecture
 
 Templates are resolved via the `template/*` tsconfig alias. The store app imports template MDX files as React components. Module components (e.g., `<ProductListing />`, `<BlogList />`) are auto-registered when their modules are enabled.
+
+Keep state, derived values, and event handlers in TypeScript; keep layout and render conditions in MDX. Presentation-only compositions do not need a TypeScript wrapper.
+
+| File | Responsibility |
+| --- | --- |
+| `layout.mdx` | Store shell, navigation/footer configuration, cart and announcement composition |
+| `navbar.mdx` | Desktop navigation and mobile Sheet presentation |
+| `footer.mdx` | Newsletter, configured link groups, store identity and copyright presentation |
+| `_components/container.mdx` | Shared responsive page width and horizontal padding |
+| `_components/page-heading.mdx` | Page title, optional eyebrow and description, and optional children |
+| `_components/quick-link.mdx` | Numbered discovery link with title, description, and destination |
+| `_components/theme-control.mdx` | Light/dark actions with callbacks supplied by the navbar controller |
+| `_components/footer.tsx` | Footer props contract and copyright year derivation |
+
+The app's `StoreNavbar` controller owns open state, active-path matching, and theme handlers. Its `navbar.mdx` props are `logoLight`, `logoDark`, `storeName`, `navItems` (including derived `active`), `actions`, `isOpen`, `onOpenChange`, `handleNavClick`, `handleLightTheme`, and `handleDarkTheme`. The mobile Sheet closes after navigation and when the viewport reaches the desktop navigation breakpoint (1024px). The shared Sheet primitive owns focus containment, Escape handling, and scroll locking.
+
+`StoreAction` and `StoreLink` are registered app compositions over the shared button primitive and its variants. `StoreLink` preserves anchor semantics; `StoreAction` accepts `static` for frequent controls that should skip press scaling. Keep shadcn primitive internals unchanged when customizing the template.
+
+The homepage places optional commerce sections inside one container and leaves loading, empty, error, and data behavior with their owning modules. Hidden sections no longer leave padded outer wrappers. There is no animated trust marquee: only add shipping, return, or product claims after configuring and verifying the merchant's actual policy.
 
 See [AGENTS.md](./AGENTS.md) for the full technical reference.

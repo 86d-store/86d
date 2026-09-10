@@ -1,0 +1,11 @@
+import { Moon, Sun } from "lucide-react";
+import { View } from "@86d-app/ui/view";
+
+<View className="flex items-center">
+  <StoreAction static variant="ghost" size="icon" onClick={props.onLight} aria-label="Switch to light mode" className="hidden dark:inline-flex">
+    <Sun aria-hidden="true" />
+  </StoreAction>
+  <StoreAction static variant="ghost" size="icon" onClick={props.onDark} aria-label="Switch to dark mode" className="dark:hidden">
+    <Moon aria-hidden="true" />
+  </StoreAction>
+</View>

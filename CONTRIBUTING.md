@@ -91,12 +91,12 @@ bun run regen:locks
 
 ### Pull request automation
 
-Pull requests that touch `modules/`, `packages/registry/`, or either lockfile run the **Sync PR lockfiles** workflow. It rebases onto the base branch, regenerates locks, and force-pushes when the branch is behind.
+Pull requests that touch `modules/`, `packages/registry/`, or either lockfile run the **Sync PR lockfiles** workflow.
 
-- **Same-repository branches:** fully automated
-- **Fork pull requests:** the workflow comments with exact commands unless the repository configures a `REPO_SYNC_TOKEN` secret with write access
+- **Same-repository branches:** the workflow rebases onto the base branch, regenerates lockfiles, and force-pushes when the branch is behind.
+- **Fork pull requests:** the workflow does not mutate the branch or PR. Open the workflow run summary for exact local rebase and lockfile-refresh commands.
 
-If the bot comments that non-lock files still conflict, resolve those locally, then run `bun run regen:locks` and push.
+If the workflow comments that a same-repository branch has non-lock conflicts, resolve those locally, then run `bun run regen:locks` and push.
 
 ## Pull requests
 

@@ -230,6 +230,14 @@ Generate it with:
 bun run generate:registry
 ```
 
+This command requires committed Module and template source and pins entries to
+that exact commit. `bun run bump-version` uses `generate:registry --local` while
+updating package versions. It writes current integrity hashes without commit pins
+to ignored `.86d/registry.local.json`, preserving the published manifest. Local
+metadata cannot satisfy a registry-only build. After committing versioned source,
+regenerate without `--local` and commit the canonical manifest before publication;
+CI also uses that strict generation path.
+
 ## API Reference
 
 ### `parseSpecifier(raw: string): ModuleSpecifier`

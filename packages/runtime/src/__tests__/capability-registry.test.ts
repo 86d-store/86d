@@ -660,39 +660,48 @@ describe("ModuleRegistry capability invocation", () => {
 	});
 
 	it("redacts provider exceptions behind a bounded failure", async () => {
-		const registry = new ModuleRegistry(
-			[
-				module("inventory", {
-					capabilities: {
-						provides: [
-							provideCapability(availabilityV1, async () => {
-								throw new Error("database-password=canary-secret");
-							}),
-						],
-					},
-				}),
-				module("checkout", {
-					capabilities: { accepts: [acceptCapability(availabilityV1)] },
-				}),
-			],
-			"store-1",
-			config(),
-		);
-		await registry.boot();
+		const diagnostic = vi.spyOn(console, "error").mockImplementation(() => {});
+		try {
+			const registry = new ModuleRegistry(
+				[
+					module("inventory", {
+						capabilities: {
+							provides: [
+								provideCapability(availabilityV1, async () => {
+									throw new Error("database-password=canary-secret");
+								}),
+							],
+						},
+					}),
+					module("checkout", {
+						capabilities: { accepts: [acceptCapability(availabilityV1)] },
+					}),
+				],
+				"store-1",
+				config(),
+			);
+			await registry.boot();
 
-		const result = await registry
-			.createRequestContext("checkout")
-			.capabilities.invoke(availabilityV1, { sku: "sku-1" });
+			const result = await registry
+				.createRequestContext("checkout")
+				.capabilities.invoke(availabilityV1, { sku: "sku-1" });
 
-		expect(result).toEqual({
-			ok: false,
-			failure: {
-				code: "CAPABILITY_PROVIDER_FAILED",
-				capability: "inventory.availability",
-				version: "1.0.0",
-			},
-		});
-		expect(JSON.stringify(result)).not.toContain("canary-secret");
+			expect(result).toEqual({
+				ok: false,
+				failure: {
+					code: "CAPABILITY_PROVIDER_FAILED",
+					capability: "inventory.availability",
+					version: "1.0.0",
+				},
+			});
+			expect(JSON.stringify(result)).not.toContain("canary-secret");
+			expect(diagnostic).toHaveBeenCalledExactlyOnceWith(
+				"[86d] capability inventory.availability@1.0.0 threw in provider inventory:",
+				expect.any(Error),
+			);
+		} finally {
+			diagnostic.mockRestore();
+		}
 	});
 
 	it("does not expose provider data or controllers to consumers", async () => {

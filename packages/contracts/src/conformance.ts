@@ -10,7 +10,7 @@ import {
 import { conformanceArtifact as artifact } from "./generated/conformance-artifact";
 import { canonicalJson } from "./serialize";
 
-export const CONTRACTS_PACKAGE_VERSION = "0.0.42" as const;
+export const CONTRACTS_PACKAGE_VERSION = artifact.version;
 export const CONTRACTS_ARTIFACT_VERSION = artifact.version;
 export const CONFORMANCE_DIGEST = artifact.digest;
 export const COMPATIBILITY_MATRIX = artifact.compatibilityMatrix;

@@ -8,6 +8,7 @@ import {
 	LogoTextDesktop,
 	LogoTextMobile,
 } from "./logo";
+import { StoreAction, StoreLink } from "./store-action";
 import { StoreNavbar } from "./store-navbar";
 import { StoreSearchCommand } from "./store-search-command";
 
@@ -21,5 +22,7 @@ export default {
 	LogoTextDesktop,
 	LogoTextMobile,
 	StoreNavbar,
+	StoreAction,
+	StoreLink,
 	StoreSearchCommand,
 };

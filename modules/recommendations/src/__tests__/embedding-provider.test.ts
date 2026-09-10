@@ -119,16 +119,34 @@ describe("OpenAIEmbeddingProvider", () => {
 			});
 
 			const provider = makeProvider();
-			const result = await provider.generateEmbedding("test");
-			expect(result).toBeNull();
+			const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+			try {
+				const result = await provider.generateEmbedding("test");
+				expect(result).toBeNull();
+				expect(errorSpy).toHaveBeenCalledExactlyOnceWith(
+					"Embedding API error: Rate limit exceeded",
+				);
+			} finally {
+				errorSpy.mockRestore();
+			}
 		});
 
 		it("returns null on network error", async () => {
-			mockFetch.mockRejectedValueOnce(new Error("Network error"));
+			const failure = new Error("Network error");
+			mockFetch.mockRejectedValueOnce(failure);
 
 			const provider = makeProvider();
-			const result = await provider.generateEmbedding("test");
-			expect(result).toBeNull();
+			const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+			try {
+				const result = await provider.generateEmbedding("test");
+				expect(result).toBeNull();
+				expect(errorSpy).toHaveBeenCalledExactlyOnceWith(
+					"Embedding API request failed:",
+					failure,
+				);
+			} finally {
+				errorSpy.mockRestore();
+			}
 		});
 	});
 
@@ -206,9 +224,17 @@ describe("OpenAIEmbeddingProvider", () => {
 			});
 
 			const provider = makeProvider();
-			const results = await provider.generateEmbeddings(["a", "b"]);
+			const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+			try {
+				const results = await provider.generateEmbeddings(["a", "b"]);
 
-			expect(results).toEqual([null, null]);
+				expect(results).toEqual([null, null]);
+				expect(errorSpy).toHaveBeenCalledExactlyOnceWith(
+					"Embedding API error: Internal error",
+				);
+			} finally {
+				errorSpy.mockRestore();
+			}
 		});
 	});
 });

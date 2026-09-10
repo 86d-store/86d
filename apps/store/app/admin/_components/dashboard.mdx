@@ -1,0 +1,94 @@
+import { Alert, AlertDescription, AlertTitle } from "@86d-app/ui/alert";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@86d-app/ui/card";
+import { Text } from "@86d-app/ui/text";
+import { View } from "@86d-app/ui/view";
+import { ArrowUpRight, Package, Plus, RefreshCw, TriangleAlert } from "lucide-react";
+import { StoreAction, StoreLink } from "~/components/store-action";
+import { DashboardMetric, DashboardOperation, DashboardOrders, DashboardStock } from "./dashboard-parts.mdx";
+
+<View className="@container/dashboard flex min-w-0 flex-col gap-6">
+  <View asChild className="flex flex-wrap items-start justify-between gap-4">
+    <header>
+      <View className="flex min-w-0 flex-col gap-1.5">
+        <Text variant="h1" className="text-balance font-semibold text-3xl tracking-tight lg:text-3xl">Dashboard</Text>
+        <Text variant="p" className="text-pretty text-muted-foreground text-sm">A clear view of your store, and what needs your attention.</Text>
+      </View>
+      <View className="flex flex-wrap items-center gap-2">
+        <StoreAction variant="outline" onClick={props.onRefresh} disabled={props.isRefreshing || !props.onRefresh}>
+          <RefreshCw className="size-4" aria-hidden="true" />
+          {props.isRefreshing ? "Refreshing…" : "Refresh"}
+        </StoreAction>
+        <StoreLink href="/admin/products/new" variant="default"><Plus className="size-4" aria-hidden="true" /> Add product</StoreLink>
+      </View>
+    </header>
+  </View>
+
+  {props.model.issues.map((issue) => (
+    <Alert key={issue.title}>
+      <TriangleAlert aria-hidden="true" />
+      <AlertTitle>{issue.title}</AlertTitle>
+      <AlertDescription>{issue.description}{issue.action && <StoreLink href={issue.action.href}>{issue.action.label}</StoreLink>}</AlertDescription>
+    </Alert>
+  ))}
+
+  <View asChild className="flex flex-col gap-3">
+    <section aria-labelledby="store-performance">
+      <View className="flex items-center justify-between gap-4">
+        <Text variant="h2" id="store-performance" className="font-medium text-base tracking-normal">Store performance</Text>
+        <Text className="text-muted-foreground text-xs">All time</Text>
+      </View>
+      <View className="grid grid-cols-2 gap-3 @3xl/dashboard:grid-cols-4 @3xl/dashboard:gap-4">
+        {props.model.metrics.map((metric) => <DashboardMetric key={metric.id} metric={metric} />)}
+      </View>
+    </section>
+  </View>
+
+  <Card>
+    <CardHeader>
+      <CardTitle><Text variant="h2" className="font-medium text-base tracking-normal">Keep things moving</Text></CardTitle>
+      <CardDescription>Pick up where your store needs you.</CardDescription>
+    </CardHeader>
+    <CardContent className="grid grid-cols-2 gap-2 @3xl/dashboard:grid-cols-4">
+      {props.model.operations.map((metric) => <DashboardOperation key={metric.id} metric={metric} />)}
+    </CardContent>
+  </Card>
+
+  <View className="grid items-start gap-6 @3xl/dashboard:grid-cols-3">
+    <Card className="min-w-0 @3xl/dashboard:col-span-2">
+      <CardHeader className="gap-3">
+        <View className="flex flex-wrap items-center justify-between gap-2">
+          <View className="flex flex-col gap-1">
+            <CardTitle><Text variant="h2" className="font-medium text-base tracking-normal">Recent orders</Text></CardTitle>
+            <CardDescription>The latest activity in your store.</CardDescription>
+          </View>
+          <StoreLink href="/admin/orders" variant="ghost">View all <ArrowUpRight className="size-4" aria-hidden="true" /></StoreLink>
+        </View>
+      </CardHeader>
+      <CardContent className="gap-0">
+        <DashboardOrders state={props.model.orders} onRefresh={props.onRefresh} isRefreshing={props.isRefreshing} />
+      </CardContent>
+    </Card>
+
+    <Card className="min-w-0">
+      <CardHeader className="gap-3">
+        <View className="flex items-start justify-between gap-2">
+          <View className="flex min-w-0 flex-1 flex-col gap-1">
+            <CardTitle><Text variant="h2" className="flex items-center gap-2 font-medium text-base tracking-normal"><Package className="size-4" aria-hidden="true" /> Low stock</Text></CardTitle>
+            <CardDescription>Items that may need restocking.</CardDescription>
+          </View>
+          <StoreLink href="/admin/inventory" variant="ghost" size="icon" aria-label="View all inventory"><ArrowUpRight className="size-4" aria-hidden="true" /></StoreLink>
+        </View>
+      </CardHeader>
+      <CardContent className="gap-0">
+        <DashboardStock state={props.model.stock} onRefresh={props.onRefresh} isRefreshing={props.isRefreshing} />
+      </CardContent>
+    </Card>
+  </View>
+
+  <View asChild className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
+    <footer>
+      <Text variant="p" className="text-muted-foreground text-sm">See your store the way your customers do.</Text>
+      <StoreLink href="/products" target="_blank" rel="noreferrer" variant="outline">View storefront <ArrowUpRight className="size-4" aria-hidden="true" /></StoreLink>
+    </footer>
+  </View>
+</View>

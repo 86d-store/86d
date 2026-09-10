@@ -353,21 +353,29 @@ describe("graceful failure handling", () => {
 			emitter,
 		);
 
-		await expect(
-			productsEmitter.emit("product.created", {
-				productId: "prod-fail",
-				name: "Failed Product",
-				slug: "failed-product",
-			}),
-		).resolves.not.toThrow();
+		const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+		try {
+			await expect(
+				productsEmitter.emit("product.created", {
+					productId: "prod-fail",
+					name: "Failed Product",
+					slug: "failed-product",
+				}),
+			).resolves.not.toThrow();
 
-		await flushAsync();
-		// No embeddings stored since the API failed
-		expect(mockData.all("productEmbedding")).toHaveLength(0);
+			await flushAsync();
+			expect(mockData.all("productEmbedding")).toHaveLength(0);
+			expect(errorSpy).toHaveBeenCalledExactlyOnceWith(
+				"Embedding API error: Rate limit exceeded",
+			);
+		} finally {
+			errorSpy.mockRestore();
+		}
 	});
 
 	it("does not throw when fetch itself rejects", async () => {
-		mockFetch.mockRejectedValue(new Error("Network error"));
+		const failure = new Error("Network error");
+		mockFetch.mockRejectedValue(failure);
 
 		const bus = createEventBus();
 		const emitter = createScopedEmitter(bus, "recommendations");
@@ -379,15 +387,24 @@ describe("graceful failure handling", () => {
 			emitter,
 		);
 
-		await expect(
-			productsEmitter.emit("product.created", {
-				productId: "prod-network-fail",
-				name: "Network Fail Product",
-				slug: "network-fail-product",
-			}),
-		).resolves.not.toThrow();
+		const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+		try {
+			await expect(
+				productsEmitter.emit("product.created", {
+					productId: "prod-network-fail",
+					name: "Network Fail Product",
+					slug: "network-fail-product",
+				}),
+			).resolves.not.toThrow();
 
-		await flushAsync();
-		expect(mockData.all("productEmbedding")).toHaveLength(0);
+			await flushAsync();
+			expect(mockData.all("productEmbedding")).toHaveLength(0);
+			expect(errorSpy).toHaveBeenCalledExactlyOnceWith(
+				"Embedding API request failed:",
+				failure,
+			);
+		} finally {
+			errorSpy.mockRestore();
+		}
 	});
 });

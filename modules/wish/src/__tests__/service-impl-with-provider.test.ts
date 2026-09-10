@@ -191,10 +191,20 @@ describe("createWishController (with provider)", () => {
 				wishFee: 0.5,
 			});
 
-			const shipped = await controller.shipOrder(order.id, "T1", "fedex");
+			const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+			try {
+				const shipped = await controller.shipOrder(order.id, "T1", "fedex");
 
-			// Status is updated locally even if API fails
-			expect(shipped?.status).toBe("shipped");
+				expect(shipped?.status).toBe("shipped");
+				expect(errorSpy).toHaveBeenCalledExactlyOnceWith(
+					"Wish ship order API error for wish-order-100:",
+					new Error(
+						"Wish API error shipping order wish-order-100: Already shipped",
+					),
+				);
+			} finally {
+				errorSpy.mockRestore();
+			}
 		});
 	});
 });

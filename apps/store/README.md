@@ -140,3 +140,21 @@ The module generator merges all components from enabled modules into the MDX com
 
 - [Module System Documentation](/MODULES.md) - Complete guide to creating and using modules
 - [Framework Documentation](/README.md) - Overall framework architecture
+
+## UI composition
+
+The application uses `@86d-app/ui` primitives and compositions. Keep their behavior in the shared package. App-level actions use `components/store-action.tsx` for consistent touch targets, focus, and reduced-motion behavior; links remain semantic links.
+
+Presentation and behavior have separate owners:
+
+| Surface | Behavior and prepared data | Presentation |
+| --- | --- | --- |
+| Admin navigation | `components/admin/shell.tsx`, its `_hooks/`, and `lib/admin-navigation.ts` | `components/admin/shell.mdx` |
+| Dashboard | `app/admin/_hooks/` | `app/admin/_components/dashboard*.mdx` |
+| Customer account | `app/(insecure)/account/_hooks/` and `_components/*.tsx` | Co-located account MDX files |
+| Errors and missing pages | Each route supplies its recovery action | `components/page-state.mdx` |
+| Storefront | `components/store-navbar.tsx` and Brisa footer controller | [Brisa template](../../templates/brisa/README.md) |
+
+MDX receives prepared values and callbacks. Query validation, currency/date formatting, persistence, routing decisions, and mutations stay in TypeScript. Shared layouts should compose the existing primitives before adding another wrapper. Route loading files reuse the same presentation parts as the loaded screen.
+
+The guarded `/__merchant_ui_fixtures__/store-ui` route supports dashboard loaded, empty, loading, error, permission, and unavailable states, plus `surface=navbar`, `surface=account`, and `surface=recovery`. It requires `E2E_MERCHANT_UI_FIXTURES=true`; it is a visual development fixture, not an authenticated commerce test. Verification and limitations are recorded in the [UI rewrite evidence](../../internals/docs/store-ui-rewrite.md).

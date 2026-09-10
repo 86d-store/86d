@@ -249,16 +249,25 @@ describe("notifications — event emission", () => {
 
 	describe("event emission does not break operations", () => {
 		it("create succeeds even if emit throws", async () => {
-			emitFn.mockRejectedValue(new Error("emit failed"));
+			const failure = new Error("emit failed");
+			emitFn.mockRejectedValue(failure);
+			const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+			try {
+				const n = await controller.create({
+					customerId: "cust-1",
+					title: "Test",
+					body: "body",
+				});
 
-			const n = await controller.create({
-				customerId: "cust-1",
-				title: "Test",
-				body: "body",
-			});
-
-			expect(n.id).toBeDefined();
-			expect(n.title).toBe("Test");
+				expect(n.id).toBeDefined();
+				expect(n.title).toBe("Test");
+				expect(errorSpy).toHaveBeenCalledExactlyOnceWith(
+					`[notifications] notifications.created emit for ${n.id} failed`,
+					failure,
+				);
+			} finally {
+				errorSpy.mockRestore();
+			}
 		});
 
 		it("markRead succeeds even if emit throws", async () => {
@@ -267,10 +276,19 @@ describe("notifications — event emission", () => {
 				title: "Test",
 				body: "body",
 			});
-			emitFn.mockRejectedValue(new Error("emit failed"));
-
-			const result = await controller.markRead(n.id);
-			expect(result?.read).toBe(true);
+			const failure = new Error("emit failed");
+			emitFn.mockRejectedValue(failure);
+			const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+			try {
+				const result = await controller.markRead(n.id);
+				expect(result?.read).toBe(true);
+				expect(errorSpy).toHaveBeenCalledExactlyOnceWith(
+					`[notifications] notifications.read emit for ${n.id} failed`,
+					failure,
+				);
+			} finally {
+				errorSpy.mockRestore();
+			}
 		});
 	});
 });

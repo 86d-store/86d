@@ -41,7 +41,6 @@ function findPackageJsons(dir: string): string[] {
 		if (entry.name === "node_modules" || entry.name === ".next") continue;
 		const full = join(dir, entry.name);
 		if (entry.isDirectory()) {
-			// Only go one level deep in modules/ and packages/
 			const pkgPath = join(full, "package.json");
 			if (existsSync(pkgPath)) results.push(pkgPath);
 		}
@@ -63,7 +62,8 @@ function bumpSemver(
 const packageJsonPaths = [
 	...findPackageJsons(join(ROOT, "packages")),
 	...findPackageJsons(join(ROOT, "modules")),
-	join(ROOT, "apps", "store", "package.json"),
+	...findPackageJsons(join(ROOT, "apps")),
+	...findPackageJsons(join(ROOT, "internals")),
 ].filter((pkgPath) => existsSync(pkgPath));
 
 // Read current versions to determine the canonical version (publishable first)
@@ -130,8 +130,13 @@ if (rootPkg.version) {
 	_updated++;
 }
 
-// Regenerate apps/registry/registry.json so versions and integrity hashes stay in sync.
-execSync("tsx apps/registry/src/generate-manifest.ts", {
+execSync("bun run generate:conformance", {
+	cwd: join(ROOT, "packages", "contracts"),
+	stdio: "inherit",
+});
+
+// Local metadata cannot pin version changes until their source is committed.
+execSync("tsx apps/registry/src/generate-manifest.ts --local", {
 	cwd: ROOT,
 	stdio: "inherit",
 });

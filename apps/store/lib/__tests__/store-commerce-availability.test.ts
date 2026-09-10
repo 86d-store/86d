@@ -3,6 +3,7 @@ import {
 	type RemoteStoreConfigV2,
 	type StoreCommerceAvailability,
 } from "@86d-app/sdk/types";
+import { logger } from "utils/logger";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const sdkBoundary = vi.hoisted(() => ({
@@ -158,16 +159,25 @@ describe("Store Runtime commerce gate resolution", () => {
 	});
 
 	it("fails managed commerce closed when 86d.app cannot be reached", async () => {
-		vi.stubEnv("86D_STORE_ID", "store_123");
-		sdkBoundary.getStoreConfig.mockRejectedValueOnce(
-			new Error("control plane unavailable"),
-		);
+		const diagnostic = vi.spyOn(logger, "warn").mockImplementation(() => {});
+		try {
+			vi.stubEnv("86D_STORE_ID", "store_123");
+			sdkBoundary.getStoreConfig.mockRejectedValueOnce(
+				new Error("control plane unavailable"),
+			);
 
-		await expect(resolveStoreCommerceGate()).resolves.toEqual({
-			managed: true,
-			available: false,
-			reason: "configuration_unavailable",
-		});
-		expect(sdkBoundary.getStoreConfig).toHaveBeenCalledOnce();
+			await expect(resolveStoreCommerceGate()).resolves.toEqual({
+				managed: true,
+				available: false,
+				reason: "configuration_unavailable",
+			});
+			expect(sdkBoundary.getStoreConfig).toHaveBeenCalledOnce();
+			expect(diagnostic).toHaveBeenCalledExactlyOnceWith(
+				"Managed Store commerce configuration is unavailable",
+				{ error: "control plane unavailable" },
+			);
+		} finally {
+			diagnostic.mockRestore();
+		}
 	});
 });

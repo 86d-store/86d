@@ -27,15 +27,12 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0
-          token: ${{ secrets.REPO_SYNC_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Setup
         uses: ./internals/github/setup
 
       - name: Rebase and sync lockfiles
         uses: ./internals/github/sync-pr-locks
-        env:
-          REPO_SYNC_TOKEN: ${{ secrets.REPO_SYNC_TOKEN }}
         with:
           base-ref: ${{ github.event.pull_request.base.ref }}
           head-repo: ${{ github.event.pull_request.head.repo.full_name }}

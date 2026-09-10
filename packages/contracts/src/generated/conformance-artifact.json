@@ -1,6 +1,6 @@
 {
-	"version": "0.0.42",
-	"digest": "18eb4a627f37947566b9bc622c9f92a9f9ee9b1f3e614645780799460c90db11",
+	"version": "0.1.0",
+	"digest": "8fb8e1b7933db6881bfbb26a7942a98e62c8eb55bac1fe258e394220fde8f10f",
 	"compatibilityMatrix": {
 		"semverPolicy": {
 			"major": "May break schemas or meaning.",
@@ -9,23 +9,23 @@
 		},
 		"acceptedPairs": [
 			{
-				"consumer": "0.0.42",
-				"artifact": "0.0.42"
+				"consumer": "0.1.0",
+				"artifact": "0.1.0"
 			},
 			{
-				"consumer": "0.0.42",
-				"artifact": "0.0.0"
+				"consumer": "0.1.0",
+				"artifact": "0.0.42"
 			}
 		],
 		"rejectedPairs": [
 			{
-				"consumer": "0.0.42",
+				"consumer": "0.1.0",
 				"artifact": "1.0.0",
 				"reason": "major_break"
 			},
 			{
-				"consumer": "0.1.0",
-				"artifact": "0.0.42",
+				"consumer": "0.2.0",
+				"artifact": "0.1.0",
 				"reason": "unlisted_pair"
 			}
 		]
@@ -80,23 +80,83 @@
 			}
 		],
 		"commandTransitions": [
-			["pending", "running", true],
-			["running", "succeeded", true],
-			["running", "failed", true],
-			["pending", "succeeded", false],
-			["succeeded", "running", false],
-			["failed", "running", false]
+			[
+				"pending",
+				"running",
+				true
+			],
+			[
+				"running",
+				"succeeded",
+				true
+			],
+			[
+				"running",
+				"failed",
+				true
+			],
+			[
+				"pending",
+				"succeeded",
+				false
+			],
+			[
+				"succeeded",
+				"running",
+				false
+			],
+			[
+				"failed",
+				"running",
+				false
+			]
 		],
 		"workflowTransitions": [
-			["pending", "running", true],
-			["running", "completed", true],
-			["running", "rolled_back", true],
-			["running", "failed", true],
-			["running", "needs_attention", true],
-			["needs_attention", "running", true],
-			["failed", "running", true],
-			["completed", "running", false],
-			["rolled_back", "running", false]
+			[
+				"pending",
+				"running",
+				true
+			],
+			[
+				"running",
+				"completed",
+				true
+			],
+			[
+				"running",
+				"rolled_back",
+				true
+			],
+			[
+				"running",
+				"failed",
+				true
+			],
+			[
+				"running",
+				"needs_attention",
+				true
+			],
+			[
+				"needs_attention",
+				"running",
+				true
+			],
+			[
+				"failed",
+				"running",
+				true
+			],
+			[
+				"completed",
+				"running",
+				false
+			],
+			[
+				"rolled_back",
+				"running",
+				false
+			]
 		],
 		"hashVectors": {
 			"changeSetReview": "eb57b61b9783ed8e5c536dda00fdda0f6ac45ede3062f66bffe546ca529f7c7f",
@@ -136,8 +196,8 @@
 		}
 	},
 	"previousMinorFixtureSuite": {
-		"artifactVersion": "0.0.0",
-		"note": "Bootstrap previous-minor suite; identical to 0.0.42 envelope and transitions.",
+		"artifactVersion": "0.0.42",
+		"note": "Fixture suite from the 0.0.42 conformance artifact.",
 		"validRequest": {
 			"command": {
 				"name": "control_plane.tracer.write",
@@ -153,24 +213,153 @@
 				"secret": "fixture-canary-secret"
 			}
 		},
+		"invalidRequests": [
+			{
+				"command": {
+					"name": "control_plane.tracer.write",
+					"version": 1
+				},
+				"idempotencyKey": "fixture-command-actor-override",
+				"target": {
+					"type": "business",
+					"id": "business-fixture-001"
+				},
+				"input": {
+					"label": "alpha"
+				},
+				"actor": {
+					"type": "account",
+					"id": "attacker-selected-actor"
+				}
+			},
+			{
+				"command": {
+					"name": "control_plane.tracer.write"
+				},
+				"idempotencyKey": "fixture-command-missing-version",
+				"target": {
+					"type": "business",
+					"id": "business-fixture-001"
+				},
+				"input": {
+					"label": "alpha"
+				}
+			}
+		],
 		"commandTransitions": [
-			["pending", "running", true],
-			["running", "succeeded", true],
-			["running", "failed", true],
-			["pending", "succeeded", false],
-			["succeeded", "running", false],
-			["failed", "running", false]
+			[
+				"pending",
+				"running",
+				true
+			],
+			[
+				"running",
+				"succeeded",
+				true
+			],
+			[
+				"running",
+				"failed",
+				true
+			],
+			[
+				"pending",
+				"succeeded",
+				false
+			],
+			[
+				"succeeded",
+				"running",
+				false
+			],
+			[
+				"failed",
+				"running",
+				false
+			]
 		],
 		"workflowTransitions": [
-			["pending", "running", true],
-			["running", "completed", true],
-			["running", "rolled_back", true],
-			["running", "failed", true],
-			["running", "needs_attention", true],
-			["needs_attention", "running", true],
-			["failed", "running", true],
-			["completed", "running", false],
-			["rolled_back", "running", false]
-		]
+			[
+				"pending",
+				"running",
+				true
+			],
+			[
+				"running",
+				"completed",
+				true
+			],
+			[
+				"running",
+				"rolled_back",
+				true
+			],
+			[
+				"running",
+				"failed",
+				true
+			],
+			[
+				"running",
+				"needs_attention",
+				true
+			],
+			[
+				"needs_attention",
+				"running",
+				true
+			],
+			[
+				"failed",
+				"running",
+				true
+			],
+			[
+				"completed",
+				"running",
+				false
+			],
+			[
+				"rolled_back",
+				"running",
+				false
+			]
+		],
+		"hashVectors": {
+			"changeSetReview": "eb57b61b9783ed8e5c536dda00fdda0f6ac45ede3062f66bffe546ca529f7c7f",
+			"commandInput": "17d373cc1cad8a869f0ec6231cd618b5beb7d1e92c22eb8e710eafc73117a053",
+			"commandBinding": "d485960b4abd31c7bc69e236382947967b53020065aca26d7d9d907b578274a5",
+			"confirmationNonce": "baba5e641ee38a7d0d40e78676ca21a4e29f68fdb631a43f1a0b1e0054264654"
+		},
+		"classification": {
+			"canonical": [
+				"commandRequestSchema",
+				"commandReceiptSchema",
+				"commandFailureCodeSchema including contract_version_mismatch",
+				"actorReferenceSchema account|agent|operator|workload|system",
+				"changeSetSchema with hash-version and uniqueness refinements",
+				"approvalSchema requiring account actor",
+				"confirmationSchema with bindingHashVersion 1 and consumption window",
+				"confirmationChallengeSchema",
+				"standingPermissionSchema",
+				"standingPermissionUseReservationSchema",
+				"grantUseSchema",
+				"auditEventSchema",
+				"canonicalJson serializer",
+				"review binding input and nonce digests"
+			],
+			"deliberatelyUnsupported": [
+				"actor field on commandRequestSchema",
+				"dual emission or implicit schema conversion across contract majors",
+				"raw tRPC as agent or cross-plane interface"
+			],
+			"planePrivate": [
+				"Control Plane Command catalogs and action descriptors",
+				"Store Runtime Command catalogs",
+				"plane authorization adapters and RBAC evaluation",
+				"Prisma and Drizzle persistence adapters",
+				"provider secret material and Connection credentials"
+			]
+		}
 	}
 }

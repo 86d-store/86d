@@ -18,51 +18,44 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Skip fork pull requests without sync token
+    - name: Skip fork pull requests
       id: fork_gate
       shell: bash
       env:
         HEAD_REPO: ${{ inputs.head-repo }}
         REPOSITORY: ${{ inputs.repository }}
-        REPO_SYNC_TOKEN: ${{ env.REPO_SYNC_TOKEN }}
       run: |
         set -euo pipefail
-        if [ "$HEAD_REPO" != "$REPOSITORY" ] && [ -z "${REPO_SYNC_TOKEN:-}" ]; then
+        if [ "$HEAD_REPO" != "$REPOSITORY" ]; then
           echo "skip=true" >> "$GITHUB_OUTPUT"
-          echo "Fork pull request without REPO_SYNC_TOKEN; skipping automated lock sync."
+          echo "Fork pull request; skipping automated lock sync."
         else
           echo "skip=false" >> "$GITHUB_OUTPUT"
         fi
 
-    - name: Comment on fork pull requests without sync token
+    - name: Report skipped fork synchronization
       if: steps.fork_gate.outputs.skip == 'true'
       shell: bash
       env:
-        GH_TOKEN: ${{ github.token }}
-        PR_NUMBER: ${{ inputs.pr-number }}
-        REPOSITORY: ${{ inputs.repository }}
+        BASE_REF: ${{ inputs.base-ref }}
+        BASE_REPOSITORY: ${{ inputs.repository }}
       run: |
         set -euo pipefail
-        gh pr comment "$PR_NUMBER" --repo "$REPOSITORY" --body "$(cat <<'EOF'
-        Automated lockfile sync skipped for fork pull requests.
-
-        To refresh lockfiles locally after rebasing onto the base branch:
-
-        ```bash
-        git fetch origin
-        git rebase origin/main
-        bun run regen:locks
-        git commit -am "chore(repo): sync lockfiles after rebase"
-        git push --force-with-lease
-        ```
-
-        One-time setup for local merge conflicts:
-
-        ```bash
-        sh internals/scripts/configure-git-merge-drivers.sh
-        ```
-        EOF
-        )"
+        {
+          echo "### Automated lockfile sync skipped"
+          echo
+          echo "Fork pull requests cannot receive repository secrets or a write-capable GITHUB_TOKEN. Refresh the lockfiles from a trusted checkout:"
+          echo
+          echo "One-time merge-driver setup (run before rebasing):"
+          echo
+          echo "    sh internals/scripts/configure-git-merge-drivers.sh"
+          echo
+          echo "    git fetch https://github.com/${BASE_REPOSITORY}.git ${BASE_REF}"
+          echo "    git rebase FETCH_HEAD"
+          echo "    bun run regen:locks"
+          echo '    git commit -am "chore(repo): sync lockfiles after rebase"'
+          echo "    git push --force-with-lease"
+        } >> "$GITHUB_STEP_SUMMARY"
 
     - name: Configure git merge drivers
       if: steps.fork_gate.outputs.skip != 'true'

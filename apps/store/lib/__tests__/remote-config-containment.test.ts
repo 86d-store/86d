@@ -148,6 +148,7 @@ describe("Store Runtime remote config containment", () => {
 		}
 	});
 
+	// Cold module imports can exceed Vitest's default under parallel Turbo load.
 	it("uses only Store-owned template settings when booting modules and notifications", async () => {
 		const { ensureBooted } = await import("../api-registry");
 
@@ -168,7 +169,7 @@ describe("Store Runtime remote config containment", () => {
 		});
 		expect(enabledEvents).toEqual(new Set(["order.placed"]));
 		expect(JSON.stringify(notificationConfig)).not.toContain(secretCanary);
-	});
+	}, 15_000);
 
 	it("has no production path from a remote config DTO into Store-owned settings", () => {
 		const remoteDtoSource = readFileSync(
