@@ -26,13 +26,13 @@ DoorDash delivery integration for 86d. Manage deliveries, define delivery zones 
 ## Installation
 
 ```sh
-npm install @86d-app/doordash
+npm install @86d-store/doordash
 ```
 
 ## Usage
 
 ```ts
-import doordash from "@86d-app/doordash";
+import doordash from "@86d-store/doordash";
 
 const module = doordash({
   apiKey: "your-doordash-api-key",

@@ -1,15 +1,15 @@
 "use client";
 
-import { Button } from "@86d-app/ui/button";
-import { DataTableEmptyRow } from "@86d-app/ui/data-table/empty-row";
-import { DataTableSkeletonRows } from "@86d-app/ui/data-table/skeleton-rows";
-import { DataTableViewOptions } from "@86d-app/ui/data-table/view-options";
-import { Input } from "@86d-app/ui/shadcn/input";
+import { Button } from "@86d-store/ui/button";
+import { DataTableEmptyRow } from "@86d-store/ui/data-table/empty-row";
+import { DataTableSkeletonRows } from "@86d-store/ui/data-table/skeleton-rows";
+import { DataTableViewOptions } from "@86d-store/ui/data-table/view-options";
+import { Input } from "@86d-store/ui/shadcn/input";
 import {
 	NativeSelect,
 	NativeSelectOption,
-} from "@86d-app/ui/shadcn/native-select";
-import { Skeleton } from "@86d-app/ui/shadcn/skeleton";
+} from "@86d-store/ui/shadcn/native-select";
+import { Skeleton } from "@86d-store/ui/shadcn/skeleton";
 import {
 	Table,
 	TableBody,
@@ -17,9 +17,9 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@86d-app/ui/shadcn/table";
-import { Text } from "@86d-app/ui/text";
-import { View } from "@86d-app/ui/view";
+} from "@86d-store/ui/shadcn/table";
+import { Text } from "@86d-store/ui/text";
+import { View } from "@86d-store/ui/view";
 import { flexRender, useTable } from "@tanstack/react-table";
 import { useMemo } from "react";
 import type {

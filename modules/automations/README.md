@@ -19,7 +19,7 @@
 
 📚 **Documentation:** [86d.app/docs/modules/automations](https://86d.app/docs/modules/automations)
 
-# @86d-app/automations
+# @86d-store/automations
 
 Event-driven workflow automation for the 86d commerce platform. Create rules that trigger on platform events, evaluate conditions against the event payload, and execute configurable actions like sending notifications, webhooks, or updating records.
 
@@ -36,7 +36,7 @@ The module is included in the 86d monorepo. Enable it in your store's template `
 ## Usage
 
 ```ts
-import automations from "@86d-app/automations";
+import automations from "@86d-store/automations";
 
 // Register the module
 const mod = automations({

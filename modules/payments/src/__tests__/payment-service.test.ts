@@ -1,8 +1,8 @@
 import type {
 	LockingModuleDataTransaction,
 	ModuleTransactionRunner,
-} from "@86d-app/core/durable-events";
-import { createMockTransactionRunner } from "@86d-app/core/test-utils";
+} from "@86d-store/core/durable-events";
+import { createMockTransactionRunner } from "@86d-store/core/test-utils";
 import { describe, expect, it } from "vitest";
 import {
 	confirmedPaymentOperationInputSchema,

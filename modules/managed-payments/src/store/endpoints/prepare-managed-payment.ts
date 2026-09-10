@@ -1,5 +1,5 @@
-import { createStoreEndpoint } from "@86d-app/core/api";
-import { readManagedWorkloadConfig } from "@86d-app/sdk/workload-token-client";
+import { createStoreEndpoint } from "@86d-store/core/api";
+import { readManagedWorkloadConfig } from "@86d-store/sdk/workload-token-client";
 import { getProcessEnv } from "env/process-env";
 import { z } from "zod";
 import { createManagedPaymentClient } from "../../managed-payment-client";

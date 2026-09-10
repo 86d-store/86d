@@ -1,6 +1,6 @@
 "use client";
 
-import { useModuleClient } from "@86d-app/core/client/provider";
+import { useModuleClient } from "@86d-store/core/client/provider";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import CampaignAdminTemplate from "./campaign-admin.mdx";
 

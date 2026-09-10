@@ -4,7 +4,7 @@ import { registryManifestSchema, registryModuleSchema } from "../types.js";
 describe("registryModuleSchema", () => {
 	it("validates a valid module entry", () => {
 		const result = registryModuleSchema.safeParse({
-			name: "@86d-app/products",
+			name: "@86d-store/products",
 			description: "Product catalog",
 			version: "0.0.1",
 			category: "catalog",
@@ -19,7 +19,7 @@ describe("registryModuleSchema", () => {
 
 	it("applies defaults for optional fields", () => {
 		const result = registryModuleSchema.parse({
-			name: "@86d-app/products",
+			name: "@86d-store/products",
 			description: "Product catalog",
 			version: "0.0.1",
 			category: "catalog",
@@ -33,7 +33,7 @@ describe("registryModuleSchema", () => {
 
 	it("rejects missing required fields", () => {
 		const result = registryModuleSchema.safeParse({
-			name: "@86d-app/products",
+			name: "@86d-store/products",
 		});
 		expect(result.success).toBe(false);
 	});
@@ -47,7 +47,7 @@ describe("registryManifestSchema", () => {
 			defaultRef: "main",
 			modules: {
 				products: {
-					name: "@86d-app/products",
+					name: "@86d-store/products",
 					description: "Product catalog",
 					version: "0.0.1",
 					category: "catalog",

@@ -2,7 +2,7 @@
 
 Customer-created gift registries (wedding, baby, birthday, etc.) that visitors can purchase from.
 
-**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-app/core` contracts.
+**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-store/core` contracts.
 
 ## Change protocol
 
@@ -77,4 +77,4 @@ src/
 - Slug uniqueness is checked on create; changing slugs after creation is not supported
 - Purchases from guests (no session) still allowed — `purchaserId` is optional
 - Archived registries reject both item additions and purchases
-- Sanitize user-facing text fields (`title`, `description`, `thankYouMessage`, `productName`, `variantName`, `note`, `purchaserName`, `giftMessage`) with `.transform(sanitizeText)` from `@86d-app/core/sanitize` (parent owns the sanitize rule; this list is the local field inventory)
+- Sanitize user-facing text fields (`title`, `description`, `thankYouMessage`, `productName`, `variantName`, `note`, `purchaserName`, `giftMessage`) with `.transform(sanitizeText)` from `@86d-store/core/sanitize` (parent owns the sanitize rule; this list is the local field inventory)

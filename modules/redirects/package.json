@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/redirects",
+	"name": "@86d-store/redirects",
 	"version": "0.1.0",
 	"description": "URL redirect management — 301/302/307/308 redirects for SEO and URL migration",
 	"keywords": [
@@ -49,7 +49,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

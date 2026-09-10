@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/86d",
+	"name": "@86d-store/86d",
 	"version": "0.1.0",
 	"license": "MIT",
 	"private": true,
@@ -45,8 +45,8 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"@86d-app/registry": "workspace:*",
-		"@86d-app/ui": "workspace:*",
+		"@86d-store/registry": "workspace:*",
+		"@86d-store/ui": "workspace:*",
 		"env": "workspace:*",
 		"lucide-react": "1.33.0",
 		"tsx": "catalog:",

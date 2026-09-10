@@ -1,4 +1,4 @@
-import { createMockDataService } from "@86d-app/core/test-utils";
+import { createMockDataService } from "@86d-store/core/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Delivery } from "../service";
 import { createUberDirectController } from "../service-impl";

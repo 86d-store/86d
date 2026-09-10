@@ -26,13 +26,13 @@ Full-text search with fuzzy matching, faceted filtering, autocomplete, click tra
 ## Installation
 
 ```sh
-npm install @86d-app/search
+npm install @86d-store/search
 ```
 
 ## Usage
 
 ```ts
-import search from "@86d-app/search";
+import search from "@86d-store/search";
 
 const module = search({
   maxResults: 100,

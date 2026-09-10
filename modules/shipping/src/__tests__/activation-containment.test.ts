@@ -1,4 +1,4 @@
-import { createMockDataService } from "@86d-app/core/test-utils";
+import { createMockDataService } from "@86d-store/core/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import shipping from "../index";
 import { createShippingController } from "../service-impl";

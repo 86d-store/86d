@@ -1,7 +1,7 @@
 "use client";
 
-import { useModuleClient } from "@86d-app/core/client/provider";
-import { useStoreContext } from "@86d-app/core/client/store-context";
+import { useModuleClient } from "@86d-store/core/client/provider";
+import { useStoreContext } from "@86d-store/core/client/store-context";
 import { SearchIcon as LucideSearchIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

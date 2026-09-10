@@ -1,5 +1,5 @@
-import type { PaymentConnectionProvider } from "@86d-app/core/payment-connection-provider";
-import type { Module, ModuleContext } from "@86d-app/core/types/module";
+import type { PaymentConnectionProvider } from "@86d-store/core/payment-connection-provider";
+import type { Module, ModuleContext } from "@86d-store/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import {
 	createPaymentCheckoutProvider,
@@ -25,7 +25,7 @@ export type {
 	PaymentProviderOperationRequest,
 	PaymentProviderOperationSource,
 	PaymentProviderReconciliationRequest,
-} from "@86d-app/core/payment-connection-provider";
+} from "@86d-store/core/payment-connection-provider";
 export type {
 	CreatePaymentConnectionInput,
 	PaymentConnection,

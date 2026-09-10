@@ -43,7 +43,9 @@ async function createRunnerFixture(root: string): Promise<void> {
 	)) {
 		await writeFixtureFile(join(root, "modules", moduleId, "src/schema.ts"));
 	}
-	await writeFixtureFile(join(root, "node_modules/@86d-app/core/src/index.ts"));
+	await writeFixtureFile(
+		join(root, "node_modules/@86d-store/core/src/index.ts"),
+	);
 	await writeFixtureFile(join(root, "packages/core/src/test-utils.ts"));
 }
 
@@ -97,10 +99,10 @@ async function createModulePackageFixtures(
 ): Promise<string[]> {
 	const packageNames = Array.from(
 		{ length: count },
-		(_, index) => `@86d-app/fixture-${String(index).padStart(3, "0")}`,
+		(_, index) => `@86d-store/fixture-${String(index).padStart(3, "0")}`,
 	);
 	for (const packageName of packageNames.toReversed()) {
-		const moduleId = packageName.slice("@86d-app/".length);
+		const moduleId = packageName.slice("@86d-store/".length);
 		await writeFixtureFile(
 			join(modulesRoot, moduleId, "package.json"),
 			JSON.stringify({ name: packageName }),
@@ -123,7 +125,7 @@ describe("runner layout contract", () => {
 		await expect(
 			assertRunnerLayout({
 				root,
-				modulePackageNames: ["@86d-app/products"],
+				modulePackageNames: ["@86d-store/products"],
 			}),
 		).resolves.toBeUndefined();
 	});
@@ -167,17 +169,17 @@ describe("runner layout contract", () => {
 		await writeFixtureFile(
 			join(
 				root,
-				"apps/store/node_modules/@86d-app/products/src/store/endpoints/index.ts",
+				"apps/store/node_modules/@86d-store/products/src/store/endpoints/index.ts",
 			),
 		);
 
 		await expect(
 			assertRunnerLayout({
 				root,
-				modulePackageNames: ["@86d-app/products"],
+				modulePackageNames: ["@86d-store/products"],
 			}),
 		).rejects.toThrow(
-			"Traced Module package found below node_modules: apps/store/node_modules/@86d-app/products",
+			"Traced Module package found below node_modules: apps/store/node_modules/@86d-store/products",
 		);
 	});
 
@@ -256,7 +258,7 @@ describe("resolved Module package manifest", () => {
 		await createModulePackageFixtures(modulesRoot, 99);
 		await writeFixtureFile(
 			join(modulesRoot, "managed-payments/package.json"),
-			JSON.stringify({ name: "@86d-app/managed-payments" }),
+			JSON.stringify({ name: "@86d-store/managed-payments" }),
 		);
 
 		await expect(
@@ -286,7 +288,7 @@ describe("resolved Module package manifest", () => {
 		const expected = await createModulePackageFixtures(modulesRoot, 100);
 		await writeFixtureFile(
 			join(modulesRoot, "managed-payments/package.json"),
-			JSON.stringify({ name: "@86d-app/managed-payments" }),
+			JSON.stringify({ name: "@86d-store/managed-payments" }),
 		);
 		const destination = join(root, "module-package-names.json");
 

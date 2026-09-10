@@ -1,4 +1,4 @@
-import { createStoreEndpoint } from "@86d-app/core/api";
+import { createStoreEndpoint } from "@86d-store/core/api";
 
 interface BraintreeWebhookOptions {
 	/** Braintree public key — used to match the prefix in bt_signature. */

@@ -65,8 +65,8 @@ describe("generated components", () => {
 	});
 
 	it("includes the core module list", () => {
-		expect(generatedComponents).toContain('"@86d-app/products"');
-		expect(generatedComponents).toContain('"@86d-app/cart"');
-		expect(generatedComponents).toContain('"@86d-app/orders"');
+		expect(generatedComponents).toContain('"@86d-store/products"');
+		expect(generatedComponents).toContain('"@86d-store/cart"');
+		expect(generatedComponents).toContain('"@86d-store/orders"');
 	});
 });

@@ -26,13 +26,13 @@ Integrates your 86d store with Wish marketplace for product listing, order manag
 ## Installation
 
 ```sh
-npm install @86d-app/wish
+npm install @86d-store/wish
 ```
 
 ## Usage
 
 ```ts
-import wish from "@86d-app/wish";
+import wish from "@86d-store/wish";
 
 const module = wish({
   accessToken: "your-access-token",

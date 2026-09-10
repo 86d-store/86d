@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/runtime",
+	"name": "@86d-store/runtime",
 	"version": "0.1.0",
 	"private": true,
 	"license": "MIT",
@@ -84,8 +84,8 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/contracts": "workspace:*",
-		"@86d-app/core": "workspace:*",
+		"@86d-store/contracts": "workspace:*",
+		"@86d-store/core": "workspace:*",
 		"db": "workspace:*",
 		"drizzle-orm": "0.45.2",
 		"zod": "catalog:"

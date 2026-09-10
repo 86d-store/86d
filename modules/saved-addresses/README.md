@@ -19,7 +19,7 @@
 
 📚 **Documentation:** [86d.app/docs/modules/saved-addresses](https://86d.app/docs/modules/saved-addresses)
 
-# @86d-app/saved-addresses
+# @86d-store/saved-addresses
 
 Customer address book module for 86d. Lets customers save, manage, and select default shipping and billing addresses.
 

@@ -1,6 +1,6 @@
-import type { CapabilityInvoker } from "@86d-app/core/capabilities";
-import { notificationCreateCapability } from "@86d-app/core/commerce-capabilities";
-import type { ModuleDataService } from "@86d-app/core/types/module";
+import type { CapabilityInvoker } from "@86d-store/core/capabilities";
+import { notificationCreateCapability } from "@86d-store/core/commerce-capabilities";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import type {
 	Automation,
 	AutomationAction,

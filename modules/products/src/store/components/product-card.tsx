@@ -1,6 +1,6 @@
 "use client";
 
-import { useStoreContext } from "@86d-app/core/client/store-context";
+import { useStoreContext } from "@86d-store/core/client/store-context";
 import { memo } from "react";
 import {
 	normalizeCartQueryData,

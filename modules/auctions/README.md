@@ -19,14 +19,14 @@
 
 📚 **Documentation:** [86d.app/docs/modules/auctions](https://86d.app/docs/modules/auctions)
 
-# @86d-app/auctions
+# @86d-store/auctions
 
 Time-limited product auctions for 86d commerce platform. Supports English (ascending), Dutch (descending), and sealed (blind) auction types with reserve prices, buy-it-now, anti-sniping protection, and auction watching.
 
 ## Installation
 
 ```ts
-import auctions from "@86d-app/auctions";
+import auctions from "@86d-store/auctions";
 
 export default defineStore({
   modules: [

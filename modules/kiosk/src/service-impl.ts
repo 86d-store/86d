@@ -2,8 +2,8 @@ import type {
 	LockingModuleDataTransaction,
 	ModuleDataTransaction,
 	ModuleTransactionRunner,
-} from "@86d-app/core/durable-events";
-import type { ModuleDataService } from "@86d-app/core/types/module";
+} from "@86d-store/core/durable-events";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import { kioskKioskSessionShape, kioskKioskStationShape } from "./schema";
 import type {
 	KioskAdminSortDirection,

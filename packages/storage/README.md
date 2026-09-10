@@ -26,7 +26,7 @@ Pluggable file storage abstraction for the 86d platform. Ships with three provid
 ## Installation
 
 ```sh
-npm install @86d-app/storage
+npm install @86d-store/storage
 ```
 
 For Vercel Blob support, also install the optional peer dependency:
@@ -40,7 +40,7 @@ npm install @vercel/blob
 ### From Environment Variables (recommended)
 
 ```ts
-import { createStorageFromEnv } from "@86d-app/storage";
+import { createStorageFromEnv } from "@86d-store/storage";
 
 const storage = createStorageFromEnv();
 
@@ -67,7 +67,7 @@ const healthy = await storage.healthCheck();
 ### Local Storage
 
 ```ts
-import { createStorage } from "@86d-app/storage";
+import { createStorage } from "@86d-store/storage";
 
 const storage = createStorage({
   provider: "local",
@@ -81,7 +81,7 @@ Files are written to disk under `localDir`. The `localBaseUrl` is used to constr
 ### S3-Compatible Storage
 
 ```ts
-import { createStorage } from "@86d-app/storage";
+import { createStorage } from "@86d-store/storage";
 
 const storage = createStorage({
   provider: "s3",
@@ -98,7 +98,7 @@ Works with AWS S3, MinIO, and any S3-compatible service. Uses path-style URLs fo
 ### Vercel Blob
 
 ```ts
-import { createStorage } from "@86d-app/storage";
+import { createStorage } from "@86d-store/storage";
 
 const storage = createStorage({
   provider: "vercel",

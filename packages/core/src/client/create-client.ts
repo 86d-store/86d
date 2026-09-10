@@ -77,7 +77,7 @@ function createEndpointHooks(options: {
  *
  * @example
  * ```typescript
- * import cart from "@86d-app/cart";
+ * import cart from "@86d-store/cart";
  *
  * const client = createModuleClient([cart()], {
  *     baseURL: "/api",

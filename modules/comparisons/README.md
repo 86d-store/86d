@@ -26,13 +26,13 @@ Product comparison module that lets customers add products to a side-by-side com
 ## Installation
 
 ```sh
-npm install @86d-app/comparisons
+npm install @86d-store/comparisons
 ```
 
 ## Usage
 
 ```ts
-import comparisons from "@86d-app/comparisons";
+import comparisons from "@86d-store/comparisons";
 
 const module = comparisons({
   maxProducts: "6", // allow up to 6 products per comparison

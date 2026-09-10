@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/tipping",
+	"name": "@86d-store/tipping",
 	"version": "0.1.0",
 	"description": "Configurable tipping system for orders, delivery, and services on 86d commerce platform",
 	"keywords": [
@@ -56,7 +56,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

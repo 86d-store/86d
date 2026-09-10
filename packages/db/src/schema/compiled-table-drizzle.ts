@@ -2,11 +2,11 @@ import type {
 	CompiledColumn,
 	CompiledTable,
 	CompileModuleResult,
-} from "@86d-app/core/schema";
+} from "@86d-store/core/schema";
 import {
 	parseStorageRead,
 	parseStorageWrite,
-} from "@86d-app/core/schema/compile/storage-parse";
+} from "@86d-store/core/schema/compile/storage-parse";
 import { sql } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import type { PgColumn } from "drizzle-orm/pg-core";

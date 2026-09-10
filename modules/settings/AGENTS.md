@@ -2,7 +2,7 @@
 
 Settings owns shopper-visible Store presentation. The typed `settings.presentation.resolve@1.0.0` capability exposes validated name, description, support email, and currency decisions without giving consumers Settings data access. Missing or malformed required presentation fails closed. Key-value store for global store configuration organized by group (general, contact, social, legal, commerce, appearance).
 
-**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-app/core` contracts.
+**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-store/core` contracts.
 
 ## Change protocol
 

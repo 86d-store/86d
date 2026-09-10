@@ -2,8 +2,8 @@ import type {
 	Module,
 	ModuleConfig,
 	ModuleContext,
-} from "@86d-app/core/types/module";
-import { withEntities } from "@86d-app/core/types/module";
+} from "@86d-store/core/types/module";
+import { withEntities } from "@86d-store/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import {
 	adminEndpoints,

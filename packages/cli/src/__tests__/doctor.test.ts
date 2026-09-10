@@ -42,14 +42,14 @@ describe("doctor", () => {
 			JSON.stringify({
 				theme: "brisa",
 				name: "Test Theme",
-				modules: ["@86d-app/products", "@86d-app/cart"],
+				modules: ["@86d-store/products", "@86d-store/cart"],
 			}),
 		);
 
 		// Module package.json files
 		writeFileSync(
 			join(tempDir, "modules/products/package.json"),
-			JSON.stringify({ name: "@86d-app/products" }),
+			JSON.stringify({ name: "@86d-store/products" }),
 		);
 		writeFileSync(
 			join(tempDir, "modules/products/src/index.ts"),
@@ -57,7 +57,7 @@ describe("doctor", () => {
 		);
 		writeFileSync(
 			join(tempDir, "modules/cart/package.json"),
-			JSON.stringify({ name: "@86d-app/cart" }),
+			JSON.stringify({ name: "@86d-store/cart" }),
 		);
 		writeFileSync(
 			join(tempDir, "modules/cart/src/index.ts"),
@@ -273,7 +273,11 @@ describe("doctor", () => {
 			join(tempDir, "templates/brisa/config.json"),
 			JSON.stringify({
 				theme: "brisa",
-				modules: ["@86d-app/products", "@86d-app/cart", "@86d-app/nonexistent"],
+				modules: [
+					"@86d-store/products",
+					"@86d-store/cart",
+					"@86d-store/nonexistent",
+				],
 			}),
 		);
 		vi.resetModules();
@@ -281,7 +285,7 @@ describe("doctor", () => {
 		await runDoctor();
 
 		const output = logs.join("\n");
-		expect(output).toContain("@86d-app/nonexistent");
+		expect(output).toContain("@86d-store/nonexistent");
 		expect(output).toContain("not found");
 	});
 

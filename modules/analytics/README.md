@@ -26,8 +26,8 @@ Event tracking and reporting module for 86d stores. Records page views, product 
 ## Installation
 
 ```ts
-import analytics from "@86d-app/analytics";
-import { createStore } from "@86d-app/core";
+import analytics from "@86d-store/analytics";
+import { createStore } from "@86d-store/core";
 
 const store = createStore({
   modules: [analytics()],

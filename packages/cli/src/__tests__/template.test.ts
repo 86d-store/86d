@@ -25,7 +25,7 @@ describe("template", () => {
 				{
 					theme: "brisa",
 					name: "86d Brisa Theme",
-					modules: ["@86d-app/products", "@86d-app/cart"],
+					modules: ["@86d-store/products", "@86d-store/cart"],
 				},
 				null,
 				"\t",
@@ -109,10 +109,10 @@ describe("template", () => {
 			});
 		}
 
-		vi.doMock("@86d-app/registry/template", async () => {
+		vi.doMock("@86d-store/registry/template", async () => {
 			const actual = await vi.importActual<
-				typeof import("@86d-app/registry/template")
-			>("@86d-app/registry/template");
+				typeof import("@86d-store/registry/template")
+			>("@86d-store/registry/template");
 			return {
 				...actual,
 				fetchTemplate: mockFetchTemplate,
@@ -147,8 +147,8 @@ describe("template", () => {
 		const config = JSON.parse(
 			readFileSync(join(tempDir, "templates/minimal/config.json"), "utf-8"),
 		);
-		expect(config.modules).toContain("@86d-app/products");
-		expect(config.modules).toContain("@86d-app/cart");
+		expect(config.modules).toContain("@86d-store/products");
+		expect(config.modules).toContain("@86d-store/cart");
 	});
 
 	it("lists templates with active indicator", async () => {
@@ -265,7 +265,7 @@ describe("template", () => {
 					localPath: targetDir,
 					config: {
 						theme: "my-theme",
-						modules: ["@86d-app/cart"],
+						modules: ["@86d-store/cart"],
 					},
 				},
 			});
@@ -346,7 +346,7 @@ describe("template", () => {
 						localPath: targetDir,
 						config: {
 							theme: "alias-theme",
-							modules: ["@86d-app/cart"],
+							modules: ["@86d-store/cart"],
 						},
 					},
 				},

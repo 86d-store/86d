@@ -26,13 +26,13 @@ Integrates your 86d store with Google Merchant Center for product feed managemen
 ## Installation
 
 ```sh
-npm install @86d-app/google-shopping
+npm install @86d-store/google-shopping
 ```
 
 ## Usage
 
 ```ts
-import googleShopping from "@86d-app/google-shopping";
+import googleShopping from "@86d-store/google-shopping";
 
 const module = googleShopping({
   merchantId: "your-merchant-id",

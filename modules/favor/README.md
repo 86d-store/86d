@@ -26,13 +26,13 @@ Favor delivery integration for 86d. Manage deliveries with zip-code-based servic
 ## Installation
 
 ```sh
-npm install @86d-app/favor
+npm install @86d-store/favor
 ```
 
 ## Usage
 
 ```ts
-import favor from "@86d-app/favor";
+import favor from "@86d-store/favor";
 
 const module = favor({
   apiKey: "your-favor-api-key",

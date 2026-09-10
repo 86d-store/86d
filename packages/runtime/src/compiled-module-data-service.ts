@@ -4,16 +4,19 @@ import type {
 	DurableEventInput,
 	LockingModuleDataTransaction,
 	ModuleDataTransaction,
-} from "@86d-app/core/durable-events";
-import type { CompiledTable, CompileModuleResult } from "@86d-app/core/schema";
+} from "@86d-store/core/durable-events";
+import type {
+	CompiledTable,
+	CompileModuleResult,
+} from "@86d-store/core/schema";
 import {
 	parseStorageRead,
 	parseStorageWrite,
-} from "@86d-app/core/schema/compile/storage-parse";
+} from "@86d-store/core/schema/compile/storage-parse";
 import type {
 	ModuleDataService,
 	ModuleEntityMap,
-} from "@86d-app/core/types/module";
+} from "@86d-store/core/types/module";
 import { and, asc, count, desc, eq, type SQL, sql } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import type { PgColumn, PgTable } from "drizzle-orm/pg-core";

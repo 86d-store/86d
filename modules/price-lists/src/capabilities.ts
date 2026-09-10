@@ -1,5 +1,5 @@
-import { provideCapability } from "@86d-app/core/capabilities";
-import { priceListResolveCapability } from "@86d-app/core/commerce-capabilities";
+import { provideCapability } from "@86d-store/core/capabilities";
+import { priceListResolveCapability } from "@86d-store/core/commerce-capabilities";
 import type { z } from "zod";
 import type { PriceListController } from "./service";
 import { createPriceListController } from "./service-impl";

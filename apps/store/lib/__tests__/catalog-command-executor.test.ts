@@ -1,15 +1,15 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createMockTransactionRunner } from "@86d-app/core/test-utils";
+import { createMockTransactionRunner } from "@86d-store/core/test-utils";
 import {
 	type CatalogRevisionContent,
 	digestCatalogRevisionContent,
-} from "@86d-app/products/catalog-revisions";
+} from "@86d-store/products/catalog-revisions";
 import {
 	createInMemoryCommandPersistence,
 	type MemoryCommandTransaction,
-} from "@86d-app/runtime/command";
+} from "@86d-store/runtime/command";
 import { describe, expect, it, vi } from "vitest";
 import {
 	catalogDraftCommandReference,

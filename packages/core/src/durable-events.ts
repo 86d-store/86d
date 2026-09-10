@@ -1,4 +1,4 @@
-import { actorReferenceSchema } from "@86d-app/contracts/command";
+import { actorReferenceSchema } from "@86d-store/contracts/command";
 import { z } from "zod";
 import type { ModuleDataService } from "./types/module";
 

@@ -1,5 +1,5 @@
 /**
- * @86d-app/core/test-utils
+ * @86d-store/core/test-utils
  *
  * Shared test utilities for module authors.
  * Provides a mock ModuleDataService and helpers for constructing
@@ -7,7 +7,7 @@
  *
  * @example
  * ```ts
- * import { createMockDataService, createMockModuleContext } from "@86d-app/core/test-utils";
+ * import { createMockDataService, createMockModuleContext } from "@86d-store/core/test-utils";
  *
  * const data = createMockDataService();
  * await data.upsert("product", "p1", { name: "Widget" });

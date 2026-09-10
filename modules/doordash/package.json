@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/doordash",
+	"name": "@86d-store/doordash",
 	"version": "0.1.0",
 	"description": "DoorDash Drive delivery integration module for 86d commerce platform",
 	"keywords": [
@@ -51,7 +51,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

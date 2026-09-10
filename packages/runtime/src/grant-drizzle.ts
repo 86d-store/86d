@@ -3,14 +3,14 @@ import {
 	changeSetSchema,
 	computeChangeSetReviewHash,
 	normalizeBaseRevisions,
-} from "@86d-app/contracts/change-set";
+} from "@86d-store/contracts/change-set";
 import {
 	type ActorReference,
 	type AuthoritySnapshot,
 	type CommandFailure,
 	computeConfirmationNonceDigest,
 	type TargetReference,
-} from "@86d-app/contracts/command";
+} from "@86d-store/contracts/command";
 import type {
 	CommandGrantAdapter,
 	CommandGrantAdmissionRequest,

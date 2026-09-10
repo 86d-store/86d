@@ -26,13 +26,13 @@ eBay marketplace integration supporting fixed-price and auction listings, order 
 ## Installation
 
 ```sh
-npm install @86d-app/ebay
+npm install @86d-store/ebay
 ```
 
 ## Usage
 
 ```ts
-import ebay from "@86d-app/ebay";
+import ebay from "@86d-store/ebay";
 
 const module = ebay({
   clientId: "your-client-id",

@@ -36,7 +36,7 @@ vi.mock("db", () => ({
 	writeCoreMoney: vi.fn(),
 }));
 
-vi.mock("@86d-app/runtime/compiled-schema-boot", () => ({
+vi.mock("@86d-store/runtime/compiled-schema-boot", () => ({
 	compileInstalledModules: vi.fn(() => ({ compiled: [], sql: "" })),
 	compiledForModule: vi.fn(() => []),
 	applyCompiledModuleSchema: vi.fn().mockResolvedValue(undefined),
@@ -52,7 +52,7 @@ vi.mock("utils/logger", () => ({
 
 vi.mock("../../generated/api", () => ({ modules: [] }));
 
-vi.mock("@86d-app/runtime/registry", () => ({
+vi.mock("@86d-store/runtime/registry", () => ({
 	ModuleRegistry: vi.fn(
 		function ModuleRegistryMock(_modules, storeId, config, moduleOptions) {
 			mocks.moduleOptions = moduleOptions;
@@ -65,15 +65,15 @@ vi.mock("@86d-app/runtime/registry", () => ({
 	),
 }));
 
-vi.mock("@86d-app/runtime/compiled-module-data-service", () => ({
+vi.mock("@86d-store/runtime/compiled-module-data-service", () => ({
 	CompiledModuleDataService: vi.fn(),
 }));
 
-vi.mock("@86d-app/sdk/get-store-config", () => ({
+vi.mock("@86d-store/sdk/get-store-config", () => ({
 	getStoreConfig: vi.fn().mockResolvedValue({
 		name: "Managed Store",
 		moduleOptions: {
-			"@86d-app/stripe": { secretKey: secretCanary },
+			"@86d-store/stripe": { secretKey: secretCanary },
 		},
 		notificationSettings: {
 			fromAddress: `Attacker <${secretCanary}@example.com>`,
@@ -84,7 +84,7 @@ vi.mock("@86d-app/sdk/get-store-config", () => ({
 	loadFromTemplate: vi.fn().mockReturnValue({
 		name: "Standalone Template",
 		moduleOptions: {
-			"@86d-app/cart": { maxItemsPerCart: 25 },
+			"@86d-store/cart": { maxItemsPerCart: 25 },
 		},
 		notificationSettings: {
 			fromAddress: "Store <orders@example.com>",
@@ -96,11 +96,11 @@ vi.mock("@86d-app/sdk/get-store-config", () => ({
 
 // api-registry.ts:76 also calls loadFromTemplate; the pre-split whole-module mock
 // covered it in the same factory.
-vi.mock("@86d-app/sdk/load-from-template", () => ({
+vi.mock("@86d-store/sdk/load-from-template", () => ({
 	loadFromTemplate: vi.fn().mockReturnValue({
 		name: "Standalone Template",
 		moduleOptions: {
-			"@86d-app/cart": { maxItemsPerCart: 25 },
+			"@86d-store/cart": { maxItemsPerCart: 25 },
 		},
 		notificationSettings: {
 			fromAddress: "Store <orders@example.com>",
@@ -155,7 +155,7 @@ describe("Store Runtime remote config containment", () => {
 		await ensureBooted();
 
 		expect(mocks.moduleOptions).toEqual({
-			"@86d-app/cart": { maxItemsPerCart: 25 },
+			"@86d-store/cart": { maxItemsPerCart: 25 },
 		});
 		expect(JSON.stringify(mocks.moduleOptions)).not.toContain(secretCanary);
 

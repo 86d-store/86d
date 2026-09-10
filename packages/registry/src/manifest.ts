@@ -132,7 +132,7 @@ function buildModuleEntry(
 	);
 
 	return {
-		name: pkg.name ?? `@86d-app/${name}`,
+		name: pkg.name ?? `@86d-store/${name}`,
 		description,
 		version: declared?.version ?? pkg.version ?? "0.0.1",
 		category: declared?.category ?? "general",

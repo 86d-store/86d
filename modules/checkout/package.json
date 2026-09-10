@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/checkout",
+	"name": "@86d-store/checkout",
 	"version": "0.1.0",
 	"description": "Checkout flow module for 86d commerce platform",
 	"keywords": [
@@ -59,7 +59,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*",
+		"@86d-store/core": "workspace:*",
 		"env": "workspace:*"
 	},
 	"devDependencies": {

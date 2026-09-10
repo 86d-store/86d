@@ -19,7 +19,7 @@
 
 📚 **Documentation:** [86d.app/docs/modules/sitemap](https://86d.app/docs/modules/sitemap)
 
-# @86d-app/sitemap
+# @86d-store/sitemap
 
 XML sitemap generation module for 86d. Auto-generates sitemaps from products, collections, pages, blog posts, and brands with configurable priorities and change frequencies.
 
@@ -42,7 +42,7 @@ Included by default when `modules: "*"` in your template `config.json`.
 {
   "modules": ["sitemap"],
   "moduleOptions": {
-    "@86d-app/sitemap": {
+    "@86d-store/sitemap": {
       "baseUrl": "https://mystore.com"
     }
   }

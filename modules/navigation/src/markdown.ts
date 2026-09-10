@@ -1,4 +1,4 @@
-import type { ModuleContext } from "@86d-app/core/types/module";
+import type { ModuleContext } from "@86d-store/core/types/module";
 import type { NavigationController } from "./service";
 
 export async function toMarkdownMenuListing(

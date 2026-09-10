@@ -1,7 +1,7 @@
 /**
  * Input sanitization utilities for module authors.
  *
- * These functions are dependency-free so they can live inside @86d-app/core
+ * These functions are dependency-free so they can live inside @86d-store/core
  * without pulling in external packages, and so they are safe to import from a
  * client bundle.
  *

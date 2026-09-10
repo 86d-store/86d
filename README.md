@@ -144,7 +144,7 @@ See [`.env.example`](.env.example) for the full list.
 bun run 86d module create my-feature
 ```
 
-This scaffolds `modules/my-feature/` with the full module structure: entry point, schema, store/admin endpoints, and component stubs. Add `"@86d-app/my-feature"` to `templates/brisa/config.json` and run `bun run 86d generate`.
+This scaffolds `modules/my-feature/` with the full module structure: entry point, schema, store/admin endpoints, and component stubs. Add `"@86d-store/my-feature"` to `templates/brisa/config.json` and run `bun run 86d generate`.
 
 ## Creating a Template
 

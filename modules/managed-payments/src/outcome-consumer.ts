@@ -1,5 +1,5 @@
-import type { PaymentOutcomeRecorderPort } from "@86d-app/core/payment-checkout-ports";
-import type { ModuleController } from "@86d-app/core/types/module";
+import type { PaymentOutcomeRecorderPort } from "@86d-store/core/payment-checkout-ports";
+import type { ModuleController } from "@86d-store/core/types/module";
 import type { ManagedPaymentStoreOutcome } from "./contracts";
 import type { ManagedPaymentClient } from "./managed-payment-client";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useSidebar } from "@86d-app/ui/shadcn/sidebar";
+import { useSidebar } from "@86d-store/ui/shadcn/sidebar";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import {

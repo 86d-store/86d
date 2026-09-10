@@ -1,4 +1,4 @@
-import { createStoreEndpoint } from "@86d-app/core/api";
+import { createStoreEndpoint } from "@86d-store/core/api";
 import type { PaymentController } from "../../service";
 
 export const listPaymentMethods = createStoreEndpoint(

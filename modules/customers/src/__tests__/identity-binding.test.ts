@@ -1,4 +1,4 @@
-import { createMockTransactionRunner } from "@86d-app/core/test-utils";
+import { createMockTransactionRunner } from "@86d-store/core/test-utils";
 import { describe, expect, it } from "vitest";
 import type { StoreCustomerIdentityInput } from "../identity-binding";
 import {

@@ -49,8 +49,8 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*",
-		"@86d-app/storage": "workspace:*",
+		"@86d-store/core": "workspace:*",
+		"@86d-store/storage": "workspace:*",
 		"drizzle-orm": "0.45.2",
 		"env": "workspace:*",
 		"pg": "8.23.0"

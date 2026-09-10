@@ -2,7 +2,7 @@ import {
 	DEFAULT_CONFIG,
 	type RemoteStoreConfigV2,
 	type StoreCommerceAvailability,
-} from "@86d-app/sdk/types";
+} from "@86d-store/sdk/types";
 import { logger } from "utils/logger";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -10,9 +10,9 @@ const sdkBoundary = vi.hoisted(() => ({
 	getStoreConfig: vi.fn(),
 }));
 
-vi.mock("@86d-app/sdk/get-store-config", async (importOriginal) => {
+vi.mock("@86d-store/sdk/get-store-config", async (importOriginal) => {
 	const sdk =
-		await importOriginal<typeof import("@86d-app/sdk/get-store-config")>();
+		await importOriginal<typeof import("@86d-store/sdk/get-store-config")>();
 	return { ...sdk, getStoreConfig: sdkBoundary.getStoreConfig };
 });
 
@@ -37,7 +37,7 @@ function managedConfig(
 		...presentation,
 		theme: "brisa",
 		favicon: "/assets/favicon.svg",
-		modules: ["@86d-app/cart"],
+		modules: ["@86d-store/cart"],
 		contractVersion: 2,
 		entitlement: null,
 		commerceAvailability,

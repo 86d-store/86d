@@ -1,4 +1,4 @@
-import { createStoreEndpoint } from "@86d-app/core/api";
+import { createStoreEndpoint } from "@86d-store/core/api";
 import { verifyWebhookSignature } from "../../provider";
 import type { TikTokShopController } from "../../service";
 

@@ -26,13 +26,13 @@ CMS-style static pages with a draft/published/archived workflow. Supports hierar
 ## Installation
 
 ```sh
-npm install @86d-app/pages
+npm install @86d-store/pages
 ```
 
 ## Usage
 
 ```ts
-import pages from "@86d-app/pages";
+import pages from "@86d-store/pages";
 
 const module = pages({
   pagesPerPage: "50",

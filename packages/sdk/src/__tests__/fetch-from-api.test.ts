@@ -11,7 +11,7 @@ function createValidApiResponse() {
 		favicon: "/api-favicon.ico",
 		icon: { light: "/api-icon-light.svg", dark: "/api-icon-dark.svg" },
 		logo: { light: "/api-logo-light.svg", dark: "/api-logo-dark.svg" },
-		modules: ["@86d-app/cart", "@86d-app/products"],
+		modules: ["@86d-store/cart", "@86d-store/products"],
 		variables: {
 			light: DEFAULT_CONFIG.variables.light,
 			dark: DEFAULT_CONFIG.variables.dark,
@@ -114,7 +114,7 @@ describe("fetchFromApi", () => {
 	it.each([
 		[
 			"Module options",
-			{ moduleOptions: { "@86d-app/stripe": { secretKey: "canary" } } },
+			{ moduleOptions: { "@86d-store/stripe": { secretKey: "canary" } } },
 		],
 		[
 			"notification settings",
@@ -153,7 +153,7 @@ describe("fetchFromApi", () => {
 				light: "/assets/logo/light.svg",
 				dark: "/assets/logo/dark.svg",
 			},
-			modules: ["@86d-app/cart", "@86d-app/products"],
+			modules: ["@86d-store/cart", "@86d-store/products"],
 		};
 
 		globalThis.fetch = vi.fn().mockResolvedValue({
@@ -164,7 +164,7 @@ describe("fetchFromApi", () => {
 		const config = await fetchFromApi("abc-123", "https://api.86d.app");
 
 		expect(config.name).toBe("My Store");
-		expect(config.modules).toEqual(["@86d-app/cart", "@86d-app/products"]);
+		expect(config.modules).toEqual(["@86d-store/cart", "@86d-store/products"]);
 		expect(config.variables.light.background).toBeDefined();
 		expect(config.variables.dark.background).toBeDefined();
 	});

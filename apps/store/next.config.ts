@@ -86,7 +86,7 @@ const nextConfig = withMDX({
 		? { output: "standalone" as const }
 		: {}),
 	pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
-	transpilePackages: [...loadTranspilePackages(), "@86d-app/storage"],
+	transpilePackages: [...loadTranspilePackages(), "@86d-store/storage"],
 	turbopack: {
 		...(turbopackRoot ? { root: turbopackRoot } : {}),
 		rules: {

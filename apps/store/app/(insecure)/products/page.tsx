@@ -1,4 +1,4 @@
-import { getQueryClient } from "@86d-app/core/client/query-client";
+import { getQueryClient } from "@86d-store/core/client/query-client";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import type { Metadata } from "next";
 import { getStoreName } from "~/lib/seo";

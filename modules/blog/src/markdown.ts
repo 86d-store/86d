@@ -1,4 +1,4 @@
-import type { ModuleContext } from "@86d-app/core/types/module";
+import type { ModuleContext } from "@86d-store/core/types/module";
 import type { BlogController } from "./service";
 
 export async function toMarkdownBlogListing(

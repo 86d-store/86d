@@ -1,7 +1,7 @@
 import {
 	createEndpointExposureResolver,
 	type EndpointExposure,
-} from "@86d-app/core/endpoint-exposure";
+} from "@86d-store/core/endpoint-exposure";
 import type { Session } from "auth";
 import { getSession } from "auth/actions";
 import { verifyStoreAdminAccess } from "auth/store-access";

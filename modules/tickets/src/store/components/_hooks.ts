@@ -1,6 +1,6 @@
 "use client";
 
-import { useModuleClient } from "@86d-app/core/client/provider";
+import { useModuleClient } from "@86d-store/core/client/provider";
 
 export function useTicketsApi() {
 	const client = useModuleClient();

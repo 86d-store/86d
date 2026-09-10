@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/sdk",
+	"name": "@86d-store/sdk",
 	"version": "0.1.0",
 	"private": true,
 	"license": "MIT",

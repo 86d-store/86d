@@ -26,13 +26,13 @@ Manages store navigation menus with nested, drag-and-drop-reorderable menu items
 ## Installation
 
 ```sh
-npm install @86d-app/navigation
+npm install @86d-store/navigation
 ```
 
 ## Usage
 
 ```ts
-import navigation from "@86d-app/navigation";
+import navigation from "@86d-store/navigation";
 
 const module = navigation({
   maxDepth: 3,

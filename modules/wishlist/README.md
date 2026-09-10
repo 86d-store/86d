@@ -26,13 +26,13 @@ Customer wishlist and favorites module for 86d commerce platform. Supports per-c
 ## Installation
 
 ```sh
-npm install @86d-app/wishlist
+npm install @86d-store/wishlist
 ```
 
 ## Usage
 
 ```ts
-import wishlist from "@86d-app/wishlist";
+import wishlist from "@86d-store/wishlist";
 
 const module = wishlist({
   maxItems: "50",

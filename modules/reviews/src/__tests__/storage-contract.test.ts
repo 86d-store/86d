@@ -3,9 +3,9 @@ import {
 	compileModuleDeclarations,
 	ModuleStorageParseError,
 	parseStorageRead,
-} from "@86d-app/core/schema";
-import { createMockDataService } from "@86d-app/core/test-utils";
-import type { ModuleDataService } from "@86d-app/core/types/module";
+} from "@86d-store/core/schema";
+import { createMockDataService } from "@86d-store/core/test-utils";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import { describe, expect, it } from "vitest";
 import reviewsModule from "../index";
 import { createReviewController } from "../service-impl";

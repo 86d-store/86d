@@ -6,7 +6,7 @@ Pluggable file storage: local filesystem, S3-compatible (including MinIO), and V
 
 ## Change protocol
 
-1. **Route.** Read the parent guide and this file. Callers reach storage through `@86d-app/storage` (never import `@vercel/blob` directly outside this package).
+1. **Route.** Read the parent guide and this file. Callers reach storage through `@86d-store/storage` (never import `@vercel/blob` directly outside this package).
 2. **Implement** using the local patterns below. Keep `STORAGE_CLIENT` values and required configuration in `.env.example`.
 3. **Verify.** `bun run test` in this package. Full pre-commit gates live in the parent guide. After `modules/` changes, prove `bun run generate:modules -- --frozen` from repo root.
    - Done when every required parent gate for the _slice_ is _green_.

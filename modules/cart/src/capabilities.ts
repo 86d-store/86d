@@ -4,9 +4,9 @@ import {
 	type CapabilityRequest,
 	type CapabilityResult,
 	provideCapability,
-} from "@86d-app/core/capabilities";
-import { cartSnapshotCapability } from "@86d-app/core/commerce-capabilities";
-import type { ModuleDataService } from "@86d-app/core/types/module";
+} from "@86d-store/core/capabilities";
+import { cartSnapshotCapability } from "@86d-store/core/commerce-capabilities";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import { createCartControllers } from "./service-impl";
 
 type CartSnapshotRequest = CapabilityRequest<typeof cartSnapshotCapability>;

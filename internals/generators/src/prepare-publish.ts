@@ -77,11 +77,11 @@ function publishablePackageJsonPaths(): string[] {
 
 /** Packages that must stay on the shared publish line (never private / never ignored). */
 const REQUIRED_PUBLISHABLE = [
-	"@86d-app/contracts",
-	"@86d-app/registry",
-	"@86d-app/storage",
-	"@86d-app/ui",
-	"@86d-app/core",
+	"@86d-store/contracts",
+	"@86d-store/registry",
+	"@86d-store/storage",
+	"@86d-store/ui",
+	"@86d-store/core",
 	"86d",
 ] as const;
 

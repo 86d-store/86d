@@ -23,23 +23,23 @@
 
 Cross-plane managed Payment bridge for the 86d Store Runtime. Managed Deployments do not hold provider credentials; this Module authenticates with the Store's workload credential, asks the Control Plane to run a payment operation, and applies durable outcomes to the local Payment record.
 
-Requires `@86d-app/payments` and reads `paymentStatus` and `paymentAmount` from it. Experimental: prepare remains fail-closed until production evidence exists (`86D_PAYMENTS_LIVE_ACTIVATION=true`).
+Requires `@86d-store/payments` and reads `paymentStatus` and `paymentAmount` from it. Experimental: prepare remains fail-closed until production evidence exists (`86D_PAYMENTS_LIVE_ACTIVATION=true`).
 
 ## Installation
 
 ```sh
-npm install @86d-app/managed-payments
+npm install @86d-store/managed-payments
 ```
 
 ## Usage
 
 ```ts
-import managedPayments from "@86d-app/managed-payments";
+import managedPayments from "@86d-store/managed-payments";
 
 const module = managedPayments();
 ```
 
-Managed provisioning typically installs this Module. For direct Payment provider setup today, use a provider Module such as `@86d-app/stripe` instead.
+Managed provisioning typically installs this Module. For direct Payment provider setup today, use a provider Module such as `@86d-store/stripe` instead.
 
 ## Configuration
 

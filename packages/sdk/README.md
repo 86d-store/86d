@@ -17,14 +17,14 @@
 > [!WARNING]
 > This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
-# @86d-app/sdk
+# @86d-store/sdk
 
 SDK for 86d store configuration. Resolves store config from the 86d hosted API or local template files.
 
 ## Installation
 
 ```bash
-bun add @86d-app/sdk
+bun add @86d-store/sdk
 ```
 
 ## Usage
@@ -32,7 +32,7 @@ bun add @86d-app/sdk
 ### Resolve store config
 
 ```ts
-import { getStoreConfig } from "@86d-app/sdk";
+import { getStoreConfig } from "@86d-store/sdk";
 
 // Managed deployments use 86D_STORE_ID, 86D_API_URL, and the opaque
 // 86D_WORKLOAD_CREDENTIAL. Standalone deployments load the local template.
@@ -47,7 +47,7 @@ console.log(config.name, config.modules);
 ### Load from template only
 
 ```ts
-import { loadFromTemplate } from "@86d-app/sdk";
+import { loadFromTemplate } from "@86d-store/sdk";
 
 const config = loadFromTemplate("./templates/brisa/config.json");
 ```
@@ -55,7 +55,7 @@ const config = loadFromTemplate("./templates/brisa/config.json");
 ### Fetch from API directly
 
 ```ts
-import { fetchFromApi } from "@86d-app/sdk";
+import { fetchFromApi } from "@86d-store/sdk";
 
 const config = await fetchFromApi(
   "store-uuid-here",
@@ -71,7 +71,7 @@ Managed Runtime Diagnostics is disabled unless `86D_TELEMETRY` is exactly
 present. Disabled and standalone clients make no Control Plane network call.
 
 ```ts
-import { createManagedRuntimeDiagnosticsClient } from "@86d-app/sdk";
+import { createManagedRuntimeDiagnosticsClient } from "@86d-store/sdk";
 
 const diagnostics = createManagedRuntimeDiagnosticsClient();
 await diagnostics.report({
@@ -107,8 +107,8 @@ import type {
   IconLogoVariant,
   RemoteStoreConfig,
   ThemeVariables,
-} from "@86d-app/sdk";
-import { DEFAULT_CONFIG } from "@86d-app/sdk";
+} from "@86d-store/sdk";
+import { DEFAULT_CONFIG } from "@86d-store/sdk";
 ```
 
 ## API endpoint

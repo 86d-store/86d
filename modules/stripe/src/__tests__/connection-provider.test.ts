@@ -1,4 +1,4 @@
-import type { PaymentProviderOperationRequest } from "@86d-app/core/payment-connection-provider";
+import type { PaymentProviderOperationRequest } from "@86d-store/core/payment-connection-provider";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
 	createStripePaymentConnectionProvider as createProvider,

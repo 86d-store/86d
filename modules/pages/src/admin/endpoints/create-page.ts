@@ -1,5 +1,5 @@
-import { createAdminEndpoint } from "@86d-app/core/api";
-import { sanitizeHtml, sanitizeText } from "@86d-app/core/sanitize";
+import { createAdminEndpoint } from "@86d-store/core/api";
+import { sanitizeHtml, sanitizeText } from "@86d-store/core/sanitize";
 import { z } from "zod";
 import type { PagesController } from "../../service";
 

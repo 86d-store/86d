@@ -1,5 +1,5 @@
-import { provideCapability } from "@86d-app/core/capabilities";
-import { abandonedCartRecoveryResolveCapability } from "@86d-app/core/commerce-capabilities";
+import { provideCapability } from "@86d-store/core/capabilities";
+import { abandonedCartRecoveryResolveCapability } from "@86d-store/core/commerce-capabilities";
 import { createAbandonedCartController } from "./service-impl";
 export const abandonedCartRecoveryResolveProvider = provideCapability(
 	abandonedCartRecoveryResolveCapability,

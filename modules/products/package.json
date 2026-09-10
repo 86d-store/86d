@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/products",
+	"name": "@86d-store/products",
 	"version": "0.1.0",
 	"description": "Product catalog module for 86d commerce platform",
 	"keywords": [
@@ -78,8 +78,8 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/contracts": "workspace:*",
-		"@86d-app/core": "workspace:*",
+		"@86d-store/contracts": "workspace:*",
+		"@86d-store/core": "workspace:*",
 		"@tanstack/react-form": "1.33.5",
 		"@tanstack/react-table": "9.1.2"
 	},

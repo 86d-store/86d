@@ -3,7 +3,7 @@
  * Used by the catch-all store route (resolve path → component).
  */
 
-import type { ModuleContext } from "@86d-app/core/types/module";
+import type { ModuleContext } from "@86d-store/core/types/module";
 import { modules } from "generated/api";
 
 export interface StoreRouteMatch {

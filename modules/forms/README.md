@@ -19,14 +19,14 @@
 
 📚 **Documentation:** [86d.app/docs/modules/forms](https://86d.app/docs/modules/forms)
 
-# @86d-app/forms
+# @86d-store/forms
 
 Custom forms module for the 86d commerce platform. Create contact forms, surveys, inquiry forms, feedback forms, and more with configurable fields and submission management.
 
 ## Installation
 
 ```ts
-import forms from "@86d-app/forms";
+import forms from "@86d-store/forms";
 
 export default defineStore({
   modules: [

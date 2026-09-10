@@ -31,7 +31,7 @@ src/
 
 ```
 "products"                            → official (local or registry)
-"@86d-app/products"                   → official (local or registry)
+"@86d-store/products"                   → official (local or registry)
 "github:owner/repo/modules/custom"    → GitHub subpath
 "github:owner/repo/path#v2.0"         → GitHub with ref
 "npm:@acme/module"                    → npm package
@@ -45,7 +45,7 @@ src/
   "modules": "*",
   "template": "brisa",
   "registry": "https://...registry.json",
-  "moduleOptions": { "@86d-app/cart": { "maxItemsPerCart": 50 } }
+  "moduleOptions": { "@86d-store/cart": { "maxItemsPerCart": 50 } }
 }
 ```
 

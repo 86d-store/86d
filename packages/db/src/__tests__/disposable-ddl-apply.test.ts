@@ -1,10 +1,10 @@
-import { col } from "@86d-app/core/schema/col";
+import { col } from "@86d-store/core/schema/col";
 import {
 	compileModuleDeclarations,
 	emitSql,
-} from "@86d-app/core/schema/compile";
-import type { Module } from "@86d-app/core/types/module";
-import { z } from "@86d-app/core/zod";
+} from "@86d-store/core/schema/compile";
+import type { Module } from "@86d-store/core/types/module";
+import { z } from "@86d-store/core/zod";
 import { PGlite } from "@electric-sql/pglite";
 import { describe, expect, it } from "vitest";
 import { loadCuratedModules } from "../load-curated-modules";

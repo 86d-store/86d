@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/uber-direct",
+	"name": "@86d-store/uber-direct",
 	"version": "0.1.0",
 	"description": "Uber Direct on-demand delivery integration for 86d commerce platform",
 	"keywords": [
@@ -52,7 +52,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

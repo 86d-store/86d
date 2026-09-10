@@ -1,7 +1,7 @@
 "use client";
 
-import { ModuleClientError } from "@86d-app/core/client/hooks";
-import { useModuleClient } from "@86d-app/core/client/provider";
+import { ModuleClientError } from "@86d-store/core/client/hooks";
+import { useModuleClient } from "@86d-store/core/client/provider";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import OrderDetailTemplate from "./order-detail.mdx";
 

@@ -26,13 +26,13 @@ Read-only gift card records, balance and status lookup, owned-card delivery meta
 ## Installation
 
 ```sh
-npm install @86d-app/giftcards
+npm install @86d-store/giftcards
 ```
 
 ## Usage
 
 ```ts
-import giftCards from "@86d-app/giftcards";
+import giftCards from "@86d-store/giftcards";
 
 const module = giftCards();
 ```

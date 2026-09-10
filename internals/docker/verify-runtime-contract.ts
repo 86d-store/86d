@@ -257,7 +257,7 @@ export async function assertRunnerLayout({
 
 	const modulePackages = new Set<string>();
 	for (const packageName of modulePackageNames) {
-		if (!/^@86d-app\/[a-z0-9-]+$/.test(packageName)) {
+		if (!/^@86d-store\/[a-z0-9-]+$/.test(packageName)) {
 			throw new Error(
 				`Invalid Module package name: ${JSON.stringify(packageName)}`,
 			);
@@ -331,11 +331,11 @@ export async function writeModulePackageManifest({
 		);
 		if (
 			typeof manifest.name !== "string" ||
-			!/^@86d-app\/[a-z0-9-]+$/.test(manifest.name)
+			!/^@86d-store\/[a-z0-9-]+$/.test(manifest.name)
 		) {
 			throw new Error(`Invalid Module package name in ${manifestPath}`);
 		}
-		if (manifest.name === "@86d-app/managed-payments") {
+		if (manifest.name === "@86d-store/managed-payments") {
 			if (allowManagedExclusion) continue;
 			throw new Error("managed-payments must not enter the public Store image");
 		}

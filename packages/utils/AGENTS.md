@@ -6,7 +6,7 @@ Shared utilities: logging, URL resolution, rate limiting, and text sanitization.
 
 ## Change protocol
 
-1. **Route.** Read the parent guide and this file. Store endpoint sanitization prefers `@86d-app/core/sanitize` per the parent security section.
+1. **Route.** Read the parent guide and this file. Store endpoint sanitization prefers `@86d-store/core/sanitize` per the parent security section.
 2. **Implement** using the local patterns below.
 3. **Verify.** Focused package tests while iterating. Full pre-commit gates live in the parent guide. After `modules/` changes, prove `bun run generate:modules -- --frozen` from repo root.
    - Done when every required parent gate for the _slice_ is _green_.

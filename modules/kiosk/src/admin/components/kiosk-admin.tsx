@@ -1,10 +1,10 @@
 "use client";
 
-import { useModuleClient } from "@86d-app/core/client/provider";
-import { Alert, AlertDescription, AlertTitle } from "@86d-app/ui/alert";
-import { Button } from "@86d-app/ui/button";
-import { Text } from "@86d-app/ui/text";
-import { View } from "@86d-app/ui/view";
+import { useModuleClient } from "@86d-store/core/client/provider";
+import { Alert, AlertDescription, AlertTitle } from "@86d-store/ui/alert";
+import { Button } from "@86d-store/ui/button";
+import { Text } from "@86d-store/ui/text";
+import { View } from "@86d-store/ui/view";
 import KioskAdminTemplate from "./kiosk-admin.mdx";
 
 function Skeleton({ className = "" }: { className?: string }) {

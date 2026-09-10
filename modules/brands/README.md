@@ -26,13 +26,13 @@ Product brand management module. Organize products by manufacturer or brand with
 ## Installation
 
 ```sh
-npm install @86d-app/brands
+npm install @86d-store/brands
 ```
 
 ## Usage
 
 ```ts
-import brands from "@86d-app/brands";
+import brands from "@86d-store/brands";
 
 const module = brands({
   maxProductsPerPage: "100",

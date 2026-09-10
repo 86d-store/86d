@@ -26,13 +26,13 @@ Order ownership for the accepted commercial agreement, plus migration-era read p
 ## Installation
 
 ```sh
-npm install @86d-app/orders
+npm install @86d-store/orders
 ```
 
 ## Usage
 
 ```ts
-import orders from "@86d-app/orders";
+import orders from "@86d-store/orders";
 
 const module = orders({
   currency: "USD",

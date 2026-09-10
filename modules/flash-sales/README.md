@@ -26,13 +26,13 @@ Time-limited promotional events with per-product sale pricing, stock limits, and
 ## Installation
 
 ```sh
-npm install @86d-app/flash-sales
+npm install @86d-store/flash-sales
 ```
 
 ## Usage
 
 ```ts
-import flashSales from "@86d-app/flash-sales";
+import flashSales from "@86d-store/flash-sales";
 
 const module = flashSales({
   maxProductsPerSale: 50,

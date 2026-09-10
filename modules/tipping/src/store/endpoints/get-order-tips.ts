@@ -1,5 +1,5 @@
-import { createStoreEndpoint } from "@86d-app/core/api";
-import { orderCustomerAuthorizeCapability } from "@86d-app/core/commerce-capabilities";
+import { createStoreEndpoint } from "@86d-store/core/api";
+import { orderCustomerAuthorizeCapability } from "@86d-store/core/commerce-capabilities";
 import { z } from "zod";
 import type { TippingController } from "../../service";
 

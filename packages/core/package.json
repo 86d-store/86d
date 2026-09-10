@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/core",
+	"name": "@86d-store/core",
 	"version": "0.1.0",
 	"description": "Core package for 86d, The Modern Foundation for Commerce",
 	"homepage": "https://86d.app",
@@ -195,7 +195,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/contracts": "workspace:*",
+		"@86d-store/contracts": "workspace:*",
 		"@tanstack/react-query": "catalog:trpc",
 		"better-call": "1.3.5",
 		"superjson": "2.2.6",

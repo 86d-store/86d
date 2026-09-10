@@ -28,14 +28,14 @@ Newsletter subscription management for the 86d commerce platform. Handles subscr
 ## Installation
 
 ```sh
-npm install @86d-app/newsletter
+npm install @86d-store/newsletter
 ```
 
 ## Usage
 
 ```ts
-import newsletter from "@86d-app/newsletter";
-import { createModuleClient } from "@86d-app/core";
+import newsletter from "@86d-store/newsletter";
+import { createModuleClient } from "@86d-store/core";
 
 const client = createModuleClient([
   newsletter({

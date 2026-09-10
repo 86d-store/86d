@@ -20,7 +20,7 @@ export interface ModuleSpecifier {
 	source: ModuleSourceType;
 	/** Short name used as the directory name inside `modules/`. */
 	name: string;
-	/** Full package name (e.g. "@86d-app/products"). */
+	/** Full package name (e.g. "@86d-store/products"). */
 	packageName: string;
 	/** For github sources: "owner/repo". */
 	repo?: string;
@@ -65,7 +65,7 @@ export const registryMaturityEvidenceSchema = z.object({
 
 /** Schema for a single module entry in the registry manifest. */
 export const registryModuleSchema = z.object({
-	/** npm package name (e.g. "@86d-app/products"). */
+	/** npm package name (e.g. "@86d-store/products"). */
 	name: z.string(),
 	/** Human-readable description. */
 	description: z.string(),

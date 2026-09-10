@@ -26,13 +26,13 @@ Tiered and group-specific pricing for products. Create multiple price lists with
 ## Installation
 
 ```sh
-npm install @86d-app/price-lists
+npm install @86d-store/price-lists
 ```
 
 ## Usage
 
 ```ts
-import priceLists from "@86d-app/price-lists";
+import priceLists from "@86d-store/price-lists";
 
 const module = priceLists({
   defaultCurrency: "USD",

@@ -26,13 +26,13 @@ Kiosk station registration and legacy lifecycle-record inspection for 86d. The p
 ## Installation
 
 ```sh
-npm install @86d-app/kiosk
+npm install @86d-store/kiosk
 ```
 
 ## Usage
 
 ```ts
-import kiosk from "@86d-app/kiosk";
+import kiosk from "@86d-store/kiosk";
 
 const module = kiosk();
 ```

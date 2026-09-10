@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/giftcards",
+	"name": "@86d-store/giftcards",
 	"version": "0.1.0",
 	"description": "Read-only gift card records, balance lookup, and contained delivery metadata for 86d commerce platform",
 	"keywords": [
@@ -53,8 +53,8 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*",
-		"@86d-app/ui": "workspace:*",
+		"@86d-store/core": "workspace:*",
+		"@86d-store/ui": "workspace:*",
 		"@tanstack/react-table": "9.1.2"
 	},
 	"devDependencies": {

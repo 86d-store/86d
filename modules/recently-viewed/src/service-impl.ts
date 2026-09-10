@@ -1,4 +1,4 @@
-import type { ModuleDataService } from "@86d-app/core/types/module";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import type { ProductView, RecentlyViewedController } from "./service";
 
 /** Dedup window: ignore repeat views of the same product within 5 minutes */

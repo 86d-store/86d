@@ -26,13 +26,13 @@ Toast POS integration for 86d. Bidirectional sync for menus, orders, and invento
 ## Installation
 
 ```sh
-npm install @86d-app/toast
+npm install @86d-store/toast
 ```
 
 ## Usage
 
 ```ts
-import toast from "@86d-app/toast";
+import toast from "@86d-store/toast";
 
 const module = toast({
   apiKey: "your-toast-api-key",

@@ -4,16 +4,16 @@ import { isDeepStrictEqual } from "node:util";
 import {
 	computeIntegrity,
 	type FetchModuleCandidate,
-} from "@86d-app/registry/fetcher";
-import { validateFetchedSubtree } from "@86d-app/registry/integrity";
-import type { Lockfile } from "@86d-app/registry/lockfile";
-import { parseSpecifier } from "@86d-app/registry/specifier";
+} from "@86d-store/registry/fetcher";
+import { validateFetchedSubtree } from "@86d-store/registry/integrity";
+import type { Lockfile } from "@86d-store/registry/lockfile";
+import { parseSpecifier } from "@86d-store/registry/specifier";
 import type {
 	ModuleSpecifier,
 	RegistryManifest,
 	ResolvedModule,
 	StoreConfig,
-} from "@86d-app/registry/types";
+} from "@86d-store/registry/types";
 import { getProcessEnv } from "env/process-env";
 
 export const REGISTRY_ONLY_MODULES_ENV = "86D_REGISTRY_ONLY_MODULES";

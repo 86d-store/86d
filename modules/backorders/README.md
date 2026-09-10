@@ -26,13 +26,13 @@ Backorder management for out-of-stock products. Allows customers to place orders
 ## Installation
 
 ```sh
-npm install @86d-app/backorders
+npm install @86d-store/backorders
 ```
 
 ## Usage
 
 ```ts
-import backorders from "@86d-app/backorders";
+import backorders from "@86d-store/backorders";
 
 const module = backorders({
   defaultLeadDays: "14",
@@ -191,7 +191,7 @@ pending → confirmed → allocated → shipped → delivered
 ### Usage
 
 ```tsx
-import { BackorderButton, MyBackorders } from "@86d-app/backorders/store/components";
+import { BackorderButton, MyBackorders } from "@86d-store/backorders/store/components";
 
 <BackorderButton productId="abc-123" />
 <MyBackorders customerId="customer-456" />

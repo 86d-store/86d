@@ -1,4 +1,4 @@
-import type { BaseAdapter } from "@86d-app/core/adapters";
+import type { BaseAdapter } from "@86d-store/core/adapters";
 
 /**
  * Cart data types

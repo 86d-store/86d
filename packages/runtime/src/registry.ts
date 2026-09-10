@@ -8,34 +8,37 @@ import type {
 	CapabilityRejected,
 	CapabilityRequest,
 	CapabilityResult,
-} from "@86d-app/core/capabilities";
+} from "@86d-store/core/capabilities";
 import {
 	formatViolations,
 	getRequiredModuleIds,
 	validateContracts,
-} from "@86d-app/core/contracts";
+} from "@86d-store/core/contracts";
 import type {
 	AnyDurableEventConsumer,
 	ModuleTransactionRunner,
-} from "@86d-app/core/durable-events";
-import type { EndpointExposureEntry } from "@86d-app/core/endpoint-exposure";
+} from "@86d-store/core/durable-events";
+import type { EndpointExposureEntry } from "@86d-store/core/endpoint-exposure";
 import {
 	collectEndpointExposures,
 	formatEndpointExposureViolations,
-} from "@86d-app/core/endpoint-exposure";
+} from "@86d-store/core/endpoint-exposure";
 import {
 	createEventBus,
 	createScopedEmitter,
 	type EventBus,
 	type EventBusOptions,
-} from "@86d-app/core/events";
-import type { CompiledExecutionGraph } from "@86d-app/core/graph";
-import { compileExecutionGraph } from "@86d-app/core/graph/compile";
-import { matchesContractRanges } from "@86d-app/core/graph/contract-range";
-import { GraphCompileError } from "@86d-app/core/graph/diagnostics";
-import { compareSemVer } from "@86d-app/core/graph/semver";
-import { formatPathConflicts, validateUniquePaths } from "@86d-app/core/paths";
-import type { Primitive } from "@86d-app/core/types/helper";
+} from "@86d-store/core/events";
+import type { CompiledExecutionGraph } from "@86d-store/core/graph";
+import { compileExecutionGraph } from "@86d-store/core/graph/compile";
+import { matchesContractRanges } from "@86d-store/core/graph/contract-range";
+import { GraphCompileError } from "@86d-store/core/graph/diagnostics";
+import { compareSemVer } from "@86d-store/core/graph/semver";
+import {
+	formatPathConflicts,
+	validateUniquePaths,
+} from "@86d-store/core/paths";
+import type { Primitive } from "@86d-store/core/types/helper";
 import type {
 	Module,
 	ModuleContext,
@@ -43,7 +46,7 @@ import type {
 	ModuleDataService,
 	ModuleStatus,
 	Session,
-} from "@86d-app/core/types/module";
+} from "@86d-store/core/types/module";
 
 /**
  * Per-module state tracked by the registry.
@@ -293,7 +296,7 @@ export class ModuleRegistry {
 		const module = this.entries.get(moduleId)?.module;
 		return {
 			...(module?.options ?? {}),
-			...(this.moduleOptions[`@86d-app/${moduleId}`] ?? {}),
+			...(this.moduleOptions[`@86d-store/${moduleId}`] ?? {}),
 			...(this.moduleOptions[moduleId] ?? {}),
 		};
 	}

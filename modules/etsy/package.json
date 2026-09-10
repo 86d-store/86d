@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/etsy",
+	"name": "@86d-store/etsy",
 	"version": "0.1.0",
 	"description": "Etsy Marketplace integration for 86d commerce platform",
 	"keywords": [
@@ -48,7 +48,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

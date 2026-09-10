@@ -7,21 +7,21 @@
  * consumer commits its effect with a dedupe receipt.
  */
 
-import type { Module } from "@86d-app/core/types/module";
-import { CompiledModuleDataService } from "@86d-app/runtime/compiled-module-data-service";
+import type { Module } from "@86d-store/core/types/module";
+import { CompiledModuleDataService } from "@86d-store/runtime/compiled-module-data-service";
 import {
 	compiledForModule,
 	compileInstalledModules,
-} from "@86d-app/runtime/compiled-schema-boot";
+} from "@86d-store/runtime/compiled-schema-boot";
 import {
 	createDrizzlePersistenceClient,
 	type PersistenceTransaction,
-} from "@86d-app/runtime/drizzle-persistence-client";
+} from "@86d-store/runtime/drizzle-persistence-client";
 import {
 	type DrainDurableEventsResult,
 	DurableEventDispatcher,
-} from "@86d-app/runtime/durable-event-dispatcher";
-import type { ModuleRegistry } from "@86d-app/runtime/registry";
+} from "@86d-store/runtime/durable-event-dispatcher";
+import type { ModuleRegistry } from "@86d-store/runtime/registry";
 import { getPool } from "db";
 import { drizzle } from "drizzle-orm/node-postgres";
 import env from "env";

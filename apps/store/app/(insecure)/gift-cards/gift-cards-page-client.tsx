@@ -1,6 +1,6 @@
 "use client";
 
-import GiftCardComponents from "@86d-app/giftcards/components";
+import GiftCardComponents from "@86d-store/giftcards/components";
 
 const { GiftCardBalance } = GiftCardComponents;
 

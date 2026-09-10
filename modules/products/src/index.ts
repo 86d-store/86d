@@ -1,7 +1,7 @@
-import { acceptCapability } from "@86d-app/core/capabilities";
-import { inventoryCheckoutCapability } from "@86d-app/core/commerce-capabilities";
-import { catalogPublishedV1 } from "@86d-app/core/durable-events";
-import type { Module, ModuleConfig } from "@86d-app/core/types/module";
+import { acceptCapability } from "@86d-store/core/capabilities";
+import { inventoryCheckoutCapability } from "@86d-store/core/commerce-capabilities";
+import { catalogPublishedV1 } from "@86d-store/core/durable-events";
+import type { Module, ModuleConfig } from "@86d-store/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { productResolveProvider } from "./capabilities";
 import { catalogPresentationConsumer } from "./catalog-presentation";

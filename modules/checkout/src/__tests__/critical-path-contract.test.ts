@@ -1,7 +1,7 @@
 import {
 	createMockDataService,
 	createMockSession,
-} from "@86d-app/core/test-utils";
+} from "@86d-store/core/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import {
 	CheckoutMutationUnavailableError,

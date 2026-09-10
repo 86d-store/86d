@@ -1,11 +1,11 @@
-import type { CapabilityInvoker } from "@86d-app/core/capabilities";
+import type { CapabilityInvoker } from "@86d-store/core/capabilities";
 import {
 	orderCreateCapability,
 	paymentCheckoutCapability,
 	taxQuoteV2Capability,
-} from "@86d-app/core/commerce-capabilities";
-import { inventoryCheckoutV2Capability } from "@86d-app/core/inventory-reservation-capability";
-import { createMockTransactionRunner } from "@86d-app/core/test-utils";
+} from "@86d-store/core/commerce-capabilities";
+import { inventoryCheckoutV2Capability } from "@86d-store/core/inventory-reservation-capability";
+import { createMockTransactionRunner } from "@86d-store/core/test-utils";
 import { getProcessEnv, setProcessEnv } from "env/process-env";
 import { describe, expect, it, vi } from "vitest";
 import { createCheckoutFinalizationStore } from "../finalization";

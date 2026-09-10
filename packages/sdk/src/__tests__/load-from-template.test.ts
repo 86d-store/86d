@@ -107,7 +107,7 @@ describe("loadFromTemplate", () => {
 				theme: "standalone",
 				name: "Standalone Store",
 				moduleOptions: {
-					"@86d-app/cart": { maxItemsPerCart: 25 },
+					"@86d-store/cart": { maxItemsPerCart: 25 },
 				},
 				notificationSettings: {
 					fromAddress: "Store <orders@example.com>",
@@ -120,7 +120,7 @@ describe("loadFromTemplate", () => {
 		const result = loadFromTemplate(configPath);
 
 		expect(result.moduleOptions).toEqual({
-			"@86d-app/cart": { maxItemsPerCart: 25 },
+			"@86d-store/cart": { maxItemsPerCart: 25 },
 		});
 		expect(result.notificationSettings).toEqual({
 			fromAddress: "Store <orders@example.com>",

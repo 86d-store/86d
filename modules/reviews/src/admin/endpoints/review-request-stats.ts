@@ -1,4 +1,4 @@
-import { createAdminEndpoint } from "@86d-app/core/api";
+import { createAdminEndpoint } from "@86d-store/core/api";
 import type { ReviewController } from "../../service";
 
 export const reviewRequestStats = createAdminEndpoint(

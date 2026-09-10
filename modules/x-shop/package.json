@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/x-shop",
+	"name": "@86d-store/x-shop",
 	"version": "0.1.0",
 	"description": "X/Twitter Shopping sales channel module for 86d commerce platform",
 	"keywords": [
@@ -51,7 +51,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

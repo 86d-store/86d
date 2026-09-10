@@ -26,13 +26,13 @@ Facebook/Meta Commerce integration for catalog synchronization, product listings
 ## Installation
 
 ```sh
-npm install @86d-app/facebook-shop
+npm install @86d-store/facebook-shop
 ```
 
 ## Usage
 
 ```ts
-import facebookShop from "@86d-app/facebook-shop";
+import facebookShop from "@86d-store/facebook-shop";
 
 const module = facebookShop({
   accessToken: "your-access-token",

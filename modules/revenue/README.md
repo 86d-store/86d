@@ -28,13 +28,13 @@ Experimental: this Module does not aggregate provider settlements, payouts, comp
 ## Installation
 
 ```sh
-npm install @86d-app/revenue
+npm install @86d-store/revenue
 ```
 
 ## Usage
 
 ```ts
-import revenue from "@86d-app/revenue";
+import revenue from "@86d-store/revenue";
 
 const module = revenue();
 ```
@@ -66,5 +66,5 @@ Optionally accepts Payments `paymentIntent` list capability; when absent, report
 
 | Export path | Description |
 |---|---|
-| `@86d-app/revenue/admin/components/revenue-admin` | Store Admin revenue UI |
-| `@86d-app/revenue/components` | Storefront MDX components |
+| `@86d-store/revenue/admin/components/revenue-admin` | Store Admin revenue UI |
+| `@86d-store/revenue/components` | Storefront MDX components |

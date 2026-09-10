@@ -11,8 +11,8 @@ const SAFE_GIT_REF = /^[A-Za-z0-9][A-Za-z0-9._/-]*$/;
  *
  * Supported formats:
  * ```
- * "products"                              → local/registry  @86d-app/products
- * "@86d-app/products"                     → local/registry  @86d-app/products
+ * "products"                              → local/registry  @86d-store/products
+ * "@86d-store/products"                     → local/registry  @86d-store/products
  * "github:owner/repo"                     → github          (repo root)
  * "github:owner/repo/modules/custom"      → github          (subpath)
  * "github:owner/repo/modules/custom#v2"   → github          (ref)
@@ -31,7 +31,7 @@ export function parseSpecifier(raw: string): ModuleSpecifier {
 		return parseNpmSpecifier(raw);
 	}
 
-	// ── Official module (bare name or @86d-app/ prefix) ───────────
+	// ── Official module (bare name or @86d-store/ prefix) ───────────
 	return parseOfficialSpecifier(raw);
 }
 
@@ -64,7 +64,7 @@ function parseGitHubSpecifier(raw: string): ModuleSpecifier {
 		raw,
 		source: "github",
 		name,
-		packageName: `@86d-app/${name}`,
+		packageName: `@86d-store/${name}`,
 		repo,
 		ref: ref || "main",
 	};
@@ -115,9 +115,9 @@ function parseNpmSpecifier(raw: string): ModuleSpecifier {
 }
 
 function parseOfficialSpecifier(raw: string): ModuleSpecifier {
-	// Strip @86d-app/ prefix if present
-	const name = raw.replace(/^@86d-app\//, "");
-	const packageName = `@86d-app/${name}`;
+	// Strip @86d-store/ prefix if present
+	const name = raw.replace(/^@86d-store\//, "");
+	const packageName = `@86d-store/${name}`;
 
 	// Source determination happens later during resolution — for now
 	// mark as "registry" (the resolver will check local first).
@@ -133,7 +133,7 @@ function parseOfficialSpecifier(raw: string): ModuleSpecifier {
 		throw invalidSpecifier(
 			"official",
 			raw,
-			"expected a bare name or the @86d-app/ scope",
+			"expected a bare name or the @86d-store/ scope",
 		);
 	}
 	assertValidModuleSpecifier(result);
@@ -166,7 +166,7 @@ export function assertValidModuleSpecifier(spec: ModuleSpecifier): void {
 	switch (spec.source) {
 		case "local":
 		case "registry":
-			if (spec.packageName !== `@86d-app/${spec.name}`) {
+			if (spec.packageName !== `@86d-store/${spec.name}`) {
 				throw invalidSpecifier(
 					"official",
 					spec.raw,
@@ -213,7 +213,7 @@ export function assertValidModuleSpecifier(spec: ModuleSpecifier): void {
 			const derivedName = pathSegments.at(-1) ?? repoName;
 			if (
 				derivedName !== spec.name ||
-				spec.packageName !== `@86d-app/${spec.name}`
+				spec.packageName !== `@86d-store/${spec.name}`
 			) {
 				throw invalidSpecifier(
 					"GitHub",
@@ -272,7 +272,7 @@ function invalidSpecifier(
 
 /**
  * Check if a specifier refers to an official 86d module.
- * Official modules use bare names or the `@86d-app/` scope.
+ * Official modules use bare names or the `@86d-store/` scope.
  */
 export function isOfficialModule(spec: ModuleSpecifier): boolean {
 	return spec.source === "registry" || spec.source === "local";

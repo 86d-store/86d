@@ -28,13 +28,13 @@ Contains the legacy return workflow and exposes an additive authoritative reques
 ## Installation
 
 ```sh
-npm install @86d-app/returns
+npm install @86d-store/returns
 ```
 
 ## Usage
 
 ```ts
-import returns from "@86d-app/returns";
+import returns from "@86d-store/returns";
 
 const module = returns({
   returnWindowDays: 30,

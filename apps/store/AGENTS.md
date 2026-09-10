@@ -117,7 +117,7 @@ Payment provider modules (stripe, square, paypal, braintree) verify webhook sign
   - Magic-byte validation (blocks MIME spoofing)
   - SVG XSS checks (scripts, event handlers, javascript URIs)
   - Size limits: 4.5 MB images, 10 MB PDFs
-  - Stored at `stores/{storeId}/{uuid}` via `@86d-app/storage`
+  - Stored at `stores/{storeId}/{uuid}` via `@86d-store/storage`
   - When `STORAGE_PUBLIC_URL_MODE=proxy`, responses use same-origin `/uploads/{key}` URLs
 - `DELETE /api/upload` — admin-only; store isolation blocks cross-store deletion
 - `GET /uploads/[...path]` — local files or S3-backed proxy
@@ -128,7 +128,7 @@ Payment provider modules (stripe, square, paypal, braintree) verify webhook sign
 ## Local notes
 
 - MDX pages: `.md` or `.mdx` (next.config.ts)
-- Modules such as `@86d-app/cart` and `@86d-app/products` are direct dependencies; endpoints go through `api/[...path]/`
+- Modules such as `@86d-store/cart` and `@86d-store/products` are direct dependencies; endpoints go through `api/[...path]/`
 - Turbopack raw-loader for `.txt` files
 - Dev: `bun run dev:store` from monorepo root (never leave running in a headless agent cycle)
 - Inside this app, use `~/` for local imports; bare `lib/` conflicts with `packages/lib`

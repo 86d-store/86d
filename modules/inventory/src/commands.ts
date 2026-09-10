@@ -1,11 +1,11 @@
 import type {
 	ActorReference,
 	AuthoritySnapshot,
-} from "@86d-app/contracts/command";
+} from "@86d-store/contracts/command";
 import {
 	inventoryStockAdjustedV2,
 	type LockingModuleDataTransaction,
-} from "@86d-app/core/durable-events";
+} from "@86d-store/core/durable-events";
 import { z } from "zod";
 
 const resourceIdentifier = z.string().min(1).max(200);

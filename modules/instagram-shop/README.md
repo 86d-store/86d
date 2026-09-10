@@ -26,13 +26,13 @@ Instagram Shopping integration for product listings, Instagram media product tag
 ## Installation
 
 ```sh
-npm install @86d-app/instagram-shop
+npm install @86d-store/instagram-shop
 ```
 
 ## Usage
 
 ```ts
-import instagramShop from "@86d-app/instagram-shop";
+import instagramShop from "@86d-store/instagram-shop";
 
 const module = instagramShop({
   accessToken: "your-access-token",

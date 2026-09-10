@@ -1,4 +1,4 @@
-import { type ZodType, z } from "@86d-app/core/zod";
+import { type ZodType, z } from "@86d-store/core/zod";
 
 const count = z.number().int().nonnegative();
 

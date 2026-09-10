@@ -1,5 +1,5 @@
 /**
- * @86d-app/core/state
+ * @86d-store/core/state
  *
  * MobX re-exports for client-side shared state.
  * Separated from the main index to avoid pulling mobx-react-lite

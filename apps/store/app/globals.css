@@ -1,4 +1,4 @@
-@import "@86d-app/ui/globals.css";
+@import "@86d-store/ui/globals.css";
 
 /* MDX templates (e.g. Brisa navbar) are not picked up by default scanning — without this,
    classes like `dark:flex` / `dark:sm:flex` never emit CSS and theme toggles stay `display:none`. */

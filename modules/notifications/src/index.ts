@@ -1,13 +1,13 @@
-import { acceptCapability } from "@86d-app/core/capabilities";
+import { acceptCapability } from "@86d-store/core/capabilities";
 import {
 	abandonedCartRecoveryResolveCapability,
 	customerContactResolveCapability,
-} from "@86d-app/core/commerce-capabilities";
+} from "@86d-store/core/commerce-capabilities";
 import type {
 	Module,
 	ModuleConfig,
 	ModuleContext,
-} from "@86d-app/core/types/module";
+} from "@86d-store/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
 import { notificationCreateProvider } from "./capabilities";

@@ -1,5 +1,5 @@
-import type { CapabilityInvoker } from "@86d-app/core/capabilities";
-import { taxQuoteV2Capability } from "@86d-app/core/commerce-capabilities";
+import type { CapabilityInvoker } from "@86d-store/core/capabilities";
+import { taxQuoteV2Capability } from "@86d-store/core/commerce-capabilities";
 import type { CheckoutController, CheckoutSession } from "../../service";
 
 /**

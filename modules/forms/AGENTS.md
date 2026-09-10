@@ -2,7 +2,7 @@
 
 Custom forms for contact, surveys, inquiries, and feedback. Merchants create form definitions with configurable fields; customers submit responses via store endpoints.
 
-**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-app/core` contracts.
+**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-store/core` contracts.
 
 ## Change protocol
 
@@ -84,7 +84,7 @@ src/
 | `FormDetail` | `/admin/forms/:id` | View/edit form with inline field builder, toggle active, delete |
 | `FormSubmissions` | `/admin/forms/:id/submissions` | Submission list with status filter, bulk select/delete, mark read/spam/archive |
 
-All components use `useModuleClient()` from `@86d-app/core/client`. The `FieldBuilder` internal component is shared between create and edit views.
+All components use `useModuleClient()` from `@86d-store/core/client`. The `FieldBuilder` internal component is shared between create and edit views.
 
 ## Options
 

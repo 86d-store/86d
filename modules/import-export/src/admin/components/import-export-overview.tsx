@@ -1,6 +1,6 @@
 "use client";
 
-import { useModuleClient } from "@86d-app/core/client/provider";
+import { useModuleClient } from "@86d-store/core/client/provider";
 import { useState } from "react";
 import { ImportDetail } from "./import-detail";
 import ImportExportOverviewTemplate from "./import-export-overview.mdx";

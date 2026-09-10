@@ -26,13 +26,13 @@ Per-page SEO management including meta tags (title, description, Open Graph, Twi
 ## Installation
 
 ```sh
-npm install @86d-app/seo
+npm install @86d-store/seo
 ```
 
 ## Usage
 
 ```ts
-import seo from "@86d-app/seo";
+import seo from "@86d-store/seo";
 
 const module = seo({
   defaultRobots: "index, follow",

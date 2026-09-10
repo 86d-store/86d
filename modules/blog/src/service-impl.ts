@@ -1,5 +1,5 @@
-import { stripTags } from "@86d-app/core/sanitize";
-import type { ModuleDataService } from "@86d-app/core/types/module";
+import { stripTags } from "@86d-store/core/sanitize";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import type { BlogController, BlogPost, PostStats } from "./service";
 
 function slugify(text: string): string {

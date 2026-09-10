@@ -121,7 +121,7 @@ See `AGENTS.md` for architecture, module conventions, and detailed coding guidan
 bun run 86d module create my-feature
 bun run 86d module enable my-feature
 bun run generate:modules
-bun test --filter @86d-app/my-feature
+bun test --filter @86d-store/my-feature
 ```
 
 Before requesting review:

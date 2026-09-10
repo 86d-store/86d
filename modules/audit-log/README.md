@@ -26,13 +26,13 @@ Records admin actions, system events, and API key usage for security auditing, c
 ## Installation
 
 ```sh
-npm install @86d-app/audit-log
+npm install @86d-store/audit-log
 ```
 
 ## Usage
 
 ```ts
-import auditLog from "@86d-app/audit-log";
+import auditLog from "@86d-store/audit-log";
 
 const module = auditLog({
   retentionDays: 90, // auto-purge entries older than 90 days

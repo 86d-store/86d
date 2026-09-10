@@ -28,20 +28,20 @@ Provider-neutral payment ownership for the 86d commerce platform. The additive v
 ## Installation
 
 ```sh
-npm install @86d-app/payments
+npm install @86d-store/payments
 ```
 
 ## Usage
 
 ```ts
-import payments from "@86d-app/payments";
-import { createModuleClient } from "@86d-app/core";
+import payments from "@86d-store/payments";
+import { createModuleClient } from "@86d-store/core";
 
 // Without a provider (offline/test mode)
 const client = createModuleClient([payments()]);
 
 // With a Stripe provider
-import { StripePaymentProvider } from "@86d-app/stripe";
+import { StripePaymentProvider } from "@86d-store/stripe";
 const provider = new StripePaymentProvider("sk_live_...");
 const client = createModuleClient([payments({ provider, currency: "USD" })]);
 ```

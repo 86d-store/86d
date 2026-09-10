@@ -26,13 +26,13 @@ Customer profile and address management. Authenticated customers can view and ed
 ## Installation
 
 ```sh
-npm install @86d-app/customers
+npm install @86d-store/customers
 ```
 
 ## Usage
 
 ```ts
-import customers from "@86d-app/customers";
+import customers from "@86d-store/customers";
 
 const module = customers({
   autoCreateOnSignup: true,

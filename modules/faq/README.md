@@ -26,13 +26,13 @@ Self-service FAQ and knowledge base module. Organize questions into categories, 
 ## Installation
 
 ```sh
-npm install @86d-app/faq
+npm install @86d-store/faq
 ```
 
 ## Usage
 
 ```ts
-import faq from "@86d-app/faq";
+import faq from "@86d-store/faq";
 
 const module = faq({
   maxSearchResults: 20,

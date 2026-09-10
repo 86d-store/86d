@@ -1,7 +1,7 @@
 import {
 	createMockDataService,
 	createMockModuleContext,
-} from "@86d-app/core/test-utils";
+} from "@86d-store/core/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createGetSettingsEndpoint } from "../admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "../admin/endpoints/routes";

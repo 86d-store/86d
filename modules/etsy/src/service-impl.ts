@@ -1,5 +1,5 @@
-import type { ScopedEventEmitter } from "@86d-app/core/events";
-import type { ModuleDataService } from "@86d-app/core/types/module";
+import type { ScopedEventEmitter } from "@86d-store/core/events";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import {
 	EtsyProvider,
 	etsyMoney,

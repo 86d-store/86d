@@ -1,9 +1,9 @@
-import type { CompileModuleResult } from "@86d-app/core/schema";
+import type { CompileModuleResult } from "@86d-store/core/schema";
 import {
 	compileModuleDeclarations,
 	emitSql,
-} from "@86d-app/core/schema/compile";
-import type { Module } from "@86d-app/core/types/module";
+} from "@86d-store/core/schema/compile";
+import type { Module } from "@86d-store/core/types/module";
 import {
 	applyModuleDdl,
 	type TransactionalSqlExecutor,

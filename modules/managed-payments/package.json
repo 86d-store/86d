@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/managed-payments",
+	"name": "@86d-store/managed-payments",
 	"version": "0.1.0",
 	"description": "Cross-plane managed Payment bridge for 86d Store Runtime",
 	"keywords": [
@@ -44,8 +44,8 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*",
-		"@86d-app/sdk": "workspace:*",
+		"@86d-store/core": "workspace:*",
+		"@86d-store/sdk": "workspace:*",
 		"env": "workspace:*"
 	},
 	"devDependencies": {

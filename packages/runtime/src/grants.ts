@@ -8,7 +8,7 @@ import {
 	type GrantUse,
 	type TargetReference,
 	targetReferenceSchema,
-} from "@86d-app/contracts/command";
+} from "@86d-store/contracts/command";
 
 import { z } from "zod";
 import type { CommandPrincipal } from "./command";

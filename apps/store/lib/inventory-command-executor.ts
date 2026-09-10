@@ -2,30 +2,30 @@ import type {
 	ActorReference,
 	AuthoritySnapshot,
 	CommandReference,
-} from "@86d-app/contracts/command";
-import { computeCommandBindingHash } from "@86d-app/contracts/command";
-import type { Module } from "@86d-app/core/types/module";
+} from "@86d-store/contracts/command";
+import { computeCommandBindingHash } from "@86d-store/contracts/command";
+import type { Module } from "@86d-store/core/types/module";
 import {
 	adjustInventoryStockFromCommand,
 	inventoryStockAdjustInputSchema,
 	inventoryStockAdjustOutcomeSchema,
-} from "@86d-app/inventory/commands";
+} from "@86d-store/inventory/commands";
 import {
 	type CommandAuthority,
 	type CommandPrincipal,
 	createCommandExecutor,
 	defineCommand,
-} from "@86d-app/runtime/command";
-import { createDrizzleCommandPersistence } from "@86d-app/runtime/command-drizzle";
-import { CompiledModuleDataService } from "@86d-app/runtime/compiled-module-data-service";
+} from "@86d-store/runtime/command";
+import { createDrizzleCommandPersistence } from "@86d-store/runtime/command-drizzle";
+import { CompiledModuleDataService } from "@86d-store/runtime/compiled-module-data-service";
 import {
 	compiledForModule,
 	compileInstalledModules,
-} from "@86d-app/runtime/compiled-schema-boot";
+} from "@86d-store/runtime/compiled-schema-boot";
 import {
 	createDrizzlePersistenceClient,
 	type PersistenceTransaction,
-} from "@86d-app/runtime/drizzle-persistence-client";
+} from "@86d-store/runtime/drizzle-persistence-client";
 import { getPool } from "db";
 import { drizzle } from "drizzle-orm/node-postgres";
 import env from "env";

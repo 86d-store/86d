@@ -1,6 +1,6 @@
 "use client";
 
-import { useModuleClient } from "@86d-app/core/client/provider";
+import { useModuleClient } from "@86d-store/core/client/provider";
 import Link from "next/link";
 import type { CollectionCardData } from "./_types";
 import { CollectionCard } from "./collection-card";

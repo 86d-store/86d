@@ -1,11 +1,11 @@
-import { createStoreEndpoint } from "@86d-app/core/api";
+import { createStoreEndpoint } from "@86d-store/core/api";
 import {
 	cartSnapshotCapability,
 	priceListResolveCapability,
 	productPriceConversionCapability,
 	productResolveCapability,
-} from "@86d-app/core/commerce-capabilities";
-import { sanitizeText } from "@86d-app/core/sanitize";
+} from "@86d-store/core/commerce-capabilities";
+import { sanitizeText } from "@86d-store/core/sanitize";
 import { z } from "zod";
 import { isCapabilityUnavailable } from "../../capability-failures";
 import type { CheckoutController, CheckoutLineItem } from "../../service";

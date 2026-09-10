@@ -19,7 +19,7 @@
 
 📚 **Documentation:** [86d.app/docs/modules/multi-currency](https://86d.app/docs/modules/multi-currency)
 
-# @86d-app/multi-currency
+# @86d-store/multi-currency
 
 Multi-currency support for 86d commerce stores. Manage currencies, exchange rates, price conversions, and per-product price overrides.
 
@@ -36,7 +36,7 @@ The module is included in the 86d monorepo. Enable it in your store's template `
 ## Usage
 
 ```typescript
-import multiCurrency from "@86d-app/multi-currency";
+import multiCurrency from "@86d-store/multi-currency";
 
 // Register with options
 multiCurrency({

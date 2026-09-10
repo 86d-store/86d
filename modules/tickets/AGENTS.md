@@ -2,7 +2,7 @@
 
 Customer support ticket system with threaded messages, categories, priority levels, and status tracking.
 
-**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-app/core` contracts.
+**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-store/core` contracts.
 
 ## Change protocol
 
@@ -120,7 +120,7 @@ interface TicketsOptions {
 - `onDelete: "set null"` (with space) not `"set-null"` in schema references
 - Type `data.upsert()` call sites at the boundary; do not widen with `any` or suppress diagnostics
 - Store `GET /tickets/:id` requires `?email=` query for customer verification
-- Apply `.transform(sanitizeText)` from `@86d-app/core/sanitize` on every new store text field
+- Apply `.transform(sanitizeText)` from `@86d-store/core/sanitize` on every new store text field
 
 ## Admin components
 

@@ -1,5 +1,5 @@
-import { inventoryStockAdjustedV1 } from "@86d-app/core/durable-events";
-import { createMockDataService } from "@86d-app/core/test-utils";
+import { inventoryStockAdjustedV1 } from "@86d-store/core/durable-events";
+import { createMockDataService } from "@86d-store/core/test-utils";
 import { describe, expect, it } from "vitest";
 import {
 	INVENTORY_STOCK_ADJUSTED_CONSUMER,

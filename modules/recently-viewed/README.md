@@ -19,7 +19,7 @@
 
 📚 **Documentation:** [86d.app/docs/modules/recently-viewed](https://86d.app/docs/modules/recently-viewed)
 
-# @86d-app/recently-viewed
+# @86d-store/recently-viewed
 
 Recently viewed products tracking module for the 86d commerce platform. Records which products customers browse and surfaces them for rediscovery, improving engagement and conversion.
 
@@ -48,7 +48,7 @@ Add `"recently-viewed"` to your template's `config.json` modules array:
 | `maxViewsPerCustomer` | `string` | — | Maximum views retained per customer |
 
 ```ts
-import recentlyViewed from "@86d-app/recently-viewed";
+import recentlyViewed from "@86d-store/recently-viewed";
 
 recentlyViewed({ maxViewsPerCustomer: "100" });
 ```

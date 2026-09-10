@@ -26,13 +26,13 @@ Points-based loyalty program with tiered rewards, configurable earning rules, an
 ## Installation
 
 ```sh
-npm install @86d-app/loyalty
+npm install @86d-store/loyalty
 ```
 
 ## Usage
 
 ```ts
-import loyalty from "@86d-app/loyalty";
+import loyalty from "@86d-store/loyalty";
 
 const module = loyalty({
   pointsPerDollar: "1",

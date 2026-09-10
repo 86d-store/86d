@@ -1,6 +1,6 @@
 "use client";
 
-import type { Config } from "@86d-app/sdk/types";
+import type { Config } from "@86d-store/sdk/types";
 import { makeAutoObservable } from "mobx";
 import { createContext, useContext } from "react";
 import packageJson from "../package.json";

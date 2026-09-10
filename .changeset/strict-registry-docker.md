@@ -1,5 +1,5 @@
 ---
-"@86d-app/registry": patch
+"@86d-store/registry": patch
 "db": patch
 ---
 

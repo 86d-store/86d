@@ -1,4 +1,4 @@
-import type { ModuleController } from "@86d-app/core/types/module";
+import type { ModuleController } from "@86d-store/core/types/module";
 
 export type SymbolPosition = "before" | "after";
 export type RoundingMode = "round" | "ceil" | "floor";

@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/price-lists",
+	"name": "@86d-store/price-lists",
 	"version": "0.1.0",
 	"description": "Price list management — B2B/wholesale pricing, volume tiers, customer-group-specific pricing, and scheduled price overrides",
 	"keywords": [
@@ -64,7 +64,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

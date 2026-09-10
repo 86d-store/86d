@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/quotes",
+	"name": "@86d-store/quotes",
 	"version": "0.1.0",
 	"repository": {
 		"type": "git",
@@ -46,7 +46,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

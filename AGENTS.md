@@ -65,7 +65,7 @@ Every installable Module exports a factory with `id`, `version`, required `stora
 { kind: "relational", tables?, extends?, anchors?, publishes?, config? }
 ```
 
-Relational declarations use native Zod plus the `col` registry. `@86d-app/core` is every Module's base internal dependency; current cross-plane contracts use `@86d-app/contracts`, server configuration uses `env`, and `managed-payments` also uses `@86d-app/sdk`. Treat any other internal dependency as an architecture change. Database work goes through `ModuleDataService`, bound to the compiled query surface under `mod_<moduleId>` and declared Config functions.
+Relational declarations use native Zod plus the `col` registry. `@86d-store/core` is every Module's base internal dependency; current cross-plane contracts use `@86d-store/contracts`, server configuration uses `env`, and `managed-payments` also uses `@86d-store/sdk`. Treat any other internal dependency as an architecture change. Database work goes through `ModuleDataService`, bound to the compiled query surface under `mod_<moduleId>` and declared Config functions.
 
 Drizzle owns framework tables for auth, commands, outbox, files, logs, and webhooks plus `core.*`. The schema compiler owns Module DDL, roles, Config `SECURITY DEFINER` functions, published views, grants, revocations, and statement timeouts. The login role has no Module privileges; request transactions enter the Module role with `SET LOCAL ROLE`. `Module.schema` and `transcodeModuleSchema` are removed patterns.
 
@@ -105,18 +105,18 @@ The canonical registry manifest is the published `apps/registry/registry.json` f
 - `any`, `@ts-expect-error`, `@ts-ignore`, and `biome-ignore` are prohibited. Fix types at boundaries — parameters, exports, and empty containers — then let inference carry downstream. Narrow a plain `as X` with guards or fix its source type.
 - Ask before changing Biome, TypeScript, package, Tailwind, or Next configuration merely to silence a diagnostic. Tests are typechecked.
 - Module `src/index.ts` is not a barrel: keep the factory and its declarations there. Named package-root exports use import-then-export. Type-only `export type { ... } from` is allowed. Direct subpath imports only; no barrels or `export *` except framework-mandated entrypoints.
-- `@86d-app/core` has subpath exports only. Use `@86d-app/core/types/module`, `@86d-app/core/schema`, `@86d-app/core/zod`, `@86d-app/core/sanitize`, `@86d-app/core/state`, `@86d-app/core/client/*`, and `@86d-app/core/test-utils` as appropriate.
-- Command and Change Set wire contracts live in `@86d-app/contracts` (`./command`, `./change-set`, `./conformance`). `@86d-app/core/commands` only re-exports them. Pin the exact contract version and call `assertConformancePin` before serving Commands.
+- `@86d-store/core` has subpath exports only. Use `@86d-store/core/types/module`, `@86d-store/core/schema`, `@86d-store/core/zod`, `@86d-store/core/sanitize`, `@86d-store/core/state`, `@86d-store/core/client/*`, and `@86d-store/core/test-utils` as appropriate.
+- Command and Change Set wire contracts live in `@86d-store/contracts` (`./command`, `./change-set`, `./conformance`). `@86d-store/core/commands` only re-exports them. Pin the exact contract version and call `assertConformancePin` before serving Commands.
 - Inside `apps/store`, use `~/` for local imports. Bare `lib/` conflicts with `packages/lib`.
-- Reach storage through `@86d-app/storage`; do not import `@vercel/blob` directly.
-- Unit tests use `@86d-app/core/test-utils` data-service mocks and never a real database.
+- Reach storage through `@86d-store/storage`; do not import `@vercel/blob` directly.
+- Unit tests use `@86d-store/core/test-utils` data-service mocks and never a real database.
 - Default to no comments. Add a one-line why comment only for a workaround, subtle invariant, or deliberate choice that otherwise looks wrong.
 - While editing a file, fix convention violations in the same function, component, or file. Expand to co-located callers only when a signature change forces it.
 - Use locale-aware `Intl.DateTimeFormat` and `Intl.NumberFormat`; check stored identifiers with `== null`, not falsiness. Handle every error path and prefer idempotent mutations.
 
 ## Request and security boundaries
 
-- Apply `.transform(sanitizeText)` from `@86d-app/core/sanitize` to every user-provided text string in Store endpoints. Use `sanitizeHtml()` at the accepting admin endpoint for rich HTML.
+- Apply `.transform(sanitizeText)` from `@86d-store/core/sanitize` to every user-provided text string in Store endpoints. Use `sanitizeHtml()` at the accepting admin endpoint for rich HTML.
 - Bound every input string with `.max()`, including optional strings, and every input array with `.max()`.
 - Bound arbitrary metadata records with `z.record(z.string().max(100), z.unknown())` plus a key-count `.refine()`.
 - Create admin endpoints with `createAdminEndpoint`; framework authentication owns the guard.
@@ -130,8 +130,8 @@ The canonical registry manifest is the published `apps/registry/registry.json` f
 
 Read the [shared UI package](./packages/ui/README.md) for primitives, compositions, tokens, and import paths. Use the [component API reference](./internals/docs/component-api.md) to find existing Module components, then verify their current props in source.
 
-- Preserve existing UI composed from `@86d-app/ui`, Module `admin/components/` and `store/components/`, route `_components/`, or template `.tsx` + `.mdx` pairs. Wire data, loading, and error states through what exists.
-- The only replacement agents should make is substituting ad hoc `div`/`span`/`p` or heavily classNamed layout/text for the matching `@86d-app/ui` primitive or Module component when one exists.
+- Preserve existing UI composed from `@86d-store/ui`, Module `admin/components/` and `store/components/`, route `_components/`, or template `.tsx` + `.mdx` pairs. Wire data, loading, and error states through what exists.
+- The only replacement agents should make is substituting ad hoc `div`/`span`/`p` or heavily classNamed layout/text for the matching `@86d-store/ui` primitive or Module component when one exists.
 - Do not replace one composed surface with another unless the task's stated contract explicitly requires it.
 
 ## Product language
@@ -189,16 +189,16 @@ Commit guardrails:
 
 ## Version and release guardrails
 
-One shared version line covers the root, CLI, publishable packages and Modules, versioned private workspace packages, and `@86d-app/contracts`. Contract `package.json`, `CONTRACTS_PACKAGE_VERSION`, conformance artifact version, and downstream exact consumer pins move together. Coordinate pin updates with the downstream owners; this repository's contributors do not need those consumers' checkouts.
+One shared version line covers the root, CLI, publishable packages and Modules, versioned private workspace packages, and `@86d-store/contracts`. Contract `package.json`, `CONTRACTS_PACKAGE_VERSION`, conformance artifact version, and downstream exact consumer pins move together. Coordinate pin updates with the downstream owners; this repository's contributors do not need those consumers' checkouts.
 
 - After release-worthy work is committed, use `bun run bump-version`; minor is the default. Use patch or major only when the operator names it. The script self-skips when it bumped within 24 hours unless `--force` is passed. Never hand-edit a `version` field.
 - The bump updates every package on the shared line, generated contracts, and `apps/registry/registry.lock.json`. Local registry metadata goes to ignored `.86d/registry.local.json`; the canonical manifest retains its existing valid source pins. Commit the versioned source and lock as `chore(repo): bump version to X.Y.Z`, then run `bun run generate:registry` and commit `apps/registry/registry.json` separately. Run every pre-commit gate for both commits. Done when canonical entries pin the committed versioned source. See [registry generation](./packages/registry/README.md#registry-manifest).
 - If generation fails after package versions changed, retry the same explicit target rather than advancing the version again. Coordinate matching downstream exact-pin updates with their owners when contracts changed.
 - A new package joins the current shared version when created.
 - Before changing release mechanics, read `.github/workflows/release.yml`, `internals/github/ci-cd/action.yml`, and the publish scripts instead of copying their matrix here. Release follows successful CI on `main`; browser smoke is separate. Publish only with no pending Changesets and versions ahead of npm.
-- Container publication follows only a successful same-repository `push` CI run on `main`, uses that run's exact head SHA, and remains behind the operator-approved `docker-publish` environment. Recovery also requires the exact `@86d-app/registry@<version>` Changesets tag at that SHA and the matching npm publication; it never invents a release from user input, a branch name, or a mutable tag.
+- Container publication follows only a successful same-repository `push` CI run on `main`, uses that run's exact head SHA, and remains behind the operator-approved `docker-publish` environment. Recovery also requires the exact `@86d-store/registry@<version>` Changesets tag at that SHA and the matching npm publication; it never invents a release from user input, a branch name, or a mutable tag.
 - Treat container version and `sha-<7>` tags as write-once. Before the first release, protect the `docker-publish` environment with required reviewers; add `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`; create `docker.io/86dapp/store`; apply the Docker Hub immutable-tag regex recorded in `.github/workflows/docker-release.yml`; leave `latest` mutable; restrict GHCR package write access to this repository; and make the GHCR package public after its first push. First publication stages content by digest and creates SHA tags before version tags. Partial recovery requires a matching SHA tag and the same digest to remain directly addressable in both registries; it reuses that digest instead of rebuilding. Registry inspection and GHCR tag creation are not an atomic compare-and-set, so environment approval, global release serialization, and exclusive package write authority bound that race.
 - Rollback uses approved manual recovery for a previously verified exact SHA and version to repoint only `latest`; retain immutable version and SHA tags, and append evidence instead of rewriting it.
 - Preserve npm trusted publishing through OIDC, package 2FA, and disabled token publishing. Never restore a long-lived publish token.
-- `@86d-app/contracts`, `@86d-app/registry`, `@86d-app/storage`, and `@86d-app/ui` remain publishable on the shared version line and publish whenever that version is ahead of npm, including a first publish.
+- `@86d-store/contracts`, `@86d-store/registry`, `@86d-store/storage`, and `@86d-store/ui` remain publishable on the shared version line and publish whenever that version is ahead of npm, including a first publish.
 - Published packages resolve to compiled `dist/` JavaScript, declarations, and required non-TS assets. Tarballs exclude `src`, `__tests__`, `.turbo`, `vitest.config.ts`, `AGENTS.md`, and `tsconfig.json`. Release must clean every validated publishable `dist/` before a forced, cache-read-free build; do not reorder or remove those two protections. `prepare-publish --check` and `verify-publish-packs` are release gates.

@@ -322,7 +322,9 @@ describe("analytics controller GA4 integration", () => {
 	});
 
 	it("forwards tracked events to GA4 when provider is configured", async () => {
-		const { createMockDataService } = await import("@86d-app/core/test-utils");
+		const { createMockDataService } = await import(
+			"@86d-store/core/test-utils"
+		);
 		const { createAnalyticsController } = await import("../service-impl");
 
 		const mockData = createMockDataService();
@@ -349,7 +351,9 @@ describe("analytics controller GA4 integration", () => {
 	});
 
 	it("does not call fetch when GA4 provider is not configured", async () => {
-		const { createMockDataService } = await import("@86d-app/core/test-utils");
+		const { createMockDataService } = await import(
+			"@86d-store/core/test-utils"
+		);
 		const { createAnalyticsController } = await import("../service-impl");
 
 		const mockData = createMockDataService();
@@ -362,7 +366,9 @@ describe("analytics controller GA4 integration", () => {
 	});
 
 	it("uses sessionId as clientId when customerId is not provided", async () => {
-		const { createMockDataService } = await import("@86d-app/core/test-utils");
+		const { createMockDataService } = await import(
+			"@86d-store/core/test-utils"
+		);
 		const { createAnalyticsController } = await import("../service-impl");
 
 		const mockData = createMockDataService();
@@ -382,7 +388,9 @@ describe("analytics controller GA4 integration", () => {
 	});
 
 	it("does not throw when GA4 send fails", async () => {
-		const { createMockDataService } = await import("@86d-app/core/test-utils");
+		const { createMockDataService } = await import(
+			"@86d-store/core/test-utils"
+		);
 		const { createAnalyticsController } = await import("../service-impl");
 
 		fetchSpy.mockRejectedValueOnce(new Error("Network error"));
@@ -397,7 +405,9 @@ describe("analytics controller GA4 integration", () => {
 	});
 
 	it("still stores event in DB even when GA4 send fails", async () => {
-		const { createMockDataService } = await import("@86d-app/core/test-utils");
+		const { createMockDataService } = await import(
+			"@86d-store/core/test-utils"
+		);
 		const { createAnalyticsController } = await import("../service-impl");
 
 		fetchSpy.mockRejectedValueOnce(new Error("Network error"));

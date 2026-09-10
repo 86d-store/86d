@@ -17,14 +17,14 @@
 > [!WARNING]
 > This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk.
 
-# `@86d-app/ui`
+# `@86d-store/ui`
 
 Shared merchant UI for 86d Console, Store Admin, and Modules. Primitives live under `shadcn/`, Console/Admin compositions under `console/`, and TanStack Table chrome under `data-table/`. There is no package-root barrel; import the file you need.
 
 ## Install
 
 ```sh
-npm install @86d-app/ui
+npm install @86d-store/ui
 ```
 
 Peer dependencies: `react`, `react-dom`, `next`, `zod`, and `@tanstack/react-table@9.1.2`.
@@ -32,7 +32,7 @@ Peer dependencies: `react`, `react-dom`, `next`, `zod`, and `@tanstack/react-tab
 Import the shared stylesheet once in the application CSS:
 
 ```css
-@import "@86d-app/ui/globals.css";
+@import "@86d-store/ui/globals.css";
 ```
 
 This entry point includes Tailwind, the shared fonts, typography, color tokens, motion utilities, and base component styles. Application stylesheets keep their source scanning and application-specific rules; they do not redefine the shared defaults.
@@ -48,23 +48,23 @@ Existing color values, semantic assignments, fixed chart colors, and explicit da
 Modules and Store Admin should use these controls rather than one-off table chrome:
 
 ```ts
-import { DataTableColumnHeader } from "@86d-app/ui/data-table/column-header";
-import { DataTableEmptyRow } from "@86d-app/ui/data-table/empty-row";
-import { DataTableFacetedFilter } from "@86d-app/ui/data-table/faceted-filter";
-import { DataTableResultCount } from "@86d-app/ui/data-table/result-count";
-import { DataTableSkeletonRows } from "@86d-app/ui/data-table/skeleton-rows";
-import { DataTableToolbar } from "@86d-app/ui/data-table/toolbar";
-import { DataTableViewOptions } from "@86d-app/ui/data-table/view-options";
+import { DataTableColumnHeader } from "@86d-store/ui/data-table/column-header";
+import { DataTableEmptyRow } from "@86d-store/ui/data-table/empty-row";
+import { DataTableFacetedFilter } from "@86d-store/ui/data-table/faceted-filter";
+import { DataTableResultCount } from "@86d-store/ui/data-table/result-count";
+import { DataTableSkeletonRows } from "@86d-store/ui/data-table/skeleton-rows";
+import { DataTableToolbar } from "@86d-store/ui/data-table/toolbar";
+import { DataTableViewOptions } from "@86d-store/ui/data-table/view-options";
 ```
 
 Other common paths:
 
 | Export | Contents |
 | --- | --- |
-| `@86d-app/ui/button` | Button |
-| `@86d-app/ui/shadcn/table` | Table primitives |
-| `@86d-app/ui/shadcn/sheet` | Sheet |
-| `@86d-app/ui/console/form-sheet` | Merchant form sheet |
-| `@86d-app/ui/lib/utils` | `cn` |
+| `@86d-store/ui/button` | Button |
+| `@86d-store/ui/shadcn/table` | Table primitives |
+| `@86d-store/ui/shadcn/sheet` | Sheet |
+| `@86d-store/ui/console/form-sheet` | Merchant form sheet |
+| `@86d-store/ui/lib/utils` | `cn` |
 
 `UserProvider` does not call a Control Plane or Store Runtime API. Pass `authority` and `isLoading` when a host needs `PermissionGate`.

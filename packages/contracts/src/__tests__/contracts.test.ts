@@ -37,7 +37,7 @@ const fixtureSuites = [
 ];
 
 describe.each(fixtureSuites)(
-	"@86d-app/contracts command surface ($name)",
+	"@86d-store/contracts command surface ($name)",
 	({ fixture }) => {
 		it("accepts the shared transport-neutral request envelope", () => {
 			expect(commandRequestSchema.parse(fixture.validRequest)).toEqual(
@@ -81,7 +81,7 @@ describe.each(fixtureSuites)(
 );
 
 describe.each(fixtureSuites)(
-	"@86d-app/contracts digests ($name)",
+	"@86d-store/contracts digests ($name)",
 	({ fixture }) => {
 		it("matches shared hash vectors", () => {
 			const store = { type: "store" as const, id: "store-001" };
@@ -148,7 +148,7 @@ describe.each(fixtureSuites)(
 	},
 );
 
-describe("@86d-app/contracts conformance", () => {
+describe("@86d-store/contracts conformance", () => {
 	it("keeps the manifest, runtime, and generated artifact on one version", () => {
 		const manifest: unknown = JSON.parse(
 			readFileSync(new URL("../../package.json", import.meta.url), "utf8"),

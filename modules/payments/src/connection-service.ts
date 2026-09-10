@@ -1,19 +1,19 @@
-import type { JsonValue } from "@86d-app/contracts/json-value";
-import { jsonValueSchema } from "@86d-app/contracts/json-value";
+import type { JsonValue } from "@86d-store/contracts/json-value";
+import { jsonValueSchema } from "@86d-store/contracts/json-value";
 import type {
 	LockingModuleDataTransaction,
 	ModuleDataTransaction,
 	ModuleTransactionRunner,
-} from "@86d-app/core/durable-events";
+} from "@86d-store/core/durable-events";
 import type {
 	PaymentConnectionCapability,
 	PaymentConnectionProvider,
 	PaymentProviderOperationSource,
-} from "@86d-app/core/payment-connection-provider";
+} from "@86d-store/core/payment-connection-provider";
 import type {
 	ModuleController,
 	ModuleDataService,
-} from "@86d-app/core/types/module";
+} from "@86d-store/core/types/module";
 import { z } from "zod";
 import {
 	assertPaymentOperationClaimableLocked,

@@ -1,4 +1,4 @@
-import type { ModuleController } from "@86d-app/core/types/module";
+import type { ModuleController } from "@86d-store/core/types/module";
 
 /** Types of activity events that can be tracked */
 export type ActivityEventType =

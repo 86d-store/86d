@@ -26,13 +26,13 @@ Amazon Seller Central integration for managing product listings, order fulfillme
 ## Installation
 
 ```sh
-npm install @86d-app/amazon
+npm install @86d-store/amazon
 ```
 
 ## Usage
 
 ```ts
-import amazon from "@86d-app/amazon";
+import amazon from "@86d-store/amazon";
 
 const module = amazon({
   sellerId: "A1B2C3D4E5F6G7",

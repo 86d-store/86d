@@ -26,13 +26,13 @@ Manages bulk data import and export jobs for products, customers, orders, and in
 ## Installation
 
 ```sh
-npm install @86d-app/import-export
+npm install @86d-store/import-export
 ```
 
 ## Usage
 
 ```ts
-import importExport from "@86d-app/import-export";
+import importExport from "@86d-store/import-export";
 
 const module = importExport({
   maxImportRows: "10000",

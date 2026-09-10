@@ -19,14 +19,14 @@
 
 📚 **Documentation:** [86d.app/docs/modules/quotes](https://86d.app/docs/modules/quotes)
 
-# @86d-app/quotes
+# @86d-store/quotes
 
 B2B request-for-quote (RFQ) module for price negotiation. Customers create quotes with product line items, submit them for admin review, and negotiate pricing through counter-offers before converting accepted quotes into orders.
 
 ## Installation
 
 ```ts
-import quotes from "@86d-app/quotes";
+import quotes from "@86d-store/quotes";
 
 export default defineStore({
   modules: [
@@ -139,7 +139,7 @@ type AuthorType = "customer" | "admin"
 ### Usage
 
 ```tsx
-import { QuoteRequest, MyQuotes, QuoteDetail } from "@86d-app/quotes/store/components";
+import { QuoteRequest, MyQuotes, QuoteDetail } from "@86d-store/quotes/store/components";
 
 <QuoteRequest customerId="customer-456" />
 <MyQuotes customerId="customer-456" />

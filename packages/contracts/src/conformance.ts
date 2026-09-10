@@ -58,7 +58,9 @@ export function assertConformancePin(pin: ConformancePin): void {
 		pin.digest !== CONFORMANCE_DIGEST
 	) {
 		throw Object.assign(
-			new Error("Pinned @86d-app/contracts version or digest does not match."),
+			new Error(
+				"Pinned @86d-store/contracts version or digest does not match.",
+			),
 			{
 				failure: normalizedFailure("contract_version_mismatch"),
 			},

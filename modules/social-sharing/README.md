@@ -26,13 +26,13 @@ Track share events and generate platform-specific share URLs for products, colle
 ## Installation
 
 ```sh
-npm install @86d-app/social-sharing
+npm install @86d-store/social-sharing
 ```
 
 ## Usage
 
 ```ts
-import socialSharing from "@86d-app/social-sharing";
+import socialSharing from "@86d-store/social-sharing";
 
 const module = socialSharing({
   enabledNetworks: "twitter,facebook,pinterest",

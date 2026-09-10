@@ -19,13 +19,16 @@ import {
 	type GrantUse,
 	type TargetReference,
 	targetReferenceSchema,
-} from "@86d-app/contracts/command";
+} from "@86d-store/contracts/command";
 import {
 	assertConformancePin,
 	EXPECTED_PIN,
-} from "@86d-app/contracts/conformance";
-import { type JsonValue, jsonValueSchema } from "@86d-app/contracts/json-value";
-import { canonicalJson } from "@86d-app/contracts/serialize";
+} from "@86d-store/contracts/conformance";
+import {
+	type JsonValue,
+	jsonValueSchema,
+} from "@86d-store/contracts/json-value";
+import { canonicalJson } from "@86d-store/contracts/serialize";
 import {
 	type CommandAdmissionPolicy,
 	type CommandGrantAdapter,

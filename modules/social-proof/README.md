@@ -26,13 +26,13 @@ Social proof and trust signals module for driving conversions. Track and display
 ## Installation
 
 ```sh
-npm install @86d-app/social-proof
+npm install @86d-store/social-proof
 ```
 
 ## Usage
 
 ```ts
-import socialProof from "@86d-app/social-proof";
+import socialProof from "@86d-store/social-proof";
 
 const module = socialProof({
   maxEventsPerProduct: "5000",

@@ -1,4 +1,4 @@
-import type { ModuleDataService } from "@86d-app/core/types/module";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import type { EmbeddingProvider } from "./embedding-provider";
 import { cosineSimilarity } from "./embedding-provider";
 import type {

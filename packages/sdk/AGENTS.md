@@ -44,7 +44,7 @@ Managed identity: `86D_STORE_ID`, `86D_API_URL`, `86D_WORKLOAD_CREDENTIAL`. Stan
 ## Usage
 
 ```ts
-import { getStoreConfig } from "@86d-app/sdk";
+import { getStoreConfig } from "@86d-store/sdk";
 
 const config = await getStoreConfig({
   templatePath: "/path/to/templates/brisa/config.json",

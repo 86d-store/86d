@@ -34,13 +34,13 @@ In-app and email notification system with reusable templates, batch sending, pri
 ## Installation
 
 ```sh
-npm install @86d-app/notifications
+npm install @86d-store/notifications
 ```
 
 ## Usage
 
 ```ts
-import notifications from "@86d-app/notifications";
+import notifications from "@86d-store/notifications";
 
 const module = notifications({
   maxPerCustomer: "500",

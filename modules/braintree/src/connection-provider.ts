@@ -4,7 +4,7 @@ import type {
 	PaymentProviderOperationOutcome,
 	PaymentProviderOperationRequest,
 	PaymentProviderReconciliationRequest,
-} from "@86d-app/core/payment-connection-provider";
+} from "@86d-store/core/payment-connection-provider";
 
 type BraintreePaymentStatus =
 	| "AUTHORIZING"

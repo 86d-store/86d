@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/internals-registry",
+	"name": "@86d-store/internals-registry",
 	"version": "0.1.0",
 	"private": true,
 	"license": "MIT",
@@ -11,8 +11,8 @@
 		"generate": "tsx src/generate-manifest.ts"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*",
-		"@86d-app/registry": "workspace:*"
+		"@86d-store/core": "workspace:*",
+		"@86d-store/registry": "workspace:*"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "catalog:",

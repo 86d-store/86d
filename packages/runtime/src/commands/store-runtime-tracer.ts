@@ -1,4 +1,4 @@
-import { computeCommandBindingHash } from "@86d-app/contracts/command";
+import { computeCommandBindingHash } from "@86d-store/contracts/command";
 import { z } from "zod";
 import { defineCommand } from "../command";
 

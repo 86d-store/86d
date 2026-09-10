@@ -1,4 +1,4 @@
-import { createMockDataService } from "@86d-app/core/test-utils";
+import { createMockDataService } from "@86d-store/core/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { createCartControllers } from "../service-impl";
 import { addToCart } from "../store/endpoints/add-to-cart";

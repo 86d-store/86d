@@ -28,14 +28,14 @@ Secure file delivery for the 86d commerce platform. Associates downloadable file
 ## Installation
 
 ```sh
-npm install @86d-app/digital-downloads
+npm install @86d-store/digital-downloads
 ```
 
 ## Usage
 
 ```ts
-import digitalDownloads from "@86d-app/digital-downloads";
-import { createModuleClient } from "@86d-app/core";
+import digitalDownloads from "@86d-store/digital-downloads";
+import { createModuleClient } from "@86d-store/core";
 
 const client = createModuleClient([
   digitalDownloads({

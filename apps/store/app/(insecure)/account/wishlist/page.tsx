@@ -1,6 +1,6 @@
 "use client";
 
-import { useModuleClient } from "@86d-app/core/client/provider";
+import { useModuleClient } from "@86d-store/core/client/provider";
 import { HeartIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";

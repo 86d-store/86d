@@ -1,15 +1,15 @@
-import type { ChangeSet } from "@86d-app/contracts/change-set";
-import { computeChangeSetReviewHash } from "@86d-app/contracts/change-set";
+import type { ChangeSet } from "@86d-store/contracts/change-set";
+import { computeChangeSetReviewHash } from "@86d-store/contracts/change-set";
 import type {
 	Approval,
 	Confirmation,
 	StandingPermission,
-} from "@86d-app/contracts/command";
+} from "@86d-store/contracts/command";
 import {
 	computeCommandBindingHash,
 	computeCommandInputDigest,
 	computeConfirmationNonceDigest,
-} from "@86d-app/contracts/command";
+} from "@86d-store/contracts/command";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import {

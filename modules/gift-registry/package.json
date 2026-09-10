@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/gift-registry",
+	"name": "@86d-store/gift-registry",
 	"version": "0.1.0",
 	"repository": {
 		"type": "git",
@@ -45,7 +45,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

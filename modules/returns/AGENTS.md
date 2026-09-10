@@ -2,7 +2,7 @@
 
 The standalone authority for Return state, with a multi-step approval workflow (requested -> approved -> received -> completed) and line-item tracking. Orders-owned Return rows are compatibility reads only; their HTTP writers must remain contained.
 
-**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-app/core` contracts.
+**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-store/core` contracts.
 
 ## Change protocol
 
@@ -79,7 +79,7 @@ ReturnsOptions {
 
 - Store endpoint text inputs (`reason`, `customerNotes`, `productName`, `notes`) are sanitized via `sanitizeText` transform
 - Return item `productName` is length-bounded to 500 chars; `notes` to 500 chars
-- Always import `sanitizeText` from `@86d-app/core` when adding new text fields
+- Always import `sanitizeText` from `@86d-store/core` when adding new text fields
 
 ## Authority boundary
 

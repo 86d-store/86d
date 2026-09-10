@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/storage",
+	"name": "@86d-store/storage",
 	"version": "0.1.0",
 	"repository": {
 		"type": "git",

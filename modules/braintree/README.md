@@ -21,14 +21,14 @@
 
 # Braintree Module
 
-Braintree payment provider for 86d stores. Implements the `PaymentProvider` interface from `@86d-app/payments` using the Braintree REST API (no SDK dependency).
+Braintree payment provider for 86d stores. Implements the `PaymentProvider` interface from `@86d-store/payments` using the Braintree REST API (no SDK dependency).
 
 ## Installation
 
 ```ts
-import payments from "@86d-app/payments";
-import braintree, { BraintreePaymentProvider } from "@86d-app/braintree";
-import { createStore } from "@86d-app/core";
+import payments from "@86d-store/payments";
+import braintree, { BraintreePaymentProvider } from "@86d-store/braintree";
+import { createStore } from "@86d-store/core";
 
 const provider = new BraintreePaymentProvider(
   "your_merchant_id",

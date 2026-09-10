@@ -26,13 +26,13 @@ Groups products into discounted bundles with support for fixed-price or percenta
 ## Installation
 
 ```sh
-npm install @86d-app/bundles
+npm install @86d-store/bundles
 ```
 
 ## Usage
 
 ```ts
-import bundles from "@86d-app/bundles";
+import bundles from "@86d-store/bundles";
 
 const module = bundles({
   maxItemsPerBundle: 20,

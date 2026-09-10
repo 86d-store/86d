@@ -1,12 +1,12 @@
 import {
 	inventoryStockAdjustedV1,
 	inventoryStockAdjustedV2,
-} from "@86d-app/core/durable-events";
+} from "@86d-store/core/durable-events";
 import type {
 	Module,
 	ModuleConfig,
 	ModuleContext,
-} from "@86d-app/core/types/module";
+} from "@86d-store/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { inventoryCheckoutProvider } from "./capabilities";
 import { inventoryCheckoutV2Provider } from "./reservation-provider";

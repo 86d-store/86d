@@ -1,7 +1,7 @@
 import {
 	createMockDataService,
 	makeControllerCtx,
-} from "@86d-app/core/test-utils";
+} from "@86d-store/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Category, Product, ProductVariant } from "../controllers";
 import { controllers } from "../controllers";

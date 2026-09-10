@@ -1,4 +1,4 @@
-import type { ModuleDataService } from "@86d-app/core/types/module";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import type { ComparisonController, ComparisonItem } from "./service";
 
 const DEFAULT_MAX_PRODUCTS = 4;

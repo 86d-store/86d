@@ -31,7 +31,7 @@ describe("status", () => {
 			JSON.stringify({
 				theme: "brisa",
 				name: "Test Theme",
-				modules: ["@86d-app/products"],
+				modules: ["@86d-store/products"],
 			}),
 		);
 

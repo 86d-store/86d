@@ -2,7 +2,7 @@
 
 Provider-neutral payment ownership. The legacy v1 controller tracks payment intents, saved payment methods, and refunds. The additive v2 boundary owns named Payment Connections and durable connection-bound provider operations without exposing live shopper routes.
 
-**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-app/core` contracts.
+**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-store/core` contracts.
 
 ## Change protocol
 

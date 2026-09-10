@@ -43,13 +43,13 @@ The default store template for [86d](https://86d.app). A clean, minimal e-commer
 This template is the default when creating a new 86d store:
 
 ```bash
-npx @86d-app/86d init
+npx @86d-store/86d init
 ```
 
 Or activate it manually:
 
 ```bash
-npx @86d-app/86d template activate brisa
+npx @86d-store/86d template activate brisa
 ```
 
 ## Configuration

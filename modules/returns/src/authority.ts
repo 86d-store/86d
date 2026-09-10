@@ -1,14 +1,14 @@
 import {
 	actorReferenceSchema,
 	authoritySnapshotSchema,
-} from "@86d-app/contracts/command";
-import { orderLineQuantityValidateCapability } from "@86d-app/core/commerce-capabilities";
+} from "@86d-store/contracts/command";
+import { orderLineQuantityValidateCapability } from "@86d-store/core/commerce-capabilities";
 import type {
 	LockingModuleDataTransaction,
 	ModuleDataTransaction,
 	ModuleTransactionRunner,
-} from "@86d-app/core/durable-events";
-import { sanitizeText } from "@86d-app/core/sanitize";
+} from "@86d-store/core/durable-events";
+import { sanitizeText } from "@86d-store/core/sanitize";
 import { z } from "zod";
 import {
 	returnConditionSnapshotSchema,

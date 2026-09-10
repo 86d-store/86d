@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/kiosk",
+	"name": "@86d-store/kiosk",
 	"version": "0.1.0",
 	"description": "Kiosk station registration and legacy lifecycle records",
 	"keywords": [
@@ -55,8 +55,8 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*",
-		"@86d-app/ui": "workspace:*",
+		"@86d-store/core": "workspace:*",
+		"@86d-store/ui": "workspace:*",
 		"@tanstack/react-form": "1.33.5",
 		"@tanstack/react-table": "9.1.2"
 	},

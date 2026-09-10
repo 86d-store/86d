@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@86d-app/ui/button";
+import { Button } from "@86d-store/ui/button";
 import { useState } from "react";
 import type { AdminKioskStation } from "./kiosk-admin-types";
 import { StationSheet } from "./station-sheet";

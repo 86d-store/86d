@@ -28,14 +28,14 @@ Shipping configuration and a dormant authoritative v2 foundation for the 86d com
 ## Installation
 
 ```sh
-npm install @86d-app/shipping
+npm install @86d-store/shipping
 ```
 
 ## Usage
 
 ```ts
-import shipping from "@86d-app/shipping";
-import { createModuleClient } from "@86d-app/core";
+import shipping from "@86d-store/shipping";
+import { createModuleClient } from "@86d-store/core";
 
 const client = createModuleClient([
   shipping({

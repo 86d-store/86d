@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/pages",
+	"name": "@86d-store/pages",
 	"version": "0.1.0",
 	"description": "Custom content pages module for 86d commerce platform",
 	"keywords": [
@@ -53,7 +53,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

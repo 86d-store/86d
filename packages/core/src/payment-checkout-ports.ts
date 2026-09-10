@@ -4,7 +4,7 @@ import type { PaymentConnectionMode } from "./payment-connection-provider";
  * What Checkout needs to know about payment state in order to finalize.
  *
  * These are ports, not copies of the payments Module's schemas. Checkout must
- * not import from `@86d-app/payments` or `@86d-app/managed-payments`: a direct
+ * not import from `@86d-store/payments` or `@86d-store/managed-payments`: a direct
  * package edge is an edge no Module declared, and it makes payments a build
  * dependency of a Checkout that is supposed to work without it. Naming the
  * narrow surface here keeps the dependency pointing at a shared contract

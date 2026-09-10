@@ -3,9 +3,9 @@ import { join } from "node:path";
 import {
 	CURATED_STORE_MODULES,
 	TIER_NONE_CURATED_MODULES,
-} from "@86d-app/core/curated-modules";
-import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
-import type { Module } from "@86d-app/core/types/module";
+} from "@86d-store/core/curated-modules";
+import type { ModuleStorageDeclaration } from "@86d-store/core/schema";
+import type { Module } from "@86d-store/core/types/module";
 
 const repoRoot = join(import.meta.dirname, "../../..");
 const modulesDir = join(repoRoot, "modules");

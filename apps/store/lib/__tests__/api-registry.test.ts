@@ -32,7 +32,7 @@ vi.mock("../../generated/api", () => ({
 	getModuleIdForPath: vi.fn(),
 }));
 
-vi.mock("@86d-app/runtime/registry", () => ({
+vi.mock("@86d-store/runtime/registry", () => ({
 	ModuleRegistry: vi.fn(function ModuleRegistry() {
 		return {
 			isReady: () => false,
@@ -42,20 +42,20 @@ vi.mock("@86d-app/runtime/registry", () => ({
 	}),
 }));
 
-vi.mock("@86d-app/runtime/compiled-module-data-service", () => ({
+vi.mock("@86d-store/runtime/compiled-module-data-service", () => ({
 	CompiledModuleDataService: vi.fn(),
 }));
 
-vi.mock("@86d-app/runtime/compiled-schema-boot", () => ({
+vi.mock("@86d-store/runtime/compiled-schema-boot", () => ({
 	compileInstalledModules: vi.fn(() => ({ compiled: [], sql: "" })),
 	compiledForModule: vi.fn(() => []),
 	applyCompiledModuleSchema: mockApplyCompiledModuleSchema,
 }));
 
-vi.mock("@86d-app/sdk/get-store-config", () => ({
+vi.mock("@86d-store/sdk/get-store-config", () => ({
 	getStoreConfig: vi.fn().mockResolvedValue({ name: "Test Store" }),
 }));
-vi.mock("@86d-app/sdk/load-from-template", () => ({
+vi.mock("@86d-store/sdk/load-from-template", () => ({
 	loadFromTemplate: vi.fn(() => ({ moduleOptions: {} })),
 }));
 

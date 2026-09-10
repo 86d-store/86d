@@ -60,8 +60,8 @@ All store configuration is in `templates/brisa/config.json`:
     "name": "My Store",
     "theme": "brisa",
     "modules": [
-        "@86d-app/cart",
-        "@86d-app/products"
+        "@86d-store/cart",
+        "@86d-store/products"
     ],
     "advanced": {
         "version": 1,
@@ -86,8 +86,8 @@ This app uses a dynamic module system. Modules are listed in `config.json` and a
    ```json
    {
        "modules": [
-           "@86d-app/cart",
-           "@86d-app/your-module"
+           "@86d-store/cart",
+           "@86d-store/your-module"
        ]
    }
    ```
@@ -104,7 +104,7 @@ The script will:
 
 ### Module Types
 
-- **Workspace**: `@86d-app/*` modules from `/modules` directory
+- **Workspace**: `@86d-store/*` modules from `/modules` directory
 - **NPM**: Any other module name (installed from npm)
 
 Both types are treated the same way and can export components for use in MDX.
@@ -143,7 +143,7 @@ The module generator merges all components from enabled modules into the MDX com
 
 ## UI composition
 
-The application uses `@86d-app/ui` primitives and compositions. Keep their behavior in the shared package. App-level actions use `components/store-action.tsx` for consistent touch targets, focus, and reduced-motion behavior; links remain semantic links.
+The application uses `@86d-store/ui` primitives and compositions. Keep their behavior in the shared package. App-level actions use `components/store-action.tsx` for consistent touch targets, focus, and reduced-motion behavior; links remain semantic links.
 
 Presentation and behavior have separate owners:
 

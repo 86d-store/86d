@@ -19,14 +19,14 @@
 
 📚 **Documentation:** [86d.app/docs/modules/bulk-pricing](https://86d.app/docs/modules/bulk-pricing)
 
-# @86d-app/bulk-pricing
+# @86d-store/bulk-pricing
 
 Quantity-based tiered pricing module for 86d. Define pricing rules that give customers volume discounts — buy more, pay less per unit. Supports percentage, fixed-amount, and fixed-price discount types across product, variant, collection, and global scopes.
 
 ## Installation
 
 ```ts
-import bulkPricing from "@86d-app/bulk-pricing";
+import bulkPricing from "@86d-store/bulk-pricing";
 
 const module = bulkPricing({
   defaultPriority: 0,

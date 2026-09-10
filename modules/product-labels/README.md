@@ -26,13 +26,13 @@ Visual merchandising module for adding labels and badges to products. Create lab
 ## Installation
 
 ```sh
-npm install @86d-app/product-labels
+npm install @86d-store/product-labels
 ```
 
 ## Usage
 
 ```ts
-import productLabels from "@86d-app/product-labels";
+import productLabels from "@86d-store/product-labels";
 
 const module = productLabels({
   maxLabelsPerProduct: "5", // limit to 5 labels per product

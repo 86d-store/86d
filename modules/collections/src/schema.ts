@@ -1,5 +1,5 @@
-import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
-import { col } from "@86d-app/core/schema/col";
+import type { ModuleStorageDeclaration } from "@86d-store/core/schema";
+import { col } from "@86d-store/core/schema/col";
 import { z } from "zod";
 
 export const collectionsCollectionShape = z.object({

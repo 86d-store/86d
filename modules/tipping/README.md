@@ -26,13 +26,13 @@ Add tipping to orders with preset percentages, custom amounts, tip splitting bet
 ## Installation
 
 ```sh
-npm install @86d-app/tipping
+npm install @86d-store/tipping
 ```
 
 ## Usage
 
 ```ts
-import tipping from "@86d-app/tipping";
+import tipping from "@86d-store/tipping";
 
 const module = tipping({
   defaultPercents: "15,18,20,25",

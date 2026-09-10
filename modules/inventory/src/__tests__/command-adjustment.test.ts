@@ -1,5 +1,5 @@
-import { inventoryStockAdjustedV2 } from "@86d-app/core/durable-events";
-import { createMockTransactionRunner } from "@86d-app/core/test-utils";
+import { inventoryStockAdjustedV2 } from "@86d-store/core/durable-events";
+import { createMockTransactionRunner } from "@86d-store/core/test-utils";
 import { describe, expect, it } from "vitest";
 import {
 	adjustInventoryStockFromCommand,

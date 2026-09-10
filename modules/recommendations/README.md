@@ -26,13 +26,13 @@ Product recommendation engine for cross-sells, upsells, and personalized discove
 ## Installation
 
 ```sh
-npm install @86d-app/recommendations
+npm install @86d-store/recommendations
 ```
 
 ## Usage
 
 ```ts
-import recommendations from "@86d-app/recommendations";
+import recommendations from "@86d-store/recommendations";
 
 const module = recommendations({
   defaultTake: "8",           // return 8 recommendations by default

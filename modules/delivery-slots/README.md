@@ -19,7 +19,7 @@
 
 📚 **Documentation:** [86d.app/docs/modules/delivery-slots](https://86d.app/docs/modules/delivery-slots)
 
-# @86d-app/delivery-slots
+# @86d-store/delivery-slots
 
 Delivery slots module for 86d commerce platform. Allows store owners to define delivery time windows by day of week with capacity limits and optional surcharges, and customers to book a delivery slot during checkout. Supports blackout dates to block deliveries on holidays or special occasions.
 
@@ -28,7 +28,7 @@ Delivery slots module for 86d commerce platform. Allows store owners to define d
 Add to your store's module configuration:
 
 ```ts
-import deliverySlots from "@86d-app/delivery-slots";
+import deliverySlots from "@86d-store/delivery-slots";
 
 export const modules = [
   deliverySlots({

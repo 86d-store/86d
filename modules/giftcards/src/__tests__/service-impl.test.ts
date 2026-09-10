@@ -1,8 +1,8 @@
-import type { ModuleTransactionRunner } from "@86d-app/core/durable-events";
+import type { ModuleTransactionRunner } from "@86d-store/core/durable-events";
 import {
 	createMockDataService,
 	createMockTransactionRunner,
-} from "@86d-app/core/test-utils";
+} from "@86d-store/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { GiftCard, GiftCardTransaction } from "../service";
 import { createGiftCardController } from "../service-impl";

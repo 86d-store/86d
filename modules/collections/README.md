@@ -26,13 +26,13 @@ Curated product collections for merchandising. Create manual collections with ha
 ## Installation
 
 ```sh
-npm install @86d-app/collections
+npm install @86d-store/collections
 ```
 
 ## Usage
 
 ```ts
-import collections from "@86d-app/collections";
+import collections from "@86d-store/collections";
 
 const module = collections({
   maxProductsPerCollection: "500",

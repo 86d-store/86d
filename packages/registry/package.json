@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/registry",
+	"name": "@86d-store/registry",
 	"version": "0.1.0",
 	"description": "Module registry for 86d — resolve, fetch, and cache modules from local, GitHub, or npm sources",
 	"repository": {

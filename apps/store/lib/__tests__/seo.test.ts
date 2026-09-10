@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 // Mock all external dependencies so the module can be imported
 vi.mock("db", () => ({ db: {} }));
 vi.mock("env", () => ({ default: {} }));
-vi.mock("@86d-app/sdk/get-store-config", () => ({ getStoreConfig: vi.fn() }));
+vi.mock("@86d-store/sdk/get-store-config", () => ({ getStoreConfig: vi.fn() }));
 vi.mock("react", () => ({ cache: (fn: unknown) => fn }));
 vi.mock("../template-path", () => ({ resolveTemplatePath: vi.fn(() => "/") }));
 vi.mock("utils/url", () => ({

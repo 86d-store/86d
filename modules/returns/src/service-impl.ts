@@ -1,4 +1,4 @@
-import type { ModuleDataService } from "@86d-app/core/types/module";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import type { ReturnController, ReturnItem, ReturnRequest } from "./service";
 
 const TERMINAL_STATUSES = new Set(["completed", "rejected", "cancelled"]);

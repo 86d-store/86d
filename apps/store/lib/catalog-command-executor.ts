@@ -3,10 +3,10 @@ import type {
 	AuthoritySnapshot,
 	CommandReference,
 	TargetReference,
-} from "@86d-app/contracts/command";
-import { computeCommandBindingHash } from "@86d-app/contracts/command";
-import type { ModuleDataTransaction } from "@86d-app/core/durable-events";
-import type { Module } from "@86d-app/core/types/module";
+} from "@86d-store/contracts/command";
+import { computeCommandBindingHash } from "@86d-store/contracts/command";
+import type { ModuleDataTransaction } from "@86d-store/core/durable-events";
+import type { Module } from "@86d-store/core/types/module";
 import {
 	applyCatalogRevisionOperation,
 	type CatalogRevisionOperationFailureCode,
@@ -14,21 +14,21 @@ import {
 	catalogDraftCommandInputSchema,
 	catalogRevisionOperationDecisionSchema,
 	catalogTransitionCommandInputSchema,
-} from "@86d-app/products/catalog-revisions";
+} from "@86d-store/products/catalog-revisions";
 import {
 	type CommandAuthority,
 	type CommandPersistence,
 	type CommandPrincipal,
 	createCommandExecutor,
 	defineCommand,
-} from "@86d-app/runtime/command";
-import { createDrizzleCommandPersistence } from "@86d-app/runtime/command-drizzle";
-import { CompiledModuleDataService } from "@86d-app/runtime/compiled-module-data-service";
+} from "@86d-store/runtime/command";
+import { createDrizzleCommandPersistence } from "@86d-store/runtime/command-drizzle";
+import { CompiledModuleDataService } from "@86d-store/runtime/compiled-module-data-service";
 import {
 	compiledForModule,
 	compileInstalledModules,
-} from "@86d-app/runtime/compiled-schema-boot";
-import { createDrizzlePersistenceClient } from "@86d-app/runtime/drizzle-persistence-client";
+} from "@86d-store/runtime/compiled-schema-boot";
+import { createDrizzlePersistenceClient } from "@86d-store/runtime/drizzle-persistence-client";
 import { getPool } from "db";
 import { drizzle } from "drizzle-orm/node-postgres";
 import env from "env";

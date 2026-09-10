@@ -1,5 +1,5 @@
-import { createStoreEndpoint } from "@86d-app/core/api";
-import { productResolveCapability } from "@86d-app/core/commerce-capabilities";
+import { createStoreEndpoint } from "@86d-store/core/api";
+import { productResolveCapability } from "@86d-store/core/commerce-capabilities";
 import { z } from "zod";
 import { resolveOrderCustomerContext } from "./customer-context";
 

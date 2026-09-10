@@ -1,6 +1,6 @@
-import { createStoreEndpoint } from "@86d-app/core/api";
-import { orderCustomerAuthorizeCapability } from "@86d-app/core/commerce-capabilities";
-import { sanitizeText } from "@86d-app/core/sanitize";
+import { createStoreEndpoint } from "@86d-store/core/api";
+import { orderCustomerAuthorizeCapability } from "@86d-store/core/commerce-capabilities";
+import { sanitizeText } from "@86d-store/core/sanitize";
 import { z } from "zod";
 import type { ReturnController } from "../../service";
 

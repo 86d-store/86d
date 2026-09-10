@@ -26,13 +26,13 @@ Add interactive games (spin-to-win wheels, scratch-off cards, slot machines) to 
 ## Installation
 
 ```sh
-npm install @86d-app/gamification
+npm install @86d-store/gamification
 ```
 
 ## Usage
 
 ```ts
-import gamification from "@86d-app/gamification";
+import gamification from "@86d-store/gamification";
 
 const module = gamification({
   defaultGameType: "wheel",

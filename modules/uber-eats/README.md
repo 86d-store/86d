@@ -26,13 +26,13 @@ Uber Eats marketplace integration for 86d. Receive and manage orders from Uber E
 ## Installation
 
 ```sh
-npm install @86d-app/uber-eats
+npm install @86d-store/uber-eats
 ```
 
 ## Usage
 
 ```ts
-import uberEats from "@86d-app/uber-eats";
+import uberEats from "@86d-store/uber-eats";
 
 const module = uberEats({
   clientId: "your-client-id",

@@ -3,8 +3,8 @@ import {
 	type LockingModuleDataTransaction,
 	type ModuleDataTransaction,
 	type ModuleTransactionRunner,
-} from "@86d-app/core/durable-events";
-import { sanitizeText } from "@86d-app/core/sanitize";
+} from "@86d-store/core/durable-events";
+import { sanitizeText } from "@86d-store/core/sanitize";
 import { z } from "zod";
 
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;

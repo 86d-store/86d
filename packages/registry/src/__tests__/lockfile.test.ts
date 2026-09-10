@@ -17,13 +17,13 @@ beforeAll(() => {
 	mkdirSync(join(TMP_ROOT, "modules", "products"), { recursive: true });
 	writeFileSync(
 		join(TMP_ROOT, "modules", "products", "package.json"),
-		JSON.stringify({ name: "@86d-app/products", version: "0.0.4" }),
+		JSON.stringify({ name: "@86d-store/products", version: "0.0.4" }),
 	);
 
 	mkdirSync(join(TMP_ROOT, "modules", "cart"), { recursive: true });
 	writeFileSync(
 		join(TMP_ROOT, "modules", "cart", "package.json"),
-		JSON.stringify({ name: "@86d-app/cart", version: "0.0.2" }),
+		JSON.stringify({ name: "@86d-store/cart", version: "0.0.2" }),
 	);
 });
 
@@ -36,10 +36,10 @@ const makeResolved = (
 	source: "local" | "registry" | "github" | "npm" = "local",
 ): ResolvedModule => ({
 	specifier: {
-		raw: `@86d-app/${name}`,
+		raw: `@86d-store/${name}`,
 		source,
 		name,
-		packageName: `@86d-app/${name}`,
+		packageName: `@86d-store/${name}`,
 	},
 	status: "found",
 	localPath: join(TMP_ROOT, "modules", name),
@@ -57,7 +57,7 @@ describe("generateLockfile", () => {
 		expect(lockfile.lockfileVersion).toBe(1);
 		expect(lockfile.generatedAt).toBeTruthy();
 		expect(Object.keys(lockfile.modules)).toEqual(["cart", "products"]);
-		expect(lockfile.modules.products.packageName).toBe("@86d-app/products");
+		expect(lockfile.modules.products.packageName).toBe("@86d-store/products");
 		expect(lockfile.modules.products.version).toBe("0.0.4");
 		expect(lockfile.modules.products.integrity).toMatch(/^sha256-/);
 		expect(lockfile.modules.products.localPath).toBe("modules/products");
@@ -68,10 +68,10 @@ describe("generateLockfile", () => {
 			makeResolved("products"),
 			{
 				specifier: {
-					raw: "@86d-app/missing",
+					raw: "@86d-store/missing",
 					source: "registry",
 					name: "missing",
-					packageName: "@86d-app/missing",
+					packageName: "@86d-store/missing",
 				},
 				status: "missing",
 			},
@@ -88,7 +88,7 @@ describe("generateLockfile", () => {
 					raw: "github:owner/repo/modules/custom",
 					source: "github",
 					name: "products",
-					packageName: "@86d-app/products",
+					packageName: "@86d-store/products",
 					repo: "owner/repo",
 					ref: "v1.0.0",
 					path: "modules/custom",
@@ -124,7 +124,7 @@ describe("readLockfile / writeLockfile", () => {
 
 		expect(read).toBeDefined();
 		expect(read?.lockfileVersion).toBe(1);
-		expect(read?.modules.products.packageName).toBe("@86d-app/products");
+		expect(read?.modules.products.packageName).toBe("@86d-store/products");
 	});
 
 	it("writes generatedAt after modules for stable merges", () => {
@@ -197,7 +197,7 @@ describe("verifyLockfile", () => {
 		writeFileSync(
 			join(TMP_ROOT, "modules", "products", "package.json"),
 			JSON.stringify({
-				name: "@86d-app/products",
+				name: "@86d-store/products",
 				version: "0.0.5",
 				modified: true,
 			}),
@@ -211,7 +211,7 @@ describe("verifyLockfile", () => {
 		writeFileSync(
 			join(TMP_ROOT, "modules", "products", "package.json"),
 			JSON.stringify({
-				name: "@86d-app/products",
+				name: "@86d-store/products",
 				version: "0.0.4",
 			}),
 		);

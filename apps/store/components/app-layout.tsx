@@ -1,6 +1,6 @@
 "use client";
 
-import type { Config } from "@86d-app/sdk/types";
+import type { Config } from "@86d-store/sdk/types";
 import { PageViewTracker } from "components/analytics-tracker";
 import { AppStateProvider } from "hooks/use-app";
 import Layout from "template/layout.mdx";

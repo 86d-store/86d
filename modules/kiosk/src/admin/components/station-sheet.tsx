@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@86d-app/ui/button";
+import { Button } from "@86d-store/ui/button";
 import {
 	FormSheet,
 	FormSheetBody,
@@ -11,12 +11,12 @@ import {
 	FormSheetFooter,
 	FormSheetHeader,
 	FormSheetTitle,
-} from "@86d-app/ui/console/form-sheet";
-import { Checkbox } from "@86d-app/ui/shadcn/checkbox";
-import { Input } from "@86d-app/ui/shadcn/input";
-import { Label } from "@86d-app/ui/shadcn/label";
-import { Text } from "@86d-app/ui/text";
-import { View } from "@86d-app/ui/view";
+} from "@86d-store/ui/console/form-sheet";
+import { Checkbox } from "@86d-store/ui/shadcn/checkbox";
+import { Input } from "@86d-store/ui/shadcn/input";
+import { Label } from "@86d-store/ui/shadcn/label";
+import { Text } from "@86d-store/ui/text";
+import { View } from "@86d-store/ui/view";
 import { useForm } from "@tanstack/react-form";
 import { useEffect, useRef, useState } from "react";
 import type { AdminKioskStation } from "./kiosk-admin-types";

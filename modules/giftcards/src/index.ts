@@ -1,4 +1,4 @@
-import type { Module, ModuleContext } from "@86d-app/core/types/module";
+import type { Module, ModuleContext } from "@86d-store/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { giftCardCheckoutProvider } from "./capabilities";
 import { giftcardsStorage } from "./schema";

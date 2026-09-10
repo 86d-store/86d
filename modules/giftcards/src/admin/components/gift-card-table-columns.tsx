@@ -1,4 +1,4 @@
-import { DataTableColumnHeader } from "@86d-app/ui/data-table/column-header";
+import { DataTableColumnHeader } from "@86d-store/ui/data-table/column-header";
 import { createColumnHelper, type useTable } from "@tanstack/react-table";
 import type { GiftCardAdminRecord } from "./gift-card-admin-types";
 import { formatGiftCardCurrency, formatGiftCardDate } from "./gift-card-format";

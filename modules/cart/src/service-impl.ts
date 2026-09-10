@@ -1,4 +1,4 @@
-import type { ModuleDataService } from "@86d-app/core/types/module";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import { z } from "zod";
 import type { Cart, CartController, CartItem } from "./service";
 

@@ -2,7 +2,7 @@ import type {
 	PaymentProvider,
 	ProviderIntentResult,
 	ProviderRefundResult,
-} from "@86d-app/core/payment-provider";
+} from "@86d-store/core/payment-provider";
 
 // PayPal order status values
 type PayPalOrderStatus =

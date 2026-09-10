@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/contracts",
+	"name": "@86d-store/contracts",
 	"version": "0.1.0",
 	"description": "Immutable versioned Command and Change Set conformance contracts for 86d Control Plane and Store Runtime",
 	"homepage": "https://86d.app",

@@ -26,13 +26,13 @@ Service-based booking module for commerce stores. Manage bookable services, staf
 ## Installation
 
 ```sh
-npm install @86d-app/appointments
+npm install @86d-store/appointments
 ```
 
 ## Usage
 
 ```ts
-import appointments from "@86d-app/appointments";
+import appointments from "@86d-store/appointments";
 
 const module = appointments({
   defaultCurrency: "USD",

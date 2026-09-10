@@ -26,13 +26,13 @@ Integrates your 86d store with Pinterest for catalog management, shopping pin cr
 ## Installation
 
 ```sh
-npm install @86d-app/pinterest-shop
+npm install @86d-store/pinterest-shop
 ```
 
 ## Usage
 
 ```ts
-import pinterestShop from "@86d-app/pinterest-shop";
+import pinterestShop from "@86d-store/pinterest-shop";
 
 const module = pinterestShop({
   accessToken: "your-access-token",

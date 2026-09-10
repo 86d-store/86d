@@ -21,13 +21,13 @@
 
 # Square Module
 
-Square payment provider implementing the `PaymentProvider` interface from `@86d-app/payments`. Uses Square's Payments API via raw `fetch()` — no Square SDK required.
+Square payment provider implementing the `PaymentProvider` interface from `@86d-store/payments`. Uses Square's Payments API via raw `fetch()` — no Square SDK required.
 
 ## Installation
 
 ```ts
-import { SquarePaymentProvider } from "@86d-app/square";
-import payments from "@86d-app/payments";
+import { SquarePaymentProvider } from "@86d-store/square";
+import payments from "@86d-store/payments";
 
 const provider = new SquarePaymentProvider("your-access-token");
 const paymentsModule = payments({ currency: "USD", provider });
@@ -36,7 +36,7 @@ const paymentsModule = payments({ currency: "USD", provider });
 ## Options
 
 ```ts
-import square from "@86d-app/square";
+import square from "@86d-store/square";
 
 const squareModule = square({
   accessToken: "your-access-token",
@@ -74,10 +74,10 @@ The `square()` module registers `POST /square/webhook` with HMAC-SHA256 verifica
 ## Usage with payments module
 
 ```ts
-import { SquarePaymentProvider } from "@86d-app/square";
-import payments from "@86d-app/payments";
-import square from "@86d-app/square";
-import { createStore } from "@86d-app/core";
+import { SquarePaymentProvider } from "@86d-store/square";
+import payments from "@86d-store/payments";
+import square from "@86d-store/square";
+import { createStore } from "@86d-store/core";
 
 const provider = new SquarePaymentProvider(process.env.SQUARE_ACCESS_TOKEN);
 
@@ -100,6 +100,6 @@ const store = createStore({
 ## Types
 
 ```ts
-import type { SquareOptions } from "@86d-app/square";
-import { SquarePaymentProvider } from "@86d-app/square";
+import type { SquareOptions } from "@86d-store/square";
+import { SquarePaymentProvider } from "@86d-store/square";
 ```

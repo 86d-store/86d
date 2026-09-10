@@ -1,4 +1,4 @@
-import { defineDurableEvent } from "@86d-app/core/durable-events";
+import { defineDurableEvent } from "@86d-store/core/durable-events";
 import { z } from "zod";
 
 /** Authoritative delivery obligation accepted against immutable Order lines. */

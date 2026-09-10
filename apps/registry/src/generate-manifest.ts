@@ -25,12 +25,12 @@ import {
 } from "node:fs";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-import type { Module } from "@86d-app/core/types/module";
+import type { Module } from "@86d-store/core/types/module";
 import {
 	buildManifest,
 	type ModuleDeclarations,
-} from "@86d-app/registry/manifest";
-import { registryManifestPath } from "@86d-app/registry/paths";
+} from "@86d-store/registry/manifest";
+import { registryManifestPath } from "@86d-store/registry/paths";
 import { workspaceRootFromImportMeta } from "../../../internals/lib/workspace-root.ts";
 
 const WORKSPACE_ROOT = workspaceRootFromImportMeta(import.meta.url);

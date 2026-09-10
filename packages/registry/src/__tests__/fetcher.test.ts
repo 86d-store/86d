@@ -65,7 +65,7 @@ async function runExternalPreservationFixture(
 	const remoteModule = join(archiveRoot, "modules", "alpha");
 	const localModule = join(root, "modules", "alpha");
 	const modulePackage = JSON.stringify({
-		name: "@86d-app/alpha",
+		name: "@86d-store/alpha",
 		version: "1.0.0",
 		dependencies: { external: options.specifier },
 	});
@@ -78,7 +78,7 @@ async function runExternalPreservationFixture(
 		root,
 		{
 			"modules/alpha": {
-				name: "@86d-app/alpha",
+				name: "@86d-store/alpha",
 				version: "1.0.0",
 				dependencies: { external: options.specifier },
 			},
@@ -94,7 +94,7 @@ async function runExternalPreservationFixture(
 				"configVersion": 1,
 				"workspaces": {
 					"modules/alpha": {
-						"name": "@86d-app/alpha",
+						"name": "@86d-store/alpha",
 						"version": "1.0.0",
 						"dependencies": { "external": "${options.specifier}", },
 					},
@@ -151,7 +151,7 @@ async function runExternalPreservationFixture(
 		templates: {},
 		modules: {
 			alpha: {
-				name: "@86d-app/alpha",
+				name: "@86d-store/alpha",
 				description: "",
 				version: "1.0.0",
 				category: "general",
@@ -174,10 +174,10 @@ async function runExternalPreservationFixture(
 	const [result] = await fetchModules(
 		[
 			{
-				raw: "@86d-app/alpha",
+				raw: "@86d-store/alpha",
 				source: "registry",
 				name: "alpha",
-				packageName: "@86d-app/alpha",
+				packageName: "@86d-store/alpha",
 			},
 		],
 		root,
@@ -208,7 +208,7 @@ beforeAll(() => {
 	});
 	writeFileSync(
 		join(TMP_ROOT, "modules", "products", "package.json"),
-		JSON.stringify({ name: "@86d-app/products", version: "0.0.1" }),
+		JSON.stringify({ name: "@86d-store/products", version: "0.0.1" }),
 	);
 });
 
@@ -233,7 +233,7 @@ describe("fetchModules", () => {
 					raw: "alpha",
 					source: "local",
 					name: "alpha",
-					packageName: "@86d-app/alpha",
+					packageName: "@86d-store/alpha",
 				},
 			],
 			root,
@@ -256,7 +256,7 @@ describe("fetchModules", () => {
 				raw: "..",
 				source: "local" as const,
 				name: "..",
-				packageName: "@86d-app/..",
+				packageName: "@86d-store/..",
 			},
 			prepare: (root: string) =>
 				writeFileSync(join(root, "package.json"), "root manifest\n"),
@@ -267,7 +267,7 @@ describe("fetchModules", () => {
 				raw: `github:owner/repo/modules/..#${"a".repeat(40)}`,
 				source: "github" as const,
 				name: "..",
-				packageName: "@86d-app/..",
+				packageName: "@86d-store/..",
 				repo: "owner/repo",
 				path: "modules/..",
 				ref: "a".repeat(40),
@@ -348,7 +348,7 @@ describe("fetchModules", () => {
 					raw: "alpha",
 					source: "local",
 					name: "alpha",
-					packageName: "@86d-app/alpha",
+					packageName: "@86d-store/alpha",
 				},
 				root,
 			);
@@ -436,7 +436,7 @@ describe("fetchModules", () => {
 				templates: {},
 				modules: {
 					alpha: {
-						name: "@86d-app/alpha",
+						name: "@86d-store/alpha",
 						description: "",
 						version: "1.0.0",
 						category: "general",
@@ -459,10 +459,10 @@ describe("fetchModules", () => {
 
 			const result = await fetchModule(
 				{
-					raw: "@86d-app/alpha",
+					raw: "@86d-store/alpha",
 					source: "registry",
 					name: "alpha",
-					packageName: "@86d-app/alpha",
+					packageName: "@86d-store/alpha",
 				},
 				root,
 				manifest,
@@ -562,7 +562,7 @@ describe("fetchModules", () => {
 			mkdirSync(join(source, "src"), { recursive: true });
 			writeFileSync(
 				join(source, "package.json"),
-				JSON.stringify({ name: "@86d-app/alpha", version: "1.0.0" }),
+				JSON.stringify({ name: "@86d-store/alpha", version: "1.0.0" }),
 			);
 			writeFileSync(
 				join(source, "src", "real.ts"),
@@ -573,7 +573,7 @@ describe("fetchModules", () => {
 			mkdirSync(stub, { recursive: true });
 			const originalStub =
 				slug === "directory-node_modules"
-					? JSON.stringify({ name: "@86d-app/alpha", version: "1.0.0" })
+					? JSON.stringify({ name: "@86d-store/alpha", version: "1.0.0" })
 					: "original stub\n";
 			writeFileSync(join(stub, "package.json"), originalStub);
 			if (slug === "directory-node_modules") {
@@ -583,7 +583,7 @@ describe("fetchModules", () => {
 				);
 				writeTestBunLock(root, {
 					"modules/alpha": {
-						name: "@86d-app/alpha",
+						name: "@86d-store/alpha",
 						version: "1.0.0",
 					},
 				});
@@ -604,7 +604,7 @@ describe("fetchModules", () => {
 				templates: {},
 				modules: {
 					alpha: {
-						name: "@86d-app/alpha",
+						name: "@86d-store/alpha",
 						description: "",
 						version: "1.0.0",
 						category: "general",
@@ -634,10 +634,10 @@ describe("fetchModules", () => {
 			const [result] = await fetchModules(
 				[
 					{
-						raw: "@86d-app/alpha",
+						raw: "@86d-store/alpha",
 						source: "registry",
 						name: "alpha",
-						packageName: "@86d-app/alpha",
+						packageName: "@86d-store/alpha",
 					},
 				],
 				root,
@@ -670,7 +670,7 @@ describe("fetchModules", () => {
 			mkdirSync(join(modulePath, "src"), { recursive: true });
 			writeFileSync(
 				join(modulePath, "package.json"),
-				JSON.stringify({ name: "@86d-app/alpha", version: "1.0.0" }),
+				JSON.stringify({ name: "@86d-store/alpha", version: "1.0.0" }),
 			);
 			writeFileSync(
 				join(modulePath, "src", "index.ts"),
@@ -694,7 +694,7 @@ describe("fetchModules", () => {
 			templates: {},
 			modules: {
 				alpha: {
-					name: "@86d-app/alpha",
+					name: "@86d-store/alpha",
 					description: "",
 					version: "1.0.0",
 					category: "general",
@@ -722,10 +722,10 @@ describe("fetchModules", () => {
 		const [result] = await fetchModules(
 			[
 				{
-					raw: "@86d-app/alpha",
+					raw: "@86d-store/alpha",
 					source: "registry",
 					name: "alpha",
-					packageName: "@86d-app/alpha",
+					packageName: "@86d-store/alpha",
 				},
 			],
 			root,
@@ -747,7 +747,7 @@ describe("fetchModules", () => {
 			mkdirSync(join(source, "src"), { recursive: true });
 			writeFileSync(
 				join(source, "package.json"),
-				JSON.stringify({ name: `@86d-app/${name}`, version: "1.0.0" }),
+				JSON.stringify({ name: `@86d-store/${name}`, version: "1.0.0" }),
 			);
 			writeFileSync(
 				join(source, "src", "index.ts"),
@@ -758,7 +758,7 @@ describe("fetchModules", () => {
 			mkdirSync(stub, { recursive: true });
 			writeFileSync(
 				join(stub, "package.json"),
-				JSON.stringify({ name: `@86d-app/${name}`, version: "1.0.0" }),
+				JSON.stringify({ name: `@86d-store/${name}`, version: "1.0.0" }),
 			);
 		}
 
@@ -779,7 +779,7 @@ describe("fetchModules", () => {
 				["alpha", "beta"].map((name) => [
 					name,
 					{
-						name: `@86d-app/${name}`,
+						name: `@86d-store/${name}`,
 						description: "",
 						version: "1.0.0",
 						category: "general",
@@ -811,10 +811,10 @@ describe("fetchModules", () => {
 
 		const results = await fetchModules(
 			["alpha", "beta"].map((name) => ({
-				raw: `@86d-app/${name}`,
+				raw: `@86d-store/${name}`,
 				source: "registry" as const,
 				name,
-				packageName: `@86d-app/${name}`,
+				packageName: `@86d-store/${name}`,
 			})),
 			root,
 			manifest,
@@ -843,9 +843,9 @@ describe("fetchModules", () => {
 		const localCore = join(root, "packages", "core");
 		const commit = "f".repeat(40);
 		const modulePackage = JSON.stringify({
-			name: "@86d-app/alpha",
+			name: "@86d-store/alpha",
 			version: "1.0.0",
-			dependencies: { "@86d-app/core": "workspace:*" },
+			dependencies: { "@86d-store/core": "workspace:*" },
 		});
 		mkdirSync(root, { recursive: true });
 		writeFileSync(
@@ -858,7 +858,7 @@ describe("fetchModules", () => {
 		writeFileSync(join(remoteModule, "src", "index.ts"), "remote source\n");
 
 		mkdirSync(join(localModule, "src"), { recursive: true });
-		mkdirSync(join(localModule, "node_modules", "@86d-app"), {
+		mkdirSync(join(localModule, "node_modules", "@86d-store"), {
 			recursive: true,
 		});
 		mkdirSync(localCore, { recursive: true });
@@ -866,19 +866,19 @@ describe("fetchModules", () => {
 		writeFileSync(join(localModule, "src", "index.ts"), "local source\n");
 		writeFileSync(
 			join(localCore, "package.json"),
-			JSON.stringify({ name: "@86d-app/core", version: "1.0.0" }),
+			JSON.stringify({ name: "@86d-store/core", version: "1.0.0" }),
 		);
 		writeTestBunLock(root, {
 			"modules/alpha": {
-				name: "@86d-app/alpha",
+				name: "@86d-store/alpha",
 				version: "1.0.0",
-				dependencies: { "@86d-app/core": "workspace:*" },
+				dependencies: { "@86d-store/core": "workspace:*" },
 			},
-			"packages/core": { name: "@86d-app/core", version: "1.0.0" },
+			"packages/core": { name: "@86d-store/core", version: "1.0.0" },
 		});
 		symlinkSync(
 			localCore,
-			join(localModule, "node_modules", "@86d-app", "core"),
+			join(localModule, "node_modules", "@86d-store", "core"),
 			"dir",
 		);
 
@@ -897,7 +897,7 @@ describe("fetchModules", () => {
 			templates: {},
 			modules: {
 				alpha: {
-					name: "@86d-app/alpha",
+					name: "@86d-store/alpha",
 					description: "",
 					version: "1.0.0",
 					category: "general",
@@ -927,10 +927,10 @@ describe("fetchModules", () => {
 		const [result] = await fetchModules(
 			[
 				{
-					raw: "@86d-app/alpha",
+					raw: "@86d-store/alpha",
 					source: "registry",
 					name: "alpha",
-					packageName: "@86d-app/alpha",
+					packageName: "@86d-store/alpha",
 				},
 			],
 			root,
@@ -945,7 +945,12 @@ describe("fetchModules", () => {
 		expect(readFileSync(join(localModule, "src", "index.ts"), "utf8")).toBe(
 			"remote source\n",
 		);
-		const preservedCore = join(localModule, "node_modules", "@86d-app", "core");
+		const preservedCore = join(
+			localModule,
+			"node_modules",
+			"@86d-store",
+			"core",
+		);
 		expect(existsSync(preservedCore)).toBe(true);
 		expect(realpathSync(preservedCore)).toBe(realpathSync(localCore));
 
@@ -953,20 +958,20 @@ describe("fetchModules", () => {
 		mkdirSync(externalCore, { recursive: true });
 		writeFileSync(
 			join(externalCore, "package.json"),
-			JSON.stringify({ name: "@86d-app/rogue", version: "1.0.0" }),
+			JSON.stringify({ name: "@86d-store/rogue", version: "1.0.0" }),
 		);
 		symlinkSync(
 			externalCore,
-			join(localModule, "node_modules", "@86d-app", "rogue"),
+			join(localModule, "node_modules", "@86d-store", "rogue"),
 			"dir",
 		);
 		const [rejected] = await fetchModules(
 			[
 				{
-					raw: "@86d-app/alpha",
+					raw: "@86d-store/alpha",
 					source: "registry",
 					name: "alpha",
-					packageName: "@86d-app/alpha",
+					packageName: "@86d-store/alpha",
 				},
 			],
 			root,
@@ -984,7 +989,7 @@ describe("fetchModules", () => {
 		);
 		expect(realpathSync(preservedCore)).toBe(realpathSync(localCore));
 		expect(
-			realpathSync(join(localModule, "node_modules", "@86d-app", "rogue")),
+			realpathSync(join(localModule, "node_modules", "@86d-store", "rogue")),
 		).toBe(realpathSync(externalCore));
 	});
 
@@ -1004,7 +1009,7 @@ describe("fetchModules", () => {
 		);
 		const commit = "8".repeat(40);
 		const modulePackage = JSON.stringify({
-			name: "@86d-app/alpha",
+			name: "@86d-store/alpha",
 			version: "1.0.0",
 			dependencies: { "left-pad": "1.0.0" },
 		});
@@ -1020,7 +1025,7 @@ describe("fetchModules", () => {
 				configVersion: 1,
 				workspaces: {
 					"modules/alpha": {
-						name: "@86d-app/alpha",
+						name: "@86d-store/alpha",
 						version: "1.0.0",
 						dependencies: { "left-pad": "1.0.0" },
 					},
@@ -1065,7 +1070,7 @@ describe("fetchModules", () => {
 			templates: {},
 			modules: {
 				alpha: {
-					name: "@86d-app/alpha",
+					name: "@86d-store/alpha",
 					description: "",
 					version: "1.0.0",
 					category: "general",
@@ -1095,10 +1100,10 @@ describe("fetchModules", () => {
 		const [result] = await fetchModules(
 			[
 				{
-					raw: "@86d-app/alpha",
+					raw: "@86d-store/alpha",
 					source: "registry",
 					name: "alpha",
-					packageName: "@86d-app/alpha",
+					packageName: "@86d-store/alpha",
 				},
 			],
 			root,
@@ -1127,7 +1132,7 @@ describe("fetchModules", () => {
 				specifier: "2.0.0",
 				packages: {
 					external: ["external@1.0.0", "", {}, "sha512-global-integrity"],
-					"@86d-app/alpha/external": [
+					"@86d-store/alpha/external": [
 						"external@2.0.0",
 						"",
 						{},
@@ -1221,7 +1226,7 @@ describe("fetchModules", () => {
 		mkdirSync(corePath, { recursive: true });
 		writeFileSync(
 			join(corePath, "package.json"),
-			JSON.stringify({ name: "@86d-app/core", version: "1.0.0" }),
+			JSON.stringify({ name: "@86d-store/core", version: "1.0.0" }),
 		);
 
 		const originalBytes: Record<
@@ -1235,9 +1240,9 @@ describe("fetchModules", () => {
 			writeFileSync(
 				join(remoteModule, "package.json"),
 				JSON.stringify({
-					name: `@86d-app/${name}`,
+					name: `@86d-store/${name}`,
 					version: "1.0.0",
-					dependencies: { "@86d-app/core": "workspace:*" },
+					dependencies: { "@86d-store/core": "workspace:*" },
 				}),
 			);
 			writeFileSync(join(remoteModule, "src", "index.ts"), `remote ${name}\n`);
@@ -1247,9 +1252,9 @@ describe("fetchModules", () => {
 			writeFileSync(
 				join(localModule, "package.json"),
 				JSON.stringify({
-					name: `@86d-app/${name}`,
+					name: `@86d-store/${name}`,
 					version: "1.0.0",
-					dependencies: { "@86d-app/core": "workspace:*" },
+					dependencies: { "@86d-store/core": "workspace:*" },
 				}),
 			);
 			writeFileSync(join(localModule, "src", "index.ts"), `local ${name}\n`);
@@ -1258,17 +1263,17 @@ describe("fetchModules", () => {
 				source: readFileSync(join(localModule, "src", "index.ts")),
 			};
 			if (name === "alpha") {
-				mkdirSync(join(localModule, "node_modules", "@86d-app"), {
+				mkdirSync(join(localModule, "node_modules", "@86d-store"), {
 					recursive: true,
 				});
 				symlinkSync(
 					"../../../../packages/core",
-					join(localModule, "node_modules", "@86d-app", "core"),
+					join(localModule, "node_modules", "@86d-store", "core"),
 					"dir",
 				);
 			}
 			manifestModules[name] = {
-				name: `@86d-app/${name}`,
+				name: `@86d-store/${name}`,
 				description: "",
 				version: "1.0.0",
 				category: "general",
@@ -1289,16 +1294,16 @@ describe("fetchModules", () => {
 		}
 		writeTestBunLock(root, {
 			"modules/alpha": {
-				name: "@86d-app/alpha",
+				name: "@86d-store/alpha",
 				version: "1.0.0",
-				dependencies: { "@86d-app/core": "workspace:*" },
+				dependencies: { "@86d-store/core": "workspace:*" },
 			},
 			"modules/beta": {
-				name: "@86d-app/beta",
+				name: "@86d-store/beta",
 				version: "1.0.0",
-				dependencies: { "@86d-app/core": "workspace:*" },
+				dependencies: { "@86d-store/core": "workspace:*" },
 			},
-			"packages/core": { name: "@86d-app/core", version: "1.0.0" },
+			"packages/core": { name: "@86d-store/core", version: "1.0.0" },
 		});
 
 		const archivePath = join(root, "fixture", "archive.tar.gz");
@@ -1325,10 +1330,10 @@ describe("fetchModules", () => {
 
 		const results = await fetchModules(
 			["alpha", "beta"].map((name) => ({
-				raw: `@86d-app/${name}`,
+				raw: `@86d-store/${name}`,
 				source: "registry" as const,
 				name,
-				packageName: `@86d-app/${name}`,
+				packageName: `@86d-store/${name}`,
 			})),
 			root,
 			manifest,
@@ -1350,7 +1355,7 @@ describe("fetchModules", () => {
 		}
 		expect(
 			realpathSync(
-				join(root, "modules", "alpha", "node_modules", "@86d-app", "core"),
+				join(root, "modules", "alpha", "node_modules", "@86d-store", "core"),
 			),
 		).toBe(realpathSync(corePath));
 		expect(existsSync(join(root, "modules", "beta", "node_modules"))).toBe(
@@ -1373,7 +1378,7 @@ describe("fetchModules", () => {
 			mkdirSync(join(source, "src"), { recursive: true });
 			writeFileSync(
 				join(source, "package.json"),
-				JSON.stringify({ name: `@86d-app/${name}`, version: "1.0.0" }),
+				JSON.stringify({ name: `@86d-store/${name}`, version: "1.0.0" }),
 			);
 			writeFileSync(join(source, "src", "index.ts"), `remote ${name}\n`);
 
@@ -1399,7 +1404,7 @@ describe("fetchModules", () => {
 				["alpha", "beta"].map((name) => [
 					name,
 					{
-						name: `@86d-app/${name}`,
+						name: `@86d-store/${name}`,
 						description: "",
 						version: "1.0.0",
 						category: "general",
@@ -1432,10 +1437,10 @@ describe("fetchModules", () => {
 
 		const results = await fetchModules(
 			["alpha", "beta"].map((name) => ({
-				raw: `@86d-app/${name}`,
+				raw: `@86d-store/${name}`,
 				source: "registry" as const,
 				name,
-				packageName: `@86d-app/${name}`,
+				packageName: `@86d-store/${name}`,
 			})),
 			root,
 			manifest,
@@ -1497,7 +1502,7 @@ describe("fetchModule", () => {
 			raw: "products",
 			source: "local",
 			name: "products",
-			packageName: "@86d-app/products",
+			packageName: "@86d-store/products",
 		};
 
 		const result = await fetchModule(spec, TMP_ROOT);
@@ -1507,10 +1512,10 @@ describe("fetchModule", () => {
 
 	it("fails for registry source without manifest", async () => {
 		const spec: ModuleSpecifier = {
-			raw: "@86d-app/shipping",
+			raw: "@86d-store/shipping",
 			source: "registry",
 			name: "shipping",
-			packageName: "@86d-app/shipping",
+			packageName: "@86d-store/shipping",
 		};
 
 		const result = await fetchModule(spec, TMP_ROOT);
@@ -1520,10 +1525,10 @@ describe("fetchModule", () => {
 
 	it("fails for registry source with module not in manifest", async () => {
 		const spec: ModuleSpecifier = {
-			raw: "@86d-app/unknown",
+			raw: "@86d-store/unknown",
 			source: "registry",
 			name: "unknown",
-			packageName: "@86d-app/unknown",
+			packageName: "@86d-store/unknown",
 		};
 
 		const manifest: RegistryManifest = {
@@ -1544,7 +1549,7 @@ describe("fetchModule", () => {
 			raw: "github:",
 			source: "github",
 			name: "test",
-			packageName: "@86d-app/test",
+			packageName: "@86d-store/test",
 		};
 
 		const result = await fetchModule(spec, TMP_ROOT);
@@ -1557,7 +1562,7 @@ describe("fetchModule", () => {
 			raw: "github:86d-store/86d/modules/products",
 			source: "github",
 			name: "products",
-			packageName: "@86d-app/products",
+			packageName: "@86d-store/products",
 			repo: "86d-store/86d",
 			path: "modules/products",
 			ref: "main",
@@ -1598,7 +1603,7 @@ describe("registry fetch verification", () => {
 		});
 		writeFileSync(
 			join(TMP_ROOT, "modules", "products", "package.json"),
-			JSON.stringify({ name: "@86d-app/products", version: "0.0.1" }),
+			JSON.stringify({ name: "@86d-store/products", version: "0.0.1" }),
 		);
 	});
 
@@ -1610,7 +1615,7 @@ describe("registry fetch verification", () => {
 			templates: {},
 			modules: {
 				products: {
-					name: "@86d-app/products",
+					name: "@86d-store/products",
 					description: "",
 					version: "1.0.0",
 					category: "general",
@@ -1638,7 +1643,7 @@ describe("registry fetch verification", () => {
 			raw: "products",
 			source: "registry" as const,
 			name: "products",
-			packageName: "@86d-app/products",
+			packageName: "@86d-store/products",
 		};
 
 		const result = await fetchModule(spec, TMP_ROOT, manifestWith({}));
@@ -1652,7 +1657,7 @@ describe("registry fetch verification", () => {
 			raw: "products",
 			source: "registry" as const,
 			name: "products",
-			packageName: "@86d-app/products",
+			packageName: "@86d-store/products",
 		};
 
 		const result = await fetchModule(

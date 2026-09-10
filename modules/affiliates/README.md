@@ -19,14 +19,14 @@
 
 📚 **Documentation:** [86d.app/docs/modules/affiliates](https://86d.app/docs/modules/affiliates)
 
-# @86d-app/affiliates
+# @86d-store/affiliates
 
 Affiliate marketing program module for the 86d commerce platform. Partners apply, get approved, create tracking links, earn commission on referred sales, and receive payouts.
 
 ## Installation
 
 ```ts
-import affiliates from "@86d-app/affiliates";
+import affiliates from "@86d-store/affiliates";
 
 export default defineStore({
   modules: [

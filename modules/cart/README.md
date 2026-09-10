@@ -26,13 +26,13 @@ Shopping cart module for guest and authenticated customers. Supports adding, upd
 ## Installation
 
 ```sh
-npm install @86d-app/cart
+npm install @86d-store/cart
 ```
 
 ## Usage
 
 ```ts
-import cart from "@86d-app/cart";
+import cart from "@86d-store/cart";
 
 const module = cart({
   guestCartExpiration: 604800000, // 7 days in ms

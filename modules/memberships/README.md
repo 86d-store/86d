@@ -19,7 +19,7 @@
 
 📚 **Documentation:** [86d.app/docs/modules/memberships](https://86d.app/docs/modules/memberships)
 
-# @86d-app/memberships
+# @86d-store/memberships
 
 Paid membership plans for your commerce store. Create tiered subscription plans with exclusive benefits, gated products, and member-only pricing. Supports monthly, yearly, and lifetime billing intervals with optional trial periods.
 
@@ -45,7 +45,7 @@ The memberships module is included in the 86d platform. Enable it in your store'
 ## Usage
 
 ```ts
-import memberships from "@86d-app/memberships";
+import memberships from "@86d-store/memberships";
 
 // In your store configuration
 memberships({

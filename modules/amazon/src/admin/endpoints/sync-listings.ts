@@ -1,4 +1,4 @@
-import { createAdminEndpoint } from "@86d-app/core/api";
+import { createAdminEndpoint } from "@86d-store/core/api";
 import type { AmazonController } from "../../service";
 
 export const syncListingsEndpoint = createAdminEndpoint(

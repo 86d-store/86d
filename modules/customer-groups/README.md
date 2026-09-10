@@ -26,13 +26,13 @@ Customer segmentation module for grouping customers into manual or rule-based se
 ## Installation
 
 ```sh
-npm install @86d-app/customer-groups
+npm install @86d-store/customer-groups
 ```
 
 ## Usage
 
 ```ts
-import customerGroups from "@86d-app/customer-groups";
+import customerGroups from "@86d-store/customer-groups";
 
 const module = customerGroups({
   defaultGroupSlug: "retail",

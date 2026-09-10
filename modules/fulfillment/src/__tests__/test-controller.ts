@@ -1,9 +1,9 @@
-import { orderLineQuantityValidateCapability } from "@86d-app/core/commerce-capabilities";
-import type { ScopedEventEmitter } from "@86d-app/core/events";
+import { orderLineQuantityValidateCapability } from "@86d-store/core/commerce-capabilities";
+import type { ScopedEventEmitter } from "@86d-store/core/events";
 import {
 	createMockTransactionRunner,
 	type MockDataService,
-} from "@86d-app/core/test-utils";
+} from "@86d-store/core/test-utils";
 import type { OrderLineQuantityAuthority } from "../authority";
 import {
 	createFulfillmentController,

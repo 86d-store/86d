@@ -2,7 +2,7 @@
 
 Read-only gift card records, balance and status lookup, owned-card delivery metadata, and analytics. Issuance, funding, redemption, status mutation, and deletion stay unavailable until complete Workflows own those operations with durable evidence.
 
-**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-app/core` contracts.
+**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-store/core` contracts.
 
 ## Change protocol
 

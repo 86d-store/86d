@@ -1,4 +1,4 @@
-import { getStoreConfig } from "@86d-app/sdk/get-store-config";
+import { getStoreConfig } from "@86d-store/sdk/get-store-config";
 import { cache } from "react";
 import { getBaseUrl } from "utils/url";
 import type {

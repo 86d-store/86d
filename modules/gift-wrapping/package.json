@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/gift-wrapping",
+	"name": "@86d-store/gift-wrapping",
 	"version": "0.1.0",
 	"description": "Gift wrapping — add-on wrapping options for order items with custom messages and recipient names",
 	"keywords": [
@@ -56,7 +56,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

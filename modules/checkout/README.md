@@ -31,14 +31,14 @@ Checkout session management for the 86d commerce platform. Handles the cart-to-o
 ## Installation
 
 ```sh
-npm install @86d-app/checkout
+npm install @86d-store/checkout
 ```
 
 ## Usage
 
 ```ts
-import checkout from "@86d-app/checkout";
-import { createModuleClient } from "@86d-app/core";
+import checkout from "@86d-store/checkout";
+import { createModuleClient } from "@86d-store/core";
 
 const client = createModuleClient([
   checkout({

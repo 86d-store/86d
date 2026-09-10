@@ -1,6 +1,6 @@
-import { Alert, AlertDescription, AlertTitle } from "@86d-app/ui/alert";
-import { Button } from "@86d-app/ui/button";
-import { View } from "@86d-app/ui/view";
+import { Alert, AlertDescription, AlertTitle } from "@86d-store/ui/alert";
+import { Button } from "@86d-store/ui/button";
+import { View } from "@86d-store/ui/view";
 
 export function KioskUnavailableState({
 	kind,

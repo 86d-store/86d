@@ -2,7 +2,7 @@
 
 Authoritative delivery-obligation foundation with quantity-validated creation. Shipping owns parcels, labels, and tracking; Orders owns only the accepted commercial lines. Direct status, tracking, and cancellation transport is contained until durable workflows own those transitions.
 
-**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-app/core` contracts.
+**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-store/core` contracts.
 
 ## Change protocol
 

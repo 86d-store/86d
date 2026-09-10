@@ -1,4 +1,4 @@
-import { createAdminEndpoint } from "@86d-app/core/api";
+import { createAdminEndpoint } from "@86d-store/core/api";
 
 export const adminExpireStale = createAdminEndpoint(
 	"/admin/checkout/expire-stale",

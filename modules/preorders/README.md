@@ -26,13 +26,13 @@ Preorder campaign management for upcoming, limited-edition, or out-of-stock prod
 ## Installation
 
 ```sh
-npm install @86d-app/preorders
+npm install @86d-store/preorders
 ```
 
 ## Usage
 
 ```ts
-import preorders from "@86d-app/preorders";
+import preorders from "@86d-store/preorders";
 
 const module = preorders({
   defaultMessage: "Expected to ship Q2 2027",
@@ -223,7 +223,7 @@ pending → confirmed → ready → fulfilled
 ### Usage
 
 ```tsx
-import { PreorderButton, MyPreorders } from "@86d-app/preorders/store/components";
+import { PreorderButton, MyPreorders } from "@86d-store/preorders/store/components";
 
 <PreorderButton productId="abc-123" />
 <MyPreorders customerId="customer-456" />

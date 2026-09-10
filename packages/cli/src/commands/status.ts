@@ -49,10 +49,10 @@ export function status() {
 	const configModules = templateConfig?.modules;
 	const enabledModules =
 		configModules === "*"
-			? allModules.map((m) => `@86d-app/${m}`)
+			? allModules.map((m) => `@86d-store/${m}`)
 			: (configModules ?? []);
 	const enabledNames = new Set(
-		enabledModules.map((m: string) => m.replace(/^@86d-app\//, "")),
+		enabledModules.map((m: string) => m.replace(/^@86d-store\//, "")),
 	);
 	const disabledModules = allModules.filter((m) => !enabledNames.has(m));
 

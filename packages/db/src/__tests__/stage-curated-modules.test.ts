@@ -3,7 +3,7 @@ import { join } from "node:path";
 import {
 	CURATED_STORE_MODULES,
 	TIER_NONE_CURATED_MODULES,
-} from "@86d-app/core/curated-modules";
+} from "@86d-store/core/curated-modules";
 import { afterEach, describe, expect, it } from "vitest";
 import { loadCuratedModules } from "../load-curated-modules";
 import { stageCuratedModuleSchemas } from "../stage-curated-modules";

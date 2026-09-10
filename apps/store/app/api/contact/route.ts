@@ -1,4 +1,4 @@
-import { getStoreConfig } from "@86d-app/sdk/get-store-config";
+import { getStoreConfig } from "@86d-store/sdk/get-store-config";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { logger } from "utils/logger";

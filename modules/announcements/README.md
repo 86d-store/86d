@@ -19,20 +19,20 @@
 
 📚 **Documentation:** [86d.app/docs/modules/announcements](https://86d.app/docs/modules/announcements)
 
-# @86d-app/announcements
+# @86d-store/announcements
 
 Site-wide announcement bars, promotional banners, and popup notices for the 86d commerce platform. Schedule announcements, target specific audiences, and track engagement with built-in analytics.
 
 ## Installation
 
 ```bash
-bun add @86d-app/announcements
+bun add @86d-store/announcements
 ```
 
 ## Usage
 
 ```ts
-import announcements from "@86d-app/announcements";
+import announcements from "@86d-store/announcements";
 
 const module = announcements({
   maxActiveAnnouncements: 5,
@@ -42,7 +42,7 @@ const module = announcements({
 ### Store component
 
 ```tsx
-import { AnnouncementBar } from "@86d-app/announcements/components";
+import { AnnouncementBar } from "@86d-store/announcements/components";
 
 // In your layout — shows active bar-type announcements
 <AnnouncementBar audience="all" />

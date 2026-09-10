@@ -1,6 +1,6 @@
 "use client";
 
-import { escapeScriptContent } from "@86d-app/core/sanitize";
+import { escapeScriptContent } from "@86d-store/core/sanitize";
 import { observer } from "mobx-react-lite";
 import type { MetaTag } from "../../service";
 import { useSeoApi } from "./_hooks";

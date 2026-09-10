@@ -1,9 +1,9 @@
-import type { CapabilityInvoker } from "@86d-app/core/capabilities";
-import { createEventBus, createScopedEmitter } from "@86d-app/core/events";
+import type { CapabilityInvoker } from "@86d-store/core/capabilities";
+import { createEventBus, createScopedEmitter } from "@86d-store/core/events";
 import {
 	createMockDataService,
 	createMockModuleContext,
-} from "@86d-app/core/test-utils";
+} from "@86d-store/core/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import notifications from "../index";
 

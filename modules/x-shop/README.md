@@ -26,13 +26,13 @@ Integrates your 86d store with X (Twitter) Commerce for product listings, order 
 ## Installation
 
 ```sh
-npm install @86d-app/x-shop
+npm install @86d-store/x-shop
 ```
 
 ## Usage
 
 ```ts
-import xShop from "@86d-app/x-shop";
+import xShop from "@86d-store/x-shop";
 
 const module = xShop({
   apiKey: "your-api-key",

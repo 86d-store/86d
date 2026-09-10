@@ -19,7 +19,7 @@
 
 📚 **Documentation:** [86d.app/docs/modules/product-feeds](https://86d.app/docs/modules/product-feeds)
 
-# @86d-app/product-feeds
+# @86d-store/product-feeds
 
 Product feed generation and management for shopping channels. Syndicate your product catalog to Google Shopping, Facebook/Meta, Microsoft Advertising, Pinterest, TikTok Shop, and custom channels.
 
@@ -38,7 +38,7 @@ Enable in your store template `config.json`:
 ## Usage
 
 ```typescript
-import productFeeds from "@86d-app/product-feeds";
+import productFeeds from "@86d-store/product-feeds";
 
 const module = productFeeds({
   maxFeeds: "50",

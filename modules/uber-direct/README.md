@@ -26,13 +26,13 @@ Uber Direct delivery integration for 86d. Request delivery quotes, create delive
 ## Installation
 
 ```sh
-npm install @86d-app/uber-direct
+npm install @86d-store/uber-direct
 ```
 
 ## Usage
 
 ```ts
-import uberDirect from "@86d-app/uber-direct";
+import uberDirect from "@86d-store/uber-direct";
 
 const module = uberDirect({
   clientId: "your-client-id",

@@ -29,7 +29,7 @@ function readRule(css: string, selector: string): string {
 
 describe("Store shared theme contract", () => {
 	it("loads colors and typography solely from the published UI stylesheet", () => {
-		expect(storeStyles).toContain('@import "@86d-app/ui/globals.css";');
+		expect(storeStyles).toContain('@import "@86d-store/ui/globals.css";');
 		expect(storeStyles).not.toMatch(/--[a-z-]+\s*:|@font-face|font-family\s*:/);
 	});
 

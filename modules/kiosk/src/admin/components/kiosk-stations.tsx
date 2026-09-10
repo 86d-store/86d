@@ -1,14 +1,14 @@
 "use client";
 
-import { Button } from "@86d-app/ui/button";
+import { Button } from "@86d-store/ui/button";
 import {
 	Tabs,
 	TabsContent,
 	TabsList,
 	TabsTrigger,
-} from "@86d-app/ui/shadcn/tabs";
-import { Text } from "@86d-app/ui/text";
-import { View } from "@86d-app/ui/view";
+} from "@86d-store/ui/shadcn/tabs";
+import { Text } from "@86d-store/ui/text";
+import { View } from "@86d-store/ui/view";
 import { useDeferredValue, useEffect, useState } from "react";
 import type {
 	AdminKioskSession,

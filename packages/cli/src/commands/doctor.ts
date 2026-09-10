@@ -182,7 +182,7 @@ export async function doctor(options: DoctorOptions = {}) {
 			const templateConfig = readJson<TemplateConfig>(configPath);
 			const enabledModules = templateConfig?.modules ?? [];
 			for (const mod of enabledModules) {
-				const modName = mod.replace(/^@86d-app\//, "");
+				const modName = mod.replace(/^@86d-store\//, "");
 				if (!allModules.includes(modName)) {
 					issues.push(`${mod}: enabled in template but not found in modules/`);
 				}

@@ -3,7 +3,7 @@
  * Used by SSR SEO / prefetch paths that previously read ModuleData JSON.
  */
 
-import type { ModuleDataService } from "@86d-app/core/types/module";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import { ensureBooted } from "./api-registry";
 
 export async function getModuleDataService(

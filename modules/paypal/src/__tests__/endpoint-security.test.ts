@@ -1,4 +1,4 @@
-import { createMockDataService } from "@86d-app/core/test-utils";
+import { createMockDataService } from "@86d-store/core/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createPaymentController } from "../../../payments/src/service-impl";
 import { createPayPalWebhook } from "../store/endpoints/webhook";

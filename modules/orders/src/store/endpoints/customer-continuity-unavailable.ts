@@ -1,4 +1,4 @@
-import { createStoreEndpoint } from "@86d-app/core/api";
+import { createStoreEndpoint } from "@86d-store/core/api";
 import { z } from "zod";
 
 const orderParams = z.object({ id: z.string().max(128) });

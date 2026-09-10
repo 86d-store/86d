@@ -1,15 +1,18 @@
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { computeIntegrity, fetchModule } from "@86d-app/registry/fetcher";
-import { registryManifestPath } from "@86d-app/registry/paths";
+import { computeIntegrity, fetchModule } from "@86d-store/registry/fetcher";
+import { registryManifestPath } from "@86d-store/registry/paths";
 import {
 	getLocalModuleNames,
 	getModuleDependencies,
 	readLocalManifest,
-} from "@86d-app/registry/resolver";
-import { parseSpecifier } from "@86d-app/registry/specifier";
-import type { RegistryManifest, RegistryModule } from "@86d-app/registry/types";
+} from "@86d-store/registry/resolver";
+import { parseSpecifier } from "@86d-store/registry/specifier";
+import type {
+	RegistryManifest,
+	RegistryModule,
+} from "@86d-store/registry/types";
 import {
 	c,
 	error,
@@ -77,7 +80,7 @@ ${c.dim("Usage:")}
 
 ${c.dim("Module specifiers (for 'add'):")}
   products                           Official module (short name)
-  @86d-app/products                  Official module (full name)
+  @86d-store/products                Official module (full name)
   github:owner/repo/modules/name    GitHub repository module
   npm:@scope/package                 npm package
 `);
@@ -197,7 +200,7 @@ async function updateModules(name: string | undefined) {
 	const localModules = getLocalModuleNames(root);
 
 	// If a specific module is given, only check that one
-	const targets = name ? [name.replace(/^@86d-app\//, "")] : localModules;
+	const targets = name ? [name.replace(/^@86d-store\//, "")] : localModules;
 
 	heading(`Checking for updates${name ? ` (${name})` : ""}`);
 	writeLine();
@@ -259,7 +262,7 @@ async function updateModules(name: string | undefined) {
 			? c.yellow(" (content changed)")
 			: "";
 		writeLine(
-			`  ${c.bold(`@86d-app/${mod.name}`)} ${versionInfo}${integrityTag}`,
+			`  ${c.bold(`@86d-store/${mod.name}`)} ${versionInfo}${integrityTag}`,
 		);
 	}
 
@@ -367,7 +370,7 @@ function listModules() {
 				? `  ${c.dim("[")}${tags.join(c.dim(", "))}${c.dim("]")}`
 				: "";
 
-		writeLine(`  ${c.bold(`@86d-app/${mod}`)}${version}${tagStr}`);
+		writeLine(`  ${c.bold(`@86d-store/${mod}`)}${version}${tagStr}`);
 	}
 	writeLine();
 }
@@ -382,7 +385,7 @@ function moduleInfo(name: string | undefined) {
 	}
 
 	const root = findProjectRoot();
-	const moduleName = name.replace(/^@86d-app\//, "");
+	const moduleName = name.replace(/^@86d-store\//, "");
 	const moduleDir = join(root, "modules", moduleName);
 
 	// Check registry first if not installed locally
@@ -390,7 +393,7 @@ function moduleInfo(name: string | undefined) {
 		const manifest = loadManifest(root);
 		const entry = manifest?.modules[moduleName];
 		if (entry) {
-			heading(`@86d-app/${moduleName} ${c.dim("(not installed)")}`);
+			heading(`@86d-store/${moduleName} ${c.dim("(not installed)")}`);
 			writeLine();
 			writeLine(`  ${c.dim("Version:")}     ${entry.version}`);
 			writeLine(`  ${c.dim("Category:")}    ${entry.category}`);
@@ -420,7 +423,7 @@ function moduleInfo(name: string | undefined) {
 	const manifest = loadManifest(root);
 	const registryEntry = manifest?.modules[moduleName];
 
-	heading(`@86d-app/${moduleName}`);
+	heading(`@86d-store/${moduleName}`);
 	writeLine();
 
 	if (pkg?.version) {
@@ -512,9 +515,9 @@ function enableModule(name: string | undefined) {
 	}
 
 	const root = findProjectRoot();
-	const moduleName = name.replace(/^@86d-app\//, "");
+	const moduleName = name.replace(/^@86d-store\//, "");
 	const moduleDir = join(root, "modules", moduleName);
-	const fullName = `@86d-app/${moduleName}`;
+	const fullName = `@86d-store/${moduleName}`;
 
 	if (!existsSync(moduleDir)) {
 		error(`Module "${moduleName}" not found at ${moduleDir}`);
@@ -560,8 +563,8 @@ function disableModule(name: string | undefined) {
 	}
 
 	const root = findProjectRoot();
-	const moduleName = name.replace(/^@86d-app\//, "");
-	const fullName = `@86d-app/${moduleName}`;
+	const moduleName = name.replace(/^@86d-store\//, "");
+	const fullName = `@86d-store/${moduleName}`;
 
 	const configPath = getTemplateConfigPath(root);
 	if (!configPath) {
@@ -578,7 +581,7 @@ function disableModule(name: string | undefined) {
 	// When modules is "*", convert to explicit list minus the disabled module
 	if (config.modules === "*") {
 		const allModules = getLocalModuleNames(root)
-			.map((d) => `@86d-app/${d}`)
+			.map((d) => `@86d-store/${d}`)
 			.filter((m) => m !== fullName);
 
 		config.modules = allModules;
@@ -615,8 +618,8 @@ function createModule(name: string | undefined) {
 	const root = findProjectRoot();
 	const modulesDir = join(root, "modules");
 
-	// Normalize: strip @86d-app/ prefix if provided
-	const moduleName = name.replace(/^@86d-app\//, "");
+	// Normalize: strip @86d-store/ prefix if provided
+	const moduleName = name.replace(/^@86d-store\//, "");
 	const moduleDir = join(modulesDir, moduleName);
 
 	if (existsSync(moduleDir)) {
@@ -624,7 +627,7 @@ function createModule(name: string | undefined) {
 		process.exit(1);
 	}
 
-	heading(`Creating @86d-app/${moduleName}`);
+	heading(`Creating @86d-store/${moduleName}`);
 	writeLine();
 
 	// Create directory structure
@@ -649,7 +652,7 @@ function createModule(name: string | undefined) {
 		join(moduleDir, "package.json"),
 		JSON.stringify(
 			{
-				name: `@86d-app/${moduleName}`,
+				name: `@86d-store/${moduleName}`,
 				version: "0.0.1",
 				private: true,
 				type: "module",
@@ -666,7 +669,7 @@ function createModule(name: string | undefined) {
 					typecheck: "tsc --noEmit --emitDeclarationOnly false",
 				},
 				dependencies: {
-					"@86d-app/core": "workspace:*",
+					"@86d-store/core": "workspace:*",
 				},
 				devDependencies: {
 					"86d": "workspace:*",
@@ -698,7 +701,7 @@ function createModule(name: string | undefined) {
 	// Module entry point
 	writeFileSync(
 		join(moduleDir, "src/index.ts"),
-		`import type { Module } from "@86d-app/core/types/module";
+		`import type { Module } from "@86d-store/core/types/module";
 import { schema } from "./schema.js";
 import { storeEndpoints } from "./store/endpoints/routes.js";
 import { adminEndpoints } from "./admin/endpoints/routes.js";
@@ -723,7 +726,7 @@ export default function ${toCamelCase(moduleName)}(
 	// Schema
 	writeFileSync(
 		join(moduleDir, "src/schema.ts"),
-		`import { z } from "@86d-app/core/zod";
+		`import { z } from "@86d-store/core/zod";
 
 export const schema = z.object({
 	// Define your module's data schema here

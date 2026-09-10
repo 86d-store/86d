@@ -1,5 +1,5 @@
-import { storePresentationResolveCapability } from "@86d-app/core/commerce-capabilities";
-import { createMockDataService } from "@86d-app/core/test-utils";
+import { storePresentationResolveCapability } from "@86d-store/core/commerce-capabilities";
+import { createMockDataService } from "@86d-store/core/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { adminAddNote } from "../admin/endpoints/add-note";
 import { adminBulkAction } from "../admin/endpoints/bulk-action";

@@ -1,7 +1,7 @@
 "use client";
 
-import type { CheckoutStep } from "@86d-app/checkout/state";
-import { useModuleClient } from "@86d-app/core/client/provider";
+import type { CheckoutStep } from "@86d-store/checkout/state";
+import { useModuleClient } from "@86d-store/core/client/provider";
 import { useAnalytics } from "hooks/use-analytics";
 import { useStore } from "hooks/use-store";
 import { ShoppingBagIcon } from "lucide-react";

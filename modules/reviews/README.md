@@ -28,14 +28,14 @@ Product reviews and ratings for the 86d commerce platform. Supports moderation q
 ## Installation
 
 ```sh
-npm install @86d-app/reviews
+npm install @86d-store/reviews
 ```
 
 ## Usage
 
 ```ts
-import reviews from "@86d-app/reviews";
-import { createModuleClient } from "@86d-app/core";
+import reviews from "@86d-store/reviews";
+import { createModuleClient } from "@86d-store/core";
 
 const client = createModuleClient([
   reviews({

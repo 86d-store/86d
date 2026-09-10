@@ -1,7 +1,7 @@
 import type {
 	PaymentOperationPayload,
 	PaymentProviderOperationRequest,
-} from "@86d-app/core/payment-connection-provider";
+} from "@86d-store/core/payment-connection-provider";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PayPalPaymentConnectionProvider } from "../connection-provider";
 

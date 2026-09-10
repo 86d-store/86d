@@ -15,7 +15,7 @@ import {
 
 export type { JsonValue } from "./json-value";
 // Public command entry intentionally re-exports wire helpers used by both planes.
-// biome-ignore lint/performance/noBarrelFile: stable @86d-app/contracts/command surface
+// biome-ignore lint/performance/noBarrelFile: stable @86d-store/contracts/command surface
 export {
 	currencySchema,
 	dateTimeSchema,

@@ -1,5 +1,5 @@
-import type { ModuleTransactionRunner } from "@86d-app/core/durable-events";
-import type { Module, ModuleDataService } from "@86d-app/core/types/module";
+import type { ModuleTransactionRunner } from "@86d-store/core/durable-events";
+import type { Module, ModuleDataService } from "@86d-store/core/types/module";
 import { describe, expect, it, vi } from "vitest";
 import type { ModuleRegistryConfig } from "../registry";
 import { ModuleRegistry } from "../registry";

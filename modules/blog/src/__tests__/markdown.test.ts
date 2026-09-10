@@ -1,7 +1,7 @@
 import {
 	createMockDataService,
 	createMockModuleContext,
-} from "@86d-app/core/test-utils";
+} from "@86d-store/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import { toMarkdownBlogListing, toMarkdownBlogPost } from "../markdown";
 import { createBlogController } from "../service-impl";

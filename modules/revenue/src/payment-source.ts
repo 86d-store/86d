@@ -1,5 +1,5 @@
-import type { CapabilityInvoker } from "@86d-app/core/capabilities";
-import { paymentIntentCapability } from "@86d-app/core/commerce-capabilities";
+import type { CapabilityInvoker } from "@86d-store/core/capabilities";
+import { paymentIntentCapability } from "@86d-store/core/commerce-capabilities";
 import type { RevenueIntent } from "./service";
 
 export async function listRevenueIntents(

@@ -26,13 +26,13 @@ Discount and promo code management. Supports percentage, fixed-amount, and free-
 ## Installation
 
 ```sh
-npm install @86d-app/discounts
+npm install @86d-store/discounts
 ```
 
 ## Usage
 
 ```ts
-import discounts from "@86d-app/discounts";
+import discounts from "@86d-store/discounts";
 
 const module = discounts();
 ```

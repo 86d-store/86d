@@ -1,4 +1,4 @@
-import { z } from "@86d-app/core/zod";
+import { z } from "@86d-store/core/zod";
 
 const ordersResponse = z.object({
 	orders: z.array(

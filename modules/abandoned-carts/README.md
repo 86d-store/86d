@@ -26,13 +26,13 @@ Tracks shopping carts that have been inactive beyond a configurable threshold an
 ## Installation
 
 ```sh
-npm install @86d-app/abandoned-carts
+npm install @86d-store/abandoned-carts
 ```
 
 ## Usage
 
 ```ts
-import abandonedCarts from "@86d-app/abandoned-carts";
+import abandonedCarts from "@86d-store/abandoned-carts";
 
 const module = abandonedCarts({
   abandonmentThresholdMinutes: 60,

@@ -1,6 +1,6 @@
-import type { PaymentOutcomeRecorderPort } from "@86d-app/core/payment-checkout-ports";
-import type { Module, ModuleContext } from "@86d-app/core/types/module";
-import { readManagedWorkloadConfig } from "@86d-app/sdk/workload-token-client";
+import type { PaymentOutcomeRecorderPort } from "@86d-store/core/payment-checkout-ports";
+import type { Module, ModuleContext } from "@86d-store/core/types/module";
+import { readManagedWorkloadConfig } from "@86d-store/sdk/workload-token-client";
 import { createManagedPaymentClient } from "./managed-payment-client";
 import {
 	createManagedPaymentOutcomeConsumer,

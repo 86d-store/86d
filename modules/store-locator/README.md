@@ -19,14 +19,14 @@
 
 📚 **Documentation:** [86d.app/docs/modules/store-locator](https://86d.app/docs/modules/store-locator)
 
-# @86d-app/store-locator
+# @86d-store/store-locator
 
 Physical store location management module for the 86d commerce platform. Enables brands with brick-and-mortar presence to manage store locations, provide proximity-based search, display operating hours, and support click-and-collect (BOPIS).
 
 ## Installation
 
 ```ts
-import storeLocator from "@86d-app/store-locator";
+import storeLocator from "@86d-store/store-locator";
 
 const module = storeLocator({
   defaultRadiusKm: 50,
@@ -169,7 +169,7 @@ interface DayHours {
 ### Usage
 
 ```tsx
-import { LocationList, LocationDetail } from "@86d-app/store-locator/store/components";
+import { LocationList, LocationDetail } from "@86d-store/store-locator/store/components";
 
 <LocationList />
 <LocationDetail slug="downtown-flagship" />

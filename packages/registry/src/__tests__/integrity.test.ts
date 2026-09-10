@@ -31,7 +31,7 @@ afterEach(() => {
 describe("computeSubtreeIntegrity", () => {
 	it("covers Module source, not just the package manifest", () => {
 		const modulePath = writeModule({
-			"package.json": '{"name":"@86d-app/demo","version":"1.0.0"}',
+			"package.json": '{"name":"@86d-store/demo","version":"1.0.0"}',
 			"src/controllers.ts": "export const rate = 0.05;",
 		});
 		const before = computeSubtreeIntegrity(modulePath);

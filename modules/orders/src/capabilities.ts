@@ -4,14 +4,14 @@ import {
 	type CapabilityRejected,
 	type CapabilitySuccess,
 	provideCapability,
-} from "@86d-app/core/capabilities";
+} from "@86d-store/core/capabilities";
 import {
 	orderCreateCapability,
 	orderCustomerAuthorizeCapability,
 	orderGuestProofAuthorizeCapability,
 	orderLineQuantityValidateCapability,
 	orderPurchaseVerifyCapability,
-} from "@86d-app/core/commerce-capabilities";
+} from "@86d-store/core/commerce-capabilities";
 import { createOrderController } from "./service-impl";
 
 type OrderLineValidationDecision = CapabilityDecision<

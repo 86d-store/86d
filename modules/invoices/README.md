@@ -19,7 +19,7 @@
 
 📚 **Documentation:** [86d.app/docs/modules/invoices](https://86d.app/docs/modules/invoices)
 
-# @86d-app/invoices
+# @86d-store/invoices
 
 Invoices module for the 86d commerce platform. Provides full invoice lifecycle management including payment terms for B2B (net-30, net-60, etc.), partial payments, credit notes, overdue detection, and guest invoice tracking.
 
@@ -28,7 +28,7 @@ Invoices module for the 86d commerce platform. Provides full invoice lifecycle m
 Add to your store's module configuration:
 
 ```ts
-import invoices from "@86d-app/invoices";
+import invoices from "@86d-store/invoices";
 
 export const modules = [
   invoices({

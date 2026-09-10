@@ -1,6 +1,6 @@
 "use client";
 
-import { useModuleClient } from "@86d-app/core/client/provider";
+import { useModuleClient } from "@86d-store/core/client/provider";
 import { useEffect, useRef, useState } from "react";
 import NotificationListTemplate from "./notification-list.mdx";
 

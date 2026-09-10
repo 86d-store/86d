@@ -1,9 +1,9 @@
-import { Alert, AlertDescription, AlertTitle } from "@86d-app/ui/alert";
-import { Button } from "@86d-app/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@86d-app/ui/card";
-import { Skeleton } from "@86d-app/ui/shadcn/skeleton";
-import { Text } from "@86d-app/ui/text";
-import { View } from "@86d-app/ui/view";
+import { Alert, AlertDescription, AlertTitle } from "@86d-store/ui/alert";
+import { Button } from "@86d-store/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@86d-store/ui/card";
+import { Skeleton } from "@86d-store/ui/shadcn/skeleton";
+import { Text } from "@86d-store/ui/text";
+import { View } from "@86d-store/ui/view";
 import type {
 	GiftCardAdminRecord,
 	GiftCardAdminStats,

@@ -5,7 +5,7 @@
  * Any component exported from this file takes precedence over the
  * same-named component from its source module.
  *
- * Example — override the ProductCard component from @86d-app/products:
+ * Example — override the ProductCard component from @86d-store/products:
  *
  *   import { CustomProductCard } from "./product-card";
  *   export default { ProductCard: CustomProductCard };

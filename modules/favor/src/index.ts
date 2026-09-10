@@ -2,7 +2,7 @@ import type {
 	Module,
 	ModuleConfig,
 	ModuleContext,
-} from "@86d-app/core/types/module";
+} from "@86d-store/core/types/module";
 import { createAdminEndpoints } from "./admin/endpoints/routes";
 import { favorStorage } from "./schema";
 import { createFavorController } from "./service-impl";

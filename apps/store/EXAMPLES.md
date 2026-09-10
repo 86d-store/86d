@@ -2,20 +2,20 @@
 
 ## Example 1: Using a Workspace Module
 
-You already have `@86d-app/cart` working as a workspace module.
+You already have `@86d-store/cart` working as a workspace module.
 
 **Config** (`templates/brisa/config.json`):
 ```json
 {
-    "modules": ["@86d-app/cart"]
+    "modules": ["@86d-store/cart"]
 }
 ```
 
 **Generated** (`modules.ts`):
 ```typescript
-import moduleComponents0 from "@86d-app/cart/components";
+import moduleComponents0 from "@86d-store/cart/components";
 
-export const modules = ["@86d-app/cart"] as const;
+export const modules = ["@86d-store/cart"] as const;
 
 const components: MDXComponents = {
     ...moduleComponents0,
@@ -41,7 +41,7 @@ bun run create:module products
 This creates:
 ```
 modules/products/
-├── package.json          # @86d-app/products
+├── package.json          # @86d-store/products
 ├── src/
 │   └── store/
 │       └── components/   # ProductCard, ProductGrid components
@@ -52,8 +52,8 @@ modules/products/
 ```json
 {
     "modules": [
-        "@86d-app/cart",
-        "@86d-app/products"
+        "@86d-store/cart",
+        "@86d-store/products"
     ]
 }
 ```
@@ -62,7 +62,7 @@ modules/products/
 ```json
 {
     "dependencies": {
-        "@86d-app/products": "workspace:*"
+        "@86d-store/products": "workspace:*"
     }
 }
 ```
@@ -90,7 +90,7 @@ Add third-party modules from npm:
 ```json
 {
     "modules": [
-        "@86d-app/cart",
+        "@86d-store/cart",
         "@some-company/analytics-widget",
         "react-product-carousel"
     ]
@@ -104,14 +104,14 @@ bun run generate:modules
 ```
 
 The script will:
-1. Detect `@86d-app/cart` is workspace → use `workspace:*`
+1. Detect `@86d-store/cart` is workspace → use `workspace:*`
 2. Detect `@some-company/analytics-widget` is npm → add as `latest`
 3. Detect `react-product-carousel` is npm → add as `latest`
 4. Update `package.json`:
    ```json
    {
        "dependencies": {
-           "@86d-app/cart": "workspace:*",
+           "@86d-store/cart": "workspace:*",
            "@some-company/analytics-widget": "latest",
            "react-product-carousel": "latest"
        }
@@ -130,22 +130,22 @@ Some modules might only provide hooks or API routes:
 ```json
 {
     "modules": [
-        "@86d-app/cart",
-        "@86d-app/analytics"
+        "@86d-store/cart",
+        "@86d-store/analytics"
     ]
 }
 ```
 
-If `@86d-app/analytics` has no `src/store/components/index.tsx` or it's empty:
+If `@86d-store/analytics` has no `src/store/components/index.tsx` or it's empty:
 
 **Generated**:
 ```typescript
-import moduleComponents0 from "@86d-app/cart/components";
+import moduleComponents0 from "@86d-store/cart/components";
 // analytics skipped - no components
 
 export const modules = [
-    "@86d-app/cart",
-    "@86d-app/analytics"  // still in module list for hooks/routes
+    "@86d-store/cart",
+    "@86d-store/analytics"  // still in module list for hooks/routes
 ] as const;
 
 const components: MDXComponents = {
@@ -165,9 +165,9 @@ Enable/disable features by editing config:
 ```json
 {
     "modules": [
-        "@86d-app/cart",
-        "@86d-app/products",
-        "@86d-app/debug-tools"
+        "@86d-store/cart",
+        "@86d-store/products",
+        "@86d-store/debug-tools"
     ]
 }
 ```
@@ -176,8 +176,8 @@ Enable/disable features by editing config:
 ```json
 {
     "modules": [
-        "@86d-app/cart",
-        "@86d-app/products"
+        "@86d-store/cart",
+        "@86d-store/products"
     ]
 }
 ```
@@ -192,15 +192,15 @@ The build process automatically includes only the modules in config at build tim
 ```json
 {
     "modules": [
-        "@86d-app/cart",
-        "@86d-app/products",
-        "@86d-app/collections",
-        "@86d-app/checkout",
-        "@86d-app/customers",
-        "@86d-app/orders",
-        "@86d-app/blog",
-        "@86d-app/newsletter",
-        "@86d-app/reviews",
+        "@86d-store/cart",
+        "@86d-store/products",
+        "@86d-store/collections",
+        "@86d-store/checkout",
+        "@86d-store/customers",
+        "@86d-store/orders",
+        "@86d-store/blog",
+        "@86d-store/newsletter",
+        "@86d-store/reviews",
         "@stripe/stripe-components"
     ]
 }
@@ -208,27 +208,27 @@ The build process automatically includes only the modules in config at build tim
 
 **Generated modules.ts**:
 ```typescript
-import moduleComponents0 from "@86d-app/cart/components";
-import moduleComponents1 from "@86d-app/products/components";
-import moduleComponents2 from "@86d-app/collections/components";
-import moduleComponents3 from "@86d-app/checkout/components";
-import moduleComponents4 from "@86d-app/customers/components";
-import moduleComponents5 from "@86d-app/orders/components";
-import moduleComponents6 from "@86d-app/blog/components";
-import moduleComponents7 from "@86d-app/newsletter/components";
-import moduleComponents8 from "@86d-app/reviews/components";
+import moduleComponents0 from "@86d-store/cart/components";
+import moduleComponents1 from "@86d-store/products/components";
+import moduleComponents2 from "@86d-store/collections/components";
+import moduleComponents3 from "@86d-store/checkout/components";
+import moduleComponents4 from "@86d-store/customers/components";
+import moduleComponents5 from "@86d-store/orders/components";
+import moduleComponents6 from "@86d-store/blog/components";
+import moduleComponents7 from "@86d-store/newsletter/components";
+import moduleComponents8 from "@86d-store/reviews/components";
 import moduleComponents9 from "@stripe/stripe-components/components";
 
 export const modules = [
-    "@86d-app/cart",
-    "@86d-app/products",
-    "@86d-app/collections",
-    "@86d-app/checkout",
-    "@86d-app/customers",
-    "@86d-app/orders",
-    "@86d-app/blog",
-    "@86d-app/newsletter",
-    "@86d-app/reviews",
+    "@86d-store/cart",
+    "@86d-store/products",
+    "@86d-store/collections",
+    "@86d-store/checkout",
+    "@86d-store/customers",
+    "@86d-store/orders",
+    "@86d-store/blog",
+    "@86d-store/newsletter",
+    "@86d-store/reviews",
     "@stripe/stripe-components"
 ] as const;
 

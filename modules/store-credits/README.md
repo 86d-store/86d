@@ -26,13 +26,13 @@ Customer credit accounts that integrate with returns, referrals, and gift cards.
 ## Installation
 
 ```sh
-npm install @86d-app/store-credits
+npm install @86d-store/store-credits
 ```
 
 ## Usage
 
 ```ts
-import storeCredits from "@86d-app/store-credits";
+import storeCredits from "@86d-store/store-credits";
 
 const module = storeCredits({
   currency: "USD",

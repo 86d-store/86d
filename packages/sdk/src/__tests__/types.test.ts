@@ -73,6 +73,6 @@ describe("DEFAULT_CONFIG", () => {
 	});
 
 	it("has default modules array", () => {
-		expect(DEFAULT_CONFIG.modules).toEqual(["@86d-app/cart"]);
+		expect(DEFAULT_CONFIG.modules).toEqual(["@86d-store/cart"]);
 	});
 });

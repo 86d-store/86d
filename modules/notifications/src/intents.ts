@@ -2,7 +2,7 @@ import type {
 	LockingModuleDataTransaction,
 	ModuleDataTransaction,
 	ModuleTransactionRunner,
-} from "@86d-app/core/durable-events";
+} from "@86d-store/core/durable-events";
 import { z } from "zod";
 
 const identifier = z.string().trim().min(1).max(500);

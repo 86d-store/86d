@@ -19,14 +19,14 @@
 
 📚 **Documentation:** [86d.app/docs/modules/store-pickup](https://86d.app/docs/modules/store-pickup)
 
-# @86d-app/store-pickup
+# @86d-store/store-pickup
 
 Buy Online, Pick Up In Store (BOPIS) module for 86d. Lets merchants define physical pickup locations with time windows, and customers schedule order pickups with capacity management.
 
 ## Installation
 
 ```ts
-import storePickup from "@86d-app/store-pickup";
+import storePickup from "@86d-store/store-pickup";
 
 const module = storePickup({
   defaultPreparationMinutes: 60,

@@ -1,4 +1,4 @@
-import { Badge } from "@86d-app/ui/badge";
+import { Badge } from "@86d-store/ui/badge";
 import type { ComponentProps } from "react";
 import { isGiftCardStatus } from "./gift-card-admin-types";
 import { formatLegacyGiftCardValue } from "./gift-card-format";

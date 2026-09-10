@@ -17,11 +17,11 @@
 > [!WARNING]
 > This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
-# @86d-app/runtime
+# @86d-store/runtime
 
 Runtime utilities for hosting and initializing modules in the 86d module system. This package is used by the host application to bootstrap modules, manage module lifecycles, and provide scoped data access.
 
-> **Note**: This package is for internal use by the host application. Module authors should use `@86d-app/core`.
+> **Note**: This package is for internal use by the host application. Module authors should use `@86d-store/core`.
 
 ## Features
 
@@ -37,9 +37,9 @@ Runtime utilities for hosting and initializing modules in the 86d module system.
 The `ModuleRegistry` is the primary way to bootstrap and manage modules at runtime:
 
 ```typescript
-import { ModuleRegistry } from "@86d-app/runtime/registry";
-import cart from "@86d-app/cart";
-import products from "@86d-app/products";
+import { ModuleRegistry } from "@86d-store/runtime/registry";
+import cart from "@86d-store/cart";
+import products from "@86d-store/products";
 
 const registry = new ModuleRegistry();
 registry.register(products());
@@ -57,7 +57,7 @@ const ctx = await registry.getRequestContext({ session });
 Manage module adapters for data operations:
 
 ```typescript
-import { AdapterRegistry, createNoOpAdapter } from "@86d-app/runtime/adapters";
+import { AdapterRegistry, createNoOpAdapter } from "@86d-store/runtime/adapters";
 
 const registry = new AdapterRegistry();
 

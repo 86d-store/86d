@@ -33,7 +33,7 @@ beforeAll(() => {
 	writeFileSync(
 		join(TMP_ROOT, "modules", "products", "package.json"),
 		JSON.stringify({
-			name: "@86d-app/products",
+			name: "@86d-store/products",
 			version: "0.0.4",
 			description: "Product catalog management",
 		}),
@@ -89,7 +89,7 @@ beforeAll(() => {
 	writeFileSync(
 		join(TMP_ROOT, "modules", "analytics", "package.json"),
 		JSON.stringify({
-			name: "@86d-app/analytics",
+			name: "@86d-store/analytics",
 			version: "0.0.1",
 			description: "Analytics tracking",
 		}),
@@ -126,7 +126,7 @@ describe("buildManifest", () => {
 		const manifest = buildManifest(TMP_ROOT);
 		const products = manifest.modules.products;
 
-		expect(products.name).toBe("@86d-app/products");
+		expect(products.name).toBe("@86d-store/products");
 		expect(products.version).toBe("0.0.4");
 		expect(products.description).toBe("Product catalog management");
 		expect(products.path).toBe("modules/products");

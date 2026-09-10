@@ -1,5 +1,5 @@
-import { provideCapability } from "@86d-app/core/capabilities";
-import { productPriceConversionCapability } from "@86d-app/core/commerce-capabilities";
+import { provideCapability } from "@86d-store/core/capabilities";
+import { productPriceConversionCapability } from "@86d-store/core/commerce-capabilities";
 import type { z } from "zod";
 import type { MultiCurrencyController } from "./service";
 import { createMultiCurrencyController } from "./service-impl";

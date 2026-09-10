@@ -10,7 +10,7 @@ import type { ResolvedModule } from "./types.js";
 const lockedModuleSchema = z.object({
 	/** Resolved source type (local, registry, github, npm). */
 	source: z.enum(["local", "registry", "github", "npm"]),
-	/** Full package name (e.g. "@86d-app/products"). */
+	/** Full package name (e.g. "@86d-store/products"). */
 	packageName: z.string(),
 	/** Module version from package.json (if available). */
 	version: z.string().optional(),

@@ -144,7 +144,7 @@ function schemaToStorageSource(
 	);
 
 	if (entities.length === 0) {
-		return `import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+		return `import type { ModuleStorageDeclaration } from "@86d-store/core/schema";
 
 /** ${moduleId} owns no durable storage. */
 export const ${exportPrefix}Storage = {
@@ -170,8 +170,8 @@ export const ${exportPrefix}Storage = {
 		);
 	}
 
-	return `import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
-import { col } from "@86d-app/core/schema/col";
+	return `import type { ModuleStorageDeclaration } from "@86d-store/core/schema";
+import { col } from "@86d-store/core/schema/col";
 import { z } from "zod";
 
 ${shapeBlocks.join("\n")}
@@ -306,7 +306,7 @@ const ${prefix}Storage = { kind: "none" } as const;
 		/export const \w+Schema = \{\s*\}/.test(schemaSource) ||
 		/export const \w+ = \{\s*\} satisfies ModuleSchema/.test(schemaSource)
 	) {
-		const noneSource = `import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+		const noneSource = `import type { ModuleStorageDeclaration } from "@86d-store/core/schema";
 
 export const ${prefix}Storage = {
 	kind: "none",
@@ -326,7 +326,7 @@ export const ${prefix}Storage = {
 		([, e]) => e.fields && Object.keys(e.fields).length > 0,
 	);
 	if (entities.length === 0) {
-		const noneSource = `import type { ModuleStorageDeclaration } from "@86d-app/core/schema";
+		const noneSource = `import type { ModuleStorageDeclaration } from "@86d-store/core/schema";
 
 export const ${prefix}Storage = {
 	kind: "none",

@@ -1,4 +1,4 @@
-import { ModuleRegistry } from "@86d-app/runtime/registry";
+import { ModuleRegistry } from "@86d-store/runtime/registry";
 import { describe, expect, it, vi } from "vitest";
 import { modules } from "../../generated/api";
 

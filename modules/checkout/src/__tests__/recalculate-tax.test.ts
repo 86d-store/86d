@@ -2,9 +2,9 @@ import type {
 	CapabilityDecision,
 	CapabilityInvoker,
 	CapabilityRequest,
-} from "@86d-app/core/capabilities";
-import type { taxQuoteV2Capability } from "@86d-app/core/commerce-capabilities";
-import { createMockDataService } from "@86d-app/core/test-utils";
+} from "@86d-store/core/capabilities";
+import type { taxQuoteV2Capability } from "@86d-store/core/commerce-capabilities";
+import { createMockDataService } from "@86d-store/core/test-utils";
 import { describe, expect, it } from "vitest";
 import type {
 	CheckoutAddress,

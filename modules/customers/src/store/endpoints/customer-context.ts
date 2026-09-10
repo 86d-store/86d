@@ -1,5 +1,5 @@
-import { sanitizeText } from "@86d-app/core/sanitize";
-import type { ModuleContext } from "@86d-app/core/types/module";
+import { sanitizeText } from "@86d-store/core/sanitize";
+import type { ModuleContext } from "@86d-store/core/types/module";
 import {
 	createStoreCustomerIdentityService,
 	type StoreCustomer,

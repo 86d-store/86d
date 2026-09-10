@@ -1,10 +1,10 @@
-import { acceptCapability } from "@86d-app/core/capabilities";
-import { orderCustomerAuthorizeCapability } from "@86d-app/core/commerce-capabilities";
+import { acceptCapability } from "@86d-store/core/capabilities";
+import { orderCustomerAuthorizeCapability } from "@86d-store/core/commerce-capabilities";
 import type {
 	Module,
 	ModuleConfig,
 	ModuleContext,
-} from "@86d-app/core/types/module";
+} from "@86d-store/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { tippingStorage } from "./schema";
 import { createTippingController } from "./service-impl";

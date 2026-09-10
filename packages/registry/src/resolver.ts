@@ -100,10 +100,10 @@ function resolveAllModules(
 			seen.add(name);
 			results.push({
 				specifier: {
-					raw: `@86d-app/${name}`,
+					raw: `@86d-store/${name}`,
 					source: "local",
 					name,
-					packageName: `@86d-app/${name}`,
+					packageName: `@86d-store/${name}`,
 				},
 				status: "found",
 				localPath,

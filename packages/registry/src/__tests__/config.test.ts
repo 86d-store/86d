@@ -25,14 +25,14 @@ describe("readStoreConfig", () => {
 			JSON.stringify({
 				theme: "brisa",
 				modules: "*",
-				moduleOptions: { "@86d-app/cart": { maxItems: 100 } },
+				moduleOptions: { "@86d-store/cart": { maxItems: 100 } },
 			}),
 		);
 
 		const config = readStoreConfig(configPath);
 		expect(config.theme).toBe("brisa");
 		expect(config.modules).toBe("*");
-		expect(config.moduleOptions?.["@86d-app/cart"]).toEqual({
+		expect(config.moduleOptions?.["@86d-store/cart"]).toEqual({
 			maxItems: 100,
 		});
 	});
@@ -54,7 +54,7 @@ describe("normalizeModulesField", () => {
 	});
 
 	it("returns array as-is", () => {
-		const modules = ["@86d-app/products", "@86d-app/cart"];
+		const modules = ["@86d-store/products", "@86d-store/cart"];
 		expect(normalizeModulesField(modules)).toEqual(modules);
 	});
 });
@@ -63,20 +63,20 @@ describe("getModuleOptions", () => {
 	it("returns options for a module", () => {
 		const config = {
 			moduleOptions: {
-				"@86d-app/cart": { maxItems: 100, guestExpiry: 86400 },
+				"@86d-store/cart": { maxItems: 100, guestExpiry: 86400 },
 			},
 		};
-		const opts = getModuleOptions(config, "@86d-app/cart");
+		const opts = getModuleOptions(config, "@86d-store/cart");
 		expect(opts).toEqual({ maxItems: 100, guestExpiry: 86400 });
 	});
 
 	it("returns empty object for unknown module", () => {
 		const config = { moduleOptions: {} };
-		expect(getModuleOptions(config, "@86d-app/unknown")).toEqual({});
+		expect(getModuleOptions(config, "@86d-store/unknown")).toEqual({});
 	});
 
 	it("returns empty object when no moduleOptions", () => {
 		const config = {};
-		expect(getModuleOptions(config, "@86d-app/cart")).toEqual({});
+		expect(getModuleOptions(config, "@86d-store/cart")).toEqual({});
 	});
 });

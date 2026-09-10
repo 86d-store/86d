@@ -14,7 +14,7 @@
  * 3. A failure from applyCode() (e.g. limit reached) does not block order
  *    completion (best-effort semantics).
  */
-import { createMockDataService } from "@86d-app/core/test-utils";
+import { createMockDataService } from "@86d-store/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { DiscountController } from "../service";
 import { createCheckoutController } from "../service-impl";

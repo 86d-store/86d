@@ -269,7 +269,7 @@ function processModule(moduleName: string): ModuleDoc | null {
 	if (!existsSync(pkgJson)) return null;
 
 	const pkg = JSON.parse(readFileSync(pkgJson, "utf-8")) as { name?: string };
-	const packageName = pkg.name ?? `@86d-app/${moduleName}`;
+	const packageName = pkg.name ?? `@86d-store/${moduleName}`;
 
 	const srcDir = join(moduleDir, "src");
 	const storeComponentDir = join(srcDir, "store", "components");
@@ -436,9 +436,9 @@ async function main() {
 	for (const doc of docs) {
 		const moduleDir = join(
 			MODULES_DIR,
-			doc.moduleId === doc.packageName.replace("@86d-app/", "")
+			doc.moduleId === doc.packageName.replace("@86d-store/", "")
 				? doc.moduleId
-				: doc.packageName.replace("@86d-app/", ""),
+				: doc.packageName.replace("@86d-store/", ""),
 		);
 		const description = extractModuleDescription(moduleDir);
 		sections.push(renderModuleSection(doc, description));

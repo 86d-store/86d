@@ -5,7 +5,7 @@
  *
  * Generates apps/store/generated/ from templates/config.json
  *
- * Uses @86d-app/registry for module resolution and fetching:
+ * Uses @86d-store/registry for module resolution and fetching:
  * - Resolves module specifiers (local, registry, github, npm)
  * - Fetches missing modules from remote sources at buildtime
  * - Generates static imports for all resolved modules
@@ -13,7 +13,7 @@
  *
  * Module specifiers in config.json:
  * - "*": All local workspace modules + registry modules
- * - "@86d-app/products": Official module (workspace or registry)
+ * - "@86d-store/products": Official module (workspace or registry)
  * - "github:owner/repo/modules/custom": GitHub module
  * - "npm:@scope/package": npm module
  */
@@ -39,25 +39,25 @@ function rewriteGeneratedProcessEnvAccess(source: string): string {
 		.replace(/process\.env\.([A-Za-z_][\w]*)/g, 'getProcessEnv("$1")');
 }
 
-import { readStoreConfig } from "@86d-app/registry/config";
+import { readStoreConfig } from "@86d-store/registry/config";
 import {
 	type FetchModulesOptions,
 	fetchModules,
-} from "@86d-app/registry/fetcher";
+} from "@86d-store/registry/fetcher";
 import {
 	generateLockfile,
 	isLockfileSatisfied,
 	readLockfile,
 	verifyLockfile,
 	writeLockfile,
-} from "@86d-app/registry/lockfile";
-import { registryManifestPath } from "@86d-app/registry/paths";
+} from "@86d-store/registry/lockfile";
+import { registryManifestPath } from "@86d-store/registry/paths";
 import {
 	detectCircularDependencies,
 	readLocalManifest,
 	resolveModules,
-} from "@86d-app/registry/resolver";
-import type { ResolvedModule } from "@86d-app/registry/types";
+} from "@86d-store/registry/resolver";
+import type { ResolvedModule } from "@86d-store/registry/types";
 import {
 	captureRegistryOnlyPackageMetadata,
 	type RegistryOnlyPolicy,
@@ -103,7 +103,7 @@ type ModulePathKind =
 
 interface ModulePathSource {
 	moduleId: string;
-	/** Package specifier, e.g. "@86d-app/cart". */
+	/** Package specifier, e.g. "@86d-store/cart". */
 	packageName: string;
 	/** Workspace modules live in modules/<name>; npm modules are resolved from node_modules. */
 	isWorkspace: boolean;
@@ -464,7 +464,7 @@ function resolvedToPackageNames(resolved: ResolvedModule[]): string[] {
 
 function isWorkspaceModule(moduleName: string): boolean {
 	// Check if module exists in workspace
-	const moduleShortName = moduleName.replace("@86d-app/", "");
+	const moduleShortName = moduleName.replace("@86d-store/", "");
 	const workspaceModulePath = join(
 		WORKSPACE_ROOT,
 		"modules",
@@ -475,7 +475,7 @@ function isWorkspaceModule(moduleName: string): boolean {
 }
 
 function getModuleType(moduleName: string): "workspace" | "npm" {
-	if (moduleName.startsWith("@86d-app/") && isWorkspaceModule(moduleName)) {
+	if (moduleName.startsWith("@86d-store/") && isWorkspaceModule(moduleName)) {
 		return "workspace";
 	}
 	return "npm";
@@ -486,7 +486,7 @@ async function checkModuleHasComponents(
 	moduleType: "workspace" | "npm",
 ): Promise<boolean> {
 	if (moduleType === "workspace") {
-		const moduleShortName = moduleName.replace("@86d-app/", "");
+		const moduleShortName = moduleName.replace("@86d-store/", "");
 		const basePath = join(WORKSPACE_ROOT, "modules", moduleShortName, "src");
 		const storeComponentsPath = join(
 			basePath,
@@ -708,10 +708,10 @@ export type Router = typeof router;
 	}
 
 	// Generate module imports
-	const hasStripe = modules.includes("@86d-app/stripe");
-	const hasPayPal = modules.includes("@86d-app/paypal");
-	const hasSquare = modules.includes("@86d-app/square");
-	const hasBraintree = modules.includes("@86d-app/braintree");
+	const hasStripe = modules.includes("@86d-store/stripe");
+	const hasPayPal = modules.includes("@86d-store/paypal");
+	const hasSquare = modules.includes("@86d-store/square");
+	const hasBraintree = modules.includes("@86d-store/braintree");
 
 	const moduleImports = [
 		...modules.map(
@@ -719,7 +719,7 @@ export type Router = typeof router;
 		),
 		...(hasPayPal
 			? [
-					`import { PayPalPaymentConnectionProvider } from "@86d-app/paypal/connection-provider";`,
+					`import { PayPalPaymentConnectionProvider } from "@86d-store/paypal/connection-provider";`,
 				]
 			: []),
 	].join("\n");
@@ -764,8 +764,8 @@ export type Router = typeof router;
 		if (hasStripe) {
 			blocks.push(`// Wire Stripe options from env vars
 if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET) {
-  moduleOptions["@86d-app/stripe"] = {
-    ...moduleOptions["@86d-app/stripe"],
+  moduleOptions["@86d-store/stripe"] = {
+    ...moduleOptions["@86d-store/stripe"],
     apiKey: process.env.STRIPE_SECRET_KEY,
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
   };
@@ -774,8 +774,8 @@ if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET) {
 		if (hasPayPal) {
 			blocks.push(`// Wire PayPal options from env vars
 if (process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET && process.env.PAYPAL_WEBHOOK_ID) {
-  moduleOptions["@86d-app/paypal"] = {
-    ...moduleOptions["@86d-app/paypal"],
+  moduleOptions["@86d-store/paypal"] = {
+    ...moduleOptions["@86d-store/paypal"],
     clientId: process.env.PAYPAL_CLIENT_ID,
     clientSecret: process.env.PAYPAL_CLIENT_SECRET,
     sandbox: process.env.PAYPAL_SANDBOX ?? "",
@@ -801,10 +801,10 @@ if (process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET && process.
     returnUrl: (process.env.APP_URL ?? "") + "/checkout/confirmation",
     cancelUrl: (process.env.APP_URL ?? "") + "/checkout",
   });
-  moduleOptions["@86d-app/payments"] = {
-    ...moduleOptions["@86d-app/payments"],
+  moduleOptions["@86d-store/payments"] = {
+    ...moduleOptions["@86d-store/payments"],
     connectionProviders: [
-      ...((moduleOptions["@86d-app/payments"]?.connectionProviders as unknown[]) ?? []),
+      ...((moduleOptions["@86d-store/payments"]?.connectionProviders as unknown[]) ?? []),
       paypalConnection,
     ],
   };
@@ -813,8 +813,8 @@ if (process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET && process.
 		if (hasSquare) {
 			blocks.push(`// Wire Square options from env vars
 if (process.env.SQUARE_ACCESS_TOKEN && process.env.SQUARE_WEBHOOK_SIGNATURE_KEY && process.env.SQUARE_WEBHOOK_NOTIFICATION_URL) {
-  moduleOptions["@86d-app/square"] = {
-    ...moduleOptions["@86d-app/square"],
+  moduleOptions["@86d-store/square"] = {
+    ...moduleOptions["@86d-store/square"],
     accessToken: process.env.SQUARE_ACCESS_TOKEN,
     webhookSignatureKey: process.env.SQUARE_WEBHOOK_SIGNATURE_KEY,
     webhookNotificationUrl: process.env.SQUARE_WEBHOOK_NOTIFICATION_URL,
@@ -824,8 +824,8 @@ if (process.env.SQUARE_ACCESS_TOKEN && process.env.SQUARE_WEBHOOK_SIGNATURE_KEY 
 		if (hasBraintree) {
 			blocks.push(`// Wire Braintree options from env vars
 if (process.env.BRAINTREE_MERCHANT_ID && process.env.BRAINTREE_PUBLIC_KEY && process.env.BRAINTREE_PRIVATE_KEY) {
-  moduleOptions["@86d-app/braintree"] = {
-    ...moduleOptions["@86d-app/braintree"],
+  moduleOptions["@86d-store/braintree"] = {
+    ...moduleOptions["@86d-store/braintree"],
     merchantId: process.env.BRAINTREE_MERCHANT_ID,
     publicKey: process.env.BRAINTREE_PUBLIC_KEY,
     privateKey: process.env.BRAINTREE_PRIVATE_KEY,
@@ -838,26 +838,26 @@ if (process.env.BRAINTREE_MERCHANT_ID && process.env.BRAINTREE_PUBLIC_KEY && pro
 	}
 
 	// Generate search module AI wiring code
-	const hasSearch = modules.includes("@86d-app/search");
+	const hasSearch = modules.includes("@86d-store/search");
 	let searchWiringCode = "";
 	if (hasSearch) {
 		searchWiringCode = `
 // ── Search module wiring (MeiliSearch + AI embeddings, env-var based) ──
 if (process.env.MEILISEARCH_HOST && process.env.MEILISEARCH_API_KEY) {
-  moduleOptions["@86d-app/search"] = {
-    ...moduleOptions["@86d-app/search"],
+  moduleOptions["@86d-store/search"] = {
+    ...moduleOptions["@86d-store/search"],
     meilisearchHost: process.env.MEILISEARCH_HOST,
     meilisearchApiKey: process.env.MEILISEARCH_API_KEY,
   };
 }
 if (process.env.OPENAI_API_KEY) {
-  moduleOptions["@86d-app/search"] = {
-    ...moduleOptions["@86d-app/search"],
+  moduleOptions["@86d-store/search"] = {
+    ...moduleOptions["@86d-store/search"],
     openaiApiKey: process.env.OPENAI_API_KEY,
   };
 } else if (process.env.OPENROUTER_API_KEY) {
-  moduleOptions["@86d-app/search"] = {
-    ...moduleOptions["@86d-app/search"],
+  moduleOptions["@86d-store/search"] = {
+    ...moduleOptions["@86d-store/search"],
     openrouterApiKey: process.env.OPENROUTER_API_KEY,
   };
 }
@@ -865,14 +865,14 @@ if (process.env.OPENAI_API_KEY) {
 	}
 
 	// Generate Toast POS wiring code
-	const hasToast = modules.includes("@86d-app/toast");
+	const hasToast = modules.includes("@86d-store/toast");
 	let toastWiringCode = "";
 	if (hasToast) {
 		toastWiringCode = `
 // ── Toast POS wiring (env-var based) ──
 if (process.env.TOAST_API_KEY && process.env.TOAST_RESTAURANT_GUID) {
-  moduleOptions["@86d-app/toast"] = {
-    ...moduleOptions["@86d-app/toast"],
+  moduleOptions["@86d-store/toast"] = {
+    ...moduleOptions["@86d-store/toast"],
     apiKey: process.env.TOAST_API_KEY,
     restaurantGuid: process.env.TOAST_RESTAURANT_GUID,
     ...(process.env.TOAST_SANDBOX !== undefined ? { sandbox: process.env.TOAST_SANDBOX } : {}),
@@ -882,14 +882,14 @@ if (process.env.TOAST_API_KEY && process.env.TOAST_RESTAURANT_GUID) {
 	}
 
 	// Generate shipping module wiring code (EasyPost)
-	const hasShipping = modules.includes("@86d-app/shipping");
+	const hasShipping = modules.includes("@86d-store/shipping");
 	let shippingWiringCode = "";
 	if (hasShipping) {
 		shippingWiringCode = `
 // ── Shipping module wiring (EasyPost, env-var based) ──
 if (process.env.EASYPOST_API_KEY) {
-  moduleOptions["@86d-app/shipping"] = {
-    ...moduleOptions["@86d-app/shipping"],
+  moduleOptions["@86d-store/shipping"] = {
+    ...moduleOptions["@86d-store/shipping"],
     easypostApiKey: process.env.EASYPOST_API_KEY,
     easypostTestMode: process.env.EASYPOST_TEST_MODE !== "false",
     easypostWebhookSecret: process.env.EASYPOST_WEBHOOK_SECRET ?? "",
@@ -899,14 +899,14 @@ if (process.env.EASYPOST_API_KEY) {
 	}
 
 	// Generate tax module wiring code (TaxJar)
-	const hasTax = modules.includes("@86d-app/tax");
+	const hasTax = modules.includes("@86d-store/tax");
 	let taxWiringCode = "";
 	if (hasTax) {
 		taxWiringCode = `
 // ── Tax module wiring (TaxJar, env-var based) ──
 if (process.env.TAXJAR_API_KEY) {
-  moduleOptions["@86d-app/tax"] = {
-    ...moduleOptions["@86d-app/tax"],
+  moduleOptions["@86d-store/tax"] = {
+    ...moduleOptions["@86d-store/tax"],
     taxjarApiKey: process.env.TAXJAR_API_KEY,
     taxjarSandbox: process.env.TAXJAR_SANDBOX === "true",
   };
@@ -915,21 +915,21 @@ if (process.env.TAXJAR_API_KEY) {
 	}
 
 	// Generate notifications module wiring code (Resend + Twilio)
-	const hasNotifications = modules.includes("@86d-app/notifications");
+	const hasNotifications = modules.includes("@86d-store/notifications");
 	let notificationsWiringCode = "";
 	if (hasNotifications) {
 		notificationsWiringCode = `
 // ── Notifications module wiring (Resend email + Twilio SMS, env-var based) ──
 if (process.env.RESEND_API_KEY) {
-  moduleOptions["@86d-app/notifications"] = {
-    ...moduleOptions["@86d-app/notifications"],
+  moduleOptions["@86d-store/notifications"] = {
+    ...moduleOptions["@86d-store/notifications"],
     resendApiKey: process.env.RESEND_API_KEY,
     resendFromAddress: process.env.RESEND_FROM_ADDRESS ?? "Store <noreply@example.com>",
   };
 }
 if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
-  moduleOptions["@86d-app/notifications"] = {
-    ...moduleOptions["@86d-app/notifications"],
+  moduleOptions["@86d-store/notifications"] = {
+    ...moduleOptions["@86d-store/notifications"],
     twilioAccountSid: process.env.TWILIO_ACCOUNT_SID,
     twilioAuthToken: process.env.TWILIO_AUTH_TOKEN,
     twilioFromNumber: process.env.TWILIO_FROM_NUMBER ?? "",
@@ -939,14 +939,14 @@ if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
 	}
 
 	// Generate DoorDash Drive wiring code
-	const hasDoordash = modules.includes("@86d-app/doordash");
+	const hasDoordash = modules.includes("@86d-store/doordash");
 	let doordashWiringCode = "";
 	if (hasDoordash) {
 		doordashWiringCode = `
 // ── DoorDash Drive wiring (env-var based) ──
 if (process.env.DOORDASH_DEVELOPER_ID && process.env.DOORDASH_KEY_ID && process.env.DOORDASH_SIGNING_SECRET) {
-  moduleOptions["@86d-app/doordash"] = {
-    ...moduleOptions["@86d-app/doordash"],
+  moduleOptions["@86d-store/doordash"] = {
+    ...moduleOptions["@86d-store/doordash"],
     developerId: process.env.DOORDASH_DEVELOPER_ID,
     keyId: process.env.DOORDASH_KEY_ID,
     signingSecret: process.env.DOORDASH_SIGNING_SECRET,
@@ -957,14 +957,14 @@ if (process.env.DOORDASH_DEVELOPER_ID && process.env.DOORDASH_KEY_ID && process.
 	}
 
 	// Generate Uber Direct wiring code
-	const hasUberDirect = modules.includes("@86d-app/uber-direct");
+	const hasUberDirect = modules.includes("@86d-store/uber-direct");
 	let uberDirectWiringCode = "";
 	if (hasUberDirect) {
 		uberDirectWiringCode = `
 // ── Uber Direct wiring (env-var based) ──
 if (process.env.UBER_CLIENT_ID && process.env.UBER_CLIENT_SECRET && process.env.UBER_CUSTOMER_ID) {
-  moduleOptions["@86d-app/uber-direct"] = {
-    ...moduleOptions["@86d-app/uber-direct"],
+  moduleOptions["@86d-store/uber-direct"] = {
+    ...moduleOptions["@86d-store/uber-direct"],
     clientId: process.env.UBER_CLIENT_ID,
     clientSecret: process.env.UBER_CLIENT_SECRET,
     customerId: process.env.UBER_CUSTOMER_ID,
@@ -975,14 +975,14 @@ if (process.env.UBER_CLIENT_ID && process.env.UBER_CLIENT_SECRET && process.env.
 	}
 
 	// Generate Recommendations module wiring code (AI embeddings)
-	const hasRecommendations = modules.includes("@86d-app/recommendations");
+	const hasRecommendations = modules.includes("@86d-store/recommendations");
 	let recommendationsWiringCode = "";
 	if (hasRecommendations) {
 		recommendationsWiringCode = `
 // ── Recommendations module wiring (AI embeddings, env-var based) ──
 if (process.env.OPENAI_API_KEY || process.env.OPENROUTER_API_KEY) {
-  moduleOptions["@86d-app/recommendations"] = {
-    ...moduleOptions["@86d-app/recommendations"],
+  moduleOptions["@86d-store/recommendations"] = {
+    ...moduleOptions["@86d-store/recommendations"],
     ...(process.env.OPENAI_API_KEY ? { openaiApiKey: process.env.OPENAI_API_KEY } : {}),
     ...(process.env.OPENROUTER_API_KEY ? { openrouterApiKey: process.env.OPENROUTER_API_KEY } : {}),
   };
@@ -991,14 +991,14 @@ if (process.env.OPENAI_API_KEY || process.env.OPENROUTER_API_KEY) {
 	}
 
 	// Generate analytics module wiring code (GTM, GA4, Sentry)
-	const hasAnalytics = modules.includes("@86d-app/analytics");
+	const hasAnalytics = modules.includes("@86d-store/analytics");
 	let analyticsWiringCode = "";
 	if (hasAnalytics) {
 		analyticsWiringCode = `
 // ── Analytics module wiring (GTM, GA4 Measurement Protocol, Sentry — env-var based) ──
 if (process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID || process.env.GA4_MEASUREMENT_ID || process.env.SENTRY_DSN) {
-  moduleOptions["@86d-app/analytics"] = {
-    ...moduleOptions["@86d-app/analytics"],
+  moduleOptions["@86d-store/analytics"] = {
+    ...moduleOptions["@86d-store/analytics"],
     ...(process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID ? { gtmContainerId: process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID } : {}),
     ...(process.env.GA4_MEASUREMENT_ID ? { ga4MeasurementId: process.env.GA4_MEASUREMENT_ID } : {}),
     ...(process.env.GA4_API_SECRET ? { ga4ApiSecret: process.env.GA4_API_SECRET } : {}),
@@ -1009,14 +1009,14 @@ if (process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID || process.env.GA4_MEASUREMENT
 	}
 
 	// Generate Amazon SP-API wiring code
-	const hasAmazon = modules.includes("@86d-app/amazon");
+	const hasAmazon = modules.includes("@86d-store/amazon");
 	let amazonWiringCode = "";
 	if (hasAmazon) {
 		amazonWiringCode = `
 // ── Amazon SP-API wiring (env-var based) ──
 if (process.env.AMAZON_SELLER_ID && process.env.AMAZON_CLIENT_ID && process.env.AMAZON_CLIENT_SECRET && process.env.AMAZON_REFRESH_TOKEN) {
-  moduleOptions["@86d-app/amazon"] = {
-    ...moduleOptions["@86d-app/amazon"],
+  moduleOptions["@86d-store/amazon"] = {
+    ...moduleOptions["@86d-store/amazon"],
     sellerId: process.env.AMAZON_SELLER_ID,
     clientId: process.env.AMAZON_CLIENT_ID,
     clientSecret: process.env.AMAZON_CLIENT_SECRET,
@@ -1029,14 +1029,14 @@ if (process.env.AMAZON_SELLER_ID && process.env.AMAZON_CLIENT_ID && process.env.
 	}
 
 	// Generate TikTok Shop wiring code
-	const hasTiktokShop = modules.includes("@86d-app/tiktok-shop");
+	const hasTiktokShop = modules.includes("@86d-store/tiktok-shop");
 	let tiktokShopWiringCode = "";
 	if (hasTiktokShop) {
 		tiktokShopWiringCode = `
 // ── TikTok Shop wiring (env-var based) ──
 if (process.env.TIKTOK_APP_KEY && process.env.TIKTOK_APP_SECRET && process.env.TIKTOK_ACCESS_TOKEN && process.env.TIKTOK_SHOP_ID) {
-  moduleOptions["@86d-app/tiktok-shop"] = {
-    ...moduleOptions["@86d-app/tiktok-shop"],
+  moduleOptions["@86d-store/tiktok-shop"] = {
+    ...moduleOptions["@86d-store/tiktok-shop"],
     appKey: process.env.TIKTOK_APP_KEY,
     appSecret: process.env.TIKTOK_APP_SECRET,
     accessToken: process.env.TIKTOK_ACCESS_TOKEN,
@@ -1048,14 +1048,14 @@ if (process.env.TIKTOK_APP_KEY && process.env.TIKTOK_APP_SECRET && process.env.T
 	}
 
 	// Generate Google Shopping wiring code
-	const hasGoogleShopping = modules.includes("@86d-app/google-shopping");
+	const hasGoogleShopping = modules.includes("@86d-store/google-shopping");
 	let googleShoppingWiringCode = "";
 	if (hasGoogleShopping) {
 		googleShoppingWiringCode = `
 // ── Google Shopping wiring (env-var based) ──
 if (process.env.GOOGLE_MERCHANT_ID && process.env.GOOGLE_MERCHANT_API_KEY) {
-  moduleOptions["@86d-app/google-shopping"] = {
-    ...moduleOptions["@86d-app/google-shopping"],
+  moduleOptions["@86d-store/google-shopping"] = {
+    ...moduleOptions["@86d-store/google-shopping"],
     merchantId: process.env.GOOGLE_MERCHANT_ID,
     apiKey: process.env.GOOGLE_MERCHANT_API_KEY,
     ...(process.env.GOOGLE_MERCHANT_TARGET_COUNTRY ? { targetCountry: process.env.GOOGLE_MERCHANT_TARGET_COUNTRY } : {}),
@@ -1066,14 +1066,14 @@ if (process.env.GOOGLE_MERCHANT_ID && process.env.GOOGLE_MERCHANT_API_KEY) {
 	}
 
 	// Generate Facebook Shop wiring code
-	const hasFacebookShop = modules.includes("@86d-app/facebook-shop");
+	const hasFacebookShop = modules.includes("@86d-store/facebook-shop");
 	let facebookShopWiringCode = "";
 	if (hasFacebookShop) {
 		facebookShopWiringCode = `
 // ── Facebook Shop wiring (env-var based) ──
 if (process.env.FACEBOOK_ACCESS_TOKEN && process.env.FACEBOOK_CATALOG_ID && process.env.FACEBOOK_COMMERCE_ACCOUNT_ID) {
-  moduleOptions["@86d-app/facebook-shop"] = {
-    ...moduleOptions["@86d-app/facebook-shop"],
+  moduleOptions["@86d-store/facebook-shop"] = {
+    ...moduleOptions["@86d-store/facebook-shop"],
     accessToken: process.env.FACEBOOK_ACCESS_TOKEN,
     catalogId: process.env.FACEBOOK_CATALOG_ID,
     commerceAccountId: process.env.FACEBOOK_COMMERCE_ACCOUNT_ID,
@@ -1084,14 +1084,14 @@ if (process.env.FACEBOOK_ACCESS_TOKEN && process.env.FACEBOOK_CATALOG_ID && proc
 	}
 
 	// Generate Instagram Shop wiring code
-	const hasInstagramShop = modules.includes("@86d-app/instagram-shop");
+	const hasInstagramShop = modules.includes("@86d-store/instagram-shop");
 	let instagramShopWiringCode = "";
 	if (hasInstagramShop) {
 		instagramShopWiringCode = `
 // ── Instagram Shop wiring (env-var based) ──
 if (process.env.INSTAGRAM_ACCESS_TOKEN && process.env.INSTAGRAM_CATALOG_ID && process.env.INSTAGRAM_COMMERCE_ACCOUNT_ID) {
-  moduleOptions["@86d-app/instagram-shop"] = {
-    ...moduleOptions["@86d-app/instagram-shop"],
+  moduleOptions["@86d-store/instagram-shop"] = {
+    ...moduleOptions["@86d-store/instagram-shop"],
     accessToken: process.env.INSTAGRAM_ACCESS_TOKEN,
     catalogId: process.env.INSTAGRAM_CATALOG_ID,
     commerceAccountId: process.env.INSTAGRAM_COMMERCE_ACCOUNT_ID,
@@ -1102,14 +1102,14 @@ if (process.env.INSTAGRAM_ACCESS_TOKEN && process.env.INSTAGRAM_CATALOG_ID && pr
 	}
 
 	// Generate Etsy wiring code
-	const hasEtsy = modules.includes("@86d-app/etsy");
+	const hasEtsy = modules.includes("@86d-store/etsy");
 	let etsyWiringCode = "";
 	if (hasEtsy) {
 		etsyWiringCode = `
 // ── Etsy API wiring (env-var based) ──
 if (process.env.ETSY_API_KEY && process.env.ETSY_SHOP_ID && process.env.ETSY_ACCESS_TOKEN) {
-  moduleOptions["@86d-app/etsy"] = {
-    ...moduleOptions["@86d-app/etsy"],
+  moduleOptions["@86d-store/etsy"] = {
+    ...moduleOptions["@86d-store/etsy"],
     apiKey: process.env.ETSY_API_KEY,
     shopId: process.env.ETSY_SHOP_ID,
     accessToken: process.env.ETSY_ACCESS_TOKEN,
@@ -1119,14 +1119,14 @@ if (process.env.ETSY_API_KEY && process.env.ETSY_SHOP_ID && process.env.ETSY_ACC
 	}
 
 	// Generate eBay wiring code
-	const hasEbay = modules.includes("@86d-app/ebay");
+	const hasEbay = modules.includes("@86d-store/ebay");
 	let ebayWiringCode = "";
 	if (hasEbay) {
 		ebayWiringCode = `
 // ── eBay API wiring (env-var based) ──
 if (process.env.EBAY_CLIENT_ID && process.env.EBAY_CLIENT_SECRET && process.env.EBAY_REFRESH_TOKEN) {
-  moduleOptions["@86d-app/ebay"] = {
-    ...moduleOptions["@86d-app/ebay"],
+  moduleOptions["@86d-store/ebay"] = {
+    ...moduleOptions["@86d-store/ebay"],
     clientId: process.env.EBAY_CLIENT_ID,
     clientSecret: process.env.EBAY_CLIENT_SECRET,
     refreshToken: process.env.EBAY_REFRESH_TOKEN,
@@ -1137,14 +1137,14 @@ if (process.env.EBAY_CLIENT_ID && process.env.EBAY_CLIENT_SECRET && process.env.
 	}
 
 	// Generate Walmart wiring code
-	const hasWalmart = modules.includes("@86d-app/walmart");
+	const hasWalmart = modules.includes("@86d-store/walmart");
 	let walmartWiringCode = "";
 	if (hasWalmart) {
 		walmartWiringCode = `
 // ── Walmart Marketplace wiring (env-var based) ──
 if (process.env.WALMART_CLIENT_ID && process.env.WALMART_CLIENT_SECRET) {
-  moduleOptions["@86d-app/walmart"] = {
-    ...moduleOptions["@86d-app/walmart"],
+  moduleOptions["@86d-store/walmart"] = {
+    ...moduleOptions["@86d-store/walmart"],
     clientId: process.env.WALMART_CLIENT_ID,
     clientSecret: process.env.WALMART_CLIENT_SECRET,
     ...(process.env.WALMART_CHANNEL_TYPE ? { channelType: process.env.WALMART_CHANNEL_TYPE } : {}),
@@ -1154,14 +1154,14 @@ if (process.env.WALMART_CLIENT_ID && process.env.WALMART_CLIENT_SECRET) {
 	}
 
 	// Generate Pinterest Shop wiring code
-	const hasPinterestShop = modules.includes("@86d-app/pinterest-shop");
+	const hasPinterestShop = modules.includes("@86d-store/pinterest-shop");
 	let pinterestShopWiringCode = "";
 	if (hasPinterestShop) {
 		pinterestShopWiringCode = `
 // ── Pinterest Shop wiring (env-var based) ──
 if (process.env.PINTEREST_ACCESS_TOKEN) {
-  moduleOptions["@86d-app/pinterest-shop"] = {
-    ...moduleOptions["@86d-app/pinterest-shop"],
+  moduleOptions["@86d-store/pinterest-shop"] = {
+    ...moduleOptions["@86d-store/pinterest-shop"],
     accessToken: process.env.PINTEREST_ACCESS_TOKEN,
     ...(process.env.PINTEREST_AD_ACCOUNT_ID ? { adAccountId: process.env.PINTEREST_AD_ACCOUNT_ID } : {}),
     ...(process.env.PINTEREST_CATALOG_ID ? { catalogId: process.env.PINTEREST_CATALOG_ID } : {}),
@@ -1171,14 +1171,14 @@ if (process.env.PINTEREST_ACCESS_TOKEN) {
 	}
 
 	// Generate X Shop wiring code
-	const hasXShop = modules.includes("@86d-app/x-shop");
+	const hasXShop = modules.includes("@86d-store/x-shop");
 	let xShopWiringCode = "";
 	if (hasXShop) {
 		xShopWiringCode = `
 // ── X (Twitter) Shop wiring (env-var based) ──
 if (process.env.X_API_KEY && process.env.X_API_SECRET) {
-  moduleOptions["@86d-app/x-shop"] = {
-    ...moduleOptions["@86d-app/x-shop"],
+  moduleOptions["@86d-store/x-shop"] = {
+    ...moduleOptions["@86d-store/x-shop"],
     apiKey: process.env.X_API_KEY,
     apiSecret: process.env.X_API_SECRET,
     ...(process.env.X_ACCESS_TOKEN ? { accessToken: process.env.X_ACCESS_TOKEN } : {}),
@@ -1190,14 +1190,14 @@ if (process.env.X_API_KEY && process.env.X_API_SECRET) {
 	}
 
 	// Generate Uber Eats wiring code
-	const hasUberEats = modules.includes("@86d-app/uber-eats");
+	const hasUberEats = modules.includes("@86d-store/uber-eats");
 	let uberEatsWiringCode = "";
 	if (hasUberEats) {
 		uberEatsWiringCode = `
 // ── Uber Eats wiring (env-var based) ──
 if (process.env.UBER_EATS_CLIENT_ID && process.env.UBER_EATS_CLIENT_SECRET && process.env.UBER_EATS_RESTAURANT_ID) {
-  moduleOptions["@86d-app/uber-eats"] = {
-    ...moduleOptions["@86d-app/uber-eats"],
+  moduleOptions["@86d-store/uber-eats"] = {
+    ...moduleOptions["@86d-store/uber-eats"],
     clientId: process.env.UBER_EATS_CLIENT_ID,
     clientSecret: process.env.UBER_EATS_CLIENT_SECRET,
     restaurantId: process.env.UBER_EATS_RESTAURANT_ID,
@@ -1213,7 +1213,7 @@ if (process.env.UBER_EATS_CLIENT_ID && process.env.UBER_EATS_CLIENT_SECRET && pr
 
 import { createRouter } from "better-call";
 import type { Endpoint, RouterConfig } from "better-call";
-import type { ModuleContext } from "@86d-app/core/types/module";
+import type { ModuleContext } from "@86d-store/core/types/module";
 import { getProcessEnv } from "env/process-env";
 ${moduleImports}
 const moduleOptions: Record<string, Record<string, unknown>> = ${JSON.stringify(moduleOptions, null, 2)};
@@ -1316,7 +1316,7 @@ async function generateClient() {
 	// Generate client SDK
 	// The better-call client is not exported here because @better-fetch/fetch types
 	// are not portable under Bun's module layout (TS2742).
-	// Use useModuleClient() from @86d-app/core/client/provider for typed client access.
+	// Use useModuleClient() from @86d-store/core/client/provider for typed client access.
 	const clientContent = `// Auto-generated file - do not edit manually
 // Run 'bun run generate:modules' to regenerate
 // Generated from: ${CONFIG_PATH}
@@ -1357,7 +1357,7 @@ function collectModuleClientEndpointReferences(
 ): ModuleClientEndpointReference[] {
 	if (getModuleType(moduleName) !== "workspace") return [];
 
-	const shortName = moduleName.replace("@86d-app/", "");
+	const shortName = moduleName.replace("@86d-store/", "");
 	const moduleDir = join(WORKSPACE_ROOT, "modules", shortName, "src");
 	const componentDirs = [
 		join(moduleDir, "admin", "components"),
@@ -1425,7 +1425,7 @@ async function loadModuleDefinition(
 					join(
 						WORKSPACE_ROOT,
 						"modules",
-						moduleName.replace("@86d-app/", ""),
+						moduleName.replace("@86d-store/", ""),
 						"src",
 						"index.ts",
 					),
@@ -1591,7 +1591,7 @@ async function generateAdminLoaders(allowManifestMutation: boolean) {
 		const components = source.adminPageComponents ?? [];
 		if (components.length === 0) continue;
 
-		const shortName = source.packageName.replace("@86d-app/", "");
+		const shortName = source.packageName.replace("@86d-store/", "");
 		const componentsDir = join(
 			WORKSPACE_ROOT,
 			"modules",
@@ -1682,7 +1682,7 @@ function writeAdminComponentExports(
 ) {
 	const wanted = new Map<string, Set<string>>();
 	for (const { specifier } of entries) {
-		const match = specifier.match(/^(@86d-app\/[^/]+)\/(.+)$/);
+		const match = specifier.match(/^(@86d-store\/[^/]+)\/(.+)$/);
 		if (!match) continue;
 		const [, pkg, subpath] = match;
 		if (!pkg || !subpath) continue;
@@ -1693,7 +1693,7 @@ function writeAdminComponentExports(
 
 	let updated = 0;
 	for (const [pkg, subpaths] of wanted) {
-		const shortName = pkg.replace("@86d-app/", "");
+		const shortName = pkg.replace("@86d-store/", "");
 		const manifestPath = join(
 			WORKSPACE_ROOT,
 			"modules",
@@ -1793,7 +1793,7 @@ function generateTranspilePackages() {
 
 	for (const moduleName of modules) {
 		if (getModuleType(moduleName) !== "workspace") continue;
-		const shortName = moduleName.replace("@86d-app/", "");
+		const shortName = moduleName.replace("@86d-store/", "");
 		const basePath = join(WORKSPACE_ROOT, "modules", shortName, "src");
 
 		// Include if the Module ships any TSX. Checked by directory contents rather

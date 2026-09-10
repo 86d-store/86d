@@ -1,8 +1,8 @@
-import { createEventBus, createScopedEmitter } from "@86d-app/core/events";
+import { createEventBus, createScopedEmitter } from "@86d-store/core/events";
 import {
 	createMockDataService,
 	createMockModuleContext,
-} from "@86d-app/core/test-utils";
+} from "@86d-store/core/test-utils";
 import { describe, expect, it } from "vitest";
 import loyalty from "../index";
 

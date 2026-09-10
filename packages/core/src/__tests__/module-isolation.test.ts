@@ -43,7 +43,7 @@ const moduleSources = allModuleSources
 describe("Module isolation boundary", () => {
 	it("has no cross-Module imports", () => {
 		const moduleImport =
-			/(?:from\s+|import\s*(?:\(\s*)?|require\s*\(\s*)["']@86d-app\/([^/"']+)(?:\/[^"']*)?["']/g;
+			/(?:from\s+|import\s*(?:\(\s*)?|require\s*\(\s*)["']@86d-store\/([^/"']+)(?:\/[^"']*)?["']/g;
 		const violations = allModuleSources.flatMap(({ file, contents }) => {
 			const source = file.match(/\/modules\/([^/]+)\/src\//)?.[1];
 			if (!source) return [];
@@ -73,8 +73,8 @@ describe("Module isolation boundary", () => {
 
 			return dependencyFields.flatMap((field) =>
 				Object.keys(manifest[field] ?? {})
-					.filter((dependency) => dependency.startsWith("@86d-app/"))
-					.map((dependency) => dependency.slice("@86d-app/".length))
+					.filter((dependency) => dependency.startsWith("@86d-store/"))
+					.map((dependency) => dependency.slice("@86d-store/".length))
 					.filter((target) => target !== source && moduleNames.has(target))
 					.map((target) => ({ field, source, target })),
 			);

@@ -21,14 +21,14 @@
 
 # Stripe Module
 
-Stripe payment provider for the 86d commerce platform. Implements the `PaymentProvider` interface from `@86d-app/payments` using raw `fetch()` calls to the Stripe REST API (no SDK dependency). Includes a webhook endpoint with HMAC-SHA256 signature verification.
+Stripe payment provider for the 86d commerce platform. Implements the `PaymentProvider` interface from `@86d-store/payments` using raw `fetch()` calls to the Stripe REST API (no SDK dependency). Includes a webhook endpoint with HMAC-SHA256 signature verification.
 
 ![version](https://img.shields.io/badge/version-0.0.1-blue) ![license](https://img.shields.io/badge/license-MIT-green)
 
 ## Installation
 
 ```sh
-npm install @86d-app/stripe @86d-app/payments
+npm install @86d-store/stripe @86d-store/payments
 ```
 
 ## Usage
@@ -36,9 +36,9 @@ npm install @86d-app/stripe @86d-app/payments
 Register the module and pass the provider to the payments module:
 
 ```ts
-import stripe, { StripePaymentProvider } from "@86d-app/stripe";
-import payments from "@86d-app/payments";
-import { createModuleClient } from "@86d-app/core";
+import stripe, { StripePaymentProvider } from "@86d-store/stripe";
+import payments from "@86d-store/payments";
+import { createModuleClient } from "@86d-store/core";
 
 const stripeProvider = new StripePaymentProvider("sk_live_...");
 

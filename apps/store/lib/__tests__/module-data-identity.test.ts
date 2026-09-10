@@ -44,7 +44,7 @@ vi.mock("../../generated/api", () => ({
 	getModuleIdForPath: vi.fn(),
 }));
 
-vi.mock("@86d-app/runtime/registry", () => ({
+vi.mock("@86d-store/runtime/registry", () => ({
 	ModuleRegistry: class {
 		constructor(_modules: unknown, _storeId: string, config: RegistryConfig) {
 			capturedRegistryConfig.value = config;
@@ -61,7 +61,7 @@ vi.mock("@86d-app/runtime/registry", () => ({
 	},
 }));
 
-vi.mock("@86d-app/runtime/compiled-module-data-service", () => ({
+vi.mock("@86d-store/runtime/compiled-module-data-service", () => ({
 	CompiledModuleDataService: class {
 		readonly config: Record<string, unknown>;
 		constructor(config: Record<string, unknown>) {
@@ -74,17 +74,17 @@ vi.mock("@86d-app/runtime/compiled-module-data-service", () => ({
 	},
 }));
 
-vi.mock("@86d-app/runtime/compiled-schema-boot", () => ({
+vi.mock("@86d-store/runtime/compiled-schema-boot", () => ({
 	compileInstalledModules: vi.fn(() => ({ compiled: [], sql: "" })),
 	compiledForModule: vi.fn(() => []),
 	applyCompiledModuleSchema: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock("@86d-app/sdk/get-store-config", () => ({
+vi.mock("@86d-store/sdk/get-store-config", () => ({
 	getStoreConfig: vi.fn().mockResolvedValue({ name: "Test Store" }),
 }));
 
-vi.mock("@86d-app/sdk/load-from-template", () => ({
+vi.mock("@86d-store/sdk/load-from-template", () => ({
 	loadFromTemplate: vi.fn().mockReturnValue({}),
 }));
 

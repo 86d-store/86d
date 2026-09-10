@@ -35,13 +35,13 @@ Product catalog module with variants and hierarchical categories. Full CRUD for 
 ## Installation
 
 ```sh
-npm install @86d-app/products
+npm install @86d-store/products
 ```
 
 ## Usage
 
 ```ts
-import products from "@86d-app/products";
+import products from "@86d-store/products";
 
 const module = products({
   defaultPageSize: 20,
@@ -113,7 +113,7 @@ Query parameters for `GET /products`:
 A typed service layer is available via `createProductController(data)` from `service-impl.ts`:
 
 ```ts
-import { createProductController } from "@86d-app/products/service-impl";
+import { createProductController } from "@86d-store/products/service-impl";
 
 const ctrl = createProductController(dataService);
 const product = await ctrl.createProduct({ name: "Widget", slug: "widget", price: 2999 });

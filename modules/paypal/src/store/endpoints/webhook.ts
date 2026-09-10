@@ -1,4 +1,4 @@
-import { createStoreEndpoint } from "@86d-app/core/api";
+import { createStoreEndpoint } from "@86d-store/core/api";
 import { getProcessEnv } from "env/process-env";
 
 /** Minimal typed shape of a PayPal webhook event resource. */

@@ -1,4 +1,4 @@
-import { createMockDataService } from "@86d-app/core/test-utils";
+import { createMockDataService } from "@86d-store/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { SavedAddressesController } from "../service";
 import { createSavedAddressesController } from "../service-impl";

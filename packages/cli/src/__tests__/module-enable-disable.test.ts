@@ -37,7 +37,7 @@ describe("module enable/disable", () => {
 				{
 					theme: "brisa",
 					name: "Test Theme",
-					modules: ["@86d-app/products"],
+					modules: ["@86d-store/products"],
 				},
 				null,
 				"\t",
@@ -77,15 +77,15 @@ describe("module enable/disable", () => {
 		await runModuleCommand("enable", ["cart"]);
 
 		const config = readConfig();
-		expect(config.modules).toContain("@86d-app/cart");
-		expect(config.modules).toContain("@86d-app/products");
+		expect(config.modules).toContain("@86d-store/cart");
+		expect(config.modules).toContain("@86d-store/products");
 	});
 
-	it("handles @86d-app/ prefix when enabling", async () => {
-		await runModuleCommand("enable", ["@86d-app/wishlist"]);
+	it("handles @86d-store/ prefix when enabling", async () => {
+		await runModuleCommand("enable", ["@86d-store/wishlist"]);
 
 		const config = readConfig();
-		expect(config.modules).toContain("@86d-app/wishlist");
+		expect(config.modules).toContain("@86d-store/wishlist");
 	});
 
 	it("does not duplicate already-enabled module", async () => {
@@ -93,7 +93,7 @@ describe("module enable/disable", () => {
 
 		const config = readConfig();
 		const count = config.modules?.filter(
-			(m) => m === "@86d-app/products",
+			(m) => m === "@86d-store/products",
 		).length;
 		expect(count).toBe(1);
 	});
@@ -102,15 +102,15 @@ describe("module enable/disable", () => {
 		await runModuleCommand("disable", ["products"]);
 
 		const config = readConfig();
-		expect(config.modules).not.toContain("@86d-app/products");
+		expect(config.modules).not.toContain("@86d-store/products");
 		expect(config.modules).toHaveLength(0);
 	});
 
-	it("handles @86d-app/ prefix when disabling", async () => {
-		await runModuleCommand("disable", ["@86d-app/products"]);
+	it("handles @86d-store/ prefix when disabling", async () => {
+		await runModuleCommand("disable", ["@86d-store/products"]);
 
 		const config = readConfig();
-		expect(config.modules).not.toContain("@86d-app/products");
+		expect(config.modules).not.toContain("@86d-store/products");
 	});
 
 	it("warns when disabling a module that is not enabled", async () => {
@@ -119,6 +119,6 @@ describe("module enable/disable", () => {
 
 		const config = readConfig();
 		// Config should remain unchanged
-		expect(config.modules).toEqual(["@86d-app/products"]);
+		expect(config.modules).toEqual(["@86d-store/products"]);
 	});
 });

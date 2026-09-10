@@ -14,8 +14,8 @@ import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { execPath, platform } from "node:process";
-import { computeSubtreeIntegrity } from "@86d-app/registry/integrity";
-import { registryManifestSchema } from "@86d-app/registry/types";
+import { computeSubtreeIntegrity } from "@86d-store/registry/integrity";
+import { registryManifestSchema } from "@86d-store/registry/types";
 import { getProcessEnv } from "env/process-env";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
@@ -113,7 +113,7 @@ describe("registry manifest generation modes", () => {
 		writeFixtureFile(
 			fixtureRoot,
 			"modules/example/package.json",
-			JSON.stringify({ name: "@86d-app/example", version: "0.1.0" }),
+			JSON.stringify({ name: "@86d-store/example", version: "0.1.0" }),
 		);
 		writeFixtureFile(
 			fixtureRoot,

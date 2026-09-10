@@ -1,9 +1,9 @@
 import {
 	inventoryStockAdjustedV1,
 	type ModuleTransactionRunner,
-} from "@86d-app/core/durable-events";
-import type { ScopedEventEmitter } from "@86d-app/core/events";
-import type { ModuleDataService } from "@86d-app/core/types/module";
+} from "@86d-store/core/durable-events";
+import type { ScopedEventEmitter } from "@86d-store/core/events";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import type {
 	BackInStockSubscription,
 	InventoryController,

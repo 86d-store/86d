@@ -17,7 +17,7 @@
 > [!WARNING]
 > This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
-# @86d-app/registry
+# @86d-store/registry
 
 Git-based module registry for the 86d commerce platform. Enables modules to be sourced from local workspace directories, GitHub repositories, or npm packages.
 
@@ -53,7 +53,7 @@ Or with explicit module references:
 {
   "modules": [
     "products",
-    "@86d-app/cart",
+    "@86d-store/cart",
     "github:owner/repo/modules/custom-module",
     "github:owner/repo/modules/loyalty#v2.0",
     "npm:@acme/commerce-module",
@@ -71,7 +71,7 @@ Use the `advanced` block only when every selected Experimental Module is intenti
 | Format | Source | Description |
 |---|---|---|
 | `products` | local/registry | Official module by short name |
-| `@86d-app/products` | local/registry | Official module by full package name |
+| `@86d-store/products` | local/registry | Official module by full package name |
 | `github:owner/repo/path` | GitHub | Module from a GitHub repository subpath |
 | `github:owner/repo/path#ref` | GitHub | GitHub module at a specific branch/tag |
 | `npm:@scope/package` | npm | Module from npm registry |
@@ -80,7 +80,7 @@ Use the `advanced` block only when every selected Experimental Module is intenti
 ### Resolving Modules
 
 ```ts
-import { resolveModules, readStoreConfig } from "@86d-app/registry";
+import { resolveModules, readStoreConfig } from "@86d-store/registry";
 
 const config = readStoreConfig("templates/brisa/config.json");
 const resolved = await resolveModules(config, {
@@ -97,7 +97,7 @@ Production image generation uses `mode: "registry-only"` with a validated local 
 ### Building the Registry Manifest
 
 ```ts
-import { buildManifest } from "@86d-app/registry";
+import { buildManifest } from "@86d-store/registry";
 
 const manifest = buildManifest("/path/to/project", {
   baseUrl: "https://github.com/86d-store/86d",
@@ -109,8 +109,8 @@ const manifest = buildManifest("/path/to/project", {
 ### Fetching Remote Modules
 
 ```ts
-import { fetchModules } from "@86d-app/registry/fetcher";
-import { parseSpecifier } from "@86d-app/registry/specifier";
+import { fetchModules } from "@86d-store/registry/fetcher";
+import { parseSpecifier } from "@86d-store/registry/specifier";
 
 const specs = [
   parseSpecifier("github:owner/repo/modules/loyalty#0123456789abcdef0123456789abcdef01234567"),
@@ -175,7 +175,7 @@ An omitted `modules` field behaves like `"*"`. Neither form can enable Experimen
 ### Resolving Templates
 
 ```ts
-import { resolveTemplate, fetchTemplate } from "@86d-app/registry";
+import { resolveTemplate, fetchTemplate } from "@86d-store/registry";
 
 // Resolve from local, registry, GitHub, or npm
 const result = resolveTemplate("brisa", "/path/to/project", manifest);
@@ -201,7 +201,7 @@ The `apps/registry/registry.json` file indexes all available modules and templat
   "defaultRef": "main",
   "modules": {
     "products": {
-      "name": "@86d-app/products",
+      "name": "@86d-store/products",
       "description": "Product catalog management",
       "version": "0.0.4",
       "category": "catalog",
@@ -247,7 +247,7 @@ Parse a module specifier string into a structured object with source type, name,
 Resolve a store config's module list into concrete entries with status (`found`, `missing`, `error`).
 
 ### `evaluateModuleAdmission(input): ModuleAdmissionDecision`
-Apply selection and maturity rules to one resolved or generated Module. Import it from `@86d-app/registry/admission` when a runtime needs the same fail-closed decision as the resolver.
+Apply selection and maturity rules to one resolved or generated Module. Import it from `@86d-store/registry/admission` when a runtime needs the same fail-closed decision as the resolver.
 
 ### `fetchModule(spec, root, manifest?): Promise<FetchResult>`
 Download a module from its remote source (GitHub tarball or npm) and install it locally.
@@ -322,7 +322,7 @@ The `apps/registry/registry.lock.json` file captures the exact resolved state of
   "modules": {
     "products": {
       "source": "local",
-      "packageName": "@86d-app/products",
+      "packageName": "@86d-store/products",
       "version": "0.0.4",
       "integrity": "sha256-...",
       "localPath": "modules/products"

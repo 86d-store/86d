@@ -1,9 +1,9 @@
-import type { AnyDurableEventConsumer } from "@86d-app/core/durable-events";
+import type { AnyDurableEventConsumer } from "@86d-store/core/durable-events";
 import {
 	consumeDurableEvent,
 	defineDurableEvent,
-} from "@86d-app/core/durable-events";
-import type { ModuleDataService } from "@86d-app/core/types/module";
+} from "@86d-store/core/durable-events";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { DurableEventDispatcher } from "../durable-event-dispatcher";

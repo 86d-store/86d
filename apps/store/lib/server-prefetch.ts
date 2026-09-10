@@ -5,7 +5,7 @@
  * endpoints) so SSR hydration matches production storage.
  */
 
-import type { ModuleDataService } from "@86d-app/core/types/module";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import { cache } from "react";
 import { getModuleDataService } from "./module-data-access";
 

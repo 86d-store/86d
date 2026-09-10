@@ -4,7 +4,7 @@
 	"defaultRef": "main",
 	"modules": {
 		"abandoned-carts": {
-			"name": "@86d-app/abandoned-carts",
+			"name": "@86d-store/abandoned-carts",
 			"description": "Abandoned cart tracking and recovery for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "sales",
@@ -39,7 +39,7 @@
 			"handlesDurableEvents": []
 		},
 		"affiliates": {
-			"name": "@86d-app/affiliates",
+			"name": "@86d-store/affiliates",
 			"description": "Affiliate marketing program module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "customers",
@@ -63,7 +63,7 @@
 			"handlesDurableEvents": []
 		},
 		"amazon": {
-			"name": "@86d-app/amazon",
+			"name": "@86d-store/amazon",
 			"description": "Amazon Marketplace integration for 86d commerce platform",
 			"version": "0.2.0",
 			"category": "sales",
@@ -87,7 +87,7 @@
 			"handlesDurableEvents": []
 		},
 		"analytics": {
-			"name": "@86d-app/analytics",
+			"name": "@86d-store/analytics",
 			"description": "Event tracking and analytics module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "system",
@@ -111,7 +111,7 @@
 			"handlesDurableEvents": []
 		},
 		"announcements": {
-			"name": "@86d-app/announcements",
+			"name": "@86d-store/announcements",
 			"description": "Site-wide announcement bars, promotional banners, and notification banners for 86d commerce platform",
 			"version": "1.0.0",
 			"category": "content",
@@ -135,7 +135,7 @@
 			"handlesDurableEvents": []
 		},
 		"appointments": {
-			"name": "@86d-app/appointments",
+			"name": "@86d-store/appointments",
 			"description": "Appointments — service-based booking with staff scheduling, time slots, and customer appointment management",
 			"version": "0.0.1",
 			"category": "sales",
@@ -159,7 +159,7 @@
 			"handlesDurableEvents": []
 		},
 		"auctions": {
-			"name": "@86d-app/auctions",
+			"name": "@86d-store/auctions",
 			"description": "Time-limited product auctions with bidding, reserve prices, and buy-it-now for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "sales",
@@ -183,7 +183,7 @@
 			"handlesDurableEvents": []
 		},
 		"audit-log": {
-			"name": "@86d-app/audit-log",
+			"name": "@86d-store/audit-log",
 			"description": "Audit logging for admin actions and system events in 86d commerce platform",
 			"version": "0.0.1",
 			"category": "system",
@@ -213,7 +213,7 @@
 			]
 		},
 		"automations": {
-			"name": "@86d-app/automations",
+			"name": "@86d-store/automations",
 			"description": "Event-driven workflow automation module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "system",
@@ -245,7 +245,7 @@
 			"handlesDurableEvents": []
 		},
 		"backorders": {
-			"name": "@86d-app/backorders",
+			"name": "@86d-store/backorders",
 			"description": "Backorder management module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "fulfillment",
@@ -271,7 +271,7 @@
 			"handlesDurableEvents": []
 		},
 		"blog": {
-			"name": "@86d-app/blog",
+			"name": "@86d-store/blog",
 			"description": "Blog content management module for 86d commerce platform",
 			"version": "0.1.0",
 			"category": "content",
@@ -295,7 +295,7 @@
 			"handlesDurableEvents": []
 		},
 		"braintree": {
-			"name": "@86d-app/braintree",
+			"name": "@86d-store/braintree",
 			"description": "Braintree payment provider for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "finance",
@@ -319,7 +319,7 @@
 			"handlesDurableEvents": []
 		},
 		"brands": {
-			"name": "@86d-app/brands",
+			"name": "@86d-store/brands",
 			"description": "Product brand management — organize products by manufacturer or brand with brand pages",
 			"version": "0.0.1",
 			"category": "catalog",
@@ -343,7 +343,7 @@
 			"handlesDurableEvents": []
 		},
 		"bulk-pricing": {
-			"name": "@86d-app/bulk-pricing",
+			"name": "@86d-store/bulk-pricing",
 			"description": "Quantity-based tiered pricing — set volume discounts for products so customers pay less when buying in bulk",
 			"version": "0.0.1",
 			"category": "catalog",
@@ -369,7 +369,7 @@
 			"handlesDurableEvents": []
 		},
 		"bundles": {
-			"name": "@86d-app/bundles",
+			"name": "@86d-store/bundles",
 			"description": "Product bundles with configurable discounts for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "catalog",
@@ -395,7 +395,7 @@
 			"handlesDurableEvents": []
 		},
 		"cart": {
-			"name": "@86d-app/cart",
+			"name": "@86d-store/cart",
 			"description": "Shopping cart module for 86d commerce platform",
 			"version": "1.0.0",
 			"category": "sales",
@@ -435,7 +435,7 @@
 			"handlesDurableEvents": []
 		},
 		"checkout": {
-			"name": "@86d-app/checkout",
+			"name": "@86d-store/checkout",
 			"description": "Checkout flow module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "sales",
@@ -569,7 +569,7 @@
 			"handlesDurableEvents": []
 		},
 		"collections": {
-			"name": "@86d-app/collections",
+			"name": "@86d-store/collections",
 			"description": "Curated product collections for merchandising — manual and automatic groupings",
 			"version": "0.0.1",
 			"category": "catalog",
@@ -593,7 +593,7 @@
 			"handlesDurableEvents": []
 		},
 		"comparisons": {
-			"name": "@86d-app/comparisons",
+			"name": "@86d-store/comparisons",
 			"description": "Product comparison module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "marketing",
@@ -617,7 +617,7 @@
 			"handlesDurableEvents": []
 		},
 		"customer-groups": {
-			"name": "@86d-app/customer-groups",
+			"name": "@86d-store/customer-groups",
 			"description": "Customer groups and segmentation module for 86d commerce platform",
 			"version": "1.0.0",
 			"category": "customers",
@@ -641,7 +641,7 @@
 			"handlesDurableEvents": []
 		},
 		"customers": {
-			"name": "@86d-app/customers",
+			"name": "@86d-store/customers",
 			"description": "Customer management module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "customers",
@@ -680,7 +680,7 @@
 			"handlesDurableEvents": []
 		},
 		"delivery-slots": {
-			"name": "@86d-app/delivery-slots",
+			"name": "@86d-store/delivery-slots",
 			"description": "Delivery slots — define delivery time windows by day of week with capacity limits, surcharges, and blackout dates",
 			"version": "0.0.1",
 			"category": "fulfillment",
@@ -706,7 +706,7 @@
 			"handlesDurableEvents": []
 		},
 		"digital-downloads": {
-			"name": "@86d-app/digital-downloads",
+			"name": "@86d-store/digital-downloads",
 			"description": "Digital file delivery module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "sales",
@@ -730,7 +730,7 @@
 			"handlesDurableEvents": []
 		},
 		"discounts": {
-			"name": "@86d-app/discounts",
+			"name": "@86d-store/discounts",
 			"description": "Discount codes and promotions module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "marketing",
@@ -762,7 +762,7 @@
 			"handlesDurableEvents": []
 		},
 		"doordash": {
-			"name": "@86d-app/doordash",
+			"name": "@86d-store/doordash",
 			"description": "DoorDash Drive delivery integration module for 86d commerce platform",
 			"version": "0.1.0",
 			"category": "fulfillment",
@@ -786,7 +786,7 @@
 			"handlesDurableEvents": []
 		},
 		"ebay": {
-			"name": "@86d-app/ebay",
+			"name": "@86d-store/ebay",
 			"description": "eBay marketplace integration for 86d commerce platform",
 			"version": "0.2.0",
 			"category": "sales",
@@ -810,7 +810,7 @@
 			"handlesDurableEvents": []
 		},
 		"etsy": {
-			"name": "@86d-app/etsy",
+			"name": "@86d-store/etsy",
 			"description": "Etsy Marketplace integration for 86d commerce platform",
 			"version": "0.1.0",
 			"category": "sales",
@@ -834,7 +834,7 @@
 			"handlesDurableEvents": []
 		},
 		"facebook-shop": {
-			"name": "@86d-app/facebook-shop",
+			"name": "@86d-store/facebook-shop",
 			"description": "Facebook/Meta Commerce sales channel module for 86d commerce platform",
 			"version": "0.2.0",
 			"category": "sales",
@@ -858,7 +858,7 @@
 			"handlesDurableEvents": []
 		},
 		"faq": {
-			"name": "@86d-app/faq",
+			"name": "@86d-store/faq",
 			"description": "FAQ and knowledge base module for 86d commerce platform",
 			"version": "1.0.0",
 			"category": "content",
@@ -882,7 +882,7 @@
 			"handlesDurableEvents": []
 		},
 		"favor": {
-			"name": "@86d-app/favor",
+			"name": "@86d-store/favor",
 			"description": "Favor delivery service integration for 86d commerce platform",
 			"version": "0.1.0",
 			"category": "fulfillment",
@@ -906,7 +906,7 @@
 			"handlesDurableEvents": []
 		},
 		"flash-sales": {
-			"name": "@86d-app/flash-sales",
+			"name": "@86d-store/flash-sales",
 			"description": "Flash sales — time-limited promotional events with countdown timers, per-product sale pricing, and stock limits",
 			"version": "0.0.1",
 			"category": "sales",
@@ -932,7 +932,7 @@
 			"handlesDurableEvents": []
 		},
 		"forms": {
-			"name": "@86d-app/forms",
+			"name": "@86d-store/forms",
 			"description": "Custom forms module for 86d commerce platform — contact forms, surveys, inquiries",
 			"version": "1.0.0",
 			"category": "content",
@@ -956,7 +956,7 @@
 			"handlesDurableEvents": []
 		},
 		"fulfillment": {
-			"name": "@86d-app/fulfillment",
+			"name": "@86d-store/fulfillment",
 			"description": "Order fulfillment management for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "fulfillment",
@@ -1015,7 +1015,7 @@
 			"handlesDurableEvents": []
 		},
 		"gamification": {
-			"name": "@86d-app/gamification",
+			"name": "@86d-store/gamification",
 			"description": "Gamified promotions module for 86d commerce platform — spin the wheel, scratch cards, slot machine",
 			"version": "0.0.1",
 			"category": "marketing",
@@ -1039,7 +1039,7 @@
 			"handlesDurableEvents": []
 		},
 		"gift-registry": {
-			"name": "@86d-app/gift-registry",
+			"name": "@86d-store/gift-registry",
 			"description": "",
 			"version": "0.0.1",
 			"category": "sales",
@@ -1063,7 +1063,7 @@
 			"handlesDurableEvents": []
 		},
 		"gift-wrapping": {
-			"name": "@86d-app/gift-wrapping",
+			"name": "@86d-store/gift-wrapping",
 			"description": "Gift wrapping — add-on wrapping options for order items with custom messages and recipient names",
 			"version": "0.0.1",
 			"category": "sales",
@@ -1095,7 +1095,7 @@
 			"handlesDurableEvents": []
 		},
 		"giftcards": {
-			"name": "@86d-app/giftcards",
+			"name": "@86d-store/giftcards",
 			"description": "Read-only gift card records, balance lookup, and contained delivery metadata for 86d commerce platform",
 			"version": "0.1.0",
 			"category": "sales",
@@ -1127,7 +1127,7 @@
 			"handlesDurableEvents": []
 		},
 		"google-shopping": {
-			"name": "@86d-app/google-shopping",
+			"name": "@86d-store/google-shopping",
 			"description": "Google Shopping / Merchant Center integration for 86d commerce platform",
 			"version": "0.1.0",
 			"category": "sales",
@@ -1151,7 +1151,7 @@
 			"handlesDurableEvents": []
 		},
 		"import-export": {
-			"name": "@86d-app/import-export",
+			"name": "@86d-store/import-export",
 			"description": "Bulk import and export for products, orders, customers, and inventory in 86d commerce platform",
 			"version": "0.0.1",
 			"category": "system",
@@ -1175,7 +1175,7 @@
 			"handlesDurableEvents": []
 		},
 		"instagram-shop": {
-			"name": "@86d-app/instagram-shop",
+			"name": "@86d-store/instagram-shop",
 			"description": "Instagram Shopping sales channel module for 86d commerce platform",
 			"version": "0.2.0",
 			"category": "sales",
@@ -1199,7 +1199,7 @@
 			"handlesDurableEvents": []
 		},
 		"inventory": {
-			"name": "@86d-app/inventory",
+			"name": "@86d-store/inventory",
 			"description": "Inventory and stock tracking module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "fulfillment",
@@ -1249,7 +1249,7 @@
 			"handlesDurableEvents": []
 		},
 		"invoices": {
-			"name": "@86d-app/invoices",
+			"name": "@86d-store/invoices",
 			"description": "Invoices — invoice lifecycle management with payment terms, partial payments, credit notes, and configurable numbering",
 			"version": "0.0.1",
 			"category": "sales",
@@ -1275,7 +1275,7 @@
 			"handlesDurableEvents": []
 		},
 		"kiosk": {
-			"name": "@86d-app/kiosk",
+			"name": "@86d-store/kiosk",
 			"description": "Kiosk station registration and legacy lifecycle records",
 			"version": "0.0.1",
 			"category": "sales",
@@ -1299,7 +1299,7 @@
 			"handlesDurableEvents": []
 		},
 		"loyalty": {
-			"name": "@86d-app/loyalty",
+			"name": "@86d-store/loyalty",
 			"description": "Customer loyalty and rewards points module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "general",
@@ -1325,7 +1325,7 @@
 			"handlesDurableEvents": []
 		},
 		"managed-payments": {
-			"name": "@86d-app/managed-payments",
+			"name": "@86d-store/managed-payments",
 			"description": "Cross-plane managed Payment bridge for 86d Store Runtime",
 			"version": "0.0.1",
 			"category": "general",
@@ -1351,7 +1351,7 @@
 			"handlesDurableEvents": []
 		},
 		"media": {
-			"name": "@86d-app/media",
+			"name": "@86d-store/media",
 			"description": "Media and asset management module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "content",
@@ -1375,7 +1375,7 @@
 			"handlesDurableEvents": []
 		},
 		"memberships": {
-			"name": "@86d-app/memberships",
+			"name": "@86d-store/memberships",
 			"description": "Paid membership plans — recurring subscriptions with exclusive benefits, gated products, and member pricing",
 			"version": "0.0.1",
 			"category": "customers",
@@ -1401,7 +1401,7 @@
 			"handlesDurableEvents": []
 		},
 		"multi-currency": {
-			"name": "@86d-app/multi-currency",
+			"name": "@86d-store/multi-currency",
 			"description": "Multi-currency support module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "finance",
@@ -1433,7 +1433,7 @@
 			"handlesDurableEvents": []
 		},
 		"navigation": {
-			"name": "@86d-app/navigation",
+			"name": "@86d-store/navigation",
 			"description": "Store navigation and menu management module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "content",
@@ -1457,7 +1457,7 @@
 			"handlesDurableEvents": []
 		},
 		"newsletter": {
-			"name": "@86d-app/newsletter",
+			"name": "@86d-store/newsletter",
 			"description": "Newsletter subscription management module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "marketing",
@@ -1481,7 +1481,7 @@
 			"handlesDurableEvents": []
 		},
 		"notifications": {
-			"name": "@86d-app/notifications",
+			"name": "@86d-store/notifications",
 			"description": "In-app notification management module for 86d commerce platform",
 			"version": "0.1.0",
 			"category": "support",
@@ -1528,7 +1528,7 @@
 			"handlesDurableEvents": []
 		},
 		"order-notes": {
-			"name": "@86d-app/order-notes",
+			"name": "@86d-store/order-notes",
 			"description": "Order notes and comments module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "sales",
@@ -1560,7 +1560,7 @@
 			"handlesDurableEvents": []
 		},
 		"orders": {
-			"name": "@86d-app/orders",
+			"name": "@86d-store/orders",
 			"description": "Order management module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "sales",
@@ -1663,7 +1663,7 @@
 			"handlesDurableEvents": []
 		},
 		"pages": {
-			"name": "@86d-app/pages",
+			"name": "@86d-store/pages",
 			"description": "Custom content pages module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "content",
@@ -1687,7 +1687,7 @@
 			"handlesDurableEvents": []
 		},
 		"payments": {
-			"name": "@86d-app/payments",
+			"name": "@86d-store/payments",
 			"description": "Payment processing abstraction for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "sales",
@@ -1732,7 +1732,7 @@
 			"handlesDurableEvents": []
 		},
 		"paypal": {
-			"name": "@86d-app/paypal",
+			"name": "@86d-store/paypal",
 			"description": "PayPal payment provider for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "finance",
@@ -1756,7 +1756,7 @@
 			"handlesDurableEvents": []
 		},
 		"photo-booth": {
-			"name": "@86d-app/photo-booth",
+			"name": "@86d-store/photo-booth",
 			"description": "Photo booth module for 86d commerce platform — capture, stream, and share photos at events",
 			"version": "0.0.1",
 			"category": "marketing",
@@ -1780,7 +1780,7 @@
 			"handlesDurableEvents": []
 		},
 		"pinterest-shop": {
-			"name": "@86d-app/pinterest-shop",
+			"name": "@86d-store/pinterest-shop",
 			"description": "Pinterest shopping integration for 86d commerce platform",
 			"version": "0.2.0",
 			"category": "sales",
@@ -1804,7 +1804,7 @@
 			"handlesDurableEvents": []
 		},
 		"preorders": {
-			"name": "@86d-app/preorders",
+			"name": "@86d-store/preorders",
 			"description": "Preorder campaign management module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "fulfillment",
@@ -1830,7 +1830,7 @@
 			"handlesDurableEvents": []
 		},
 		"price-lists": {
-			"name": "@86d-app/price-lists",
+			"name": "@86d-store/price-lists",
 			"description": "Price list management — B2B/wholesale pricing, volume tiers, customer-group-specific pricing, and scheduled price overrides",
 			"version": "0.0.1",
 			"category": "catalog",
@@ -1864,7 +1864,7 @@
 			"handlesDurableEvents": []
 		},
 		"product-feeds": {
-			"name": "@86d-app/product-feeds",
+			"name": "@86d-store/product-feeds",
 			"description": "Product feed generation for Google Shopping, Facebook/Meta catalog, and custom channels in 86d commerce platform",
 			"version": "0.0.1",
 			"category": "marketing",
@@ -1888,7 +1888,7 @@
 			"handlesDurableEvents": []
 		},
 		"product-labels": {
-			"name": "@86d-app/product-labels",
+			"name": "@86d-store/product-labels",
 			"description": "Product labels and badges module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "catalog",
@@ -1912,7 +1912,7 @@
 			"handlesDurableEvents": []
 		},
 		"product-qa": {
-			"name": "@86d-app/product-qa",
+			"name": "@86d-store/product-qa",
 			"description": "Product questions and answers module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "marketing",
@@ -1936,7 +1936,7 @@
 			"handlesDurableEvents": []
 		},
 		"products": {
-			"name": "@86d-app/products",
+			"name": "@86d-store/products",
 			"description": "Product catalog module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "catalog",
@@ -1988,7 +1988,7 @@
 			]
 		},
 		"qr-code": {
-			"name": "@86d-app/qr-code",
+			"name": "@86d-store/qr-code",
 			"description": "QR code generation and management module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "marketing",
@@ -2012,7 +2012,7 @@
 			"handlesDurableEvents": []
 		},
 		"quotes": {
-			"name": "@86d-app/quotes",
+			"name": "@86d-store/quotes",
 			"description": "",
 			"version": "0.0.1",
 			"category": "sales",
@@ -2036,7 +2036,7 @@
 			"handlesDurableEvents": []
 		},
 		"recently-viewed": {
-			"name": "@86d-app/recently-viewed",
+			"name": "@86d-store/recently-viewed",
 			"description": "Recently viewed products tracking module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "marketing",
@@ -2060,7 +2060,7 @@
 			"handlesDurableEvents": []
 		},
 		"recommendations": {
-			"name": "@86d-app/recommendations",
+			"name": "@86d-store/recommendations",
 			"description": "Product recommendation engine for 86d commerce platform",
 			"version": "0.1.0",
 			"category": "marketing",
@@ -2084,7 +2084,7 @@
 			"handlesDurableEvents": []
 		},
 		"redirects": {
-			"name": "@86d-app/redirects",
+			"name": "@86d-store/redirects",
 			"description": "URL redirect management — 301/302/307/308 redirects for SEO and URL migration",
 			"version": "0.0.1",
 			"category": "content",
@@ -2108,7 +2108,7 @@
 			"handlesDurableEvents": []
 		},
 		"referrals": {
-			"name": "@86d-app/referrals",
+			"name": "@86d-store/referrals",
 			"description": "Customer referral program module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "customers",
@@ -2132,7 +2132,7 @@
 			"handlesDurableEvents": []
 		},
 		"returns": {
-			"name": "@86d-app/returns",
+			"name": "@86d-store/returns",
 			"description": "Return request management for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "sales",
@@ -2170,7 +2170,7 @@
 			"handlesDurableEvents": []
 		},
 		"revenue": {
-			"name": "@86d-app/revenue",
+			"name": "@86d-store/revenue",
 			"description": "Revenue and transaction reporting for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "finance",
@@ -2202,7 +2202,7 @@
 			"handlesDurableEvents": []
 		},
 		"reviews": {
-			"name": "@86d-app/reviews",
+			"name": "@86d-store/reviews",
 			"description": "Product reviews and ratings module for 86d commerce platform",
 			"version": "0.0.2",
 			"category": "marketing",
@@ -2234,7 +2234,7 @@
 			"handlesDurableEvents": []
 		},
 		"saved-addresses": {
-			"name": "@86d-app/saved-addresses",
+			"name": "@86d-store/saved-addresses",
 			"description": "Customer address book module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "customers",
@@ -2258,7 +2258,7 @@
 			"handlesDurableEvents": []
 		},
 		"search": {
-			"name": "@86d-app/search",
+			"name": "@86d-store/search",
 			"description": "Unified search, autocomplete, and search analytics module for 86d commerce platform",
 			"version": "0.1.0",
 			"category": "system",
@@ -2282,7 +2282,7 @@
 			"handlesDurableEvents": []
 		},
 		"seo": {
-			"name": "@86d-app/seo",
+			"name": "@86d-store/seo",
 			"description": "SEO management module for 86d commerce platform — meta tags, redirects, and sitemaps",
 			"version": "0.0.1",
 			"category": "content",
@@ -2306,7 +2306,7 @@
 			"handlesDurableEvents": []
 		},
 		"settings": {
-			"name": "@86d-app/settings",
+			"name": "@86d-store/settings",
 			"description": "Store settings and configuration module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "system",
@@ -2338,7 +2338,7 @@
 			"handlesDurableEvents": []
 		},
 		"shipping": {
-			"name": "@86d-app/shipping",
+			"name": "@86d-store/shipping",
 			"description": "Shipping zones and rates module for 86d commerce platform",
 			"version": "0.1.0",
 			"category": "fulfillment",
@@ -2378,7 +2378,7 @@
 			"handlesDurableEvents": []
 		},
 		"sitemap": {
-			"name": "@86d-app/sitemap",
+			"name": "@86d-store/sitemap",
 			"description": "XML sitemap generation — auto-generate sitemaps from products, collections, pages, and blog posts",
 			"version": "0.0.1",
 			"category": "content",
@@ -2402,7 +2402,7 @@
 			"handlesDurableEvents": []
 		},
 		"social-proof": {
-			"name": "@86d-app/social-proof",
+			"name": "@86d-store/social-proof",
 			"description": "Social proof and trust signals module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "marketing",
@@ -2426,7 +2426,7 @@
 			"handlesDurableEvents": []
 		},
 		"social-sharing": {
-			"name": "@86d-app/social-sharing",
+			"name": "@86d-store/social-sharing",
 			"description": "Social sharing and share tracking module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "marketing",
@@ -2450,7 +2450,7 @@
 			"handlesDurableEvents": []
 		},
 		"square": {
-			"name": "@86d-app/square",
+			"name": "@86d-store/square",
 			"description": "Square payment provider for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "finance",
@@ -2474,7 +2474,7 @@
 			"handlesDurableEvents": []
 		},
 		"store-credits": {
-			"name": "@86d-app/store-credits",
+			"name": "@86d-store/store-credits",
 			"description": "Store credit accounts and transactions for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "customers",
@@ -2506,7 +2506,7 @@
 			"handlesDurableEvents": []
 		},
 		"store-locator": {
-			"name": "@86d-app/store-locator",
+			"name": "@86d-store/store-locator",
 			"description": "Physical store location management and proximity search for 86d commerce platform",
 			"version": "1.0.0",
 			"category": "content",
@@ -2530,7 +2530,7 @@
 			"handlesDurableEvents": []
 		},
 		"store-pickup": {
-			"name": "@86d-app/store-pickup",
+			"name": "@86d-store/store-pickup",
 			"description": "Store pickup (BOPIS) — let customers buy online and pick up in store with location management and time windows",
 			"version": "0.0.1",
 			"category": "fulfillment",
@@ -2554,7 +2554,7 @@
 			"handlesDurableEvents": []
 		},
 		"stripe": {
-			"name": "@86d-app/stripe",
+			"name": "@86d-store/stripe",
 			"description": "Stripe payment provider for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "finance",
@@ -2578,7 +2578,7 @@
 			"handlesDurableEvents": []
 		},
 		"subscriptions": {
-			"name": "@86d-app/subscriptions",
+			"name": "@86d-store/subscriptions",
 			"description": "Subscription plans and recurring billing module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "sales",
@@ -2602,7 +2602,7 @@
 			"handlesDurableEvents": []
 		},
 		"tax": {
-			"name": "@86d-app/tax",
+			"name": "@86d-store/tax",
 			"description": "Tax calculation and management module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "finance",
@@ -2641,7 +2641,7 @@
 			"handlesDurableEvents": []
 		},
 		"tickets": {
-			"name": "@86d-app/tickets",
+			"name": "@86d-store/tickets",
 			"description": "Customer support tickets module for 86d commerce platform",
 			"version": "1.0.0",
 			"category": "support",
@@ -2665,7 +2665,7 @@
 			"handlesDurableEvents": []
 		},
 		"tiktok-shop": {
-			"name": "@86d-app/tiktok-shop",
+			"name": "@86d-store/tiktok-shop",
 			"description": "TikTok Shop sales channel module for 86d commerce platform",
 			"version": "0.2.0",
 			"category": "sales",
@@ -2689,7 +2689,7 @@
 			"handlesDurableEvents": []
 		},
 		"tipping": {
-			"name": "@86d-app/tipping",
+			"name": "@86d-store/tipping",
 			"description": "Configurable tipping system for orders, delivery, and services on 86d commerce platform",
 			"version": "0.1.0",
 			"category": "sales",
@@ -2721,7 +2721,7 @@
 			"handlesDurableEvents": []
 		},
 		"toast": {
-			"name": "@86d-app/toast",
+			"name": "@86d-store/toast",
 			"description": "Toast POS integration module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "sales",
@@ -2745,7 +2745,7 @@
 			"handlesDurableEvents": []
 		},
 		"uber-direct": {
-			"name": "@86d-app/uber-direct",
+			"name": "@86d-store/uber-direct",
 			"description": "Uber Direct on-demand delivery integration for 86d commerce platform",
 			"version": "0.1.0",
 			"category": "fulfillment",
@@ -2769,7 +2769,7 @@
 			"handlesDurableEvents": []
 		},
 		"uber-eats": {
-			"name": "@86d-app/uber-eats",
+			"name": "@86d-store/uber-eats",
 			"description": "Uber Eats marketplace integration module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "sales",
@@ -2793,7 +2793,7 @@
 			"handlesDurableEvents": []
 		},
 		"vendors": {
-			"name": "@86d-app/vendors",
+			"name": "@86d-store/vendors",
 			"description": "Multi-vendor marketplace — vendor profiles, product assignments, commission tracking, and payout management",
 			"version": "0.0.1",
 			"category": "catalog",
@@ -2819,7 +2819,7 @@
 			"handlesDurableEvents": []
 		},
 		"waitlist": {
-			"name": "@86d-app/waitlist",
+			"name": "@86d-store/waitlist",
 			"description": "Back-in-stock waitlist and notification module for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "marketing",
@@ -2845,7 +2845,7 @@
 			"handlesDurableEvents": []
 		},
 		"walmart": {
-			"name": "@86d-app/walmart",
+			"name": "@86d-store/walmart",
 			"description": "Walmart marketplace integration for 86d commerce platform",
 			"version": "0.2.0",
 			"category": "sales",
@@ -2869,7 +2869,7 @@
 			"handlesDurableEvents": []
 		},
 		"warranties": {
-			"name": "@86d-app/warranties",
+			"name": "@86d-store/warranties",
 			"description": "Product warranty plans, registrations, and claims for 86d commerce platform",
 			"version": "0.0.1",
 			"category": "sales",
@@ -2893,7 +2893,7 @@
 			"handlesDurableEvents": []
 		},
 		"wish": {
-			"name": "@86d-app/wish",
+			"name": "@86d-store/wish",
 			"description": "Wish marketplace integration for 86d commerce platform",
 			"version": "0.1.0",
 			"category": "sales",
@@ -2917,7 +2917,7 @@
 			"handlesDurableEvents": []
 		},
 		"wishlist": {
-			"name": "@86d-app/wishlist",
+			"name": "@86d-store/wishlist",
 			"description": "Customer wishlist and favorites module for 86d commerce platform",
 			"version": "0.0.2",
 			"category": "marketing",
@@ -2943,7 +2943,7 @@
 			"handlesDurableEvents": []
 		},
 		"x-shop": {
-			"name": "@86d-app/x-shop",
+			"name": "@86d-store/x-shop",
 			"description": "X/Twitter Shopping sales channel module for 86d commerce platform",
 			"version": "0.2.0",
 			"category": "sales",

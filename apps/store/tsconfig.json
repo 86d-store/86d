@@ -8,15 +8,17 @@
 			"*": ["./*"],
 			"~/*": ["./*"],
 			"template/*": ["../../templates/brisa/*"],
-			"@86d-app/*/components": ["../../modules/*/src/store/components/mdx.tsx"],
+			"@86d-store/*/components": [
+				"../../modules/*/src/store/components/mdx.tsx"
+			],
 			"lib/*": ["../../packages/lib/src/*"],
-			"@86d-app/products/catalog-revisions": [
+			"@86d-store/products/catalog-revisions": [
 				"../../modules/products/src/catalog-revisions.ts"
 			],
-			"@86d-app/inventory/commands": [
+			"@86d-store/inventory/commands": [
 				"../../modules/inventory/src/commands.ts"
 			],
-			"@86d-app/paypal/connection-provider": [
+			"@86d-store/paypal/connection-provider": [
 				"../../modules/paypal/src/connection-provider.ts"
 			]
 		},

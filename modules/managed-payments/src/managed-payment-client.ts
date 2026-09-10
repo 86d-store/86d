@@ -2,7 +2,7 @@ import {
 	createWorkloadTokenClient,
 	type ManagedWorkloadConfig,
 	type WorkloadTokenClient,
-} from "@86d-app/sdk/workload-token-client";
+} from "@86d-store/sdk/workload-token-client";
 import {
 	MANAGED_PAYMENT_WORKLOAD_SCOPES,
 	type ManagedPaymentOperationSnapshot,

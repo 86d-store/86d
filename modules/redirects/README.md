@@ -19,7 +19,7 @@
 
 📚 **Documentation:** [86d.app/docs/modules/redirects](https://86d.app/docs/modules/redirects)
 
-# @86d-app/redirects
+# @86d-store/redirects
 
 URL redirect management module for 86d. Create, manage, and track URL redirects for SEO and URL migration.
 
@@ -42,7 +42,7 @@ Included by default when `modules: "*"` in your template `config.json`.
 {
   "modules": ["redirects"],
   "moduleOptions": {
-    "@86d-app/redirects": {
+    "@86d-store/redirects": {
       "maxRedirects": "1000"
     }
   }

@@ -2,9 +2,9 @@ import {
 	type CapabilityDecision,
 	type CapabilityRequest,
 	provideCapability,
-} from "@86d-app/core/capabilities";
-import { taxQuoteV2Capability } from "@86d-app/core/commerce-capabilities";
-import type { ModuleDataService } from "@86d-app/core/types/module";
+} from "@86d-store/core/capabilities";
+import { taxQuoteV2Capability } from "@86d-store/core/commerce-capabilities";
+import type { ModuleDataService } from "@86d-store/core/types/module";
 import { z } from "zod";
 import type { TaxProviderV2Result, TaxQuoteProviderV2 } from "./provider-v2";
 

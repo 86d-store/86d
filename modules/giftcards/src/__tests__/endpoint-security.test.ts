@@ -1,7 +1,7 @@
 import {
 	createMockDataService,
 	createMockTransactionRunner,
-} from "@86d-app/core/test-utils";
+} from "@86d-store/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { GiftCard } from "../service";
 import { createGiftCardController } from "../service-impl";

@@ -27,9 +27,9 @@ import { fileURLToPath } from "node:url";
 import {
 	CURATED_STORE_MODULES,
 	TIER_NONE_CURATED_MODULES,
-} from "@86d-app/core/curated-modules";
-import { createStorageFromEnv } from "@86d-app/storage/factory";
-import type { StorageProvider } from "@86d-app/storage/types";
+} from "@86d-store/core/curated-modules";
+import { createStorageFromEnv } from "@86d-store/storage/factory";
+import type { StorageProvider } from "@86d-store/storage/types";
 import { getProcessEnv } from "env/process-env";
 import pg from "pg";
 import { workspaceRootFromImportMeta } from "../../../internals/lib/workspace-root.ts";
@@ -403,7 +403,7 @@ async function resetManagedModuleData(_client: pg.PoolClient) {
 
 async function applySeedModuleSchema(client: pg.PoolClient) {
 	const { compileModuleDeclarations, emitSql } = await import(
-		"@86d-app/core/schema"
+		"@86d-store/core/schema"
 	);
 	const { applyModuleDdl } = await import("./schema/apply-disposable-ddl");
 	const { loadCuratedModules } = await import("./load-curated-modules");

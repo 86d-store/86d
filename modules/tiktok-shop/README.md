@@ -26,13 +26,13 @@ Integrates your 86d store with TikTok Shop for product listing synchronization, 
 ## Installation
 
 ```sh
-npm install @86d-app/tiktok-shop
+npm install @86d-store/tiktok-shop
 ```
 
 ## Usage
 
 ```ts
-import tiktokShop from "@86d-app/tiktok-shop";
+import tiktokShop from "@86d-store/tiktok-shop";
 
 const module = tiktokShop({
   appKey: "your-app-key",

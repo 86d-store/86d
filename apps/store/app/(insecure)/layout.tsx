@@ -1,4 +1,4 @@
-import { getStoreConfig } from "@86d-app/sdk/get-store-config";
+import { getStoreConfig } from "@86d-store/sdk/get-store-config";
 import { logger } from "utils/logger";
 import { AppLayout } from "~/components/app-layout";
 import {

@@ -17,7 +17,7 @@
 > [!WARNING]
 > This project is under active development and is not ready for production use. Please proceed with caution. Use at your own risk. 
 
-# `@86d-app/contracts`
+# `@86d-store/contracts`
 
 Immutable, versioned Command and Change Set conformance for the Control Plane and Store Runtime.
 
@@ -25,9 +25,9 @@ Immutable, versioned Command and Change Set conformance for the Control Plane an
 
 | Export | Contents |
 | --- | --- |
-| `@86d-app/contracts/command` | Request/receipt schemas, actors, action levels, failures, workflows, grants, approvals, confirmations, audit, transitions, canonical digests |
-| `@86d-app/contracts/change-set` | Change Set schemas and review-hash helpers |
-| `@86d-app/contracts/conformance` | Artifact version, SHA-256 digest, compatibility matrix, fixtures, pin verification |
+| `@86d-store/contracts/command` | Request/receipt schemas, actors, action levels, failures, workflows, grants, approvals, confirmations, audit, transitions, canonical digests |
+| `@86d-store/contracts/change-set` | Change Set schemas and review-hash helpers |
+| `@86d-store/contracts/conformance` | Artifact version, SHA-256 digest, compatibility matrix, fixtures, pin verification |
 
 Private Command catalogs and plane-specific authorization stay outside this package. Raw tRPC is not a cross-plane or agent interface.
 

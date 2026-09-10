@@ -1,4 +1,4 @@
-import { createAdminEndpoint } from "@86d-app/core/api";
+import { createAdminEndpoint } from "@86d-store/core/api";
 import { z } from "zod";
 import { listRevenueIntents } from "../../payment-source";
 import type { PaymentIntentStatus } from "../../service";

@@ -1,13 +1,13 @@
 import type {
 	catalogPublishedV1,
 	DurableEventEnvelope,
-} from "@86d-app/core/durable-events";
-import { createMockDataService } from "@86d-app/core/test-utils";
-import products from "@86d-app/products";
+} from "@86d-store/core/durable-events";
+import { createMockDataService } from "@86d-store/core/test-utils";
+import products from "@86d-store/products";
 import {
 	catalogPresentationConsumer,
 	readCatalogPresentation,
-} from "@86d-app/products/catalog-presentation";
+} from "@86d-store/products/catalog-presentation";
 import { describe, expect, it } from "vitest";
 import {
 	type CatalogRevisionContent,

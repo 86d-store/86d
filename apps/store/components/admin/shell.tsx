@@ -1,6 +1,6 @@
 "use client";
 
-import { SidebarProvider } from "@86d-app/ui/shadcn/sidebar";
+import { SidebarProvider } from "@86d-store/ui/shadcn/sidebar";
 import type { AdminNavGroup } from "~/lib/admin-registry";
 import { useAdminNavigation } from "./_hooks/use-admin-navigation";
 import Template from "./shell.mdx";

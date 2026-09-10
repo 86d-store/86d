@@ -28,14 +28,14 @@ Stock tracking for products and variants. Manages on-hand quantity, reservations
 ## Installation
 
 ```sh
-npm install @86d-app/inventory
+npm install @86d-store/inventory
 ```
 
 ## Usage
 
 ```ts
-import inventory from "@86d-app/inventory";
-import { createModuleClient } from "@86d-app/core";
+import inventory from "@86d-store/inventory";
+import { createModuleClient } from "@86d-store/core";
 
 const client = createModuleClient([
   inventory({

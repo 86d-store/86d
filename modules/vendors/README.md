@@ -26,13 +26,13 @@ Multi-vendor marketplace module for managing vendor profiles, product assignment
 ## Installation
 
 ```sh
-npm install @86d-app/vendors
+npm install @86d-store/vendors
 ```
 
 ## Usage
 
 ```ts
-import vendors from "@86d-app/vendors";
+import vendors from "@86d-store/vendors";
 
 const module = vendors({
   defaultCommissionRate: "15",

@@ -4,7 +4,7 @@ import {
 	changeSetSchema,
 	computeChangeSetReviewHash,
 	normalizeBaseRevisions,
-} from "@86d-app/contracts/change-set";
+} from "@86d-store/contracts/change-set";
 import {
 	type Approval,
 	approvalSchema,
@@ -17,7 +17,7 @@ import {
 	standingPermissionSchema,
 	standingPermissionUseReservationSchema,
 	type TargetReference,
-} from "@86d-app/contracts/command";
+} from "@86d-store/contracts/command";
 import type { MemoryCommandTransaction } from "./command";
 import type {
 	CommandGrantAdapter,

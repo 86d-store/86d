@@ -4,8 +4,8 @@
  * Defaults to "local" unless the environment overrides it.
  */
 
-import { createStorageFromEnv } from "@86d-app/storage/factory";
-import type { StorageProvider } from "@86d-app/storage/types";
+import { createStorageFromEnv } from "@86d-store/storage/factory";
+import type { StorageProvider } from "@86d-store/storage/types";
 
 let instance: StorageProvider | null = null;
 

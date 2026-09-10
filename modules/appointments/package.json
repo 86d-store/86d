@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/appointments",
+	"name": "@86d-store/appointments",
 	"version": "0.1.0",
 	"description": "Appointments — service-based booking with staff scheduling, time slots, and customer appointment management",
 	"keywords": [
@@ -67,7 +67,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

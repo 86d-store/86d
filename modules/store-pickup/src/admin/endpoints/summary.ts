@@ -1,4 +1,4 @@
-import { createAdminEndpoint } from "@86d-app/core/api";
+import { createAdminEndpoint } from "@86d-store/core/api";
 import type { StorePickupController } from "../../service";
 
 export const summary = createAdminEndpoint(

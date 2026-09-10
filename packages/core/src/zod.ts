@@ -1,9 +1,9 @@
 /**
- * @86d-app/core/zod
+ * @86d-store/core/zod
  *
  * Zod gateway for Modules.
  *
- * Modules depend only on `@86d-app/core`, so zod has to reach them through this
+ * Modules depend only on `@86d-store/core`, so zod has to reach them through this
  * package. It lives in its own file rather than in `./api` so that a Module's
  * `schema.ts` — which wants nothing but `z` — does not pull `better-call` and the
  * endpoint factories into its module graph. Same reasoning as `./state`, which was

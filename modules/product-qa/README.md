@@ -26,13 +26,13 @@ Product-specific questions and answers for e-commerce storefronts. Customers can
 ## Installation
 
 ```sh
-npm install @86d-app/product-qa
+npm install @86d-store/product-qa
 ```
 
 ## Usage
 
 ```ts
-import productQa from "@86d-app/product-qa";
+import productQa from "@86d-store/product-qa";
 
 const module = productQa({
   autoPublish: "true", // skip moderation queue
@@ -166,7 +166,7 @@ interface QaAnalytics {
 ### Usage
 
 ```tsx
-import { ProductQuestions, QuestionForm } from "@86d-app/product-qa/store/components";
+import { ProductQuestions, QuestionForm } from "@86d-store/product-qa/store/components";
 
 <ProductQuestions productId="abc-123" />
 <QuestionForm productId="abc-123" />

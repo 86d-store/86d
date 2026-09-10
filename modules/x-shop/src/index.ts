@@ -2,7 +2,7 @@ import type {
 	Module,
 	ModuleConfig,
 	ModuleContext,
-} from "@86d-app/core/types/module";
+} from "@86d-store/core/types/module";
 import { createGetSettingsEndpoint } from "./admin/endpoints/get-settings";
 import { createAdminEndpointsWithSettings } from "./admin/endpoints/routes";
 import { xShopStorage } from "./schema";

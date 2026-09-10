@@ -1,5 +1,5 @@
-import { createStoreEndpoint } from "@86d-app/core/api";
-import { sanitizeText } from "@86d-app/core/sanitize";
+import { createStoreEndpoint } from "@86d-store/core/api";
+import { sanitizeText } from "@86d-store/core/sanitize";
 import { z } from "zod";
 import { checkoutRevisionSchema, runCheckoutMutation } from "../../concurrency";
 import type { CheckoutController } from "../../service";

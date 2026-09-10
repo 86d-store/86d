@@ -1,7 +1,7 @@
 import {
 	computeCommandBindingHash,
 	computeConfirmationNonceDigest,
-} from "@86d-app/contracts/command";
+} from "@86d-store/contracts/command";
 import { describe, expect, it, vi } from "vitest";
 import { createDrizzleStoreConfirmationIssuer } from "../confirmation-issuer";
 

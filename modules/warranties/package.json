@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/warranties",
+	"name": "@86d-store/warranties",
 	"version": "0.1.0",
 	"description": "Product warranty plans, registrations, and claims for 86d commerce platform",
 	"keywords": [
@@ -57,7 +57,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

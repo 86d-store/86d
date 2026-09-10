@@ -26,13 +26,13 @@ Customer referral program with unique shareable codes, referral tracking, and co
 ## Installation
 
 ```sh
-npm install @86d-app/referrals
+npm install @86d-store/referrals
 ```
 
 ## Usage
 
 ```ts
-import referrals from "@86d-app/referrals";
+import referrals from "@86d-store/referrals";
 
 const module = referrals({
   maxCodesPerCustomer: "1",

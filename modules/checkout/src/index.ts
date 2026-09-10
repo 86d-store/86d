@@ -1,4 +1,4 @@
-import { acceptCapability } from "@86d-app/core/capabilities";
+import { acceptCapability } from "@86d-store/core/capabilities";
 import {
 	cartSnapshotCapability,
 	customerIdentityResolveCapability,
@@ -13,13 +13,13 @@ import {
 	storeCreditCheckoutCapability,
 	taxQuoteCapability,
 	taxQuoteV2Capability,
-} from "@86d-app/core/commerce-capabilities";
-import { inventoryCheckoutV2Capability } from "@86d-app/core/inventory-reservation-capability";
+} from "@86d-store/core/commerce-capabilities";
+import { inventoryCheckoutV2Capability } from "@86d-store/core/inventory-reservation-capability";
 import type {
 	Module,
 	ModuleConfig,
 	ModuleContext,
-} from "@86d-app/core/types/module";
+} from "@86d-store/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { checkoutFinalizationLifecycleV1 } from "./finalization";
 import { checkoutStorage } from "./schema";

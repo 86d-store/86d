@@ -1,4 +1,4 @@
-import { createStoreEndpoint } from "@86d-app/core/api";
+import { createStoreEndpoint } from "@86d-store/core/api";
 import { resolveAuthenticatedStoreCustomer } from "./customer-context";
 
 export const getMe = createStoreEndpoint(

@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/loyalty",
+	"name": "@86d-store/loyalty",
 	"version": "0.1.0",
 	"description": "Customer loyalty and rewards points module for 86d commerce platform",
 	"keywords": [
@@ -61,7 +61,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

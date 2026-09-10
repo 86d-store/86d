@@ -1,12 +1,12 @@
 /**
- * Compatibility surface. Canonical schemas and digests live in `@86d-app/contracts`.
+ * Compatibility surface. Canonical schemas and digests live in `@86d-store/contracts`.
  * Do not add wire schemas here — extend the contracts package instead.
  */
 
 import type {
 	ChangeSet,
 	ChangeSetReviewContent,
-} from "@86d-app/contracts/change-set";
+} from "@86d-store/contracts/change-set";
 import {
 	baseRevisionSchema,
 	changeSetProposalSchema,
@@ -14,7 +14,7 @@ import {
 	computeChangeSetReviewHash,
 	estimatedChargeSchema,
 	normalizeBaseRevisions,
-} from "@86d-app/contracts/change-set";
+} from "@86d-store/contracts/change-set";
 import type {
 	ActionLevel,
 	ActorReference,
@@ -42,7 +42,7 @@ import type {
 	WorkflowAttempt,
 	WorkflowState,
 	WorkflowStep,
-} from "@86d-app/contracts/command";
+} from "@86d-store/contracts/command";
 import {
 	actionLevelSchema,
 	actorReferenceSchema,
@@ -78,14 +78,14 @@ import {
 	workflowSchema,
 	workflowStateSchema,
 	workflowStepSchema,
-} from "@86d-app/contracts/command";
-import { jsonValueSchema } from "@86d-app/contracts/json-value";
+} from "@86d-store/contracts/command";
+import { jsonValueSchema } from "@86d-store/contracts/json-value";
 import {
 	assertCanonicalJson,
 	canonicalJson,
 	parseCanonicalJson,
 	toJsonValue,
-} from "@86d-app/contracts/serialize";
+} from "@86d-store/contracts/serialize";
 
 export type {
 	ActionLevel,

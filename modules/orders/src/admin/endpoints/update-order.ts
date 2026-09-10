@@ -1,7 +1,7 @@
-import { createAdminEndpoint } from "@86d-app/core/api";
-import type { CapabilityInvoker } from "@86d-app/core/capabilities";
-import { customerContactResolveCapability } from "@86d-app/core/commerce-capabilities";
-import { sanitizeText } from "@86d-app/core/sanitize";
+import { createAdminEndpoint } from "@86d-store/core/api";
+import type { CapabilityInvoker } from "@86d-store/core/capabilities";
+import { customerContactResolveCapability } from "@86d-store/core/commerce-capabilities";
+import { sanitizeText } from "@86d-store/core/sanitize";
 import { z } from "zod";
 import type { OrderController, OrderWithDetails } from "../../service";
 

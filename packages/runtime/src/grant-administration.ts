@@ -8,7 +8,7 @@ import {
 	computeChangeSetReviewHash,
 	estimatedChargeSchema,
 	normalizeBaseRevisions,
-} from "@86d-app/contracts/change-set";
+} from "@86d-store/contracts/change-set";
 import {
 	type ActorReference,
 	type Approval,
@@ -22,8 +22,8 @@ import {
 	standingPermissionSchema,
 	type TargetReference,
 	targetReferenceSchema,
-} from "@86d-app/contracts/command";
-import { jsonValueSchema } from "@86d-app/contracts/json-value";
+} from "@86d-store/contracts/command";
+import { jsonValueSchema } from "@86d-store/contracts/json-value";
 import { z } from "zod";
 import type { CommandPrincipal } from "./command";
 import type { CommandAdmissionPolicy } from "./grants";

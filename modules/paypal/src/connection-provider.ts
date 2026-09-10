@@ -5,7 +5,7 @@ import type {
 	PaymentProviderOperationOutcome,
 	PaymentProviderOperationRequest,
 	PaymentProviderReconciliationRequest,
-} from "@86d-app/core/payment-connection-provider";
+} from "@86d-store/core/payment-connection-provider";
 import { z } from "zod";
 
 const identifierSchema = z.string().trim().min(1).max(255);

@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/internals-generators",
+	"name": "@86d-store/internals-generators",
 	"version": "0.1.0",
 	"private": true,
 	"license": "MIT",
@@ -11,7 +11,7 @@
 		"test": "vitest run"
 	},
 	"dependencies": {
-		"@86d-app/registry": "workspace:*",
+		"@86d-store/registry": "workspace:*",
 		"env": "workspace:*"
 	},
 	"devDependencies": {

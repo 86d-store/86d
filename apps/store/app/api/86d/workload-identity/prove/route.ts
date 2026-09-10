@@ -1,6 +1,6 @@
 import { env as nodeProcessEnv } from "node:process";
-import { createWorkloadIdentityProofBridge } from "@86d-app/sdk/workload-identity-proof";
-import { readManagedWorkloadConfig } from "@86d-app/sdk/workload-token-client";
+import { createWorkloadIdentityProofBridge } from "@86d-store/sdk/workload-identity-proof";
+import { readManagedWorkloadConfig } from "@86d-store/sdk/workload-token-client";
 import { type NextRequest, NextResponse } from "next/server";
 import { createRateLimiter } from "utils/rate-limit";
 

@@ -73,9 +73,9 @@ describe("module create", () => {
 			),
 		);
 
-		expect(pkg.name).toBe("@86d-app/loyalty-points");
+		expect(pkg.name).toBe("@86d-store/loyalty-points");
 		expect(pkg.version).toBe("0.0.1");
-		expect(pkg.dependencies["@86d-app/core"]).toBe("workspace:*");
+		expect(pkg.dependencies["@86d-store/core"]).toBe("workspace:*");
 		expect(pkg.scripts.build).toBe("86d module build");
 		expect(pkg.devDependencies["86d"]).toBe("workspace:*");
 		expect(pkg.exports["."]).toBe("./src/index.ts");
@@ -119,8 +119,8 @@ describe("module create", () => {
 		expect(content).toContain('expect(mod.id).toBe("loyalty-points")');
 	});
 
-	it("strips @86d-app/ prefix from name", async () => {
-		await runModuleCreate("@86d-app/custom-module");
+	it("strips @86d-store/ prefix from name", async () => {
+		await runModuleCreate("@86d-store/custom-module");
 
 		const moduleDir = join(tempDir, "modules", "custom-module");
 		expect(existsSync(moduleDir)).toBe(true);
@@ -128,6 +128,6 @@ describe("module create", () => {
 		const pkg = JSON.parse(
 			readFileSync(join(moduleDir, "package.json"), "utf-8"),
 		);
-		expect(pkg.name).toBe("@86d-app/custom-module");
+		expect(pkg.name).toBe("@86d-store/custom-module");
 	});
 });

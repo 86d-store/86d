@@ -28,14 +28,14 @@ Subscription plan and subscriber management for the 86d commerce platform. The l
 ## Installation
 
 ```sh
-npm install @86d-app/subscriptions
+npm install @86d-store/subscriptions
 ```
 
 ## Usage
 
 ```ts
-import subscriptions from "@86d-app/subscriptions";
-import { createModuleClient } from "@86d-app/core";
+import subscriptions from "@86d-store/subscriptions";
+import { createModuleClient } from "@86d-store/core";
 
 const client = createModuleClient([
   subscriptions({

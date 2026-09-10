@@ -26,13 +26,13 @@ Owns delivery obligations from packing through shipment tracking to delivery con
 ## Installation
 
 ```sh
-npm install @86d-app/fulfillment
+npm install @86d-store/fulfillment
 ```
 
 ## Usage
 
 ```ts
-import fulfillment from "@86d-app/fulfillment";
+import fulfillment from "@86d-store/fulfillment";
 
 const module = fulfillment({
   autoShipOnTracking: true,

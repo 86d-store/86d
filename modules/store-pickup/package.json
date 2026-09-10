@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/store-pickup",
+	"name": "@86d-store/store-pickup",
 	"version": "0.1.0",
 	"description": "Store pickup (BOPIS) — let customers buy online and pick up in store with location management and time windows",
 	"keywords": [
@@ -60,7 +60,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

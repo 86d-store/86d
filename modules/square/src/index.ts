@@ -1,4 +1,4 @@
-import type { Module, ModuleConfig } from "@86d-app/core/types/module";
+import type { Module, ModuleConfig } from "@86d-store/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { createStoreEndpoints } from "./store/endpoints/routes";
 export interface SquareOptions extends ModuleConfig {

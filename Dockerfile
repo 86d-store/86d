@@ -13,8 +13,8 @@ FROM base AS prepare
 COPY . .
 RUN bunx turbo@2.10.11 prune \
 	store \
-	@86d-app/internals-generators \
-	@86d-app/internals-registry \
+	@86d-store/internals-generators \
+	@86d-store/internals-registry \
 	--docker
 
 FROM base AS deps
@@ -118,7 +118,7 @@ RUN set -eu; \
 		drizzle-kit drizzle-orm pg pg-cloudflare pg-connection-string pg-int8 pg-pool \
 		pg-protocol pg-types pgpass postgres-array postgres-bytea postgres-date \
 		postgres-interval split2 xtend zod \
-		@86d-app/core @86d-app/db @86d-app/storage db env; do \
+		@86d-store/core @86d-store/db @86d-store/storage db env; do \
 		find "${standalone_root}" \
 			-path "*/node_modules/${dependency}" \
 			-prune -exec rm -rf '{}' +; \
@@ -253,17 +253,17 @@ RUN set -eu; \
 # enters the image once and does not need a temporary bind or cleanup layer.
 COPY --from=runtime-deps --chown=nextjs:nodejs /export/ ./node_modules/
 RUN set -eu; \
-	mkdir -p ./node_modules/@86d-app; \
+	mkdir -p ./node_modules/@86d-store; \
 	for dependency in \
-		@86d-app/core @86d-app/db @86d-app/storage db env; do \
+		@86d-store/core @86d-store/db @86d-store/storage db env; do \
 		if [ -e "./node_modules/${dependency}" ] || [ -L "./node_modules/${dependency}" ]; then \
 			echo "Standalone unexpectedly contains runtime link ${dependency}" >&2; \
 			exit 1; \
 		fi; \
 	done; \
-	ln -s ../../packages/core ./node_modules/@86d-app/core; \
-	ln -s ../../packages/db ./node_modules/@86d-app/db; \
-	ln -s ../../packages/storage ./node_modules/@86d-app/storage; \
+	ln -s ../../packages/core ./node_modules/@86d-store/core; \
+	ln -s ../../packages/db ./node_modules/@86d-store/db; \
+	ln -s ../../packages/storage ./node_modules/@86d-store/storage; \
 	ln -s ../packages/db ./node_modules/db; \
 	ln -s ../packages/env ./node_modules/env
 

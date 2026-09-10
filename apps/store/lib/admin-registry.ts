@@ -10,7 +10,7 @@
  * Modules can override this by setting `subgroup` on their AdminPage declarations.
  */
 
-import type { AdminPage } from "@86d-app/core/types/module";
+import type { AdminPage } from "@86d-store/core/types/module";
 import { modules } from "generated/api";
 
 export interface AdminNavItem {

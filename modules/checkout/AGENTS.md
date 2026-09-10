@@ -2,7 +2,7 @@
 
 Checkout session management: cart-to-order conversion flow. Handles session creation, address collection, discount application, payment coordination, and authoritative Order creation. It has customer-facing endpoints plus bounded Store Admin maintenance endpoints.
 
-**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-app/core` contracts.
+**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-store/core` contracts.
 
 ## Change protocol
 

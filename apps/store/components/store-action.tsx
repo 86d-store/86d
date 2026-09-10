@@ -1,5 +1,5 @@
-import { Button } from "@86d-app/ui/button";
-import { buttonVariants } from "@86d-app/ui/shadcn/button";
+import { Button } from "@86d-store/ui/button";
+import { buttonVariants } from "@86d-store/ui/shadcn/button";
 import Link from "next/link";
 import type { ComponentProps } from "react";
 import { cn } from "~/lib/utils";

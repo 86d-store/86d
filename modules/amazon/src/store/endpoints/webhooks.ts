@@ -1,4 +1,4 @@
-import { createStoreEndpoint } from "@86d-app/core/api";
+import { createStoreEndpoint } from "@86d-store/core/api";
 
 /**
  * SP-API notifications are delivered through SQS or EventBridge, not this

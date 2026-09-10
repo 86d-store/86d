@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/notifications",
+	"name": "@86d-store/notifications",
 	"version": "0.1.0",
 	"description": "In-app notification management module for 86d commerce platform",
 	"keywords": [
@@ -66,7 +66,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

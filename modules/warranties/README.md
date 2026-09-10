@@ -19,14 +19,14 @@
 
 📚 **Documentation:** [86d.app/docs/modules/warranties](https://86d.app/docs/modules/warranties)
 
-# @86d-app/warranties
+# @86d-store/warranties
 
 Product warranty management for 86d commerce platform. Create warranty plans, register customer warranties, and process warranty claims with a full approval workflow.
 
 ## Installation
 
 ```ts
-import warranties from "@86d-app/warranties";
+import warranties from "@86d-store/warranties";
 
 export default defineStore({
   modules: [

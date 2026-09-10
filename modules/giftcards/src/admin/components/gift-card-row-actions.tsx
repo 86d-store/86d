@@ -1,4 +1,4 @@
-import { Button } from "@86d-app/ui/button";
+import { Button } from "@86d-store/ui/button";
 import type { GiftCardAdminRecord } from "./gift-card-admin-types";
 
 export function GiftCardRowActions({

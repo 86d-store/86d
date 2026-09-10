@@ -4,11 +4,11 @@
  * The module subscribes to 44+ CROSS_MODULE_EVENTS and routes each one to
  * evaluateEvent, which finds matching active automations and executes them.
  */
-import { createEventBus, createScopedEmitter } from "@86d-app/core/events";
+import { createEventBus, createScopedEmitter } from "@86d-store/core/events";
 import {
 	createMockDataService,
 	createMockModuleContext,
-} from "@86d-app/core/test-utils";
+} from "@86d-store/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import automations from "../index";
 

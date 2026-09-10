@@ -1,7 +1,7 @@
 import type {
 	ModuleContext,
 	ModuleDataService,
-} from "@86d-app/core/types/module";
+} from "@86d-store/core/types/module";
 import { getProcessEnv } from "env/process-env";
 import type {
 	PaymentController,

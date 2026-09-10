@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/media",
+	"name": "@86d-store/media",
 	"version": "0.1.0",
 	"description": "Media and asset management module for 86d commerce platform",
 	"keywords": [
@@ -54,7 +54,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

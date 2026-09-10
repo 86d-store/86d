@@ -47,19 +47,19 @@ beforeAll(() => {
 	});
 	writeFileSync(
 		join(TMP_ROOT, "modules", "products", "package.json"),
-		JSON.stringify({ name: "@86d-app/products", version: "0.0.1" }),
+		JSON.stringify({ name: "@86d-store/products", version: "0.0.1" }),
 	);
 
 	mkdirSync(join(TMP_ROOT, "modules", "cart", "src"), { recursive: true });
 	writeFileSync(
 		join(TMP_ROOT, "modules", "cart", "package.json"),
-		JSON.stringify({ name: "@86d-app/cart", version: "0.0.1" }),
+		JSON.stringify({ name: "@86d-store/cart", version: "0.0.1" }),
 	);
 
 	mkdirSync(join(TMP_ROOT, "modules", "blog", "src"), { recursive: true });
 	writeFileSync(
 		join(TMP_ROOT, "modules", "blog", "package.json"),
-		JSON.stringify({ name: "@86d-app/blog", version: "0.0.1" }),
+		JSON.stringify({ name: "@86d-store/blog", version: "0.0.1" }),
 	);
 });
 
@@ -74,7 +74,7 @@ const testManifest: RegistryManifest = {
 	templates: {},
 	modules: {
 		products: registryEntry({
-			name: "@86d-app/products",
+			name: "@86d-store/products",
 			description: "Product catalog",
 			version: "0.0.1",
 			category: "catalog",
@@ -85,7 +85,7 @@ const testManifest: RegistryManifest = {
 			hasStorePages: true,
 		}),
 		cart: registryEntry({
-			name: "@86d-app/cart",
+			name: "@86d-store/cart",
 			description: "Shopping cart",
 			version: "0.0.1",
 			category: "sales",
@@ -96,7 +96,7 @@ const testManifest: RegistryManifest = {
 			hasStorePages: false,
 		}),
 		shipping: registryEntry({
-			name: "@86d-app/shipping",
+			name: "@86d-store/shipping",
 			description: "Shipping rates",
 			version: "0.0.1",
 			category: "fulfillment",
@@ -138,7 +138,7 @@ describe("resolveModules", () => {
 
 	it("denies explicitly selected Experimental Modules without advanced opt-in", async () => {
 		const config: StoreConfig = {
-			modules: ["@86d-app/products", "@86d-app/cart"],
+			modules: ["@86d-store/products", "@86d-store/cart"],
 		};
 		const results = await resolveModules(config, {
 			root: TMP_ROOT,
@@ -157,7 +157,7 @@ describe("resolveModules", () => {
 
 	it("admits explicitly selected Experimental Modules with versioned advanced opt-in", async () => {
 		const config: StoreConfig = {
-			modules: ["@86d-app/products", "@86d-app/cart"],
+			modules: ["@86d-store/products", "@86d-store/cart"],
 			advanced: { version: 1, allowExperimentalModules: true },
 		};
 		const results = await resolveModules(config, {
@@ -177,7 +177,7 @@ describe("resolveModules", () => {
 		writeFileSync(
 			configPath,
 			JSON.stringify({
-				modules: ["@86d-app/products"],
+				modules: ["@86d-store/products"],
 				advanced: { version: 2, allowExperimentalModules: true },
 			}),
 		);
@@ -229,7 +229,7 @@ describe("resolveModules", () => {
 
 	it("marks unknown modules as missing", async () => {
 		const config: StoreConfig = {
-			modules: ["@86d-app/unknown-module"],
+			modules: ["@86d-store/unknown-module"],
 			advanced: { version: 1, allowExperimentalModules: true },
 		};
 		const results = await resolveModules(config, {
@@ -255,7 +255,7 @@ describe("resolveModules", () => {
 			},
 		};
 		const results = await resolveModules(
-			{ modules: ["@86d-app/cart"] },
+			{ modules: ["@86d-store/cart"] },
 			{ root: TMP_ROOT, manifest },
 		);
 
@@ -286,7 +286,7 @@ describe("resolveModules", () => {
 	it("uses registry provenance instead of local workspace modules in registry-only mode", async () => {
 		const results = await resolveModules(
 			{
-				modules: ["@86d-app/products"],
+				modules: ["@86d-store/products"],
 				advanced: { version: 1, allowExperimentalModules: true },
 			},
 			{
@@ -308,7 +308,7 @@ describe("resolveModules", () => {
 		await expect(
 			resolveModules(
 				{
-					modules: ["@86d-app/products"],
+					modules: ["@86d-store/products"],
 					advanced: { version: 1, allowExperimentalModules: true },
 				},
 				{
@@ -330,7 +330,7 @@ describe("resolveModules", () => {
 		await expect(
 			resolveModules(
 				{
-					modules: ["@86d-app/products"],
+					modules: ["@86d-store/products"],
 					advanced: { version: 1, allowExperimentalModules: true },
 				},
 				{ root, mode: "registry-only" },
@@ -444,7 +444,7 @@ describe("getModuleDependencies", () => {
 		templates: {},
 		modules: {
 			products: registryEntry({
-				name: "@86d-app/products",
+				name: "@86d-store/products",
 				description: "Products",
 				version: "0.0.1",
 				category: "catalog",
@@ -455,7 +455,7 @@ describe("getModuleDependencies", () => {
 				hasStorePages: true,
 			}),
 			cart: registryEntry({
-				name: "@86d-app/cart",
+				name: "@86d-store/cart",
 				description: "Cart",
 				version: "0.0.1",
 				category: "sales",
@@ -466,7 +466,7 @@ describe("getModuleDependencies", () => {
 				hasStorePages: false,
 			}),
 			checkout: registryEntry({
-				name: "@86d-app/checkout",
+				name: "@86d-store/checkout",
 				description: "Checkout",
 				version: "0.0.1",
 				category: "sales",
@@ -477,7 +477,7 @@ describe("getModuleDependencies", () => {
 				hasStorePages: true,
 			}),
 			orders: registryEntry({
-				name: "@86d-app/orders",
+				name: "@86d-store/orders",
 				description: "Orders",
 				version: "0.0.1",
 				category: "sales",
@@ -530,7 +530,7 @@ describe("getModuleDependencies", () => {
 			templates: {},
 			modules: {
 				a: registryEntry({
-					name: "@86d-app/a",
+					name: "@86d-store/a",
 					description: "A",
 					version: "0.0.1",
 					category: "general",
@@ -541,7 +541,7 @@ describe("getModuleDependencies", () => {
 					hasStorePages: false,
 				}),
 				b: registryEntry({
-					name: "@86d-app/b",
+					name: "@86d-store/b",
 					description: "B",
 					version: "0.0.1",
 					category: "general",
@@ -566,7 +566,7 @@ describe("getModuleDependencies", () => {
 			templates: {},
 			modules: {
 				a: registryEntry({
-					name: "@86d-app/a",
+					name: "@86d-store/a",
 					description: "",
 					version: "0.0.1",
 					category: "general",
@@ -577,7 +577,7 @@ describe("getModuleDependencies", () => {
 					hasStorePages: false,
 				}),
 				b: registryEntry({
-					name: "@86d-app/b",
+					name: "@86d-store/b",
 					description: "",
 					version: "0.0.1",
 					category: "general",
@@ -588,7 +588,7 @@ describe("getModuleDependencies", () => {
 					hasStorePages: false,
 				}),
 				c: registryEntry({
-					name: "@86d-app/c",
+					name: "@86d-store/c",
 					description: "",
 					version: "0.0.1",
 					category: "general",
@@ -615,7 +615,7 @@ describe("detectCircularDependencies", () => {
 			templates: {},
 			modules: {
 				a: registryEntry({
-					name: "@86d-app/a",
+					name: "@86d-store/a",
 					description: "",
 					version: "0.0.1",
 					category: "general",
@@ -626,7 +626,7 @@ describe("detectCircularDependencies", () => {
 					hasStorePages: false,
 				}),
 				b: registryEntry({
-					name: "@86d-app/b",
+					name: "@86d-store/b",
 					description: "",
 					version: "0.0.1",
 					category: "general",
@@ -649,7 +649,7 @@ describe("detectCircularDependencies", () => {
 			templates: {},
 			modules: {
 				a: registryEntry({
-					name: "@86d-app/a",
+					name: "@86d-store/a",
 					description: "",
 					version: "0.0.1",
 					category: "general",
@@ -660,7 +660,7 @@ describe("detectCircularDependencies", () => {
 					hasStorePages: false,
 				}),
 				b: registryEntry({
-					name: "@86d-app/b",
+					name: "@86d-store/b",
 					description: "",
 					version: "0.0.1",
 					category: "general",
@@ -671,7 +671,7 @@ describe("detectCircularDependencies", () => {
 					hasStorePages: false,
 				}),
 				c: registryEntry({
-					name: "@86d-app/c",
+					name: "@86d-store/c",
 					description: "",
 					version: "0.0.1",
 					category: "general",

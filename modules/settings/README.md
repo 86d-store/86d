@@ -30,13 +30,13 @@ Global key-value store for store configuration. Settings are organized into grou
 ## Installation
 
 ```sh
-npm install @86d-app/settings
+npm install @86d-store/settings
 ```
 
 ## Usage
 
 ```ts
-import settings from "@86d-app/settings";
+import settings from "@86d-store/settings";
 
 const module = settings({
   defaultStoreName: "My Store",
@@ -79,7 +79,7 @@ The `SETTING_KEYS` constant is exported for type-safe key references:
 | Appearance | `logoUrl`, `faviconUrl`, `brandColor`, `announcementBar`, `announcementBarEnabled` |
 
 ```ts
-import { SETTING_KEYS } from "@86d-app/settings";
+import { SETTING_KEYS } from "@86d-store/settings";
 
 // SETTING_KEYS.storeName === "general.store_name"
 // SETTING_KEYS.currency === "commerce.currency"

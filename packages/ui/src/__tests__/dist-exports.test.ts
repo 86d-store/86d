@@ -22,7 +22,7 @@ const publicJavaScriptEntries = Object.values(
 	return [pathToFileURL(join(pkgRoot, target.default)).href];
 });
 
-describe("@86d-app/ui built exports", () => {
+describe("@86d-store/ui built exports", () => {
 	beforeAll(() => {
 		const build = spawnSync("bun", ["run", "build"], {
 			cwd: pkgRoot,

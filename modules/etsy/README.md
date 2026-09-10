@@ -26,13 +26,13 @@ Etsy marketplace integration for managing handmade and vintage product listings,
 ## Installation
 
 ```sh
-npm install @86d-app/etsy
+npm install @86d-store/etsy
 ```
 
 ## Usage
 
 ```ts
-import etsy from "@86d-app/etsy";
+import etsy from "@86d-store/etsy";
 
 const module = etsy({
   apiKey: "your-api-key",

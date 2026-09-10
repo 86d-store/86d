@@ -1,4 +1,4 @@
-import { createStoreEndpoint } from "@86d-app/core/api";
+import { createStoreEndpoint } from "@86d-store/core/api";
 
 /**
  * DoorDash Drive does not document the former x-doordash-signature body-HMAC

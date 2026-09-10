@@ -1,5 +1,5 @@
-import { provideCapability } from "@86d-app/core/capabilities";
-import { storePresentationResolveCapability } from "@86d-app/core/commerce-capabilities";
+import { provideCapability } from "@86d-store/core/capabilities";
+import { storePresentationResolveCapability } from "@86d-store/core/commerce-capabilities";
 import { z } from "zod";
 
 const settingSchema = z

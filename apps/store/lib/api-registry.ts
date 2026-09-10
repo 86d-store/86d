@@ -3,19 +3,19 @@
  * Used by the catch-all API route and the store-markdown route.
  */
 
-import type { Primitive } from "@86d-app/core/types/helper";
-import type { Module } from "@86d-app/core/types/module";
-import { CompiledModuleDataService } from "@86d-app/runtime/compiled-module-data-service";
+import type { Primitive } from "@86d-store/core/types/helper";
+import type { Module } from "@86d-store/core/types/module";
+import { CompiledModuleDataService } from "@86d-store/runtime/compiled-module-data-service";
 import {
 	applyCompiledModuleSchema,
 	type CompiledSchemaBundle,
 	compiledForModule,
 	compileInstalledModules,
-} from "@86d-app/runtime/compiled-schema-boot";
-import { ModuleRegistry } from "@86d-app/runtime/registry";
-import { getStoreConfig } from "@86d-app/sdk/get-store-config";
-import { loadFromTemplate } from "@86d-app/sdk/load-from-template";
-import type { Config } from "@86d-app/sdk/types";
+} from "@86d-store/runtime/compiled-schema-boot";
+import { ModuleRegistry } from "@86d-store/runtime/registry";
+import { getStoreConfig } from "@86d-store/sdk/get-store-config";
+import { loadFromTemplate } from "@86d-store/sdk/load-from-template";
+import type { Config } from "@86d-store/sdk/types";
 import { db, getPool } from "db";
 import { createPostgresTransactionalExecutor } from "db/schema/apply-disposable-ddl";
 import { module } from "db/schema/tables";

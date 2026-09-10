@@ -26,13 +26,13 @@ Digital asset management module with folder-based organization, tagging, bulk op
 ## Installation
 
 ```sh
-npm install @86d-app/media
+npm install @86d-store/media
 ```
 
 ## Usage
 
 ```ts
-import media from "@86d-app/media";
+import media from "@86d-store/media";
 
 const module = media({
   maxFileSize: "10485760", // 10MB in bytes

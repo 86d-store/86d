@@ -26,13 +26,13 @@ Integrates your 86d store with Walmart Marketplace for item management, feed sub
 ## Installation
 
 ```sh
-npm install @86d-app/walmart
+npm install @86d-store/walmart
 ```
 
 ## Usage
 
 ```ts
-import walmart from "@86d-app/walmart";
+import walmart from "@86d-store/walmart";
 
 const module = walmart({
   clientId: "your-client-id",

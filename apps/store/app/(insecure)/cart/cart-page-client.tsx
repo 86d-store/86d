@@ -1,6 +1,6 @@
 "use client";
 
-import { useModuleClient } from "@86d-app/core/client/provider";
+import { useModuleClient } from "@86d-store/core/client/provider";
 import { useStore } from "hooks/use-store";
 import { ShoppingCartIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";

@@ -26,13 +26,13 @@ Blog content management module for the 86d commerce platform. Supports scheduled
 ## Installation
 
 ```sh
-npm install @86d-app/blog
+npm install @86d-store/blog
 ```
 
 ## Usage
 
 ```ts
-import blog from "@86d-app/blog";
+import blog from "@86d-store/blog";
 
 const module = blog({
   postsPerPage: "20",

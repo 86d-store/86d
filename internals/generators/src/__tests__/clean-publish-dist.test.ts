@@ -57,7 +57,7 @@ describe("clean publish output", () => {
 
 	it("removes every public dist before a cache restore without touching private workspaces", () => {
 		const moduleDirectory = writePackage(fixtureRoot, "modules/checkout", {
-			name: "@86d-app/checkout",
+			name: "@86d-store/checkout",
 		});
 		const packageDirectory = writePackage(fixtureRoot, "packages/cli", {
 			name: "86d",
@@ -69,7 +69,7 @@ describe("clean publish output", () => {
 
 		expect(cleanPublishableDist(fixtureRoot)).toEqual([
 			"86d",
-			"@86d-app/checkout",
+			"@86d-store/checkout",
 		]);
 		expect(existsSync(join(moduleDirectory, "dist"))).toBe(false);
 		expect(existsSync(join(packageDirectory, "dist"))).toBe(false);
@@ -88,10 +88,10 @@ describe("clean publish output", () => {
 
 	it("validates the entire public set before deleting any output", () => {
 		const validDirectory = writePackage(fixtureRoot, "modules/checkout", {
-			name: "@86d-app/checkout",
+			name: "@86d-store/checkout",
 		});
 		writePackage(fixtureRoot, "modules/malformed", {
-			name: "@86d-app/malformed",
+			name: "@86d-store/malformed",
 			files: ["README.md"],
 		});
 

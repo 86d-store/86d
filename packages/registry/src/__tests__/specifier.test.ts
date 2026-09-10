@@ -7,20 +7,20 @@ describe("parseSpecifier", () => {
 			const spec = parseSpecifier("products");
 			expect(spec.source).toBe("registry");
 			expect(spec.name).toBe("products");
-			expect(spec.packageName).toBe("@86d-app/products");
+			expect(spec.packageName).toBe("@86d-store/products");
 		});
 
-		it("parses @86d-app/ prefixed name", () => {
-			const spec = parseSpecifier("@86d-app/cart");
+		it("parses @86d-store/ prefixed name", () => {
+			const spec = parseSpecifier("@86d-store/cart");
 			expect(spec.source).toBe("registry");
 			expect(spec.name).toBe("cart");
-			expect(spec.packageName).toBe("@86d-app/cart");
+			expect(spec.packageName).toBe("@86d-store/cart");
 		});
 
 		it("handles hyphenated names", () => {
 			const spec = parseSpecifier("digital-downloads");
 			expect(spec.name).toBe("digital-downloads");
-			expect(spec.packageName).toBe("@86d-app/digital-downloads");
+			expect(spec.packageName).toBe("@86d-store/digital-downloads");
 		});
 
 		it.each([
@@ -29,7 +29,7 @@ describe("parseSpecifier", () => {
 			"..",
 			"../outside",
 			"products/../../outside",
-			"@86d-app/../outside",
+			"@86d-store/../outside",
 			"@other/cart",
 		])("rejects non-canonical official name %j", (raw) => {
 			expect(() => parseSpecifier(raw)).toThrow(/Invalid official specifier/);

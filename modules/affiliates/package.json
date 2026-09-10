@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/affiliates",
+	"name": "@86d-store/affiliates",
 	"version": "0.1.0",
 	"description": "Affiliate marketing program module for 86d commerce platform",
 	"keywords": [
@@ -66,7 +66,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

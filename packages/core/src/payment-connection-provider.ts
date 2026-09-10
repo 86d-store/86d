@@ -1,4 +1,4 @@
-import type { JsonValue } from "@86d-app/contracts/command";
+import type { JsonValue } from "@86d-store/contracts/command";
 
 /** Provider operations that may be granted to one immutable Payment Connection. */
 export type PaymentConnectionCapability =

@@ -26,13 +26,13 @@ Tax calculation, nexus management, transaction auditing, and compliance reportin
 ## Installation
 
 ```sh
-npm install @86d-app/tax
+npm install @86d-store/tax
 ```
 
 ## Usage
 
 ```ts
-import tax from "@86d-app/tax";
+import tax from "@86d-store/tax";
 
 const module = tax({
   taxShipping: false,

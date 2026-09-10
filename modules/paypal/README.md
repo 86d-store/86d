@@ -26,8 +26,8 @@ PayPal Third-party Payment Integration using the PayPal Orders and Payments v2 A
 ## Installation
 
 ```ts
-import { PayPalPaymentConnectionProvider } from "@86d-app/paypal";
-import payments from "@86d-app/payments";
+import { PayPalPaymentConnectionProvider } from "@86d-store/paypal";
+import payments from "@86d-store/payments";
 
 const provider = new PayPalPaymentConnectionProvider({
   connectionId: "paypal-primary",
@@ -44,7 +44,7 @@ const paymentsModule = payments({ connectionProviders: [provider] });
 ## Options
 
 ```ts
-import paypal from "@86d-app/paypal";
+import paypal from "@86d-store/paypal";
 
 const paypalModule = paypal({
   clientId: "your-client-id",
@@ -113,8 +113,8 @@ The `paypal()` module registers `POST /paypal/webhook` with PayPal's remote sign
 ## Usage with Payments
 
 ```ts
-import payments from "@86d-app/payments";
-import { PayPalPaymentConnectionProvider } from "@86d-app/paypal";
+import payments from "@86d-store/payments";
+import { PayPalPaymentConnectionProvider } from "@86d-store/paypal";
 
 const connection = new PayPalPaymentConnectionProvider({
   connectionId: "paypal-primary",
@@ -142,9 +142,9 @@ const paymentModule = payments({ connectionProviders: [connection] });
 import type {
   PayPalOptions,
   PayPalPaymentConnectionProviderOptions,
-} from "@86d-app/paypal";
+} from "@86d-store/paypal";
 import {
   PayPalPaymentConnectionProvider,
   PayPalPaymentProvider,
-} from "@86d-app/paypal";
+} from "@86d-store/paypal";
 ```

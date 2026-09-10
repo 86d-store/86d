@@ -48,7 +48,7 @@ describe("version-packages command", () => {
 			mkdirSync(join(fixtureRoot, "apps/registry"), { recursive: true });
 			writeFileSync(
 				join(moduleDir, "package.json"),
-				`${JSON.stringify({ name: "@86d-app/example", version: "1.0.0" }, null, 2)}\n`,
+				`${JSON.stringify({ name: "@86d-store/example", version: "1.0.0" }, null, 2)}\n`,
 			);
 			writeFileSync(
 				lockPath,

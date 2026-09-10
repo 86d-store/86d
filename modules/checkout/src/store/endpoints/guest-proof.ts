@@ -1,4 +1,4 @@
-import type { ModuleContext } from "@86d-app/core/types/module";
+import type { ModuleContext } from "@86d-store/core/types/module";
 import { getProcessEnv } from "env/process-env";
 import type { CheckoutSession } from "../../service";
 import { resolveStoreCustomer } from "./store-customer";

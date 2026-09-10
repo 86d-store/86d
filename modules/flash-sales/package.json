@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/flash-sales",
+	"name": "@86d-store/flash-sales",
 	"version": "0.1.0",
 	"description": "Flash sales — time-limited promotional events with countdown timers, per-product sale pricing, and stock limits",
 	"keywords": [
@@ -59,7 +59,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

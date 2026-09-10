@@ -41,14 +41,14 @@ describe("readJson", () => {
 
 	it("handles nested objects", () => {
 		const data = {
-			dependencies: { "@86d-app/core": "workspace:*" },
+			dependencies: { "@86d-store/core": "workspace:*" },
 			scripts: { build: "tsc" },
 		};
 		const file = join(tempDir, "pkg.json");
 		writeFileSync(file, JSON.stringify(data));
 
 		const result = readJson<typeof data>(file);
-		expect(result?.dependencies["@86d-app/core"]).toBe("workspace:*");
+		expect(result?.dependencies["@86d-store/core"]).toBe("workspace:*");
 	});
 
 	it("handles empty object", () => {

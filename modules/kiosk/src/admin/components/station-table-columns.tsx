@@ -1,5 +1,5 @@
-import { DataTableColumnHeader } from "@86d-app/ui/data-table/column-header";
-import { Text } from "@86d-app/ui/text";
+import { DataTableColumnHeader } from "@86d-store/ui/data-table/column-header";
+import { Text } from "@86d-store/ui/text";
 import { createColumnHelper, type useTable } from "@tanstack/react-table";
 import type { AdminKioskStation } from "./kiosk-admin-types";
 import type { kioskTableFeatures } from "./kiosk-table-model";

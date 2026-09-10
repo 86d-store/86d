@@ -26,13 +26,13 @@ Product waitlist for out-of-stock notifications. Customers can subscribe by emai
 ## Installation
 
 ```sh
-npm install @86d-app/waitlist
+npm install @86d-store/waitlist
 ```
 
 ## Usage
 
 ```ts
-import waitlist from "@86d-app/waitlist";
+import waitlist from "@86d-store/waitlist";
 
 const module = waitlist({
   maxEntriesPerEmail: "10",

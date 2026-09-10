@@ -20,9 +20,9 @@ import {
 	emitSql,
 	STORE_LOGIN_ROLE,
 	STORE_OWNER_ROLE,
-} from "@86d-app/core/schema";
-import { col } from "@86d-app/core/schema/col";
-import type { Module } from "@86d-app/core/types/module";
+} from "@86d-store/core/schema";
+import { col } from "@86d-store/core/schema/col";
+import type { Module } from "@86d-store/core/types/module";
 import { Pool, type PoolClient } from "pg";
 import { z } from "zod";
 import { loadCuratedModules } from "../src/load-curated-modules.ts";

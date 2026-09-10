@@ -19,14 +19,14 @@
 
 📚 **Documentation:** [86d.app/docs/modules/tickets](https://86d.app/docs/modules/tickets)
 
-# @86d-app/tickets
+# @86d-store/tickets
 
 Customer support ticket system for the 86d commerce platform. Provides threaded ticket conversations with categories, priority levels, status tracking, internal notes, and admin management.
 
 ## Installation
 
 ```ts
-import tickets from "@86d-app/tickets";
+import tickets from "@86d-store/tickets";
 
 export default createStore({
   modules: [
@@ -124,7 +124,7 @@ export default createStore({
 ## Controller API
 
 ```ts
-import type { TicketController } from "@86d-app/tickets";
+import type { TicketController } from "@86d-store/tickets";
 
 // Categories
 controller.createCategory({ name, slug, description?, position? })
@@ -197,7 +197,7 @@ type MessageAuthorType = "customer" | "admin" | "system";
 ### Usage
 
 ```tsx
-import { TicketForm, MyTickets, TicketDetail } from "@86d-app/tickets/store/components";
+import { TicketForm, MyTickets, TicketDetail } from "@86d-store/tickets/store/components";
 
 <TicketForm />
 <MyTickets customerEmail="customer@example.com" />

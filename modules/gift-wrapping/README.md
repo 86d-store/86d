@@ -19,7 +19,7 @@
 
 📚 **Documentation:** [86d.app/docs/modules/gift-wrapping](https://86d.app/docs/modules/gift-wrapping)
 
-# @86d-app/gift-wrapping
+# @86d-store/gift-wrapping
 
 Gift wrapping module for 86d commerce platform. Allows store owners to create wrapping options with custom pricing, and customers to add gift wrapping with personalized messages to individual order items during checkout.
 
@@ -28,7 +28,7 @@ Gift wrapping module for 86d commerce platform. Allows store owners to create wr
 Add to your store's module configuration:
 
 ```ts
-import giftWrapping from "@86d-app/gift-wrapping";
+import giftWrapping from "@86d-store/gift-wrapping";
 
 export const modules = [
   giftWrapping({

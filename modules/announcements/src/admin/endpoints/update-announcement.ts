@@ -1,5 +1,9 @@
-import { createAdminEndpoint } from "@86d-app/core/api";
-import { isSafeUrl, sanitizeHtml, sanitizeText } from "@86d-app/core/sanitize";
+import { createAdminEndpoint } from "@86d-store/core/api";
+import {
+	isSafeUrl,
+	sanitizeHtml,
+	sanitizeText,
+} from "@86d-store/core/sanitize";
 import { z } from "zod";
 import type { AnnouncementsController } from "../../service";
 

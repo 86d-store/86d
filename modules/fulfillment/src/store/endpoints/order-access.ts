@@ -2,9 +2,9 @@ import {
 	customerIdentityResolveCapability,
 	orderCustomerAuthorizeCapability,
 	orderGuestProofAuthorizeCapability,
-} from "@86d-app/core/commerce-capabilities";
-import { sanitizeText } from "@86d-app/core/sanitize";
-import type { ModuleContext } from "@86d-app/core/types/module";
+} from "@86d-store/core/commerce-capabilities";
+import { sanitizeText } from "@86d-store/core/sanitize";
+import type { ModuleContext } from "@86d-store/core/types/module";
 
 function profileNames(displayName: string): {
 	firstName?: string;

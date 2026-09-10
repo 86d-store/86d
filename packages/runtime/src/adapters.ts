@@ -1,4 +1,4 @@
-import type { BaseAdapter } from "@86d-app/core/adapters";
+import type { BaseAdapter } from "@86d-store/core/adapters";
 
 /**
  * Adapter registry that holds all module adapters

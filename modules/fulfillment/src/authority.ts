@@ -1,9 +1,9 @@
-import { orderLineQuantityValidateCapability } from "@86d-app/core/commerce-capabilities";
+import { orderLineQuantityValidateCapability } from "@86d-store/core/commerce-capabilities";
 import type {
 	LockingModuleDataTransaction,
 	ModuleDataTransaction,
 	ModuleTransactionRunner,
-} from "@86d-app/core/durable-events";
+} from "@86d-store/core/durable-events";
 import { z } from "zod";
 import { fulfillmentCreatedV1 } from "./events";
 import type { Fulfillment, FulfillmentItem } from "./service";

@@ -7,11 +7,11 @@ import {
 	writeFileSync,
 } from "node:fs";
 import { join } from "node:path";
-import { registryManifestPath } from "@86d-app/registry/paths";
-import { readLocalManifest } from "@86d-app/registry/resolver";
-import { parseSpecifier } from "@86d-app/registry/specifier";
-import { fetchTemplate } from "@86d-app/registry/template";
-import type { RegistryManifest } from "@86d-app/registry/types";
+import { registryManifestPath } from "@86d-store/registry/paths";
+import { readLocalManifest } from "@86d-store/registry/resolver";
+import { parseSpecifier } from "@86d-store/registry/specifier";
+import { fetchTemplate } from "@86d-store/registry/template";
+import type { RegistryManifest } from "@86d-store/registry/types";
 import {
 	c,
 	detectActiveTemplate,

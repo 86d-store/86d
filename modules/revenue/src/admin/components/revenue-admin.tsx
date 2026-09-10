@@ -1,6 +1,6 @@
 "use client";
 
-import { useModuleClient } from "@86d-app/core/client/provider";
+import { useModuleClient } from "@86d-store/core/client/provider";
 import { useMemo, useState } from "react";
 import type { PaymentIntentStatus, RevenueStats } from "../../service";
 import RevenueAdminTemplate from "./revenue-admin.mdx";

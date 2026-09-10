@@ -26,9 +26,9 @@ Core types and utilities for building modules in the 86d module system. This pac
 ## Installation
 
 ```bash
-npm install @86d-app/core
+npm install @86d-store/core
 # or
-bun add @86d-app/core
+bun add @86d-store/core
 ```
 
 ## Features
@@ -52,7 +52,7 @@ import {
   z,
   type Module,
   type ModuleContext,
-} from "@86d-app/core";
+} from "@86d-store/core";
 
 // Create endpoints
 const getItems = createEndpoint(
@@ -123,7 +123,7 @@ export default function myModule(): Module {
 
 ## Inter-module Capabilities
 
-Capability definitions are pure, versioned schemas shared through `@86d-app/core`. The owner provides the decision and each consumer explicitly accepts the exact contract:
+Capability definitions are pure, versioned schemas shared through `@86d-store/core`. The owner provides the decision and each consumer explicitly accepts the exact contract:
 
 ```typescript
 // In the owner Module
@@ -164,7 +164,7 @@ The client package provides React Query integration for consuming module endpoin
 ### Setup
 
 ```tsx
-import { ModuleClientProvider } from "@86d-app/core/client";
+import { ModuleClientProvider } from "@86d-store/core/client";
 import cart from "@my-org/cart";
 import products from "@my-org/products";
 
@@ -186,7 +186,7 @@ function App({ children }) {
 ### Using Hooks
 
 ```tsx
-import { useModuleClient } from "@86d-app/core/client";
+import { useModuleClient } from "@86d-store/core/client";
 
 function ProductList() {
   const client = useModuleClient();
@@ -233,7 +233,7 @@ function ProductList() {
 ### Non-React Usage
 
 ```typescript
-import { createModuleClient } from "@86d-app/core/client";
+import { createModuleClient } from "@86d-store/core/client";
 import cart from "@my-org/cart";
 
 const client = createModuleClient([cart()], {
@@ -300,7 +300,7 @@ interface ModuleContext {
 
 ## Best Practices
 
-1. **Keep contracts pure** - Put shared capability schemas in `@86d-app/core`, without owner business logic
+1. **Keep contracts pure** - Put shared capability schemas in `@86d-store/core`, without owner business logic
 2. **Declare both sides** - Owners provide capabilities and consumers explicitly accept compatible versions
 3. **Fail closed** - Treat unavailable or rejected authoritative decisions as bounded failures
 4. **Scope data access** - Use `ctx.data` only for the current Module's entities

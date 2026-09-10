@@ -1,5 +1,5 @@
-import { provideCapability } from "@86d-app/core/capabilities";
-import { notificationCreateCapability } from "@86d-app/core/commerce-capabilities";
+import { provideCapability } from "@86d-store/core/capabilities";
+import { notificationCreateCapability } from "@86d-store/core/commerce-capabilities";
 import { createNotificationsController } from "./service-impl";
 export const notificationCreateProvider = provideCapability(
 	notificationCreateCapability,

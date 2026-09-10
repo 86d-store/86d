@@ -67,7 +67,7 @@ export const DEFAULT_CONFIG: Config = {
 		light: "/assets/logo/light.svg",
 		dark: "/assets/logo/dark.svg",
 	},
-	modules: ["@86d-app/cart"],
+	modules: ["@86d-store/cart"],
 	variables: {
 		light: {
 			radius: "0.625rem",

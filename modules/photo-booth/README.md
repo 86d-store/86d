@@ -26,13 +26,13 @@ Event photo capture with session management, live photo streams, and email/SMS d
 ## Installation
 
 ```sh
-npm install @86d-app/photo-booth
+npm install @86d-store/photo-booth
 ```
 
 ## Usage
 
 ```ts
-import photoBooth from "@86d-app/photo-booth";
+import photoBooth from "@86d-store/photo-booth";
 
 const module = photoBooth({
   maxPhotoSize: "5242880",

@@ -2,7 +2,7 @@ import type {
 	Module,
 	ModuleConfig,
 	ModuleContext,
-} from "@86d-app/core/types/module";
+} from "@86d-store/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
 import { photoBoothStorage } from "./schema";
 import { createPhotoBoothController } from "./service-impl";

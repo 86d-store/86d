@@ -63,8 +63,8 @@ export interface ModuleExports {
  * @example
  * ```ts
  * requires: {
- *   "@86d-app/customers": { read: ["customerName", "customerEmail"] },
- *   "@86d-app/products": { read: ["productPrice"], readWrite: ["productStock"] }
+ *   "@86d-store/customers": { read: ["customerName", "customerEmail"] },
+ *   "@86d-store/products": { read: ["productPrice"], readWrite: ["productStock"] }
  * }
  * ```
  */

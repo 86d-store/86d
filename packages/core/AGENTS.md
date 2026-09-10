@@ -40,11 +40,11 @@ src/
 - `sanitizeHtml(input)` — rebuild rich text from an allow-list; apply where content is accepted, not where it is rendered
 - `escapeScriptContent(input)` — escape `</` and `<!--` for safe embedding inside `<script>` (JSON-LD etc.)
 
-Subpath imports only (`@86d-app/core/types/module`, `@86d-app/core/schema`, `@86d-app/core/zod`, `@86d-app/core/sanitize`, `@86d-app/core/state`, `@86d-app/core/client/*`, `@86d-app/core/test-utils`). No package-root barrel for Modules.
+Subpath imports only (`@86d-store/core/types/module`, `@86d-store/core/schema`, `@86d-store/core/zod`, `@86d-store/core/sanitize`, `@86d-store/core/state`, `@86d-store/core/client/*`, `@86d-store/core/test-utils`). No package-root barrel for Modules.
 
 ## Isolation boundary
 
-This package is the sandbox Modules operate in. Modules depend **only** on `@86d-app/core`:
+This package is the sandbox Modules operate in. Modules depend **only** on `@86d-store/core`:
 - `ModuleDataService` is the sole interface for a Module's own data — no direct DB client
 - `ModuleContext` supplies runtime needs — no env vars, no platform package imports
 - Modules may use `fetch()` for external HTTP
@@ -93,6 +93,6 @@ admin: {
 
 ## Local notes
 
-- This is the only package Module authors depend on (`@86d-app/core`)
+- This is the only package Module authors depend on (`@86d-store/core`)
 - Endpoints use `better-call` for type-safe definitions
-- Unit tests mock data services via `@86d-app/core/test-utils`; never a real database
+- Unit tests mock data services via `@86d-store/core/test-utils`; never a real database

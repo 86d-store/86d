@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), "../..");
 
-describe("@86d-app/ui package manifest", () => {
+describe("@86d-store/ui package manifest", () => {
 	const pkg = JSON.parse(
 		readFileSync(join(pkgRoot, "package.json"), "utf8"),
 	) as {
@@ -23,7 +23,7 @@ describe("@86d-app/ui package manifest", () => {
 	};
 
 	it("is a public scoped package on the shared version line", () => {
-		expect(pkg.name).toBe("@86d-app/ui");
+		expect(pkg.name).toBe("@86d-store/ui");
 		expect(pkg.private).toBeUndefined();
 	});
 

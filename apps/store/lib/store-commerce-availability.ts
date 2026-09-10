@@ -1,9 +1,9 @@
-import { getStoreConfig } from "@86d-app/sdk/get-store-config";
+import { getStoreConfig } from "@86d-store/sdk/get-store-config";
 import {
 	type Config,
 	isRemoteStoreConfigV2,
 	type RemoteStoreConfig,
-} from "@86d-app/sdk/types";
+} from "@86d-store/sdk/types";
 import { readProcessEnv } from "env/process-env";
 import { logger } from "utils/logger";
 

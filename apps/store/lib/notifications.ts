@@ -7,7 +7,7 @@
  * intents and are deliberately not registered on the in-memory EventBus.
  */
 
-import type { EventBus, ModuleEvent } from "@86d-app/core/events";
+import type { EventBus, ModuleEvent } from "@86d-store/core/events";
 import AbandonedCartEmail from "emails/abandoned-cart";
 import BackInStockEmail from "emails/back-in-stock";
 import LowStockAlertEmail from "emails/low-stock-alert";

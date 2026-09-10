@@ -1,10 +1,10 @@
-import type { CapabilityResult } from "@86d-app/core/capabilities";
+import type { CapabilityResult } from "@86d-store/core/capabilities";
 import type {
 	LockingModuleDataTransaction,
 	ModuleDataTransaction,
 	ModuleTransactionRunner,
-} from "@86d-app/core/durable-events";
-import { inventoryCheckoutV2Capability } from "@86d-app/core/inventory-reservation-capability";
+} from "@86d-store/core/durable-events";
+import { inventoryCheckoutV2Capability } from "@86d-store/core/inventory-reservation-capability";
 import { z } from "zod";
 
 export type InventoryReservationRequest = z.infer<

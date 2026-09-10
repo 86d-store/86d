@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/returns",
+	"name": "@86d-store/returns",
 	"version": "0.1.0",
 	"description": "Return request management for 86d commerce platform",
 	"keywords": [
@@ -57,8 +57,8 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/contracts": "workspace:*",
-		"@86d-app/core": "workspace:*"
+		"@86d-store/contracts": "workspace:*",
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

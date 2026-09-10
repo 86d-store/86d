@@ -1,4 +1,4 @@
-import { Badge } from "@86d-app/ui/badge";
+import { Badge } from "@86d-store/ui/badge";
 import type { LegacySessionStatus } from "./kiosk-admin-types";
 
 const kioskDateFormatter = new Intl.DateTimeFormat("en-US", {

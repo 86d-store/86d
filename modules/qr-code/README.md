@@ -26,13 +26,13 @@ Generate, manage, and track QR codes for products, collections, pages, orders, o
 ## Installation
 
 ```sh
-npm install @86d-app/qr-code
+npm install @86d-store/qr-code
 ```
 
 ## Usage
 
 ```ts
-import qrCode from "@86d-app/qr-code";
+import qrCode from "@86d-store/qr-code";
 
 const module = qrCode({
   defaultSize: "256",

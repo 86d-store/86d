@@ -2,7 +2,7 @@
 
 Event tracking and reporting for the 86d store. Records page views, product views, cart events, purchases, and custom events. Provides admin endpoints for stats, top-product reports, and raw event access.
 
-**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-app/core` contracts.
+**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-store/core` contracts.
 
 ## Change protocol
 
@@ -39,7 +39,7 @@ Built-in: `pageView`, `productView`, `addToCart`, `removeFromCart`, `checkout`, 
 ## Usage
 
 ```ts
-import analytics from "@86d-app/analytics";
+import analytics from "@86d-store/analytics";
 
 const store = createStore({
   modules: [analytics()],

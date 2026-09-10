@@ -29,7 +29,7 @@ beforeAll(() => {
 		JSON.stringify({
 			theme: "minimal",
 			name: "Minimal Theme",
-			modules: ["@86d-app/products"],
+			modules: ["@86d-store/products"],
 		}),
 	);
 
@@ -155,7 +155,7 @@ describe("fetchTemplate", () => {
 			raw: "brisa",
 			source: "local",
 			name: "brisa",
-			packageName: "@86d-app/brisa",
+			packageName: "@86d-store/brisa",
 		};
 		const result = await fetchTemplate(spec, TMP_ROOT);
 		expect(result.success).toBe(true);
@@ -167,7 +167,7 @@ describe("fetchTemplate", () => {
 			raw: "unknown",
 			source: "registry",
 			name: "unknown",
-			packageName: "@86d-app/unknown",
+			packageName: "@86d-store/unknown",
 		};
 		const result = await fetchTemplate(spec, TMP_ROOT, testManifest);
 		expect(result.success).toBe(false);
@@ -179,7 +179,7 @@ describe("fetchTemplate", () => {
 			raw: "premium",
 			source: "registry",
 			name: "premium",
-			packageName: "@86d-app/premium",
+			packageName: "@86d-store/premium",
 		};
 		const badManifest: RegistryManifest = {
 			...testManifest,
@@ -195,7 +195,7 @@ describe("fetchTemplate", () => {
 			raw: "github:86d-store/86d/templates/brisa",
 			source: "github",
 			name: "brisa",
-			packageName: "@86d-app/brisa",
+			packageName: "@86d-store/brisa",
 			repo: "86d-store/86d",
 			path: "templates/brisa",
 			ref: "main",
@@ -210,7 +210,7 @@ describe("fetchTemplate", () => {
 			raw: "github:",
 			source: "github",
 			name: "test",
-			packageName: "@86d-app/test",
+			packageName: "@86d-store/test",
 		};
 		const result = await fetchTemplate(spec, TMP_ROOT);
 		expect(result.success).toBe(false);

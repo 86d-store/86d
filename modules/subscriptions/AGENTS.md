@@ -2,7 +2,7 @@
 
 Subscription plan and subscriber management. Handles trial and subscription lifecycle status only. Free plans and paid plans with a free trial can be activated through the Store endpoint. Non-trial paid activation remains unavailable until P3 provides purpose-bound, duplicate-safe payment proof consumption.
 
-**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-app/core` contracts.
+**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-store/core` contracts.
 
 ## Change protocol
 

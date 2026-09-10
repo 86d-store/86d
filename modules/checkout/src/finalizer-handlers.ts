@@ -1,15 +1,15 @@
-import type { CapabilityInvoker } from "@86d-app/core/capabilities";
+import type { CapabilityInvoker } from "@86d-store/core/capabilities";
 import {
 	orderCreateCapability,
 	paymentCheckoutCapability,
-} from "@86d-app/core/commerce-capabilities";
-import { inventoryCheckoutV2Capability } from "@86d-app/core/inventory-reservation-capability";
+} from "@86d-store/core/commerce-capabilities";
+import { inventoryCheckoutV2Capability } from "@86d-store/core/inventory-reservation-capability";
 import type {
 	ManagedPaymentClientPort,
 	PaymentAggregatePort,
 	PaymentAggregateReaderPort,
 	PaymentConnectionPort,
-} from "@86d-app/core/payment-checkout-ports";
+} from "@86d-store/core/payment-checkout-ports";
 import { getProcessEnv } from "env/process-env";
 import type {
 	CheckoutFinalization,

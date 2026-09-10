@@ -2,7 +2,7 @@
 
 Product and Variant catalog with accepted Categories. New price writes use integer minor units. Inventory is authoritative for stock, and Collections is authoritative for Collection writes; the similarly named Products fields/tables are temporary read projections. Direct spreadsheet import is contained until the reviewed revision pipeline exists.
 
-**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-app/core` contracts.
+**Scope:** This guide owns Module-specific mechanics. In the 86d.store source checkout, read the repository root [`AGENTS.md`](../../AGENTS.md) for shared rules and gates. In another project, follow that project's instructions and the installed `@86d-store/core` contracts.
 
 ## Change protocol
 

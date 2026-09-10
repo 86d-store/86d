@@ -1,5 +1,5 @@
 {
-	"name": "@86d-app/store-credits",
+	"name": "@86d-store/store-credits",
 	"version": "0.1.0",
 	"description": "Store credit accounts and transactions for 86d commerce platform",
 	"keywords": [
@@ -58,7 +58,7 @@
 		"typecheck": "tsc --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"@86d-app/core": "workspace:*"
+		"@86d-store/core": "workspace:*"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

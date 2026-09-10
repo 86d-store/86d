@@ -8,11 +8,11 @@ import {
 	writeFileSync,
 } from "node:fs";
 import { join } from "node:path";
-import { readStoreConfig } from "@86d-app/registry/config";
-import { computeIntegrity, fetchModules } from "@86d-app/registry/fetcher";
-import { readLockfile } from "@86d-app/registry/lockfile";
-import { readLocalManifest } from "@86d-app/registry/resolver";
-import { parseSpecifier } from "@86d-app/registry/specifier";
+import { readStoreConfig } from "@86d-store/registry/config";
+import { computeIntegrity, fetchModules } from "@86d-store/registry/fetcher";
+import { readLockfile } from "@86d-store/registry/lockfile";
+import { readLocalManifest } from "@86d-store/registry/resolver";
+import { parseSpecifier } from "@86d-store/registry/specifier";
 import {
 	restoreProcessEnv,
 	setProcessEnv,
@@ -41,7 +41,7 @@ afterEach(() => {
 function officialInputs(): RegistryOnlyInputs {
 	return {
 		frozen: true,
-		config: { modules: ["@86d-app/products"] },
+		config: { modules: ["@86d-store/products"] },
 		manifest: {
 			version: 1,
 			baseUrl: "https://github.com/86d-store/86d",
@@ -49,7 +49,7 @@ function officialInputs(): RegistryOnlyInputs {
 			templates: {},
 			modules: {
 				products: {
-					name: "@86d-app/products",
+					name: "@86d-store/products",
 					description: "",
 					// Registry entry version is the Module contract version, not the
 					// independently released package.json version frozen by the lock.
@@ -77,7 +77,7 @@ function officialInputs(): RegistryOnlyInputs {
 			modules: {
 				products: {
 					source: "local",
-					packageName: "@86d-app/products",
+					packageName: "@86d-store/products",
 					version: "0.0.42",
 					integrity: INTEGRITY,
 					localPath: "modules/products",
@@ -127,29 +127,29 @@ describe("validateRegistryOnlyResolvedModules", () => {
 			label: "version drift",
 			expectedError: "package version mismatch",
 			stubPackage: (name) => ({
-				name: `@86d-app/${name}`,
+				name: `@86d-store/${name}`,
 				version: "0.0.42",
-				dependencies: { "@86d-app/shared": "workspace:*" },
+				dependencies: { "@86d-store/shared": "workspace:*" },
 			}),
 			fetchedPackage: (name) => ({
-				name: `@86d-app/${name}`,
+				name: `@86d-store/${name}`,
 				version: name === "beta" ? "0.0.43" : "0.0.42",
-				dependencies: { "@86d-app/shared": "workspace:*" },
+				dependencies: { "@86d-store/shared": "workspace:*" },
 			}),
 		},
 		{
 			label: "non-dependency package.json drift",
 			expectedError: "package.json metadata mismatch",
 			stubPackage: (name) => ({
-				name: `@86d-app/${name}`,
+				name: `@86d-store/${name}`,
 				version: "0.0.42",
-				dependencies: { "@86d-app/shared": "workspace:*" },
+				dependencies: { "@86d-store/shared": "workspace:*" },
 				exports: { ".": "./src/index.ts" },
 			}),
 			fetchedPackage: (name) => ({
-				name: `@86d-app/${name}`,
+				name: `@86d-store/${name}`,
 				version: "0.0.42",
-				dependencies: { "@86d-app/shared": "workspace:*" },
+				dependencies: { "@86d-store/shared": "workspace:*" },
 				exports: {
 					".": name === "beta" ? "./src/alternate.ts" : "./src/index.ts",
 				},
@@ -193,7 +193,7 @@ describe("validateRegistryOnlyResolvedModules", () => {
 				const integrity = computeIntegrity(source);
 				if (!integrity) throw new Error("archive integrity fixture missing");
 				manifestModules[name] = {
-					name: `@86d-app/${name}`,
+					name: `@86d-store/${name}`,
 					description: "",
 					version: "1.0.0",
 					category: "general",
@@ -213,7 +213,7 @@ describe("validateRegistryOnlyResolvedModules", () => {
 				};
 				lockedModules[name] = {
 					source: "local",
-					packageName: `@86d-app/${name}`,
+					packageName: `@86d-store/${name}`,
 					version: "0.0.42",
 					integrity,
 					localPath: `modules/${name}`,
@@ -233,7 +233,7 @@ describe("validateRegistryOnlyResolvedModules", () => {
 			};
 			const selected = validateRegistryOnlyInputs({
 				frozen: true,
-				config: { modules: ["@86d-app/alpha", "@86d-app/beta"] },
+				config: { modules: ["@86d-store/alpha", "@86d-store/beta"] },
 				manifest,
 				lockfile,
 				sourceRevision: commit,
@@ -324,9 +324,9 @@ describe("validateRegistryOnlyResolvedModules", () => {
 		);
 		const corePath = join(POLICY_TMP_ROOT, "packages", "core");
 		const packageJson = JSON.stringify({
-			name: "@86d-app/products",
+			name: "@86d-store/products",
 			version: "0.0.42",
-			dependencies: { "@86d-app/core": "workspace:*" },
+			dependencies: { "@86d-store/core": "workspace:*" },
 		});
 		mkdirSync(POLICY_TMP_ROOT, { recursive: true });
 		writeFileSync(
@@ -340,12 +340,12 @@ describe("validateRegistryOnlyResolvedModules", () => {
 				configVersion: 1,
 				workspaces: {
 					"modules/products": {
-						name: "@86d-app/products",
+						name: "@86d-store/products",
 						version: "0.0.42",
-						dependencies: { "@86d-app/core": "workspace:*" },
+						dependencies: { "@86d-store/core": "workspace:*" },
 					},
 					"packages/core": {
-						name: "@86d-app/core",
+						name: "@86d-store/core",
 						version: "0.0.42",
 					},
 				},
@@ -353,7 +353,7 @@ describe("validateRegistryOnlyResolvedModules", () => {
 			}),
 		);
 		mkdirSync(join(modulePath, "src"), { recursive: true });
-		mkdirSync(join(modulePath, "node_modules", "@86d-app"), {
+		mkdirSync(join(modulePath, "node_modules", "@86d-store"), {
 			recursive: true,
 		});
 		mkdirSync(join(corePath, "src"), { recursive: true });
@@ -362,7 +362,7 @@ describe("validateRegistryOnlyResolvedModules", () => {
 		writeFileSync(
 			join(corePath, "package.json"),
 			JSON.stringify({
-				name: "@86d-app/core",
+				name: "@86d-store/core",
 				version: "0.0.42",
 				type: "module",
 				exports: { "./api": "./src/api.ts" },
@@ -374,7 +374,7 @@ describe("validateRegistryOnlyResolvedModules", () => {
 		);
 		symlinkSync(
 			"../../../../packages/core",
-			join(modulePath, "node_modules", "@86d-app", "core"),
+			join(modulePath, "node_modules", "@86d-store", "core"),
 			"dir",
 		);
 
@@ -382,7 +382,7 @@ describe("validateRegistryOnlyResolvedModules", () => {
 		writeFileSync(join(remoteModule, "package.json"), packageJson);
 		writeFileSync(
 			join(remoteModule, "src", "index.ts"),
-			'import { dependencyMarker } from "@86d-app/core/api";\nconsole.log(dependencyMarker);\n',
+			'import { dependencyMarker } from "@86d-store/core/api";\nconsole.log(dependencyMarker);\n',
 		);
 		const integrity = computeIntegrity(remoteModule);
 		if (!integrity) throw new Error("archive integrity fixture missing");
@@ -478,7 +478,7 @@ describe("validateRegistryOnlyResolvedModules", () => {
 			}),
 		).not.toThrow();
 		expect(
-			realpathSync(join(modulePath, "node_modules", "@86d-app", "core")),
+			realpathSync(join(modulePath, "node_modules", "@86d-store", "core")),
 		).toBe(realpathSync(corePath));
 		const imported = spawnSync("bun", [join(modulePath, "src", "index.ts")], {
 			cwd: POLICY_TMP_ROOT,
@@ -721,9 +721,9 @@ describe("validateRegistryOnlyResolvedModules", () => {
 		writeFileSync(
 			join(modulePath, "package.json"),
 			JSON.stringify({
-				name: "@86d-app/products",
+				name: "@86d-store/products",
 				version: "0.0.42",
-				dependencies: { "@86d-app/shared": "workspace:*" },
+				dependencies: { "@86d-store/shared": "workspace:*" },
 				peerDependencies: { react: "catalog:react" },
 			}),
 		);
@@ -741,9 +741,9 @@ describe("validateRegistryOnlyResolvedModules", () => {
 		writeFileSync(
 			join(modulePath, "package.json"),
 			JSON.stringify({
-				name: "@86d-app/products",
+				name: "@86d-store/products",
 				version: "0.0.42",
-				dependencies: { "@86d-app/shared": "9.9.9" },
+				dependencies: { "@86d-store/shared": "9.9.9" },
 				peerDependencies: { react: "catalog:react" },
 			}),
 		);
@@ -779,7 +779,7 @@ describe("validateRegistryOnlyResolvedModules", () => {
 		mkdirSync(join(modulePath, "src"), { recursive: true });
 		writeFileSync(
 			join(modulePath, "package.json"),
-			JSON.stringify({ name: "@86d-app/products", version: "0.0.42" }),
+			JSON.stringify({ name: "@86d-store/products", version: "0.0.42" }),
 		);
 		const sourcePath = join(modulePath, "src", "index.ts");
 		writeFileSync(sourcePath, "export const value = 1;\n");
@@ -829,7 +829,7 @@ describe("validateRegistryOnlyResolvedModules", () => {
 		mkdirSync(join(modulePath, "src"), { recursive: true });
 		writeFileSync(
 			join(modulePath, "package.json"),
-			JSON.stringify({ name: "@86d-app/products", version: "0.0.43" }),
+			JSON.stringify({ name: "@86d-store/products", version: "0.0.43" }),
 		);
 		writeFileSync(join(modulePath, "src", "index.ts"), "export {};\n");
 		const integrity = computeIntegrity(modulePath);
@@ -886,7 +886,7 @@ describe("validateRegistryOnlyInputs", () => {
 				modules: {
 					custom: {
 						source: "github",
-						packageName: "@86d-app/custom",
+						packageName: "@86d-store/custom",
 						version: "1.0.0",
 						integrity: INTEGRITY,
 						localPath: "modules/custom",
@@ -922,7 +922,7 @@ describe("validateRegistryOnlyInputs", () => {
 			expect(validateRegistryOnlyInputs(inputs)).toEqual([
 				expect.objectContaining({
 					name: "products",
-					packageName: "@86d-app/products",
+					packageName: "@86d-store/products",
 				}),
 			]);
 		},
