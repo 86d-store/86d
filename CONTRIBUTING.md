@@ -35,7 +35,7 @@ bun run docker:build                   # Production Store Runtime image
 bun run docker:verify                  # Container boot and health smoke
 ```
 
-Run them locally in that order and fix everything they flag. The Docker build and smoke gates are the production Store Runtime proof. `bun run build` remains available for package and Module authoring, and Release builds publishable packages before npm publication. The same `ci/cd` job also runs on pushes to `main` (commitlint first) and must pass before Release. Playwright E2E (`bun run test:e2e`) uses its own Store build in a separate workflow only on `main`; it does not block publish.
+Run them locally in that order and fix everything they flag. The Docker build and smoke gates are the production Store Runtime proof. `bun run build` remains available for package and Module authoring, and Release builds publishable packages before npm publication. The same `ci/cd` job also runs on pushes to `main` (commitlint first) and must pass before Release. Focused Playwright browser smoke (`bun run test:browser`) uses its own production Store build in a path-filtered pull-request and `main` workflow; it does not block publish.
 
 ## Commit messages
 
@@ -101,7 +101,7 @@ If the workflow comments that a same-repository branch has non-lock conflicts, r
 ## Pull requests
 
 - **One coherent change per PR.** A bug fix, a new endpoint, a new module, a docs improvement. Not all four at once.
-- **Tests for every code change.** New endpoint -> add Vitest tests. UI change -> update Playwright snapshots. Bug fix -> add a regression test.
+- **Tests for every code change.** New endpoint -> add Vitest tests. UI change -> add rendered-state coverage and visually inspect it. Add Playwright coverage only for a browser-specific seam. Bug fix -> add a regression test.
 - **A real description.** What problem the PR solves, why this approach, what alternatives you considered, what is not yet covered.
 - **Changesets entry.** For changes that affect a published package, run `bunx changeset` and commit the generated file. Release uses Changesets to decide whether package and container publication can proceed.
 
@@ -131,7 +131,7 @@ Before requesting review:
 - Loading, error, and empty states in any UI components
 - Vitest tests for critical paths with realistic fixtures
 - For external API integrations: real HTTP calls, retries, error mapping, webhook signature verification
-- Playwright visual snapshots for any new admin or storefront screen, in light + dark mode, desktop + mobile
+- Rendered-state tests for new admin or storefront states, plus visual inspection in Chrome at 1280×720 and 375×667 in light and dark. Check required states, focus, overflow, errors, and recovery. Screenshots are review artifacts, not pixel baselines or launch evidence.
 
 ## Publishing external Modules
 

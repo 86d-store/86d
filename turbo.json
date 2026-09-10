@@ -51,11 +51,10 @@
         "FORCE_COLOR",
         "NO_COLOR",
         "NEXT_RUNTIME",
-        "PLAYWRIGHT_START_SERVER",
-        "E2E_STORE_URL",
-        "E2E_ADMIN_EMAIL",
-        "E2E_ADMIN_PASSWORD",
-        "E2E_VISUAL"
+        "BROWSER_START_SERVER",
+        "BROWSER_STORE_URL",
+        "BROWSER_ADMIN_EMAIL",
+        "BROWSER_ADMIN_PASSWORD"
     ],
     "globalDependencies": [
         ".env",

@@ -11,7 +11,7 @@
 - [ ] `bun run docker:build`
 - [ ] `bun run docker:verify`
 - [ ] Commits use [Conventional Commits](https://www.conventionalcommits.org/) with a **required scope** (`type(scope): subject`)
-- [ ] Tests updated for behavior changes (Vitest; Playwright where UI is affected)
+- [ ] Tests updated for behavior changes (Vitest by default; Playwright for browser-only seams)
 - [ ] Changeset added when a published package or Module API changes (`bunx changeset`)
 - [ ] Security-relevant changes follow [SECURITY.md](../SECURITY.md) (no public exploit detail)
 

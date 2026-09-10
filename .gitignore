@@ -28,8 +28,10 @@ apps/store/generated/
 .DS_Store
 .idea/
 
-# Test artifacts
+# Current and retired browser-test artifacts
 coverage/
+browser-report/
+browser-results/
 playwright-report/
 test-results/
 

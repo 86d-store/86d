@@ -118,9 +118,13 @@ bun run docker:build     # Build the production Store Runtime image
 bun run docker:verify    # Smoke-test the image with Compose
 bun run typecheck        # TypeScript check
 bun run check            # Biome lint/format
-bun run test             # Unit tests
-bun run test:e2e         # Playwright E2E tests
+bun run test             # Unit, integration, and rendered-state tests
+bun run test:browser     # Focused Playwright browser smoke
 ```
+
+Unit, integration, and rendered-state tests are the CI base. Browser smoke covers browser-only seams such as navigation, persisted client state, focus, responsive overflow, and browser request construction; it is not a route or screenshot inventory.
+
+For UI changes, visually inspect the running Store in Chrome at 1280×720 and 375×667, in light and dark. Exercise the required loading, empty, error, and populated states and verify focus, overflow, and recovery behavior. Screenshots are temporary review artifacts, not pixel baselines or launch evidence. See [`tests/browser/README.md`](tests/browser/README.md).
 
 ## Environment Variables
 

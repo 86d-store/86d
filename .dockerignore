@@ -22,6 +22,10 @@ logs/
 **/logs
 coverage/
 **/coverage
+browser-report/
+**/browser-report
+browser-results/
+**/browser-results
 playwright-report/
 **/playwright-report
 test-results/

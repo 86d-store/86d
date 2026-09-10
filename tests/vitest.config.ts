@@ -16,7 +16,7 @@ function workspaceProjects(...roots: string[]): string[] {
 export default defineConfig({
 	root: workspaceRoot,
 	test: {
-		exclude: ["**/node_modules/**", "**/dist/**", "tests/e2e/**"],
+		exclude: ["**/node_modules/**", "**/dist/**", "tests/browser/**"],
 		projects: workspaceProjects("apps", "packages", "modules"),
 		coverage: {
 			provider: "v8",

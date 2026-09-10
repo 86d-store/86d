@@ -62,5 +62,5 @@ Compiled Module tables (`mod_*`) are applied at Store boot from Zod + `col` (or 
 ## Notes
 
 - Prefer `import { db } from "db"` and table imports from `db/schema`.
-- Seed (`src/seed.ts`) loads the luxury-house demo catalog for development and E2E.
+- Seed (`src/seed.ts`) loads the luxury-house demo catalog for development and browser smoke.
 - Run `bun run seed` from this package or `bun run db:seed` from the repo root.

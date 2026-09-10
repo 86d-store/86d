@@ -3,7 +3,7 @@
 /**
  * Database Seed Script
  *
- * Seeds a deterministic luxury-house demo catalog for development and E2E work.
+ * Seeds a deterministic luxury-house demo catalog for development and browser smoke.
  *
  * Usage:
  *   bun run db:seed
