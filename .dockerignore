@@ -26,6 +26,8 @@ browser-report/
 **/browser-report
 browser-results/
 **/browser-results
+.browser-auth/
+**/.browser-auth
 playwright-report/
 **/playwright-report
 test-results/

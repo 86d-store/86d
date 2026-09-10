@@ -123,7 +123,7 @@ The final official UI run used a temporary isolated runner and log under `/tmp`.
 
 **Approve for the inspected source changes and completed checks.** No confirmed actionable interface-polish finding remains in that boundary.
 
-**Unverified beside this verdict:** the full commerce Playwright suite, every interaction state on every real data route, and live commerce workflows. The six required repository gates and eight selected official UI tests passed. Neither local source review nor fixture success advances capability maturity, proves checkout/order continuity, or authorizes remote publication. The rewrite is consolidated into the canonical `main` checkout with the newer shared font and semantic-style changes. No remote publication was performed.
+**Retired rather than verified:** the former full commerce Playwright suite. Every interaction state on every real data route and live commerce workflows remain unverified. The six required repository gates and eight selected official UI tests passed. Neither local source review nor fixture success advances capability maturity, proves checkout/order continuity, or authorizes remote publication. The rewrite is consolidated into the canonical `main` checkout with the newer shared font and semantic-style changes. No remote publication was performed.
 
 ## Main consolidation (2026-09-09)
 

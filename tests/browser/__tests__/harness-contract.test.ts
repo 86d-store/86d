@@ -28,6 +28,18 @@ describe("browser smoke harness contract", () => {
 		expect(combined).not.toContain(["toHave", "Screenshot"].join(""));
 	});
 
+	it("keeps two scoped semantic scans with only the documented contrast exclusion", () => {
+		const combined = browserSpecSources().join("\n");
+
+		expect(combined.match(/new AxeBuilder/g)).toHaveLength(2);
+		expect(combined.match(/\.include\("main"\)/g)).toHaveLength(2);
+		expect(
+			combined.match(/\.disableRules\(\["color-contrast"\]\)/g),
+		).toHaveLength(2);
+		expect(combined.match(/\.disableRules\(/g)).toHaveLength(2);
+		expect(combined).not.toContain(".exclude(");
+	});
+
 	it("uses one Chromium project with no retries", () => {
 		const config = readFileSync(
 			join(repositoryRoot, "tests/playwright.config.ts"),
@@ -39,6 +51,12 @@ describe("browser smoke harness contract", () => {
 		expect(config).toMatch(/retries:\s*0/);
 		expect(config.match(/\.\.\.devices\[/g)).toHaveLength(1);
 		expect(config).not.toContain("snapshotPathTemplate");
+		expect(config).toContain("bun run build:store");
+		expect(config).toContain("bun run --cwd apps/store start");
+		expect(config).toContain("cwd: REPOSITORY_ROOT");
+		expect(config).toMatch(/timeout:\s*600_000/);
+		expect(config).toMatch(/reuseExistingServer:\s*false/);
+		expect(config).not.toContain("bun run dev:store");
 	});
 
 	it("runs browser smoke once as a fail-closed read-only gate", () => {
@@ -57,7 +75,10 @@ describe("browser smoke harness contract", () => {
 		expect(workflow).toContain('- "internals/github/setup/**"');
 		expect(workflow).toContain('- "packages/**"');
 		expect(workflow).toContain("browser-report/");
-		expect(workflow).toContain("browser-results/");
+		expect(workflow).toContain("browser-results/**/*.zip");
+		expect(workflow).toContain("browser-results/**/*.png");
+		expect(workflow).toContain("browser-results/**/*.webm");
+		expect(workflow).not.toMatch(/^\s+browser-results\/\s*$/m);
 	});
 
 	it("opts fixture-only routes into browser builds without production defaults", () => {
@@ -77,6 +98,9 @@ describe("browser smoke harness contract", () => {
 			join(repositoryRoot, "package.json"),
 			"utf8",
 		);
+		const turbo = JSON.parse(
+			readFileSync(join(repositoryRoot, "turbo.json"), "utf8"),
+		) as { globalPassThroughEnv?: string[] };
 		const dockerfile = readFileSync(join(repositoryRoot, "Dockerfile"), "utf8");
 
 		expect(workflow).toContain('BROWSER_MERCHANT_UI_FIXTURES: "true"');
@@ -84,8 +108,63 @@ describe("browser smoke harness contract", () => {
 			storeAction.match(/BROWSER_MERCHANT_UI_FIXTURES:\s+"true"/g),
 		).toHaveLength(2);
 		expect(playwrightConfig).toContain('BROWSER_MERCHANT_UI_FIXTURES: "true"');
+		expect(turbo.globalPassThroughEnv).toContain(
+			"BROWSER_MERCHANT_UI_FIXTURES",
+		);
 		expect(packageJson).not.toContain("BROWSER_MERCHANT_UI_FIXTURES");
 		expect(dockerfile).not.toContain("BROWSER_MERCHANT_UI_FIXTURES");
+	});
+
+	it("keeps stored auth state outside uploaded failure artifacts", () => {
+		const fixtures = readFileSync(
+			join(repositoryRoot, "tests/browser/fixtures/test-fixtures.ts"),
+			"utf8",
+		);
+		const workflow = readFileSync(
+			join(repositoryRoot, ".github/workflows/browser-smoke.yml"),
+			"utf8",
+		);
+		const gitignore = readFileSync(join(repositoryRoot, ".gitignore"), "utf8");
+		const dockerignore = readFileSync(
+			join(repositoryRoot, ".dockerignore"),
+			"utf8",
+		);
+		const packageJson = readFileSync(
+			join(repositoryRoot, "package.json"),
+			"utf8",
+		);
+
+		expect(fixtures).toContain('".browser-auth/admin-storage-state.json"');
+		expect(fixtures).not.toContain("browser-results/admin-storage-state.json");
+		expect(workflow).not.toContain(".browser-auth");
+		expect(workflow).not.toContain("admin-storage-state");
+		expect(gitignore).toContain(".browser-auth/");
+		expect(dockerignore).toContain(".browser-auth/");
+		expect(packageJson).toContain("browser-results .browser-auth");
+	});
+
+	it("inherits seed credentials and fails on browser runtime errors", () => {
+		const fixtures = readFileSync(
+			join(repositoryRoot, "tests/browser/fixtures/test-fixtures.ts"),
+			"utf8",
+		);
+		const globalSetup = readFileSync(
+			join(repositoryRoot, "tests/browser/global-setup.ts"),
+			"utf8",
+		);
+
+		expect(fixtures).toMatch(
+			/getProcessEnv\("BROWSER_ADMIN_EMAIL"\)[\s\S]*getProcessEnv\("APP_ADMIN_EMAIL"\)/,
+		);
+		expect(fixtures).toMatch(
+			/getProcessEnv\("BROWSER_ADMIN_PASSWORD"\)[\s\S]*getProcessEnv\("APP_ADMIN_PASSWORD"\)/,
+		);
+		expect(fixtures).toContain('page.on("pageerror"');
+		expect(fixtures).toContain('message.type() !== "error"');
+		expect(fixtures).toMatch(/browserRuntimeErrors:[\s\S]*auto:\s*true/);
+		expect(globalSetup).toContain("context.request.post(");
+		expect(globalSetup).toContain("signInResponse.ok()");
+		expect(globalSetup).not.toContain("page.goto(");
 	});
 
 	it("leaves lockfile synchronization scoped to its own workflow", () => {

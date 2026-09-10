@@ -1,18 +1,28 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { test as base, type Cookie, expect, type Page } from "@playwright/test";
+import {
+	test as base,
+	type ConsoleMessage,
+	type Cookie,
+	expect,
+	type Page,
+} from "@playwright/test";
 import { getProcessEnv } from "env/process-env";
 /* ------------------------------------------------------------------ */
 /* Constants                                                           */
 /* ------------------------------------------------------------------ */
 
 export const ADMIN_EMAIL =
-	getProcessEnv("BROWSER_ADMIN_EMAIL") || "admin@86d.app";
+	getProcessEnv("BROWSER_ADMIN_EMAIL") ||
+	getProcessEnv("APP_ADMIN_EMAIL") ||
+	"admin@86d.app";
 export const ADMIN_PASSWORD =
-	getProcessEnv("BROWSER_ADMIN_PASSWORD") || "password123";
+	getProcessEnv("BROWSER_ADMIN_PASSWORD") ||
+	getProcessEnv("APP_ADMIN_PASSWORD") ||
+	"password123";
 export const ADMIN_STORAGE_STATE_PATH = resolve(
 	process.cwd(),
-	"browser-results/admin-storage-state.json",
+	".browser-auth/admin-storage-state.json",
 );
 
 /* ------------------------------------------------------------------ */
@@ -134,9 +144,31 @@ export class AdminPage {
 type Fixtures = {
 	storefront: StorefrontPage;
 	admin: AdminPage;
+	browserRuntimeErrors: undefined;
 };
 
 export const test = base.extend<Fixtures>({
+	browserRuntimeErrors: [
+		async ({ page }, use) => {
+			const errors: string[] = [];
+			const onConsole = (message: ConsoleMessage) => {
+				if (message.type() !== "error") return;
+				errors.push(`console.error: ${message.text()}`);
+			};
+			const onPageError = (error: Error) => {
+				errors.push(`pageerror: ${error.message}`);
+			};
+
+			page.on("console", onConsole);
+			page.on("pageerror", onPageError);
+			await use();
+			page.off("console", onConsole);
+			page.off("pageerror", onPageError);
+
+			expect(errors, "Unexpected browser runtime errors").toEqual([]);
+		},
+		{ auto: true },
+	],
 	storefront: async ({ page }, use) => {
 		await use(new StorefrontPage(page));
 	},

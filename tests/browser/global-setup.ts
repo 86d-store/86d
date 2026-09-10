@@ -21,17 +21,23 @@ export default async function globalSetup(config: FullConfig) {
 	mkdirSync(dirname(ADMIN_STORAGE_STATE_PATH), { recursive: true });
 
 	const browser = await chromium.launch();
-	const page = await browser.newPage({ baseURL });
+	const context = await browser.newContext({ baseURL });
 	try {
-		await page.goto("/auth/signin?redirect=/admin");
-		const form = page.locator("main form");
-		await form.locator('input[type="email"]').fill(ADMIN_EMAIL);
-		await form.locator('input[type="password"]').fill(ADMIN_PASSWORD);
-		await form.locator('button[type="submit"]').click();
-		await page.waitForURL((url) => url.pathname.startsWith("/admin"), {
-			timeout: 30_000,
-		});
-		await page.context().storageState({ path: ADMIN_STORAGE_STATE_PATH });
+		// Authenticate through the browser context so a cold dev server does not race
+		// the sign-in form's client-side hydration.
+		const signInResponse = await context.request.post(
+			"/api/auth/sign-in/email",
+			{
+				data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD },
+				timeout: 60_000,
+			},
+		);
+		if (!signInResponse.ok()) {
+			throw new Error(
+				`Admin sign-in failed with HTTP ${signInResponse.status()}.`,
+			);
+		}
+		await context.storageState({ path: ADMIN_STORAGE_STATE_PATH });
 	} finally {
 		await browser.close();
 	}

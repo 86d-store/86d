@@ -106,5 +106,7 @@ jobs:
           name: browser-smoke-artifacts
           path: |
             browser-report/
-            browser-results/
+            browser-results/**/*.zip
+            browser-results/**/*.png
+            browser-results/**/*.webm
           if-no-files-found: warn

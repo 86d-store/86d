@@ -12,21 +12,24 @@ bun run db:seed
 BROWSER_START_SERVER=1 bun run test:browser
 ```
 
-Set `BROWSER_START_SERVER=1` to let Playwright start the development server, or set `BROWSER_STORE_URL` when the Store runs elsewhere. `BROWSER_ADMIN_EMAIL` and `BROWSER_ADMIN_PASSWORD` override the seeded admin credentials. The fixture route requires `BROWSER_MERCHANT_UI_FIXTURES=true` at both build and runtime.
+Set `BROWSER_START_SERVER=1` to let Playwright build and start the production Store, or set `BROWSER_STORE_URL` when the Store runs elsewhere. Browser authentication uses `BROWSER_ADMIN_EMAIL` and `BROWSER_ADMIN_PASSWORD` when set, then falls back to the `APP_ADMIN_EMAIL` and `APP_ADMIN_PASSWORD` values used by the seed. The fixture route requires `BROWSER_MERCHANT_UI_FIXTURES=true` at both build and runtime; the self-starting command supplies it to both phases.
 
 Use `bun run test:browser:ui` for Playwright's interactive runner. The CI workflow builds and starts the production Store before executing the same suite.
 
 ## Scope
 
-The single Chromium project covers 14 browser cases:
+The single Chromium project covers 16 browser cases:
 
 - authentication redirects and a reusable successful session;
 - catalog-to-checkout navigation and persisted cart state;
 - exact browser request contracts for product tiers and pickup windows;
 - two authenticated reporting-query contracts that exercise browser request construction;
+- scoped storefront and store-admin semantic Axe scans;
 - keyboard focus, mobile menu focus/theme/resize behavior, labeled account navigation, mobile action reachability, table overflow recovery, and checkout/page recovery behavior.
 
 Add a browser case only when the regression depends on navigation, storage, focus, responsive layout, browser request construction, or another real-browser boundary. Put route logic, data transformations, component states, and broad page coverage in unit, integration, or rendered-state tests.
+
+The two semantic scans inspect only the primary `main` landmark and fail on serious or critical WCAG A/AA violations. They disable only Axe's `color-contrast` rule because existing light-theme muted text and primary-action contrast remain separately tracked debt. Do not broaden that exclusion; contrast requires dedicated visual review and remediation across the shared stylesheet.
 
 ## Visual review
 

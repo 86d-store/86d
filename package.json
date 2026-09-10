@@ -14,7 +14,7 @@
 		"typecheck": "turbo run typecheck",
 		"check": "biome check --error-on-warnings .",
 		"check:fix": "biome check --write --unsafe --error-on-warnings .",
-		"clean": "turbo run clean && git clean -xdf .turbo .next node_modules coverage logs browser-report browser-results",
+		"clean": "turbo run clean && git clean -xdf .turbo .next node_modules coverage logs browser-report browser-results .browser-auth",
 		"clean:publish-dist": "tsx internals/generators/src/clean-publish-dist.ts",
 		"dev": "dotenv -- turbo run dev --filter=store",
 		"dev:store": "dotenv -- turbo run dev --filter=store",
@@ -53,6 +53,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
+		"@axe-core/playwright": "4.13.0",
 		"@biomejs/biome": "catalog:",
 		"@changesets/changelog-github": "0.7.0",
 		"@changesets/cli": "2.31.0",

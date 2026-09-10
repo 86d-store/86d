@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect } from "@playwright/test";
 import { createAdminQueryRecorder } from "./fixtures/admin-query-recorder";
 import { test } from "./fixtures/test-fixtures";
@@ -236,6 +237,28 @@ test.describe("Authenticated admin browser smoke", () => {
 				ninetyDayTransactions,
 			),
 		).toBe(1);
+	});
+
+	test("admin main has no serious semantic Axe violations", async ({
+		admin,
+	}) => {
+		await admin.page.goto("/admin/products");
+		await expect(
+			admin.page.getByRole("heading", { name: "Products", exact: true }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(
+			admin.page.getByText("Loading products…", { exact: true }),
+		).toBeHidden({ timeout: 15_000 });
+
+		const results = await new AxeBuilder({ page: admin.page })
+			.include("main")
+			.disableRules(["color-contrast"])
+			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+			.analyze();
+		const violations = results.violations.filter((violation) =>
+			["critical", "serious"].includes(violation.impact ?? ""),
+		);
+		expect(violations).toHaveLength(0);
 	});
 });
 

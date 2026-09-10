@@ -1,6 +1,8 @@
+import { resolve } from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 import { getProcessEnv } from "env/process-env";
 
+const REPOSITORY_ROOT = resolve(import.meta.dirname, "..");
 const STORE_URL = getProcessEnv("BROWSER_STORE_URL") || "http://localhost:3000";
 const htmlReporter: ["html", { outputFolder: string }] = [
 	"html",
@@ -39,13 +41,14 @@ export default defineConfig({
 	...(getProcessEnv("BROWSER_START_SERVER") === "1"
 		? {
 				webServer: {
-					command: "bun run dev:store",
+					command: "bun run build:store && bun run --cwd apps/store start",
+					cwd: REPOSITORY_ROOT,
 					env: {
 						BROWSER_MERCHANT_UI_FIXTURES: "true",
 					},
 					url: STORE_URL,
-					reuseExistingServer: true,
-					timeout: 120_000,
+					reuseExistingServer: false,
+					timeout: 600_000,
 				},
 			}
 		: {}),

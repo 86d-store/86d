@@ -1,7 +1,25 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect } from "@playwright/test";
 import { test } from "./fixtures/test-fixtures";
 
 test.describe("Storefront browser seams", () => {
+	test("homepage main has no serious semantic Axe violations", async ({
+		page,
+	}) => {
+		await page.goto("/");
+		await expect(page.locator("main")).toBeVisible();
+
+		const results = await new AxeBuilder({ page })
+			.include("main")
+			.disableRules(["color-contrast"])
+			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+			.analyze();
+		const violations = results.violations.filter((violation) =>
+			["critical", "serious"].includes(violation.impact ?? ""),
+		);
+		expect(violations).toHaveLength(0);
+	});
+
 	test("a product card accepts keyboard focus", async ({ storefront }) => {
 		await storefront.navigateToProducts();
 		const productCard = storefront.allProductCards.first();

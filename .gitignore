@@ -32,6 +32,7 @@ apps/store/generated/
 coverage/
 browser-report/
 browser-results/
+.browser-auth/
 playwright-report/
 test-results/
 

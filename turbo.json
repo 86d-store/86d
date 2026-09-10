@@ -54,7 +54,8 @@
         "BROWSER_START_SERVER",
         "BROWSER_STORE_URL",
         "BROWSER_ADMIN_EMAIL",
-        "BROWSER_ADMIN_PASSWORD"
+        "BROWSER_ADMIN_PASSWORD",
+        "BROWSER_MERCHANT_UI_FIXTURES"
     ],
     "globalDependencies": [
         ".env",
