@@ -27,7 +27,7 @@ Shared merchant UI for 86d Console, Store Admin, and Modules. Primitives live un
 npm install @86d-store/ui
 ```
 
-Peer dependencies: `react`, `react-dom`, `next`, `zod`, and `@tanstack/react-table@9.1.2`.
+Peer dependencies: `react`, `react-dom`, `next`, `zod`, and `@tanstack/react-table@9.2.4`.
 
 Import the shared stylesheet once in the application CSS:
 

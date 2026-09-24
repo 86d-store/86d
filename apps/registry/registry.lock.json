@@ -257,7 +257,7 @@
       "source": "local",
       "packageName": "@86d-store/giftcards",
       "version": "0.1.0",
-      "integrity": "sha256-b164ea57a4fbd0b5b2ee5de0bb7cd741476c47b9acdd5f099b28d22ed40fe044",
+      "integrity": "sha256-08e6d0e5408d9c2af350231aa7bdbd87f0b93ba327fc5247ddff726c070db477",
       "localPath": "modules/giftcards"
     },
     "google-shopping": {
@@ -299,7 +299,7 @@
       "source": "local",
       "packageName": "@86d-store/kiosk",
       "version": "0.1.0",
-      "integrity": "sha256-59c6d838e4dde22ee807d5a9640b0ad99951ed381caf5e91922991c35c5c0d14",
+      "integrity": "sha256-e2d20139ce77e51165923237619ec9f5b33fd04456dd912f2d9cf27e51f3ac3a",
       "localPath": "modules/kiosk"
     },
     "loyalty": {
@@ -439,7 +439,7 @@
       "source": "local",
       "packageName": "@86d-store/products",
       "version": "0.1.0",
-      "integrity": "sha256-54e4a0de9910da867992ac12f3f20ea8fc942a7125092ee8f8c40fc10b084f44",
+      "integrity": "sha256-d6136c22b86d4e09622982ddac61e9512a0a78cce2d73a4b8a415a342258f503",
       "localPath": "modules/products"
     },
     "qr-code": {
@@ -702,5 +702,5 @@
       "localPath": "modules/x-shop"
     }
   },
-  "generatedAt": "2026-09-10T02:55:22.725Z"
+  "generatedAt": "2026-09-24T07:57:55.641Z"
 }

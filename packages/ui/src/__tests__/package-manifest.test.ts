@@ -90,7 +90,7 @@ describe("@86d-store/ui package manifest", () => {
 		expect(deps.lib).toBeUndefined();
 		expect(deps.utils).toBeUndefined();
 		expect(deps.validators).toBeUndefined();
-		expect(deps["@tanstack/react-table"]).toBe("9.1.2");
+		expect(deps["@tanstack/react-table"]).toBe("9.2.4");
 	});
 
 	it("ships every font import through a direct dependency with available assets", () => {

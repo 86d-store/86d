@@ -1,7 +1,6 @@
 "use client";
 
 import { SlidersHorizontalIcon } from "@phosphor-icons/react/dist/ssr";
-import type { ReactTable, RowData, TableFeatures } from "@tanstack/react-table";
 import { Button } from "../button";
 import {
 	DropdownMenu,
@@ -22,11 +21,11 @@ type VisibilityColumn = {
 	toggleVisibility: (value?: boolean) => void;
 };
 
-export interface DataTableViewOptionsProps<
-	TFeatures extends TableFeatures,
-	TData extends RowData,
-> {
-	table: ReactTable<TFeatures, TData>;
+export interface DataTableViewOptionsProps {
+	// Structural: concrete useTable() feature sets are not assignable to
+	// ReactTable<TableFeatures, TData> under react-table 9.2.x
+	// (excess stack depth / exactOptionalPropertyTypes).
+	table: { getAllColumns: () => readonly unknown[] };
 	className?: string;
 }
 
@@ -39,13 +38,13 @@ function columnLabel(column: VisibilityColumn) {
 	return column.id;
 }
 
-export function DataTableViewOptions<
-	TFeatures extends TableFeatures,
-	TData extends RowData,
->({ table, className }: DataTableViewOptionsProps<TFeatures, TData>) {
-	const hideable = (
-		table.getAllColumns() as unknown as VisibilityColumn[]
-	).filter((column) => column.getCanHide());
+export function DataTableViewOptions({
+	table,
+	className,
+}: DataTableViewOptionsProps) {
+	const hideable = (table.getAllColumns() as VisibilityColumn[]).filter(
+		(column) => column.getCanHide(),
+	);
 
 	if (hideable.length === 0) {
 		return null;

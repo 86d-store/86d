@@ -55,7 +55,7 @@
 	"dependencies": {
 		"@86d-store/core": "workspace:*",
 		"@86d-store/ui": "workspace:*",
-		"@tanstack/react-table": "9.1.2"
+		"@tanstack/react-table": "9.2.4"
 	},
 	"devDependencies": {
 		"86d": "workspace:*",

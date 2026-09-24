@@ -165,7 +165,11 @@
 		"ui-add": "bunx shadcn@latest add"
 	},
 	"dependencies": {
-		"@base-ui/react": "1.7.0",
+		"@base-ui/react": "1.8.0",
+		"@dnd-kit/core": "6.3.1",
+		"@dnd-kit/modifiers": "9.0.0",
+		"@dnd-kit/sortable": "10.0.0",
+		"@dnd-kit/utilities": "3.2.2",
 		"@fontsource-variable/zalando-sans-semiexpanded": "5.3.0",
 		"@fontsource/ibm-plex-mono": "5.3.0",
 		"@fontsource/merriweather": "5.3.0",
@@ -175,12 +179,14 @@
 		"@radix-ui/react-slot": "1.3.3",
 		"@shadcn/react": "0.3.0",
 		"@tailwindcss/typography": "0.5.20",
-		"@tanstack/react-table": "9.1.2",
+		"@tanstack/react-query": "5.103.2",
+		"@tanstack/react-table": "9.2.4",
 		"@toolwind/corner-shape": "0.0.8-3",
 		"boneyard-js": "1.9.0",
 		"class-variance-authority": "0.7.1",
 		"clsx": "2.1.1",
 		"cmdk": "1.1.1",
+		"date-fns": "4.4.0",
 		"dayjs": "1.11.21",
 		"embla-carousel-react": "8.6.0",
 		"input-otp": "1.4.2",
@@ -205,7 +211,7 @@
 		"vitest": "catalog:vite"
 	},
 	"peerDependencies": {
-		"@tanstack/react-table": "9.1.2",
+		"@tanstack/react-table": "9.2.4",
 		"next": "catalog:next",
 		"react": "catalog:react",
 		"react-dom": "catalog:react",
