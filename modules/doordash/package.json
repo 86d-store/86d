@@ -1,6 +1,6 @@
 {
 	"name": "@86d-store/doordash",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "DoorDash Drive delivery integration module for 86d commerce platform",
 	"keywords": [
 		"commerce",

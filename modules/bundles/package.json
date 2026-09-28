@@ -1,6 +1,6 @@
 {
 	"name": "@86d-store/bundles",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Product bundles with configurable discounts for 86d commerce platform",
 	"keywords": [
 		"commerce",

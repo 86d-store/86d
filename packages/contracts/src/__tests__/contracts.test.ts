@@ -26,7 +26,7 @@ import {
 	parseCanonicalJson,
 } from "../serialize";
 import currentFixture from "./fixtures/command-conformance.json";
-import historicalArtifact from "./fixtures/conformance-0.0.42.json";
+import historicalArtifact from "./fixtures/conformance-0.1.0.json";
 
 const fixtureSuites = [
 	{ name: "current", fixture: currentFixture },
@@ -184,31 +184,31 @@ describe("@86d-store/contracts conformance", () => {
 	});
 
 	it("preserves the pre-bump compatibility matrix without collisions", () => {
-		expect(buildConformanceArtifact("0.0.42").compatibilityMatrix).toEqual(
+		expect(buildConformanceArtifact("0.1.0").compatibilityMatrix).toEqual(
 			historicalArtifact.compatibilityMatrix,
 		);
 	});
 
 	it("uses the frozen previous minor fixtures in the next version", () => {
-		const artifact = buildConformanceArtifact("0.1.0");
+		const artifact = buildConformanceArtifact("0.2.0");
 		expect(artifact.previousMinorFixtureSuite).toEqual({
-			artifactVersion: "0.0.42",
-			note: "Fixture suite from the 0.0.42 conformance artifact.",
+			artifactVersion: "0.1.0",
+			note: "Fixture suite from the 0.1.0 conformance artifact.",
 			...historicalArtifact.currentFixtureSuite,
 		});
 		expect(artifact.compatibilityMatrix.acceptedPairs).toEqual([
-			{ consumer: "0.1.0", artifact: "0.1.0" },
-			{ consumer: "0.1.0", artifact: "0.0.42" },
+			{ consumer: "0.2.0", artifact: "0.2.0" },
+			{ consumer: "0.2.0", artifact: "0.1.0" },
 		]);
 		expect(artifact.compatibilityMatrix.rejectedPairs).not.toContainEqual({
-			consumer: "0.1.0",
-			artifact: "0.0.42",
+			consumer: "0.2.0",
+			artifact: "0.1.0",
 			reason: "unlisted_pair",
 		});
 	});
 
 	it("requires a historical fixture before advertising a later minor", () => {
-		expect(() => buildConformanceArtifact("0.2.0")).toThrow(
+		expect(() => buildConformanceArtifact("0.3.0")).toThrow(
 			/Preserve the previous minor conformance artifact/,
 		);
 		expect(() => buildConformanceArtifact("invalid")).toThrow(
@@ -217,8 +217,8 @@ describe("@86d-store/contracts conformance", () => {
 	});
 
 	it("produces identical artifacts across two generations", () => {
-		expect(buildConformanceArtifact("0.1.0")).toEqual(
-			buildConformanceArtifact("0.1.0"),
+		expect(buildConformanceArtifact("0.2.0")).toEqual(
+			buildConformanceArtifact("0.2.0"),
 		);
 	});
 });

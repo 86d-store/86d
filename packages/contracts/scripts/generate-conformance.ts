@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import fixture from "../src/__tests__/fixtures/command-conformance.json";
-import historicalArtifact from "../src/__tests__/fixtures/conformance-0.0.42.json";
+import historicalArtifact from "../src/__tests__/fixtures/conformance-0.1.0.json";
 import {
 	COMMAND_TRANSITIONS,
 	commandFailureCodeSchema,
