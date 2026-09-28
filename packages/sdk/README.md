@@ -32,13 +32,12 @@ bun add @86d-store/sdk
 ### Resolve store config
 
 ```ts
-import { getStoreConfig } from "@86d-store/sdk";
+import { getStoreConfig } from "@86d-store/sdk/get-store-config";
 
 // Managed deployments use 86D_STORE_ID, 86D_API_URL, and the opaque
 // 86D_WORKLOAD_CREDENTIAL. Standalone deployments load the local template.
 const config = await getStoreConfig({
   templatePath: "/path/to/templates/brisa/config.json",
-  fallbackToTemplateOnError: true,
 });
 
 console.log(config.name, config.modules);
@@ -47,7 +46,7 @@ console.log(config.name, config.modules);
 ### Load from template only
 
 ```ts
-import { loadFromTemplate } from "@86d-store/sdk";
+import { loadFromTemplate } from "@86d-store/sdk/load-from-template";
 
 const config = loadFromTemplate("./templates/brisa/config.json");
 ```
@@ -55,12 +54,24 @@ const config = loadFromTemplate("./templates/brisa/config.json");
 ### Fetch from API directly
 
 ```ts
-import { fetchFromApi } from "@86d-store/sdk";
+import { fetchFromApi } from "@86d-store/sdk/fetch-from-api";
+import {
+  createWorkloadTokenClient,
+  readManagedWorkloadConfig,
+} from "@86d-store/sdk/workload-token-client";
+
+const managed = readManagedWorkloadConfig();
+if (!managed) throw new Error("Managed workload identity is required");
+const client = createWorkloadTokenClient({ config: managed });
+const resource = {
+  audience: "https://86d.app/api/store-runtime",
+  scopes: ["runtime.config:read"],
+};
 
 const config = await fetchFromApi(
-  "store-uuid-here",
-  "https://api.86d.app",
-  "optional-api-key"
+  managed.storeId,
+  managed.apiBaseUrl,
+  (url, init) => client.request(resource, url, init),
 );
 ```
 
@@ -71,7 +82,7 @@ Managed Runtime Diagnostics is disabled unless `86D_TELEMETRY` is exactly
 present. Disabled and standalone clients make no Control Plane network call.
 
 ```ts
-import { createManagedRuntimeDiagnosticsClient } from "@86d-store/sdk";
+import { createManagedRuntimeDiagnosticsClient } from "@86d-store/sdk/managed-runtime-diagnostics";
 
 const diagnostics = createManagedRuntimeDiagnosticsClient();
 await diagnostics.report({
@@ -107,8 +118,8 @@ import type {
   IconLogoVariant,
   RemoteStoreConfig,
   ThemeVariables,
-} from "@86d-store/sdk";
-import { DEFAULT_CONFIG } from "@86d-store/sdk";
+} from "@86d-store/sdk/types";
+import { DEFAULT_CONFIG } from "@86d-store/sdk/types";
 ```
 
 ## API endpoint
@@ -116,13 +127,27 @@ import { DEFAULT_CONFIG } from "@86d-store/sdk";
 When the managed workload trio is present, the SDK calls:
 
 ```
-GET {apiBaseUrl}/v1/stores/{storeId}
+POST {apiRoot}/v1/stores/get-by-id
+Accept: application/vnd.86d.store-runtime-config.v2+json
+Content-Type: application/json
+
+{ "id": "store-uuid-here" }
 ```
 
-The workload client obtains a short-lived `runtime.config:read` token and
-authenticates the request. A static Store API key is not accepted.
+`apiRoot` appends `/api` to the configured base URL when it is absent. The
+workload client obtains a short-lived `runtime.config:read` token and
+authenticates the request. HTTP 401 with a Bearer `invalid_token` challenge
+refreshes the token and retries the same POST once. HTTP 403 does not trigger
+another exchange. A static store API key is not accepted.
 The response is validated as a strict, fail-closed `RemoteStoreConfig` and
-contains only theme identity, Store name/assets, installed Module names, and
-managed billing status. Unknown fields are rejected. Module settings,
+contains theme and template identity, store name/assets, installed module names,
+the store entitlement, and the versioned commerce-availability decision. The
+SDK retains strict legacy v1 billing responses and historical responses without
+template identity. Unknown fields are rejected. Module settings,
 notification settings, provider secrets, and webhook settings never cross this
 endpoint; standalone template `Config` retains those Store-owned settings.
+
+The SDK uses only the shared POST operation. Deployments using the former GET
+path require a coordinated server and runtime update; merging SDK source does
+not update a deployed runtime. Managed configuration failures never fall back
+to a standalone template.

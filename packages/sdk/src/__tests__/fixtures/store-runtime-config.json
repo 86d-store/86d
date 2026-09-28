@@ -1,0 +1,1941 @@
+{
+	"schemaVersion": 1,
+	"cases": [
+		{
+			"name": "v1-trialing",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "TRIALING",
+					"trialEndsAt": "2026-10-01T12:00:00.000Z",
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": null,
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "launch",
+					"status": "trialing",
+					"isActive": true,
+					"periodEnd": "2026-10-01T12:00:00.000Z"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-trialing",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "TRIALING",
+					"trialEndsAt": "2026-10-01T12:00:00.000Z",
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": null,
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 1,
+					"plan": "launch",
+					"lifecycle": "trialing",
+					"trialEndsAt": "2026-10-01T12:00:00.000Z"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"evaluatedAt": "2026-09-28T12:00:00.000Z",
+					"recheckAt": "2026-10-01T12:00:00.000Z",
+					"available": true,
+					"reason": "entitlement_trialing"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-active",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "launch",
+					"status": "active",
+					"isActive": true,
+					"periodEnd": "2026-10-01T12:00:00.000Z"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-active",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 1,
+					"plan": "launch",
+					"lifecycle": "active",
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"evaluatedAt": "2026-09-28T12:00:00.000Z",
+					"recheckAt": "2026-10-01T12:00:00.000Z",
+					"available": true,
+					"reason": "entitlement_active"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-paused",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "PAUSED",
+					"trialEndsAt": "2026-10-01T12:00:00.000Z",
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "launch",
+					"status": "paused",
+					"isActive": false
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-paused",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "PAUSED",
+					"trialEndsAt": "2026-10-01T12:00:00.000Z",
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 1,
+					"plan": "launch",
+					"lifecycle": "paused",
+					"trialEndsAt": "2026-10-01T12:00:00.000Z",
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"evaluatedAt": "2026-09-28T12:00:00.000Z",
+					"recheckAt": "2026-10-01T12:00:00.000Z",
+					"available": false,
+					"reason": "entitlement_paused"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-suspended",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "SUSPENDED",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": "2026-10-01T12:00:00.000Z"
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "launch",
+					"status": "paused",
+					"isActive": false
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-suspended",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "SUSPENDED",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": "2026-10-01T12:00:00.000Z"
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 1,
+					"plan": "launch",
+					"lifecycle": "suspended",
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"destroyAt": "2026-10-01T12:00:00.000Z"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"evaluatedAt": "2026-09-28T12:00:00.000Z",
+					"recheckAt": "2026-10-01T12:00:00.000Z",
+					"available": false,
+					"reason": "entitlement_suspended"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-destroyed",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "DESTROYED",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "launch",
+					"status": "canceled",
+					"isActive": false
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-destroyed",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "DESTROYED",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 1,
+					"plan": "launch",
+					"lifecycle": "destroyed",
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"evaluatedAt": "2026-09-28T12:00:00.000Z",
+					"available": false,
+					"reason": "entitlement_destroyed"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-missing",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": null
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "unentitled",
+					"status": "incomplete",
+					"isActive": false
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-missing",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": null
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": null,
+				"commerceAvailability": {
+					"version": 1,
+					"available": false,
+					"reason": "entitlement_missing",
+					"evaluatedAt": "2026-09-28T12:00:00.000Z"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-trial-overdue",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "TRIALING",
+					"trialEndsAt": "2026-09-27T12:00:00.000Z",
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": null,
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "launch",
+					"status": "trialing",
+					"isActive": false,
+					"periodEnd": "2026-09-27T12:00:00.000Z"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-trial-overdue",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "TRIALING",
+					"trialEndsAt": "2026-09-27T12:00:00.000Z",
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": null,
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 1,
+					"plan": "launch",
+					"lifecycle": "trialing",
+					"trialEndsAt": "2026-09-27T12:00:00.000Z"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"evaluatedAt": "2026-09-28T12:00:00.000Z",
+					"recheckAt": "2026-09-27T12:00:00.000Z",
+					"available": false,
+					"reason": "entitlement_reconciliation_required"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-renewal-overdue",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-09-27T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "launch",
+					"status": "past_due",
+					"isActive": false,
+					"periodEnd": "2026-09-27T12:00:00.000Z"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-renewal-overdue",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-09-27T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 1,
+					"plan": "launch",
+					"lifecycle": "active",
+					"currentPeriodEndsAt": "2026-09-27T12:00:00.000Z"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"evaluatedAt": "2026-09-28T12:00:00.000Z",
+					"recheckAt": "2026-09-27T12:00:00.000Z",
+					"available": false,
+					"reason": "entitlement_reconciliation_required"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-suspension-overdue",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": "2026-09-27T12:00:00.000Z",
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "launch",
+					"status": "past_due",
+					"isActive": false,
+					"periodEnd": "2026-10-01T12:00:00.000Z"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-suspension-overdue",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": "2026-09-27T12:00:00.000Z",
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 1,
+					"plan": "launch",
+					"lifecycle": "active",
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"suspendAt": "2026-09-27T12:00:00.000Z"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"evaluatedAt": "2026-09-28T12:00:00.000Z",
+					"recheckAt": "2026-09-27T12:00:00.000Z",
+					"available": false,
+					"reason": "entitlement_reconciliation_required"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-renewal-grace",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-09-27T12:00:00.000Z",
+					"renewalSuspendAt": "2026-10-01T12:00:00.000Z",
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "launch",
+					"status": "past_due",
+					"isActive": true,
+					"periodEnd": "2026-09-27T12:00:00.000Z"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-renewal-grace",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-09-27T12:00:00.000Z",
+					"renewalSuspendAt": "2026-10-01T12:00:00.000Z",
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 1,
+					"plan": "launch",
+					"lifecycle": "active",
+					"currentPeriodEndsAt": "2026-09-27T12:00:00.000Z",
+					"suspendAt": "2026-10-01T12:00:00.000Z"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"evaluatedAt": "2026-09-28T12:00:00.000Z",
+					"recheckAt": "2026-10-01T12:00:00.000Z",
+					"available": true,
+					"reason": "entitlement_active"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-premium-transition",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": "2026-09-29T12:00:00.000Z",
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "launch",
+					"status": "active",
+					"isActive": true,
+					"periodEnd": "2026-10-01T12:00:00.000Z"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-premium-transition",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": "2026-09-29T12:00:00.000Z",
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 1,
+					"plan": "launch",
+					"lifecycle": "active",
+					"premiumTransitionAt": "2026-09-29T12:00:00.000Z",
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"evaluatedAt": "2026-09-28T12:00:00.000Z",
+					"recheckAt": "2026-09-29T12:00:00.000Z",
+					"available": true,
+					"reason": "entitlement_active"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-premium-plan",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "PREMIUM",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "premium",
+					"status": "active",
+					"isActive": true,
+					"periodEnd": "2026-10-01T12:00:00.000Z"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-premium-plan",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "PREMIUM",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 1,
+					"plan": "premium",
+					"lifecycle": "active",
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"evaluatedAt": "2026-09-28T12:00:00.000Z",
+					"recheckAt": "2026-10-01T12:00:00.000Z",
+					"available": true,
+					"reason": "entitlement_active"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-enterprise-plan",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "ENTERPRISE",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "enterprise",
+					"status": "active",
+					"isActive": true,
+					"periodEnd": "2026-10-01T12:00:00.000Z"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-enterprise-plan",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "ENTERPRISE",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 1,
+					"plan": "enterprise",
+					"lifecycle": "active",
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"evaluatedAt": "2026-09-28T12:00:00.000Z",
+					"recheckAt": "2026-10-01T12:00:00.000Z",
+					"available": true,
+					"reason": "entitlement_active"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-trial-deadline-missing",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "TRIALING",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": null,
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "launch",
+					"status": "trialing",
+					"isActive": false
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-trial-deadline-missing",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "TRIALING",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": null,
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 1,
+					"plan": "launch",
+					"lifecycle": "trialing"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"evaluatedAt": "2026-09-28T12:00:00.000Z",
+					"available": false,
+					"reason": "entitlement_invalid"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-period-deadline-missing",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": null,
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "launch",
+					"status": "past_due",
+					"isActive": false
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-period-deadline-missing",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 1,
+					"planId": "LAUNCH",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": null,
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 1,
+					"plan": "launch",
+					"lifecycle": "active"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"evaluatedAt": "2026-09-28T12:00:00.000Z",
+					"available": false,
+					"reason": "entitlement_invalid"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v1-invalid-catalog",
+			"version": 1,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 0,
+					"planId": "LAUNCH",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"billing": {
+					"plan": "launch",
+					"status": "past_due",
+					"isActive": false,
+					"periodEnd": "2026-10-01T12:00:00.000Z"
+				}
+			},
+			"sdkAccepts": true
+		},
+		{
+			"name": "v2-invalid-catalog",
+			"version": 2,
+			"evaluatedAt": "2026-09-28T12:00:00.000Z",
+			"source": {
+				"name": "Contract fixture",
+				"modules": [
+					{
+						"name": "cart"
+					},
+					{
+						"name": "products"
+					}
+				],
+				"icon": null,
+				"logo": null,
+				"templateId": "brisa",
+				"templateVersion": "0.0.1",
+				"templateArtifactUrl": "https://assets.example.com/templates/brisa-0.0.1.tgz",
+				"entitlement": {
+					"catalogVersion": 0,
+					"planId": "LAUNCH",
+					"lifecycle": "ACTIVE",
+					"trialEndsAt": null,
+					"premiumTransitionAt": null,
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z",
+					"renewalSuspendAt": null,
+					"destroyAt": null
+				}
+			},
+			"output": {
+				"theme": "brisa",
+				"name": "Contract fixture",
+				"favicon": "/assets/favicon.svg",
+				"icon": {
+					"light": "/assets/icon/light.svg",
+					"dark": "/assets/icon/dark.svg"
+				},
+				"logo": {
+					"light": "/assets/logo/light.svg",
+					"dark": "/assets/logo/dark.svg"
+				},
+				"modules": ["@86d-store/cart", "@86d-store/products"],
+				"template": {
+					"id": "brisa",
+					"version": "0.0.1",
+					"url": "https://assets.example.com/templates/brisa-0.0.1.tgz"
+				},
+				"contractVersion": 2,
+				"entitlement": {
+					"version": 1,
+					"catalogVersion": 0,
+					"plan": "launch",
+					"lifecycle": "active",
+					"currentPeriodEndsAt": "2026-10-01T12:00:00.000Z"
+				},
+				"commerceAvailability": {
+					"version": 1,
+					"available": false,
+					"reason": "entitlement_invalid",
+					"evaluatedAt": "2026-09-28T12:00:00.000Z"
+				}
+			},
+			"sdkAccepts": false
+		}
+	]
+}

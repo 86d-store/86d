@@ -14,6 +14,7 @@ Store configuration and API integration for managed and standalone Store Runtime
 ## Purpose
 
 Resolves store configuration from either:
+
 - **Managed Control Plane path** — when the managed workload trio is present (`86D_STORE_ID`, `86D_API_URL`, `86D_WORKLOAD_CREDENTIAL`)
 - **Template `config.json`** — when `templatePath` is provided and no managed workload is configured
 
@@ -21,9 +22,8 @@ Resolves store configuration from either:
 
 ```
 src/
-  index.ts              Main exports
   get-store-config.ts   Resolution logic (API vs template)
-  fetch-from-api.ts     GET /v1/stores/:id from 86d API
+  fetch-from-api.ts     POST /api/v1/stores/get-by-id
   load-from-template.ts readFileSync from template path
   types.ts              Config, IconLogoVariant, ThemeVariables
 ```
@@ -35,7 +35,11 @@ src/
 - `fetchFromApi(storeId, apiBaseUrl, fetcher?)` — async; managed `getStoreConfig` authenticates with a workload token
 - `Config`, `RemoteStoreConfig`, `DEFAULT_CONFIG`, `GetStoreConfigOptions`
 
-Managed fetches request `application/vnd.86d.store-runtime-config.v2+json`. The v2 DTO carries the Store-scoped entitlement and the Control Plane's versioned commerce-availability decision. A strict legacy v1 DTO remains readable during rollout; unknown fields fail closed in both versions.
+Managed fetches post `{ id: storeId }` to `/api/v1/stores/get-by-id` and request `application/vnd.86d.store-runtime-config.v2+json`. The v2 DTO carries template identity, the Store-scoped entitlement, and the Control Plane's versioned commerce-availability decision. Historical responses may omit template identity; strict v1 responses remain readable. Unknown fields fail closed in both versions.
+
+Config changes also update `src/__tests__/fixtures/store-runtime-config.json`. These portable producer fixtures cover both versions, lifecycle transitions, overdue deadlines, renewal grace, and invalid entitlements. Keep them identical to the Control Plane contract fixtures when coordinating a wire change. The consumer tests prove acceptance and projection; the producer owns the authoritative availability decision.
+
+Workload config requests retry once only after HTTP 401 with `WWW-Authenticate: Bearer error="invalid_token"`. Preserve the POST body and Accept header when replacing the token. Authorization denials and unavailable configuration fail closed without switching to a standalone template.
 
 ## Environment
 
@@ -44,7 +48,7 @@ Managed identity: `86D_STORE_ID`, `86D_API_URL`, `86D_WORKLOAD_CREDENTIAL`. Stan
 ## Usage
 
 ```ts
-import { getStoreConfig } from "@86d-store/sdk";
+import { getStoreConfig } from "@86d-store/sdk/get-store-config";
 
 const config = await getStoreConfig({
   templatePath: "/path/to/templates/brisa/config.json",
@@ -56,4 +60,4 @@ Remote Control Plane responses use a strict `RemoteStoreConfig` DTO and fail clo
 ## Dependencies
 
 - `zod` — response validation
-- No `db` or `env` — standalone; reads `process.env` directly
+- `env/process-env` — environment access; standalone configuration needs no database or Control Plane client

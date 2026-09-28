@@ -78,7 +78,13 @@ const entitlementSchema = z
 		version: z.literal(1),
 		catalogVersion: z.number().int().min(1).max(Number.MAX_SAFE_INTEGER),
 		plan: z.enum(["launch", "premium", "enterprise"]),
-		lifecycle: z.enum(["trialing", "active", "suspended", "destroyed"]),
+		lifecycle: z.enum([
+			"trialing",
+			"active",
+			"paused",
+			"suspended",
+			"destroyed",
+		]),
 		trialEndsAt: z.iso.datetime().optional(),
 		premiumTransitionAt: z.iso.datetime().optional(),
 		currentPeriodEndsAt: z.iso.datetime().optional(),
@@ -102,6 +108,7 @@ const unavailableCommerceSchema = z
 		version: z.literal(1),
 		available: z.literal(false),
 		reason: z.enum([
+			"entitlement_paused",
 			"entitlement_suspended",
 			"entitlement_destroyed",
 			"entitlement_missing",
@@ -134,6 +141,14 @@ const remoteStoreConfigBaseShape = {
 	logo: iconLogoVariantSchema,
 	modules: z.array(z.string().min(1).max(128)).max(100).optional(),
 	variables: remoteVariablesSchema,
+	template: z
+		.object({
+			id: z.string().min(1).max(128),
+			version: z.string().min(1).max(64),
+			url: z.url().max(2048).optional(),
+		})
+		.strict()
+		.optional(),
 };
 
 const remoteStoreConfigV1DtoSchema = z
@@ -165,7 +180,11 @@ const remoteStoreConfigV2DtoSchema = z
 		const recheckAt = commerceAvailability.recheckAt
 			? Date.parse(commerceAvailability.recheckAt)
 			: undefined;
-		if (recheckAt !== undefined && recheckAt <= evaluatedAt) {
+		if (
+			commerceAvailability.available &&
+			recheckAt !== undefined &&
+			recheckAt <= evaluatedAt
+		) {
 			context.addIssue({
 				code: "custom",
 				path: ["commerceAvailability", "recheckAt"],
@@ -204,10 +223,11 @@ const remoteStoreConfigV2DtoSchema = z
 				entitlement?.lifecycle === "trialing"
 					? entitlement.trialEndsAt
 					: entitlement?.lifecycle === "active"
-						? entitlement.currentPeriodEndsAt
+						? (entitlement.suspendAt ?? entitlement.currentPeriodEndsAt)
 						: undefined,
-				entitlement?.suspendAt,
-				entitlement?.destroyAt,
+				entitlement?.lifecycle === "active" && entitlement.plan === "launch"
+					? entitlement.premiumTransitionAt
+					: undefined,
 			]
 				.filter((deadline) => deadline !== undefined)
 				.map((deadline) => Date.parse(deadline));
@@ -231,11 +251,13 @@ const remoteStoreConfigV2DtoSchema = z
 		}
 
 		const expectedLifecycle =
-			commerceAvailability.reason === "entitlement_suspended"
-				? "suspended"
-				: commerceAvailability.reason === "entitlement_destroyed"
-					? "destroyed"
-					: undefined;
+			commerceAvailability.reason === "entitlement_paused"
+				? "paused"
+				: commerceAvailability.reason === "entitlement_suspended"
+					? "suspended"
+					: commerceAvailability.reason === "entitlement_destroyed"
+						? "destroyed"
+						: undefined;
 		if (
 			(expectedLifecycle !== undefined &&
 				entitlement?.lifecycle !== expectedLifecycle) ||
@@ -283,13 +305,17 @@ export async function fetchFromApi(
 	const apiRoot = normalizedBase.endsWith("/api")
 		? normalizedBase
 		: `${normalizedBase}/api`;
-	const url = `${apiRoot}/v1/stores/${storeId}`;
+	const url = `${apiRoot}/v1/stores/get-by-id`;
 	const headers: Record<string, string> = {
 		Accept: STORE_RUNTIME_CONFIG_V2_MEDIA_TYPE,
 		"Content-Type": "application/json",
 	};
 
-	const res = await fetcher(url, { headers });
+	const res = await fetcher(url, {
+		method: "POST",
+		headers,
+		body: JSON.stringify({ id: storeId }),
+	});
 
 	if (!res.ok) {
 		throw new Error(
@@ -317,6 +343,7 @@ function mergeWithDefaults(parsed: RemoteStoreConfigDto): RemoteStoreConfig {
 		favicon: parsed.favicon,
 		icon: { ...parsed.icon },
 		logo: { ...parsed.logo },
+		...(parsed.template ? { template: { ...parsed.template } } : {}),
 		...(parsed.modules ? { modules: [...parsed.modules] } : {}),
 		variables: {
 			light: mergeThemeVariables(
@@ -338,6 +365,7 @@ function mergeWithDefaults(parsed: RemoteStoreConfigDto): RemoteStoreConfig {
 			favicon: parsed.favicon,
 			icon: { ...parsed.icon },
 			logo: { ...parsed.logo },
+			...(parsed.template ? { template: { ...parsed.template } } : {}),
 			modules: [...parsed.modules],
 			variables: {
 				light: { ...DEFAULT_CONFIG.variables.light },
