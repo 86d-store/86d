@@ -17,6 +17,7 @@ import { getStoreConfig } from "@86d-store/sdk/get-store-config";
 import { loadFromTemplate } from "@86d-store/sdk/load-from-template";
 import type { Config } from "@86d-store/sdk/types";
 import { db, getPool } from "db";
+import { writeCoreMoney } from "db/core-money";
 import { createPostgresTransactionalExecutor } from "db/schema/apply-disposable-ddl";
 import { module } from "db/schema/tables";
 import { and, eq } from "drizzle-orm";
@@ -25,6 +26,7 @@ import { getProcessEnv } from "env/process-env";
 import { logger } from "utils/logger";
 import { modules } from "../generated/api";
 import { resolveTemplatePath } from "./template-path";
+import { registerWebhookHandlers } from "./webhook-subscriber";
 
 function isPrimitive(v: unknown): v is Primitive {
 	return (
@@ -168,7 +170,6 @@ function getRegistry(): ModuleRegistry {
 				createTransactionRunner: (params) => moduleDataService(params),
 				createCoreMoneyWriter: () => ({
 					write: async (input) => {
-						const { writeCoreMoney } = await import("db/core-money");
 						await writeCoreMoney(db, input);
 					},
 				}),
@@ -268,9 +269,6 @@ export async function ensureBooted(): Promise<ModuleRegistry> {
 			try {
 				const storeId = env.STORE_ID;
 				if (storeId) {
-					const { registerWebhookHandlers } = await import(
-						"~/lib/webhook-subscriber"
-					);
 					registerWebhookHandlers(bus, db, storeId);
 				}
 			} catch (err) {
