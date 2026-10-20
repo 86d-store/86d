@@ -85,12 +85,15 @@ describe("subscriptions controllers — edge cases", () => {
 				email: "user@example.com",
 			});
 
-			// Monthly = 28–31 days
-			const diffDays =
-				(sub.currentPeriodEnd.getTime() - sub.currentPeriodStart.getTime()) /
+			// Compare calendar dates so daylight-saving changes do not add an hour.
+			const start = sub.currentPeriodStart;
+			const end = sub.currentPeriodEnd;
+			const calendarDays =
+				(Date.UTC(end.getFullYear(), end.getMonth(), end.getDate()) -
+					Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())) /
 				(1000 * 60 * 60 * 24);
-			expect(diffDays).toBeGreaterThanOrEqual(28);
-			expect(diffDays).toBeLessThanOrEqual(31);
+			expect(calendarDays).toBeGreaterThanOrEqual(28);
+			expect(calendarDays).toBeLessThanOrEqual(31);
 		});
 
 		it("calculates yearly interval correctly", async () => {

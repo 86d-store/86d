@@ -320,7 +320,7 @@
       "source": "local",
       "packageName": "@86d-store/memberships",
       "version": "0.2.0",
-      "integrity": "sha256-900ac24241ad1f4887f35880d7785cf58cc511f7a04c89d968f61e5a49acb332",
+      "integrity": "sha256-9ebfd74d8b01b3878f6aca0ac2c809f251ceb3109477d8683d485ab331e76fa6",
       "localPath": "modules/memberships"
     },
     "multi-currency": {
@@ -600,7 +600,7 @@
       "source": "local",
       "packageName": "@86d-store/subscriptions",
       "version": "0.2.0",
-      "integrity": "sha256-1ae88c436574ebe9825f9395ef1ff35212a0f3a012fbf9982b8ceea695b50ce2",
+      "integrity": "sha256-bc3264f86ced6e4ea1112c88326cdea4c493b1e2d5cb5e4aba9c6536bb61e83d",
       "localPath": "modules/subscriptions"
     },
     "tax": {
@@ -702,5 +702,5 @@
       "localPath": "modules/x-shop"
     }
   },
-  "generatedAt": "2026-09-28T13:57:25.679Z"
+  "generatedAt": "2026-10-20T09:45:33.562Z"
 }

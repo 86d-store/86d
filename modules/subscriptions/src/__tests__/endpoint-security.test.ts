@@ -223,12 +223,15 @@ describe("subscriptions endpoint security", () => {
 				email: "user@test.com",
 			});
 
-			const diffMs =
-				sub.currentPeriodEnd.getTime() - sub.currentPeriodStart.getTime();
-			const diffDays = diffMs / (1000 * 60 * 60 * 24);
-			// A month is 28-31 days
-			expect(diffDays).toBeGreaterThanOrEqual(28);
-			expect(diffDays).toBeLessThanOrEqual(31);
+			// Compare calendar dates so daylight-saving changes do not add an hour.
+			const start = sub.currentPeriodStart;
+			const end = sub.currentPeriodEnd;
+			const calendarDays =
+				(Date.UTC(end.getFullYear(), end.getMonth(), end.getDate()) -
+					Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())) /
+				(1000 * 60 * 60 * 24);
+			expect(calendarDays).toBeGreaterThanOrEqual(28);
+			expect(calendarDays).toBeLessThanOrEqual(31);
 		});
 
 		it("weekly subscription period spans 7 days", async () => {
