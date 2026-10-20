@@ -9,6 +9,13 @@ import {
 	fetchProductSlugsForSitemap,
 } from "../lib/seo";
 
+/**
+ * Force dynamic rendering so the base URL is read from NEXT_PUBLIC_STORE_URL
+ * at request time, not baked in at build time (when the Dockerfile builder stage
+ * doesn't have the runtime env).
+ */
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	const url = getBaseUrl();
 
