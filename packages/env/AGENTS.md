@@ -36,19 +36,26 @@ Live defaults and required shapes belong in the schema and `.env.example`. Commo
 | `STORE_ID` | `string` | No | `"demo5b9d-c517-4c65-896e-8edef5cf5a94"` |
 | `86D_API_URL` | `url` | No | `"https://api.86d.app"` |
 | `DATABASE_URL` | `string` | No | — |
-| `NEXT_PUBLIC_STORE_URL` | `url` | No | — |
+| `APP_URL` | `url` | Production | — (canonical public store URL) |
+| `NEXT_PUBLIC_STORE_URL` | `url` | No | — (deprecated fallback override) |
 | `NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID` | `string` | No | — |
 | `VERCEL_BLOB_STORAGE_HOSTNAME` | `string` | No | — |
 | `RESEND_API_KEY` | `string` | No | — |
 | `BETTER_AUTH_SECRET` | `string \| undefined` | No | — (auth disabled when unset) |
+
+### Store URL precedence
+
+`APP_URL` is canonical. `NEXT_PUBLIC_STORE_URL` is a deprecated fallback override for existing deployments. When both are set, `NEXT_PUBLIC_STORE_URL` takes precedence (backward compatibility). In production, at least one must be set and must use `https://`; validation fails closed otherwise.
 
 ## Patterns
 
 - Uses `z.safeParse(process.env)` plus `resolveBetterAuthSecret`
 - Missing or production-unsafe `BETTER_AUTH_SECRET` disables auth; it does not throw
 - Production still rejects short, known-placeholder, local-only, and low-entropy secrets by disabling auth
+- Production requires `APP_URL` or `NEXT_PUBLIC_STORE_URL` with `https://`; validation throws if neither is set or either uses `http://`
 
 ## Gotchas
 
 - Schema validation still throws for malformed required-shape fields (for example an invalid URL). Auth secret quality never throws.
 - `86D_API_URL` uses `z.url()` (full URL format, not a bare string)
+- `APP_URL` and `NEXT_PUBLIC_STORE_URL` are validated for `https://` in production; `http://` is allowed in development and test

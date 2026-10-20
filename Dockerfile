@@ -72,6 +72,10 @@ RUN bun internals/docker/verify-runtime-contract.ts \
 
 # Bun on Linux arm64 can return 139 after Next has fully emitted its output;
 # accept only that exact case and only with a complete standalone tree.
+# APP_URL is set to localhost here ONLY for the build step. Production
+# deployments must set APP_URL to the store's public https:// URL at runtime.
+# The build uses http:// localhost because Next.js needs a URL for static
+# generation even though sitemap/robots are force-dynamic at runtime.
 RUN set +e; \
 	better_auth_secret="$(bun -e 'console.log(Buffer.from(crypto.getRandomValues(new Uint8Array(48))).toString("base64"))')"; \
 	BETTER_AUTH_SECRET="${better_auth_secret}" \

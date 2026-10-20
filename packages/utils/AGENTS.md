@@ -35,7 +35,7 @@ No barrel export — import each utility via its own path.
 ## Patterns
 
 - `logger` reads `LOG_LEVEL` from env (default `"info"`); JSON with timestamps and colorized console
-- `getBaseUrl()` priority: `window.location.origin` > `NEXT_PUBLIC_STORE_URL` > `VERCEL_URL` > `localhost:PORT`
+- `getBaseUrl()` priority: `window.location.origin` > `NEXT_PUBLIC_STORE_URL` (deprecated) > `APP_URL` > `RAILWAY_PUBLIC_DOMAIN` > `VERCEL_URL` > `localhost:PORT`
 - `createRateLimiter` is in-memory (Map-based) — resets on process restart; not for distributed use. Expired entries sweep on each check (at most once per window) to bound memory
 - `sanitizeText` = `stripTags` + `normalizeWhitespace`
 
@@ -44,3 +44,4 @@ No barrel export — import each utility via its own path.
 - Rate limiter state is per-process — does not persist across restarts or share between instances
 - `stripTags` removes `<script>` and `<style>` blocks (including content), then remaining HTML tags
 - `getBaseUrl()` declares `window` type inline for browser and server contexts
+- `NEXT_PUBLIC_STORE_URL` takes precedence over `APP_URL` for backward compatibility; new deployments should use `APP_URL` only

@@ -69,7 +69,7 @@ export function status() {
 		const optional = [
 			"BETTER_AUTH_SECRET",
 			"RESEND_API_KEY",
-			"NEXT_PUBLIC_STORE_URL",
+			"APP_URL",
 			"NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID",
 		];
 

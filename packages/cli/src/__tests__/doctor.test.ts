@@ -67,7 +67,7 @@ describe("doctor", () => {
 		// .env with all required vars
 		writeFileSync(
 			join(tempDir, ".env"),
-			"DATABASE_URL=postgres://localhost\nSTORE_ID=store1\nBETTER_AUTH_SECRET=secret123\nRESEND_API_KEY=re_123\nNEXT_PUBLIC_STORE_URL=http://localhost:3000\nNEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID=GTM-123\n",
+			"DATABASE_URL=postgres://localhost\nSTORE_ID=store1\nBETTER_AUTH_SECRET=secret123\nRESEND_API_KEY=re_123\nAPP_URL=http://localhost:3000\nNEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID=GTM-123\n",
 		);
 
 		// Lockfile
@@ -225,6 +225,22 @@ describe("doctor", () => {
 		const output = logs.join("\n");
 		expect(output).toContain("RESEND_API_KEY");
 		expect(output).toContain("email sending");
+		expect(output).toContain("APP_URL");
+		expect(output).toContain("public store URL");
+	});
+
+	it("warns when using deprecated NEXT_PUBLIC_STORE_URL", async () => {
+		writeFileSync(
+			join(tempDir, ".env"),
+			"DATABASE_URL=postgres://localhost\nSTORE_ID=store1\nBETTER_AUTH_SECRET=secret\nNEXT_PUBLIC_STORE_URL=http://localhost:3000\n",
+		);
+		vi.resetModules();
+
+		await runDoctor();
+
+		const output = logs.join("\n");
+		expect(output).toContain("NEXT_PUBLIC_STORE_URL is deprecated");
+		expect(output).toContain("migrate to APP_URL");
 	});
 
 	it("detects missing dependencies", async () => {

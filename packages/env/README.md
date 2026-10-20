@@ -48,11 +48,23 @@ console.log(env.DATABASE_URL);  // string | undefined
 | `86D_WORKLOAD_CREDENTIAL` | `string` | — | Opaque managed workload credential |
 | `86D_TELEMETRY` | `"managed-runtime-diagnostics-v1"` | — | Explicitly enables the bounded Managed Runtime Diagnostics v1 contract |
 | `DATABASE_URL` | `string` | — | PostgreSQL connection string |
-| `NEXT_PUBLIC_STORE_URL` | `url` | — | Public-facing store URL |
+| `APP_URL` | `url` | — | Canonical public base URL for the store. Must use https:// in production. |
+| `NEXT_PUBLIC_STORE_URL` | `url` | — | **Deprecated.** Fallback override for existing deployments. Use `APP_URL` instead. |
 | `NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID` | `string` | — | GTM container ID |
 | `VERCEL_BLOB_STORAGE_HOSTNAME` | `string` | — | Vercel Blob storage host |
 | `RESEND_API_KEY` | `string` | — | Resend email API key |
 | `BETTER_AUTH_SECRET` | `string \| undefined` | — | When set and safe for the current `NODE_ENV`, enables Better Auth. Missing or production-unsafe values leave authentication disabled; they do not fail boot or build. |
+
+### Store URL Precedence
+
+`APP_URL` is the canonical environment variable for the store's public base URL. Operators need only set `APP_URL` in production deployments.
+
+`NEXT_PUBLIC_STORE_URL` remains supported as a deprecated fallback override for existing deployments. When both are set, `NEXT_PUBLIC_STORE_URL` takes precedence to preserve backward compatibility. New deployments should use `APP_URL` only.
+
+**Production requirements:**
+- At least one of `APP_URL` or `NEXT_PUBLIC_STORE_URL` must be set
+- The URL must use `https://`
+- Validation fails closed with a clear error if these requirements are not met
 
 ## API Reference
 

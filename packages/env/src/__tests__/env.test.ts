@@ -8,6 +8,7 @@ describe("env", () => {
 
 		const parsed = mod.parseEnvironment({
 			NODE_ENV: "production",
+			APP_URL: "https://store.example.com",
 		});
 
 		expect(parsed.BETTER_AUTH_SECRET).toBeUndefined();
@@ -20,6 +21,7 @@ describe("env", () => {
 
 		const parsed = mod.parseEnvironment({
 			NODE_ENV: "production",
+			APP_URL: "https://store.example.com",
 			BETTER_AUTH_SECRET: "short-production-secret",
 		});
 
@@ -34,6 +36,7 @@ describe("env", () => {
 
 		const parsed = mod.parseEnvironment({
 			NODE_ENV: "production",
+			APP_URL: "https://store.example.com",
 			BETTER_AUTH_SECRET: "better-auth-secret-12345678901234567890",
 		});
 
@@ -48,6 +51,7 @@ describe("env", () => {
 
 		const parsed = mod.parseEnvironment({
 			NODE_ENV: "production",
+			APP_URL: "https://store.example.com",
 			BETTER_AUTH_SECRET: "docker-dev-secret-change-in-production",
 		});
 
@@ -84,6 +88,7 @@ describe("env", () => {
 
 		const parsed = mod.parseEnvironment({
 			NODE_ENV: "production",
+			APP_URL: "https://store.example.com",
 			BETTER_AUTH_SECRET: "86d-local-development-only-better-auth-secret",
 		});
 
@@ -98,6 +103,7 @@ describe("env", () => {
 
 		const parsed = mod.parseEnvironment({
 			NODE_ENV: "production",
+			APP_URL: "https://store.example.com",
 			BETTER_AUTH_SECRET: "a".repeat(64),
 		});
 
@@ -112,6 +118,7 @@ describe("env", () => {
 
 		const parsed = mod.parseEnvironment({
 			NODE_ENV: "production",
+			APP_URL: "https://store.example.com",
 			BETTER_AUTH_SECRET: secret,
 		});
 
@@ -215,5 +222,96 @@ describe("env", () => {
 		// Type check - the default export should match Env shape
 		const env: typeof mod.default = mod.default;
 		expect(env).toBeDefined();
+	});
+
+	describe("APP_URL validation", () => {
+		it("allows http:// APP_URL in development", async () => {
+			const mod = await import("../index");
+
+			const parsed = mod.parseEnvironment({
+				NODE_ENV: "development",
+				APP_URL: "http://localhost:3000",
+			});
+
+			expect(parsed.APP_URL).toBe("http://localhost:3000");
+		});
+
+		it("allows https:// APP_URL in production", async () => {
+			const mod = await import("../index");
+
+			const parsed = mod.parseEnvironment({
+				NODE_ENV: "production",
+				APP_URL: "https://store.example.com",
+			});
+
+			expect(parsed.APP_URL).toBe("https://store.example.com");
+		});
+
+		it("rejects http:// APP_URL in production", async () => {
+			const mod = await import("../index");
+
+			expect(() =>
+				mod.parseEnvironment({
+					NODE_ENV: "production",
+					APP_URL: "http://store.example.com",
+				}),
+			).toThrow(/APP_URL must use https:\/\/ in production/);
+		});
+
+		it("requires APP_URL or NEXT_PUBLIC_STORE_URL in production", async () => {
+			const mod = await import("../index");
+
+			expect(() =>
+				mod.parseEnvironment({
+					NODE_ENV: "production",
+				}),
+			).toThrow(/Production deployment requires APP_URL/);
+		});
+
+		it("allows production with only NEXT_PUBLIC_STORE_URL (deprecated)", async () => {
+			const mod = await import("../index");
+
+			const parsed = mod.parseEnvironment({
+				NODE_ENV: "production",
+				NEXT_PUBLIC_STORE_URL: "https://legacy.example.com",
+			});
+
+			expect(parsed.NEXT_PUBLIC_STORE_URL).toBe("https://legacy.example.com");
+		});
+
+		it("rejects http:// NEXT_PUBLIC_STORE_URL in production", async () => {
+			const mod = await import("../index");
+
+			expect(() =>
+				mod.parseEnvironment({
+					NODE_ENV: "production",
+					NEXT_PUBLIC_STORE_URL: "http://store.example.com",
+				}),
+			).toThrow(/NEXT_PUBLIC_STORE_URL must use https:\/\/ in production/);
+		});
+
+		it("allows missing store URL in development", async () => {
+			const mod = await import("../index");
+
+			const parsed = mod.parseEnvironment({
+				NODE_ENV: "development",
+			});
+
+			expect(parsed.APP_URL).toBeUndefined();
+			expect(parsed.NEXT_PUBLIC_STORE_URL).toBeUndefined();
+		});
+
+		it("allows both APP_URL and NEXT_PUBLIC_STORE_URL to be set", async () => {
+			const mod = await import("../index");
+
+			const parsed = mod.parseEnvironment({
+				NODE_ENV: "production",
+				APP_URL: "https://store.example.com",
+				NEXT_PUBLIC_STORE_URL: "https://override.example.com",
+			});
+
+			expect(parsed.APP_URL).toBe("https://store.example.com");
+			expect(parsed.NEXT_PUBLIC_STORE_URL).toBe("https://override.example.com");
+		});
 	});
 });

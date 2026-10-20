@@ -10,6 +10,7 @@ describe("getBaseUrl", () => {
 	const originalEnv = snapshotProcessEnv();
 
 	beforeEach(() => {
+		setProcessEnv("APP_URL", undefined);
 		setProcessEnv("NEXT_PUBLIC_STORE_URL", undefined);
 		setProcessEnv("RAILWAY_PUBLIC_DOMAIN", undefined);
 		setProcessEnv("VERCEL_URL", undefined);
@@ -20,9 +21,32 @@ describe("getBaseUrl", () => {
 		restoreProcessEnv(originalEnv);
 	});
 
-	it("returns NEXT_PUBLIC_STORE_URL when set", () => {
+	it("returns APP_URL when set", () => {
+		setProcessEnv("APP_URL", "https://store.example.com");
+		expect(getBaseUrl()).toBe("https://store.example.com");
+	});
+
+	it("returns NEXT_PUBLIC_STORE_URL when set (deprecated fallback)", () => {
 		setProcessEnv("NEXT_PUBLIC_STORE_URL", "https://mystore.com");
 		expect(getBaseUrl()).toBe("https://mystore.com");
+	});
+
+	it("prefers NEXT_PUBLIC_STORE_URL over APP_URL (backward compatibility)", () => {
+		setProcessEnv("NEXT_PUBLIC_STORE_URL", "https://override.example.com");
+		setProcessEnv("APP_URL", "https://store.example.com");
+		expect(getBaseUrl()).toBe("https://override.example.com");
+	});
+
+	it("prefers APP_URL over RAILWAY_PUBLIC_DOMAIN", () => {
+		setProcessEnv("APP_URL", "https://store.example.com");
+		setProcessEnv("RAILWAY_PUBLIC_DOMAIN", "svc.up.railway.app");
+		expect(getBaseUrl()).toBe("https://store.example.com");
+	});
+
+	it("prefers APP_URL over VERCEL_URL", () => {
+		setProcessEnv("APP_URL", "https://store.example.com");
+		setProcessEnv("VERCEL_URL", "my-app.vercel.app");
+		expect(getBaseUrl()).toBe("https://store.example.com");
 	});
 
 	it("returns Vercel URL with https when VERCEL_URL is set", () => {
@@ -36,7 +60,7 @@ describe("getBaseUrl", () => {
 		expect(getBaseUrl()).toBe("https://mystore.com");
 	});
 
-	it("uses RAILWAY_PUBLIC_DOMAIN with https when set (after NEXT_PUBLIC)", () => {
+	it("uses RAILWAY_PUBLIC_DOMAIN with https when set (after APP_URL)", () => {
 		setProcessEnv("RAILWAY_PUBLIC_DOMAIN", "svc.up.railway.app");
 		setProcessEnv("VERCEL_URL", "my-app.vercel.app");
 		expect(getBaseUrl()).toBe("https://svc.up.railway.app");

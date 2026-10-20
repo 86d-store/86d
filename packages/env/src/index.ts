@@ -74,6 +74,22 @@ const envSchema = z.object({
 	"86D_ADMIN_OAUTH_CLIENT_ID": z.string().optional(),
 	"86D_ADMIN_OAUTH_CLIENT_SECRET": z.string().optional(),
 	DATABASE_URL: z.string().optional(),
+	/**
+	 * Canonical public base URL for the Store. Required to use https:// in
+	 * production. NEXT_PUBLIC_STORE_URL is a deprecated fallback override for
+	 * existing deployments.
+	 *
+	 * Precedence:
+	 * 1. NEXT_PUBLIC_STORE_URL (if explicitly set — deprecated)
+	 * 2. APP_URL (canonical)
+	 * 3. Localhost default (non-production only)
+	 */
+	APP_URL: z.url().optional(),
+	/**
+	 * @deprecated Use APP_URL instead. NEXT_PUBLIC_STORE_URL remains supported
+	 * as a fallback override for existing deployments but may be removed in a
+	 * future release.
+	 */
 	NEXT_PUBLIC_STORE_URL: z.url().optional(),
 	NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID: z.string().optional(),
 	SENTRY_DSN: z.string().optional(),
@@ -100,6 +116,45 @@ export type Env = Omit<ParsedEnv, "BETTER_AUTH_SECRET"> & {
 	BETTER_AUTH_SECRET: string | undefined;
 };
 
+/**
+ * Validate APP_URL / NEXT_PUBLIC_STORE_URL for production deployments.
+ *
+ * Production rules:
+ * 1. At least one of APP_URL or NEXT_PUBLIC_STORE_URL must be set
+ * 2. APP_URL (if set) must use https://
+ * 3. NEXT_PUBLIC_STORE_URL (if set) must use https://
+ *
+ * Non-production allows http:// and falls back to localhost.
+ */
+function validateStoreUrl(
+	appUrl: string | undefined,
+	nextPublicStoreUrl: string | undefined,
+	nodeEnv: ParsedEnv["NODE_ENV"],
+): void {
+	const isProduction = nodeEnv === "production";
+
+	if (!isProduction) {
+		return;
+	}
+
+	if (!appUrl && !nextPublicStoreUrl) {
+		throw new Error(
+			"Production deployment requires APP_URL (or deprecated NEXT_PUBLIC_STORE_URL). " +
+				"Set APP_URL to your store's public https:// URL.",
+		);
+	}
+
+	if (appUrl && !appUrl.startsWith("https://")) {
+		throw new Error(`APP_URL must use https:// in production. Got: ${appUrl}`);
+	}
+
+	if (nextPublicStoreUrl && !nextPublicStoreUrl.startsWith("https://")) {
+		throw new Error(
+			`NEXT_PUBLIC_STORE_URL must use https:// in production. Got: ${nextPublicStoreUrl}`,
+		);
+	}
+}
+
 export function parseEnvironment(
 	environment: Record<string, string | undefined>,
 ): Env {
@@ -117,6 +172,12 @@ export function parseEnvironment(
 		);
 		throw new Error("Invalid environment variables");
 	}
+
+	validateStoreUrl(
+		parsed.data.APP_URL,
+		parsed.data.NEXT_PUBLIC_STORE_URL,
+		parsed.data.NODE_ENV,
+	);
 
 	return {
 		...parsed.data,
