@@ -607,7 +607,7 @@
       "source": "local",
       "packageName": "@86d-store/tax",
       "version": "0.2.0",
-      "integrity": "sha256-3aa6d2040cbaa7977188eda96506e2ff817d820546c356c0cd4dec90c0e40df8",
+      "integrity": "sha256-0695d59f18cbdfa1df45f8bc4be6de552b8ebe62338b7fda6048d027bb3a9627",
       "localPath": "modules/tax"
     },
     "tickets": {
@@ -702,5 +702,5 @@
       "localPath": "modules/x-shop"
     }
   },
-  "generatedAt": "2026-10-20T09:45:33.562Z"
+  "generatedAt": "2026-10-20T10:08:01.987Z"
 }

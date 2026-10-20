@@ -121,6 +121,10 @@ describe("Tax (TaxJar) settings — connection verification", () => {
 	});
 
 	it("masks API key in the response", async () => {
+		vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+			new Response(JSON.stringify(TAXJAR_CATEGORIES_RESPONSE), { status: 200 }),
+		);
+
 		const result = await callSettings({
 			taxjarApiKey: "5da1b7422373c0f6be4cd30ab4d7e08a",
 		});
