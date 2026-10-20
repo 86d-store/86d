@@ -53,22 +53,23 @@ services:
       - minio_data:/data
 
   minio-init:
-    image: quay.io/minio/mc:latest
+    image: amazon/aws-cli:latest
     depends_on:
       - minio
     environment:
-      MINIO_ROOT_USER: "${MINIO_ROOT_USER:-minioadmin}"
-      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:-minioadmin}"
+      AWS_ACCESS_KEY_ID: "${MINIO_ROOT_USER:-minioadmin}"
+      AWS_SECRET_ACCESS_KEY: "${MINIO_ROOT_PASSWORD:-minioadmin}"
+      AWS_DEFAULT_REGION: "us-east-1"
       S3_BUCKET: "${S3_BUCKET:-86d-uploads}"
     entrypoint: >
       /bin/sh -c '
       set -e;
-      until mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"; do
+      until aws --endpoint-url http://minio:9000 s3 ls 2>/dev/null; do
         echo "Waiting for MinIO...";
         sleep 2;
       done;
-      mc mb --ignore-existing "local/$$S3_BUCKET";
-      mc anonymous set download "local/$$S3_BUCKET";
+      aws --endpoint-url http://minio:9000 s3 mb "s3://$$S3_BUCKET" || true;
+      aws --endpoint-url http://minio:9000 s3api put-bucket-policy --bucket "$$S3_BUCKET" --policy "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":[\"*\"]},\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::$$S3_BUCKET/*\"]}]}";
       '
 
   # ── 86d Store Application ────────────────────────────────────────────────
