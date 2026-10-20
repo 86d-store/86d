@@ -16,6 +16,9 @@ runs:
         before="${{ github.event.before }}"
         if [ "$before" = "0000000000000000000000000000000000000000" ]; then
           bunx commitlint --last --verbose
+        elif ! git rev-parse --verify "${before}^{commit}" >/dev/null 2>&1; then
+          echo "Warning: before SHA ${before} not found in checkout (force push?), validating last commit only"
+          bunx commitlint --last --verbose
         else
           bunx commitlint --from "$before" --to "${{ github.sha }}" --verbose
         fi
