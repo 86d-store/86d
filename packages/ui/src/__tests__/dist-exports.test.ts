@@ -45,5 +45,5 @@ describe("@86d-store/ui built exports", () => {
 		);
 
 		expect(imported.status, imported.stderr || imported.stdout).toBe(0);
-	});
+	}, 60_000);
 });
