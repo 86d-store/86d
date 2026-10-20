@@ -3,21 +3,32 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { StorePickupController } from "../service";
 import { createStorePickupController } from "../service-impl";
 
+const TEST_TIMEZONE = "America/Los_Angeles";
 function unwrap<T>(value: T | null | undefined): T {
 	expect(value).not.toBeNull();
 	return value as T;
 }
 
-// 2026-03-09 is a Monday (dayOfWeek = 1)
-const MONDAY_DATE = "2026-03-09";
-// 2026-03-16 is the following Monday
-const NEXT_MONDAY_DATE = "2026-03-16";
-// 2026-03-10 is a Tuesday (dayOfWeek = 2)
-const TUESDAY_DATE = "2026-03-10";
-// 2026-03-11 is a Wednesday (dayOfWeek = 3)
-const WEDNESDAY_DATE = "2026-03-11";
-// 2026-03-15 is a Sunday (dayOfWeek = 0)
-const SUNDAY_DATE = "2026-03-15";
+// Dynamically compute future dates for testing
+function getNextDayOfWeek(dayOfWeek: number): string {
+	const now = new Date();
+	const daysUntil = (dayOfWeek - now.getDay() + 7) % 7 || 7;
+	now.setDate(now.getDate() + daysUntil);
+	return now.toISOString().slice(0, 10);
+}
+
+function getNextWeekDayOfWeek(dayOfWeek: number): string {
+	const now = new Date();
+	const daysUntil = ((dayOfWeek - now.getDay() + 7) % 7 || 7) + 7;
+	now.setDate(now.getDate() + daysUntil);
+	return now.toISOString().slice(0, 10);
+}
+
+const MONDAY_DATE = getNextDayOfWeek(1);
+const NEXT_MONDAY_DATE = getNextWeekDayOfWeek(1);
+const TUESDAY_DATE = getNextDayOfWeek(2);
+const WEDNESDAY_DATE = getNextDayOfWeek(3);
+const SUNDAY_DATE = getNextDayOfWeek(0);
 
 const makeLocation = (overrides?: Record<string, unknown>) => ({
 	name: "Downtown Store",
@@ -112,14 +123,20 @@ describe("store-pickup controllers — edge cases", () => {
 				date: MONDAY_DATE,
 			});
 
-			const loc1Avail = await controller.getAvailableWindows({
-				locationId: loc1.id,
-				date: MONDAY_DATE,
-			});
-			const loc2Avail = await controller.getAvailableWindows({
-				locationId: loc2.id,
-				date: MONDAY_DATE,
-			});
+			const loc1Avail = await controller.getAvailableWindowsWithTimezone(
+				{
+					locationId: loc1.id,
+					date: MONDAY_DATE,
+				},
+				TEST_TIMEZONE,
+			);
+			const loc2Avail = await controller.getAvailableWindowsWithTimezone(
+				{
+					locationId: loc2.id,
+					date: MONDAY_DATE,
+				},
+				TEST_TIMEZONE,
+			);
 
 			expect(loc1Avail.length).toBe(0);
 			expect(loc2Avail.length).toBe(1);
@@ -135,14 +152,17 @@ describe("store-pickup controllers — edge cases", () => {
 				makeWindow(loc.id, { startTime: "11:00", endTime: "13:00" }),
 			);
 
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win1.id, { orderId: "o1" }),
+				TEST_TIMEZONE,
 			);
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win1.id, { orderId: "o2" }),
+				TEST_TIMEZONE,
 			);
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win2.id, { orderId: "o3" }),
+				TEST_TIMEZONE,
 			);
 
 			const count1 = await controller.getWindowBookingCount(
@@ -168,24 +188,28 @@ describe("store-pickup controllers — edge cases", () => {
 				makeWindow(loc.id, { capacity: 2 }),
 			);
 
-			const p1 = await controller.schedulePickup(
+			const p1 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o1" }),
+				TEST_TIMEZONE,
 			);
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o2" }),
+				TEST_TIMEZONE,
 			);
 
 			// At capacity - this should fail
 			await expect(
-				controller.schedulePickup(
+				controller.schedulePickupWithTimezone(
 					makePickup(loc.id, win.id, { orderId: "o3" }),
+					TEST_TIMEZONE,
 				),
 			).rejects.toThrow("Pickup window is fully booked");
 
 			// Cancel one and try again
 			await controller.cancelPickup(p1.id);
-			const p3 = await controller.schedulePickup(
+			const p3 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o3" }),
+				TEST_TIMEZONE,
 			);
 			expect(p3.status).toBe("scheduled");
 		});
@@ -196,8 +220,9 @@ describe("store-pickup controllers — edge cases", () => {
 				makeWindow(loc.id, { capacity: 1 }),
 			);
 
-			const p1 = await controller.schedulePickup(
+			const p1 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o1" }),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(p1.id, "preparing");
 			await controller.updatePickupStatus(p1.id, "ready");
@@ -205,8 +230,9 @@ describe("store-pickup controllers — edge cases", () => {
 
 			// Even though picked up, it still counts toward capacity
 			await expect(
-				controller.schedulePickup(
+				controller.schedulePickupWithTimezone(
 					makePickup(loc.id, win.id, { orderId: "o2" }),
+					TEST_TIMEZONE,
 				),
 			).rejects.toThrow("Pickup window is fully booked");
 		});
@@ -217,21 +243,24 @@ describe("store-pickup controllers — edge cases", () => {
 				makeWindow(loc.id, { capacity: 2 }),
 			);
 
-			const p1 = await controller.schedulePickup(
+			const p1 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o1" }),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(p1.id, "preparing");
 
-			const p2 = await controller.schedulePickup(
+			const p2 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o2" }),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(p2.id, "preparing");
 			await controller.updatePickupStatus(p2.id, "ready");
 
 			// Both preparing and ready count
 			await expect(
-				controller.schedulePickup(
+				controller.schedulePickupWithTimezone(
 					makePickup(loc.id, win.id, { orderId: "o3" }),
+					TEST_TIMEZONE,
 				),
 			).rejects.toThrow("Pickup window is fully booked");
 		});
@@ -243,8 +272,9 @@ describe("store-pickup controllers — edge cases", () => {
 		it("tracks all timestamps through the full lifecycle", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 
 			expect(pickup.status).toBe("scheduled");
@@ -281,8 +311,9 @@ describe("store-pickup controllers — edge cases", () => {
 		it("cancel from preparing preserves preparingAt and sets cancelledAt", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(pickup.id, "preparing");
 			const cancelled = unwrap(await controller.cancelPickup(pickup.id));
@@ -297,8 +328,9 @@ describe("store-pickup controllers — edge cases", () => {
 		it("cancel from ready preserves preparingAt and readyAt", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(pickup.id, "preparing");
 			await controller.updatePickupStatus(pickup.id, "ready");
@@ -318,11 +350,15 @@ describe("store-pickup controllers — edge cases", () => {
 		it("allows a new pickup after previous one was cancelled", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const first = await controller.schedulePickup(makePickup(loc.id, win.id));
+			const first = await controller.schedulePickupWithTimezone(
+				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
+			);
 			await controller.cancelPickup(first.id);
 
-			const second = await controller.schedulePickup(
+			const second = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 			expect(second.status).toBe("scheduled");
 			expect(second.id).not.toBe(first.id);
@@ -331,13 +367,17 @@ describe("store-pickup controllers — edge cases", () => {
 		it("allows a new pickup after previous one was picked_up", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const first = await controller.schedulePickup(makePickup(loc.id, win.id));
+			const first = await controller.schedulePickupWithTimezone(
+				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
+			);
 			await controller.updatePickupStatus(first.id, "preparing");
 			await controller.updatePickupStatus(first.id, "ready");
 			await controller.updatePickupStatus(first.id, "picked_up");
 
-			const second = await controller.schedulePickup(
+			const second = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { scheduledDate: NEXT_MONDAY_DATE }),
+				TEST_TIMEZONE,
 			);
 			expect(second.status).toBe("scheduled");
 		});
@@ -345,14 +385,18 @@ describe("store-pickup controllers — edge cases", () => {
 		it("rejects new pickup while one is in preparing status", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const first = await controller.schedulePickup(makePickup(loc.id, win.id));
+			const first = await controller.schedulePickupWithTimezone(
+				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
+			);
 			await controller.updatePickupStatus(first.id, "preparing");
 
 			await expect(
-				controller.schedulePickup(
+				controller.schedulePickupWithTimezone(
 					makePickup(loc.id, win.id, {
 						scheduledDate: NEXT_MONDAY_DATE,
 					}),
+					TEST_TIMEZONE,
 				),
 			).rejects.toThrow("Order already has an active pickup scheduled");
 		});
@@ -360,15 +404,19 @@ describe("store-pickup controllers — edge cases", () => {
 		it("rejects new pickup while one is in ready status", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const first = await controller.schedulePickup(makePickup(loc.id, win.id));
+			const first = await controller.schedulePickupWithTimezone(
+				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
+			);
 			await controller.updatePickupStatus(first.id, "preparing");
 			await controller.updatePickupStatus(first.id, "ready");
 
 			await expect(
-				controller.schedulePickup(
+				controller.schedulePickupWithTimezone(
 					makePickup(loc.id, win.id, {
 						scheduledDate: NEXT_MONDAY_DATE,
 					}),
+					TEST_TIMEZONE,
 				),
 			).rejects.toThrow("Order already has an active pickup scheduled");
 		});
@@ -380,8 +428,9 @@ describe("store-pickup controllers — edge cases", () => {
 		it("returns null when pickup was picked_up", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(pickup.id, "preparing");
 			await controller.updatePickupStatus(pickup.id, "ready");
@@ -396,12 +445,16 @@ describe("store-pickup controllers — edge cases", () => {
 			const win = await controller.createWindow(makeWindow(loc.id));
 
 			// First pickup - cancel it
-			const first = await controller.schedulePickup(makePickup(loc.id, win.id));
+			const first = await controller.schedulePickupWithTimezone(
+				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
+			);
 			await controller.cancelPickup(first.id);
 
 			// Second pickup - active
-			const second = await controller.schedulePickup(
+			const second = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 
 			const found = unwrap(await controller.getOrderPickup("order_1"));
@@ -412,8 +465,9 @@ describe("store-pickup controllers — edge cases", () => {
 		it("returns preparing pickup as active", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(pickup.id, "preparing");
 
@@ -424,8 +478,9 @@ describe("store-pickup controllers — edge cases", () => {
 		it("returns ready pickup as active", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(pickup.id, "preparing");
 			await controller.updatePickupStatus(pickup.id, "ready");
@@ -441,8 +496,9 @@ describe("store-pickup controllers — edge cases", () => {
 		it("rejects preparing -> scheduled", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(pickup.id, "preparing");
 
@@ -454,8 +510,9 @@ describe("store-pickup controllers — edge cases", () => {
 		it("rejects preparing -> picked_up (must go through ready)", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(pickup.id, "preparing");
 
@@ -467,8 +524,9 @@ describe("store-pickup controllers — edge cases", () => {
 		it("rejects ready -> scheduled", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(pickup.id, "preparing");
 			await controller.updatePickupStatus(pickup.id, "ready");
@@ -481,8 +539,9 @@ describe("store-pickup controllers — edge cases", () => {
 		it("rejects ready -> preparing (no backwards transitions)", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(pickup.id, "preparing");
 			await controller.updatePickupStatus(pickup.id, "ready");
@@ -495,8 +554,9 @@ describe("store-pickup controllers — edge cases", () => {
 		it("rejects picked_up -> cancelled", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(pickup.id, "preparing");
 			await controller.updatePickupStatus(pickup.id, "ready");
@@ -510,8 +570,9 @@ describe("store-pickup controllers — edge cases", () => {
 		it("rejects cancelled -> preparing", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 			await controller.cancelPickup(pickup.id);
 
@@ -728,10 +789,13 @@ describe("store-pickup controllers — edge cases", () => {
 				}),
 			);
 
-			const avail = await controller.getAvailableWindows({
-				locationId: loc.id,
-				date: MONDAY_DATE,
-			});
+			const avail = await controller.getAvailableWindowsWithTimezone(
+				{
+					locationId: loc.id,
+					date: MONDAY_DATE,
+				},
+				TEST_TIMEZONE,
+			);
 			expect(avail.length).toBe(3);
 			expect(avail[0].window.startTime).toBe("09:00");
 			expect(avail[1].window.startTime).toBe("11:00");
@@ -756,14 +820,18 @@ describe("store-pickup controllers — edge cases", () => {
 			);
 
 			// Book the morning window
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, morningWin.id, { orderId: "o1" }),
+				TEST_TIMEZONE,
 			);
 
-			const avail = await controller.getAvailableWindows({
-				locationId: loc.id,
-				date: MONDAY_DATE,
-			});
+			const avail = await controller.getAvailableWindowsWithTimezone(
+				{
+					locationId: loc.id,
+					date: MONDAY_DATE,
+				},
+				TEST_TIMEZONE,
+			);
 
 			const morning = avail.find((a) => a.window.id === morningWin.id);
 			const afternoon = avail.find((a) => a.window.id === afternoonWin.id);
@@ -781,8 +849,9 @@ describe("store-pickup controllers — edge cases", () => {
 		it("adding a blackout does not cancel existing pickups", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 
 			// Add blackout after pickup is already scheduled
@@ -805,18 +874,24 @@ describe("store-pickup controllers — edge cases", () => {
 				date: MONDAY_DATE,
 			});
 
-			let avail = await controller.getAvailableWindows({
-				locationId: loc.id,
-				date: MONDAY_DATE,
-			});
+			let avail = await controller.getAvailableWindowsWithTimezone(
+				{
+					locationId: loc.id,
+					date: MONDAY_DATE,
+				},
+				TEST_TIMEZONE,
+			);
 			expect(avail.length).toBe(0);
 
 			await controller.deleteBlackout(blackout.id);
 
-			avail = await controller.getAvailableWindows({
-				locationId: loc.id,
-				date: MONDAY_DATE,
-			});
+			avail = await controller.getAvailableWindowsWithTimezone(
+				{
+					locationId: loc.id,
+					date: MONDAY_DATE,
+				},
+				TEST_TIMEZONE,
+			);
 			expect(avail.length).toBe(1);
 			expect(avail[0].available).toBe(true);
 		});
@@ -846,10 +921,13 @@ describe("store-pickup controllers — edge cases", () => {
 			const loc = await controller.createLocation(makeLocation());
 			await controller.createWindow(makeWindow(loc.id, { dayOfWeek: 0 }));
 
-			const avail = await controller.getAvailableWindows({
-				locationId: loc.id,
-				date: SUNDAY_DATE,
-			});
+			const avail = await controller.getAvailableWindowsWithTimezone(
+				{
+					locationId: loc.id,
+					date: SUNDAY_DATE,
+				},
+				TEST_TIMEZONE,
+			);
 			expect(avail.length).toBe(1);
 		});
 
@@ -860,10 +938,11 @@ describe("store-pickup controllers — edge cases", () => {
 			);
 
 			await expect(
-				controller.schedulePickup(
+				controller.schedulePickupWithTimezone(
 					makePickup(loc.id, win.id, {
 						scheduledDate: MONDAY_DATE,
 					}),
+					TEST_TIMEZONE,
 				),
 			).rejects.toThrow(
 				"Scheduled date does not match the window's day of week",
@@ -876,10 +955,11 @@ describe("store-pickup controllers — edge cases", () => {
 				makeWindow(loc.id, { dayOfWeek: 3 }), // Wednesday
 			);
 
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, {
 					scheduledDate: WEDNESDAY_DATE,
 				}),
+				TEST_TIMEZONE,
 			);
 			expect(pickup.status).toBe("scheduled");
 		});
@@ -898,8 +978,9 @@ describe("store-pickup controllers — edge cases", () => {
 				}),
 			);
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 
 			expect(pickup.locationAddress).toBe("456 Oak Ave, Eugene, OR 97401");
@@ -908,8 +989,9 @@ describe("store-pickup controllers — edge cases", () => {
 		it("uses the location name at time of scheduling", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 
 			expect(pickup.locationName).toBe("Downtown Store");
@@ -930,23 +1012,26 @@ describe("store-pickup controllers — edge cases", () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
 
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, {
 					orderId: "o1",
 					customerId: "cust_1",
 				}),
+				TEST_TIMEZONE,
 			);
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, {
 					orderId: "o2",
 					customerId: "cust_2",
 				}),
+				TEST_TIMEZONE,
 			);
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, {
 					orderId: "o3",
 					customerId: "cust_1",
 				}),
+				TEST_TIMEZONE,
 			);
 
 			const result = await controller.listPickups({
@@ -965,11 +1050,13 @@ describe("store-pickup controllers — edge cases", () => {
 			const win1 = await controller.createWindow(makeWindow(loc1.id));
 			const win2 = await controller.createWindow(makeWindow(loc2.id));
 
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc1.id, win1.id, { orderId: "o1" }),
+				TEST_TIMEZONE,
 			);
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc2.id, win2.id, { orderId: "o2" }),
+				TEST_TIMEZONE,
 			);
 
 			const result = await controller.listPickups({
@@ -983,17 +1070,19 @@ describe("store-pickup controllers — edge cases", () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
 
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, {
 					orderId: "o1",
 					customerId: "cust_1",
 				}),
+				TEST_TIMEZONE,
 			);
-			const p2 = await controller.schedulePickup(
+			const p2 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, {
 					orderId: "o2",
 					customerId: "cust_1",
 				}),
+				TEST_TIMEZONE,
 			);
 			await controller.cancelPickup(p2.id);
 
@@ -1037,15 +1126,18 @@ describe("store-pickup controllers — edge cases", () => {
 			});
 
 			// Pickups with different statuses (need active location for schedule)
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc1.id, win1.id, { orderId: "o1" }),
+				TEST_TIMEZONE,
 			);
-			const p2 = await controller.schedulePickup(
+			const p2 = await controller.schedulePickupWithTimezone(
 				makePickup(loc1.id, win1.id, { orderId: "o2" }),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(p2.id, "preparing");
-			const p3 = await controller.schedulePickup(
+			const p3 = await controller.schedulePickupWithTimezone(
 				makePickup(loc1.id, win1.id, { orderId: "o3" }),
+				TEST_TIMEZONE,
 			);
 			await controller.cancelPickup(p3.id);
 
@@ -1081,17 +1173,21 @@ describe("store-pickup controllers — edge cases", () => {
 			);
 
 			// Schedule 4 pickups
-			const p1 = await controller.schedulePickup(
+			const p1 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o1" }),
+				TEST_TIMEZONE,
 			);
-			const p2 = await controller.schedulePickup(
+			const p2 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o2" }),
+				TEST_TIMEZONE,
 			);
-			const p3 = await controller.schedulePickup(
+			const p3 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o3" }),
+				TEST_TIMEZONE,
 			);
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o4" }),
+				TEST_TIMEZONE,
 			);
 
 			// Cancel p1, preparing p2, ready p3, keep p4 scheduled
@@ -1111,8 +1207,9 @@ describe("store-pickup controllers — edge cases", () => {
 				makeWindow(loc.id, { capacity: 10 }),
 			);
 
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o1" }),
+				TEST_TIMEZONE,
 			);
 
 			const mondayCount = await controller.getWindowBookingCount(
@@ -1227,20 +1324,23 @@ describe("store-pickup controllers — edge cases", () => {
 			);
 
 			// Fill win1
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win1.id, { orderId: "o1" }),
+				TEST_TIMEZONE,
 			);
 
 			// win2 should still have capacity
-			const p2 = await controller.schedulePickup(
+			const p2 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win2.id, { orderId: "o2" }),
+				TEST_TIMEZONE,
 			);
 			expect(p2.status).toBe("scheduled");
 
 			// win1 should be full
 			await expect(
-				controller.schedulePickup(
+				controller.schedulePickupWithTimezone(
 					makePickup(loc.id, win1.id, { orderId: "o3" }),
+					TEST_TIMEZONE,
 				),
 			).rejects.toThrow("Pickup window is fully booked");
 		});
@@ -1323,8 +1423,9 @@ describe("store-pickup controllers — edge cases", () => {
 				}),
 			);
 
-			const pickup = await controller.schedulePickup(
+			const pickup = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
 			);
 			expect(pickup.startTime).toBe("10:00");
 			expect(pickup.endTime).toBe("14:00");
@@ -1356,7 +1457,10 @@ describe("store-pickup controllers — edge cases", () => {
 		it("deleting a window after pickups still works", async () => {
 			const loc = await controller.createLocation(makeLocation());
 			const win = await controller.createWindow(makeWindow(loc.id));
-			await controller.schedulePickup(makePickup(loc.id, win.id));
+			await controller.schedulePickupWithTimezone(
+				makePickup(loc.id, win.id),
+				TEST_TIMEZONE,
+			);
 
 			const deleted = await controller.deleteWindow(win.id);
 			expect(deleted).toBe(true);
@@ -1374,10 +1478,13 @@ describe("store-pickup controllers — edge cases", () => {
 			// Deactivate the location
 			await controller.updateLocation(loc.id, { active: false });
 
-			const avail = await controller.getAvailableWindows({
-				locationId: loc.id,
-				date: MONDAY_DATE,
-			});
+			const avail = await controller.getAvailableWindowsWithTimezone(
+				{
+					locationId: loc.id,
+					date: MONDAY_DATE,
+				},
+				TEST_TIMEZONE,
+			);
 			expect(avail.length).toBe(0);
 		});
 
@@ -1388,7 +1495,10 @@ describe("store-pickup controllers — edge cases", () => {
 			await controller.updateLocation(loc.id, { active: false });
 
 			await expect(
-				controller.schedulePickup(makePickup(loc.id, win.id)),
+				controller.schedulePickupWithTimezone(
+					makePickup(loc.id, win.id),
+					TEST_TIMEZONE,
+				),
 			).rejects.toThrow("Pickup location is not available");
 		});
 	});
@@ -1402,8 +1512,9 @@ describe("store-pickup controllers — edge cases", () => {
 			const winB = await controller.createWindow(makeWindow(locB.id));
 
 			await expect(
-				controller.schedulePickup(
+				controller.schedulePickupWithTimezone(
 					makePickup(locA.id, winB.id, { orderId: "o1" }),
+					TEST_TIMEZONE,
 				),
 			).rejects.toThrow("Window does not belong to the specified location");
 		});
@@ -1420,47 +1531,54 @@ describe("store-pickup controllers — edge cases", () => {
 
 			// Create pickups in various final states
 			// 1. Remains scheduled
-			await controller.schedulePickup(
+			await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o1" }),
+				TEST_TIMEZONE,
 			);
 
 			// 2. Goes to preparing
-			const p2 = await controller.schedulePickup(
+			const p2 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o2" }),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(p2.id, "preparing");
 
 			// 3. Goes to ready
-			const p3 = await controller.schedulePickup(
+			const p3 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o3" }),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(p3.id, "preparing");
 			await controller.updatePickupStatus(p3.id, "ready");
 
 			// 4. Goes to picked_up
-			const p4 = await controller.schedulePickup(
+			const p4 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o4" }),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(p4.id, "preparing");
 			await controller.updatePickupStatus(p4.id, "ready");
 			await controller.updatePickupStatus(p4.id, "picked_up");
 
 			// 5. Cancelled from scheduled
-			const p5 = await controller.schedulePickup(
+			const p5 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o5" }),
+				TEST_TIMEZONE,
 			);
 			await controller.cancelPickup(p5.id);
 
 			// 6. Cancelled from preparing
-			const p6 = await controller.schedulePickup(
+			const p6 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o6" }),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(p6.id, "preparing");
 			await controller.cancelPickup(p6.id);
 
 			// 7. Cancelled from ready
-			const p7 = await controller.schedulePickup(
+			const p7 = await controller.schedulePickupWithTimezone(
 				makePickup(loc.id, win.id, { orderId: "o7" }),
+				TEST_TIMEZONE,
 			);
 			await controller.updatePickupStatus(p7.id, "preparing");
 			await controller.updatePickupStatus(p7.id, "ready");

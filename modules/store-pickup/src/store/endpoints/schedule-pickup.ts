@@ -1,6 +1,7 @@
 import { createStoreEndpoint } from "@86d-store/core/api";
 import { sanitizeText } from "@86d-store/core/sanitize";
 import { z } from "zod";
+import { readPickupSettings } from "../../pickup-settings";
 import type {
 	SchedulePickupParams,
 	StorePickupController,
@@ -27,6 +28,18 @@ export const schedulePickup = createStoreEndpoint(
 			return { error: "Authentication required", status: 401 };
 		}
 
+		const settingsController = ctx.context.controllers.settings as
+			| { getValue(key: string): Promise<string | null> }
+			| undefined;
+		const settings = await readPickupSettings(settingsController);
+
+		if (!settings?.timezone) {
+			return {
+				error: "Store timezone is not configured",
+				status: 503,
+			};
+		}
+
 		const controller = ctx.context.controllers
 			.storePickup as StorePickupController;
 		const params: SchedulePickupParams = {
@@ -37,7 +50,10 @@ export const schedulePickup = createStoreEndpoint(
 			customerId: session.user.id,
 		};
 		if (ctx.body.notes != null) params.notes = ctx.body.notes;
-		const pickup = await controller.schedulePickup(params);
+		const pickup = await controller.schedulePickupWithTimezone(
+			params,
+			settings.timezone,
+		);
 		return { pickup };
 	},
 );

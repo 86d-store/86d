@@ -1,5 +1,6 @@
 import { createAdminEndpoint } from "@86d-store/core/api";
 import { z } from "zod";
+import { readPickupSettings } from "../../pickup-settings";
 import type {
 	CreateLocationParams,
 	StorePickupController,
@@ -26,6 +27,11 @@ export const createLocation = createAdminEndpoint(
 		}),
 	},
 	async (ctx) => {
+		const settingsController = ctx.context.controllers.settings as
+			| { getValue(key: string): Promise<string | null> }
+			| undefined;
+		const pickupSettings = await readPickupSettings(settingsController);
+
 		const controller = ctx.context.controllers
 			.storePickup as StorePickupController;
 		const params: CreateLocationParams = {
@@ -40,8 +46,11 @@ export const createLocation = createAdminEndpoint(
 		if (ctx.body.email != null) params.email = ctx.body.email;
 		if (ctx.body.latitude != null) params.latitude = ctx.body.latitude;
 		if (ctx.body.longitude != null) params.longitude = ctx.body.longitude;
-		if (ctx.body.preparationMinutes != null)
+		if (ctx.body.preparationMinutes != null) {
 			params.preparationMinutes = ctx.body.preparationMinutes;
+		} else if (pickupSettings?.prepTimeMinutes != null) {
+			params.preparationMinutes = pickupSettings.prepTimeMinutes;
+		}
 		if (ctx.body.active != null) params.active = ctx.body.active;
 		if (ctx.body.sortOrder != null) params.sortOrder = ctx.body.sortOrder;
 		const location = await controller.createLocation(params);

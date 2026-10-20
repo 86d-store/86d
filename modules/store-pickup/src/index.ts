@@ -4,6 +4,7 @@ import type {
 	ModuleContext,
 } from "@86d-store/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
+import { storePickupScheduleProvider } from "./capabilities";
 import { storePickupStorage } from "./schema";
 import { createStorePickupController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
@@ -11,6 +12,12 @@ import { storeEndpoints } from "./store/endpoints/routes";
 export interface StorePickupOptions extends ModuleConfig {
 	/** Default preparation time in minutes when not set on a location. Default: 60. */
 	defaultPreparationMinutes?: number;
+	/**
+	 * Minutes after the ready time (or scheduled end time if not ready) before
+	 * marking an uncollected order as no-show. Default: 30 minutes.
+	 * Set to 0 to disable auto no-show marking.
+	 */
+	noShowWindowMinutes?: number;
 }
 
 export default function storePickup(options?: StorePickupOptions): Module {
@@ -37,13 +44,19 @@ export default function storePickup(options?: StorePickupOptions): Module {
 				"store-pickup.window.updated",
 				"store-pickup.window.deleted",
 				"store-pickup.pickup.scheduled",
+				"store-pickup.pickup.started",
 				"store-pickup.pickup.preparing",
 				"store-pickup.pickup.ready",
 				"store-pickup.pickup.completed",
 				"store-pickup.pickup.cancelled",
+				"store-pickup.pickup.no-show",
 				"store-pickup.blackout.created",
 				"store-pickup.blackout.deleted",
 			],
+		},
+
+		capabilities: {
+			provides: [storePickupScheduleProvider],
 		},
 
 		init: async (ctx: ModuleContext) => {

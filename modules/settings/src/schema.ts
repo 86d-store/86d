@@ -7,7 +7,15 @@ export const settingsStoreSettingShape = z.object({
 	key: z.string().register(col, { unique: true }),
 	value: z.string(),
 	group: z
-		.enum(["general", "contact", "social", "legal", "commerce", "appearance"])
+		.enum([
+			"general",
+			"contact",
+			"social",
+			"legal",
+			"commerce",
+			"appearance",
+			"pickup",
+		])
 		.default("general"),
 	updatedAt: z.coerce.date().default(() => new Date()),
 });

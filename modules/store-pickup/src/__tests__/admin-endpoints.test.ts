@@ -114,13 +114,21 @@ function makeController(
 		getWindow: vi.fn().mockResolvedValue(null),
 		listWindows: vi.fn().mockResolvedValue([]),
 		deleteWindow: vi.fn().mockResolvedValue(false),
-		schedulePickup: vi.fn().mockResolvedValue(makePickup()),
+		schedulePickup: vi
+			.fn()
+			.mockRejectedValue(new Error("Use schedulePickupWithTimezone")),
+		schedulePickupWithTimezone: vi.fn().mockResolvedValue(makePickup()),
 		getPickup: vi.fn().mockResolvedValue(null),
 		getOrderPickup: vi.fn().mockResolvedValue(null),
 		listPickups: vi.fn().mockResolvedValue([]),
 		updatePickupStatus: vi.fn().mockResolvedValue(null),
 		cancelPickup: vi.fn().mockResolvedValue(null),
-		getAvailableWindows: vi.fn().mockResolvedValue([]),
+		customerCancelPickup: vi.fn().mockResolvedValue(null),
+		customerCancelPickupWithPolicy: vi.fn().mockResolvedValue(null),
+		getAvailableWindows: vi
+			.fn()
+			.mockRejectedValue(new Error("Use getAvailableWindowsWithTimezone")),
+		getAvailableWindowsWithTimezone: vi.fn().mockResolvedValue([]),
 		getWindowBookingCount: vi.fn().mockResolvedValue(0),
 		createBlackout: vi.fn().mockResolvedValue(makeBlackout()),
 		deleteBlackout: vi.fn().mockResolvedValue(false),
@@ -133,12 +141,15 @@ function makeController(
 			activeWindows: 0,
 			totalPickups: 0,
 			scheduledPickups: 0,
+			startedPickups: 0,
 			preparingPickups: 0,
 			readyPickups: 0,
 			completedPickups: 0,
 			cancelledPickups: 0,
+			noShowPickups: 0,
 			blackoutDates: 0,
 		} satisfies StorePickupSummary),
+		processNoShows: vi.fn().mockResolvedValue({ processed: 0, pickupIds: [] }),
 		...overrides,
 	};
 }

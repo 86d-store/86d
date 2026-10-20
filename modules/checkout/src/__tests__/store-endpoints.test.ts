@@ -748,19 +748,33 @@ describe("checkout store endpoints", () => {
 	// ── complete-session containment ──────────────────────────────────
 
 	describe("complete-session containment", () => {
+		function createMockSettingsController(
+			storeStatus: "coming_soon" | "paused" | "open",
+		) {
+			return {
+				getValue: vi.fn().mockImplementation(async (key: string) => {
+					if (key === "commerce.store_status") {
+						return storeStatus;
+					}
+					return null;
+				}),
+			};
+		}
+
 		it("registers the package-exported fail-closed handler", () => {
 			expect(storeEndpoints["/checkout/sessions/:id/complete"]).toBe(
 				completeSession,
 			);
 		});
 
-		it("returns the same bounded failure on retry without downstream effects", async () => {
+		it("returns the same bounded failure on retry without downstream effects when store is open", async () => {
 			const downstream = vi.fn();
 			const input = {
 				params: { id: "session-1" },
 				context: {
 					controllers: {
 						checkout: { getById: downstream, complete: downstream },
+						settings: createMockSettingsController("open"),
 					},
 				},
 			};
@@ -772,6 +786,73 @@ describe("checkout store endpoints", () => {
 			await expect(endpoint(input)).resolves.toEqual(
 				checkoutActivationUnavailable,
 			);
+			expect(downstream).not.toHaveBeenCalled();
+		});
+
+		it("refuses checkout when store status is coming_soon", async () => {
+			const downstream = vi.fn();
+			const input = {
+				params: { id: "session-1" },
+				context: {
+					controllers: {
+						checkout: { getById: downstream, complete: downstream },
+						settings: createMockSettingsController("coming_soon"),
+					},
+				},
+			};
+			const endpoint = storeEndpoints["/checkout/sessions/:id/complete"];
+
+			const result = await endpoint(input);
+			expect(result).toMatchObject({
+				code: "STORE_NOT_ACCEPTING_ORDERS",
+				error: "This store is not taking orders yet.",
+				status: 503,
+				storeStatus: "coming_soon",
+			});
+			expect(downstream).not.toHaveBeenCalled();
+		});
+
+		it("refuses checkout when store status is paused", async () => {
+			const downstream = vi.fn();
+			const input = {
+				params: { id: "session-1" },
+				context: {
+					controllers: {
+						checkout: { getById: downstream, complete: downstream },
+						settings: createMockSettingsController("paused"),
+					},
+				},
+			};
+			const endpoint = storeEndpoints["/checkout/sessions/:id/complete"];
+
+			const result = await endpoint(input);
+			expect(result).toMatchObject({
+				code: "STORE_NOT_ACCEPTING_ORDERS",
+				error: "This store is temporarily closed.",
+				status: 503,
+				storeStatus: "paused",
+			});
+			expect(downstream).not.toHaveBeenCalled();
+		});
+
+		it("defaults to coming_soon when settings module is not available", async () => {
+			const downstream = vi.fn();
+			const input = {
+				params: { id: "session-1" },
+				context: {
+					controllers: {
+						checkout: { getById: downstream, complete: downstream },
+					},
+				},
+			};
+			const endpoint = storeEndpoints["/checkout/sessions/:id/complete"];
+
+			const result = await endpoint(input);
+			expect(result).toMatchObject({
+				code: "STORE_NOT_ACCEPTING_ORDERS",
+				status: 503,
+				storeStatus: "coming_soon",
+			});
 			expect(downstream).not.toHaveBeenCalled();
 		});
 	});

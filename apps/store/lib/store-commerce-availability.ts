@@ -7,6 +7,60 @@ import {
 import { readProcessEnv } from "env/process-env";
 import { logger } from "utils/logger";
 
+/**
+ * Store ordering status determines whether the store accepts orders:
+ * - coming_soon: default for new stores, storefront visible with banner, checkout refused
+ * - paused: temporarily unavailable, storefront visible, checkout refused
+ * - open: normal ordering, subject to business hours
+ */
+export type StoreStatus = "coming_soon" | "paused" | "open";
+
+export const STORE_STATUS_VALUES: readonly StoreStatus[] = [
+	"coming_soon",
+	"paused",
+	"open",
+] as const;
+
+export const DEFAULT_STORE_STATUS: StoreStatus = "coming_soon";
+
+export type StoreStatusGate =
+	| { accepting: true; status: "open" }
+	| { accepting: false; status: "coming_soon" | "paused"; message: string };
+
+const STATUS_MESSAGES: Record<Exclude<StoreStatus, "open">, string> = {
+	coming_soon: "This store is not taking orders yet.",
+	paused: "This store is temporarily closed.",
+};
+
+function isValidStoreStatus(
+	value: string | null | undefined,
+): value is StoreStatus {
+	return value === "coming_soon" || value === "paused" || value === "open";
+}
+
+/**
+ * Parse a store status value, returning the default if invalid.
+ */
+export function parseStoreStatus(
+	value: string | null | undefined,
+): StoreStatus {
+	return isValidStoreStatus(value) ? value : DEFAULT_STORE_STATUS;
+}
+
+/**
+ * Create a StoreStatusGate from a store status value.
+ */
+export function createStoreStatusGate(status: StoreStatus): StoreStatusGate {
+	if (status === "open") {
+		return { accepting: true, status: "open" };
+	}
+	return {
+		accepting: false,
+		status,
+		message: STATUS_MESSAGES[status],
+	};
+}
+
 export type StoreCommerceGate =
 	| {
 			managed: false;

@@ -61,6 +61,8 @@ export const checkoutFinalizationStepSchema = z.enum([
 	"compensation",
 ]);
 
+export const checkoutFulfillmentTypeSchema = z.enum(["shipping", "pickup"]);
+
 /** Immutable identities from the shopper-accepted Checkout input. */
 export const checkoutFinalizationAcceptedInputSchema = z
 	.object({
@@ -69,8 +71,12 @@ export const checkoutFinalizationAcceptedInputSchema = z
 		catalogRevisionId: identifier,
 		pricingDecisionId: identifier,
 		discountDecisionIds: referenceList.default([]),
+		fulfillmentType: checkoutFulfillmentTypeSchema.default("shipping"),
 		shippingQuoteId: identifier.optional(),
 		shippingOptionId: identifier.optional(),
+		pickupLocationId: identifier.optional(),
+		pickupWindowId: identifier.optional(),
+		pickupDate: z.string().max(10).optional(),
 		taxQuoteId: identifier.optional(),
 		inventoryReservationIds: referenceList.default([]),
 		paymentConnectionId: identifier.optional(),
@@ -78,12 +84,39 @@ export const checkoutFinalizationAcceptedInputSchema = z
 	})
 	.strict()
 	.superRefine((input, context) => {
-		if (input.shippingOptionId && !input.shippingQuoteId) {
+		if (
+			input.fulfillmentType === "shipping" &&
+			input.shippingOptionId &&
+			!input.shippingQuoteId
+		) {
 			context.addIssue({
 				code: "custom",
 				message: "A Shipping option reference requires its quote reference.",
 				path: ["shippingOptionId"],
 			});
+		}
+		if (input.fulfillmentType === "pickup") {
+			if (!input.pickupLocationId) {
+				context.addIssue({
+					code: "custom",
+					message: "Pickup fulfillment requires a location reference.",
+					path: ["pickupLocationId"],
+				});
+			}
+			if (!input.pickupWindowId) {
+				context.addIssue({
+					code: "custom",
+					message: "Pickup fulfillment requires a window reference.",
+					path: ["pickupWindowId"],
+				});
+			}
+			if (!input.pickupDate) {
+				context.addIssue({
+					code: "custom",
+					message: "Pickup fulfillment requires a date.",
+					path: ["pickupDate"],
+				});
+			}
 		}
 		if (input.paymentPolicyId && !input.paymentConnectionId) {
 			context.addIssue({
@@ -109,13 +142,17 @@ const paymentResultReferenceSchema = z
 export const checkoutFinalizationResultSchema = z
 	.object({
 		orderId: identifier.optional(),
+		pickupOrderId: identifier.optional(),
 		payment: paymentResultReferenceSchema.optional(),
 	})
 	.strict();
 
 const checkoutFinalizationResultUpdateSchema =
 	checkoutFinalizationResultSchema.refine(
-		(result) => result.orderId !== undefined || result.payment !== undefined,
+		(result) =>
+			result.orderId !== undefined ||
+			result.pickupOrderId !== undefined ||
+			result.payment !== undefined,
 		{
 			message:
 				"A Finalization result update must contain an owner-issued reference.",
@@ -585,9 +622,15 @@ function mergeResult(
 		current.orderId,
 		incoming.orderId,
 	);
+	const pickupOrderId = mergeOptionalReference(
+		"Pickup order reference",
+		current.pickupOrderId,
+		incoming.pickupOrderId,
+	);
 	const payment = mergePaymentReference(current.payment, incoming.payment);
 	return {
 		...(orderId ? { orderId } : {}),
+		...(pickupOrderId ? { pickupOrderId } : {}),
 		...(payment ? { payment } : {}),
 	};
 }

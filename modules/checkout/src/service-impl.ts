@@ -44,6 +44,7 @@ const checkoutSessionRecordSchema = z.object({
 		"expired",
 		"abandoned",
 	]),
+	fulfillmentType: z.enum(["shipping", "pickup"]).default("shipping"),
 	subtotal: z.number(),
 	taxAmount: z.number(),
 	shippingAmount: z.number(),
@@ -57,6 +58,12 @@ const checkoutSessionRecordSchema = z.object({
 	shippingAddress: checkoutAddressRecordSchema.optional(),
 	billingAddress: checkoutAddressRecordSchema.optional(),
 	shippingMethodName: z.string().optional(),
+	pickupLocationId: z.string().optional(),
+	pickupWindowId: z.string().optional(),
+	pickupDate: z.string().optional(),
+	pickupContactName: z.string().optional(),
+	pickupContactPhone: z.string().optional(),
+	pickupContactEmail: z.string().optional(),
 	paymentMethod: z.string().optional(),
 	paymentIntentId: z.string().optional(),
 	paymentStatus: z.string().optional(),
@@ -202,6 +209,7 @@ export function createCheckoutController(
 			const id = params.id ?? crypto.randomUUID();
 			const now = new Date();
 			const ttl = params.ttl ?? DEFAULT_TTL_MS;
+			const fulfillmentType = params.fulfillmentType ?? "shipping";
 
 			const session: CheckoutSession = {
 				id,
@@ -210,6 +218,7 @@ export function createCheckoutController(
 				customerId: params.customerId,
 				guestEmail: params.guestEmail,
 				status: "pending",
+				fulfillmentType,
 				subtotal: params.subtotal,
 				taxAmount: params.taxAmount ?? 0,
 				shippingAmount: params.shippingAmount ?? 0,
@@ -220,6 +229,12 @@ export function createCheckoutController(
 				currency: params.currency ?? "USD",
 				shippingAddress: params.shippingAddress,
 				billingAddress: params.billingAddress,
+				pickupLocationId: params.pickupLocationId,
+				pickupWindowId: params.pickupWindowId,
+				pickupDate: params.pickupDate,
+				pickupContactName: params.pickupContactName,
+				pickupContactPhone: params.pickupContactPhone,
+				pickupContactEmail: params.pickupContactEmail,
 				metadata: params.metadata ?? {},
 				expiresAt: new Date(now.getTime() + ttl),
 				createdAt: now,
@@ -261,6 +276,9 @@ export function createCheckoutController(
 					...(params.guestEmail !== undefined
 						? { guestEmail: params.guestEmail }
 						: {}),
+					...(params.fulfillmentType !== undefined
+						? { fulfillmentType: params.fulfillmentType }
+						: {}),
 					...(params.shippingAddress !== undefined
 						? { shippingAddress: params.shippingAddress }
 						: {}),
@@ -272,6 +290,24 @@ export function createCheckoutController(
 						: {}),
 					...(params.shippingMethodName !== undefined
 						? { shippingMethodName: params.shippingMethodName }
+						: {}),
+					...(params.pickupLocationId !== undefined
+						? { pickupLocationId: params.pickupLocationId }
+						: {}),
+					...(params.pickupWindowId !== undefined
+						? { pickupWindowId: params.pickupWindowId }
+						: {}),
+					...(params.pickupDate !== undefined
+						? { pickupDate: params.pickupDate }
+						: {}),
+					...(params.pickupContactName !== undefined
+						? { pickupContactName: params.pickupContactName }
+						: {}),
+					...(params.pickupContactPhone !== undefined
+						? { pickupContactPhone: params.pickupContactPhone }
+						: {}),
+					...(params.pickupContactEmail !== undefined
+						? { pickupContactEmail: params.pickupContactEmail }
 						: {}),
 					...(params.taxAmount !== undefined
 						? { taxAmount: params.taxAmount }
@@ -431,9 +467,28 @@ export function createCheckoutController(
 				};
 			}
 
-			// Require shipping address
-			if (!existing.shippingAddress) {
-				return { error: "Shipping address is required", status: 422 };
+			// Fulfillment-specific validations
+			const fulfillmentType = existing.fulfillmentType;
+			if (fulfillmentType === "shipping") {
+				if (!existing.shippingAddress) {
+					return { error: "Shipping address is required", status: 422 };
+				}
+			} else if (fulfillmentType === "pickup") {
+				if (!existing.pickupLocationId) {
+					return { error: "Pickup location is required", status: 422 };
+				}
+				if (!existing.pickupWindowId) {
+					return { error: "Pickup time window is required", status: 422 };
+				}
+				if (!existing.pickupDate) {
+					return { error: "Pickup date is required", status: 422 };
+				}
+				if (!existing.pickupContactName) {
+					return { error: "Pickup contact name is required", status: 422 };
+				}
+				if (!existing.pickupContactPhone) {
+					return { error: "Pickup contact phone is required", status: 422 };
+				}
 			}
 
 			// Require at least one line item

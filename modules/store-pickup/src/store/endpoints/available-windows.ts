@@ -1,5 +1,6 @@
 import { createStoreEndpoint } from "@86d-store/core/api";
 import { z } from "zod";
+import { readPickupSettings } from "../../pickup-settings";
 import type { StorePickupController } from "../../service";
 
 export const availableWindows = createStoreEndpoint(
@@ -17,12 +18,27 @@ export const availableWindows = createStoreEndpoint(
 		}),
 	},
 	async (ctx) => {
+		const settingsController = ctx.context.controllers.settings as
+			| { getValue(key: string): Promise<string | null> }
+			| undefined;
+		const settings = await readPickupSettings(settingsController);
+
+		if (!settings?.timezone) {
+			return {
+				error: "Store timezone is not configured",
+				status: 503,
+			};
+		}
+
 		const controller = ctx.context.controllers
 			.storePickup as StorePickupController;
-		const windows = await controller.getAvailableWindows({
-			locationId: ctx.params.locationId,
-			date: ctx.query.date,
-		});
+		const windows = await controller.getAvailableWindowsWithTimezone(
+			{
+				locationId: ctx.params.locationId,
+				date: ctx.query.date,
+			},
+			settings.timezone,
+		);
 		return { windows };
 	},
 );
