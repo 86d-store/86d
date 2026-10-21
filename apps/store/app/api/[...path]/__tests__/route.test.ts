@@ -22,7 +22,24 @@ vi.mock("utils/logger", () => ({
 }));
 
 const mockEnsureBooted = vi.hoisted(() => vi.fn());
-vi.mock("~/lib/api-registry", () => ({ ensureBooted: mockEnsureBooted }));
+const MockBootFailureError = vi.hoisted(
+	() =>
+		class BootFailureError extends Error {
+			override readonly cause: Error;
+			readonly retryAfterSeconds: number;
+
+			constructor(message: string, cause: Error, retryAfterSeconds: number) {
+				super(message);
+				this.name = "BootFailureError";
+				this.cause = cause;
+				this.retryAfterSeconds = retryAfterSeconds;
+			}
+		},
+);
+vi.mock("~/lib/api-registry", () => ({
+	ensureBooted: mockEnsureBooted,
+	BootFailureError: MockBootFailureError,
+}));
 const mockCreateRequestContext = vi.hoisted(() => vi.fn());
 
 const mockResolveStoreCommerceGate = vi.hoisted(() => vi.fn());
@@ -649,6 +666,114 @@ describe("GET|POST /api/[...path]", () => {
 			const json = await res.json();
 
 			expect(json.error.code).toBe(expectedCode);
+		});
+	});
+
+	describe("boot failure handling", () => {
+		it("returns 503 JSON when boot fails during exposure resolution", async () => {
+			const diagnostic = vi
+				.spyOn(console, "error")
+				.mockImplementation(() => {});
+			try {
+				mockEnsureBooted.mockRejectedValue(
+					new MockBootFailureError(
+						"Store boot failed; retry throttled",
+						new Error("Database connection failed"),
+						10,
+					),
+				);
+
+				const response = await GET(
+					makeRequest("/products"),
+					makeCtx(["products"]),
+				);
+				const json = await response.json();
+
+				expect(response.status).toBe(503);
+				expect(json).toEqual({ error: "store_unavailable" });
+				expect(response.headers.get("Retry-After")).toBe("10");
+				expect(response.headers.get("Cache-Control")).toBe("no-store");
+				expect(diagnostic).toHaveBeenCalledWith(
+					"[API boot failure]",
+					"/products",
+					"Database connection failed",
+					expect.any(String),
+				);
+			} finally {
+				diagnostic.mockRestore();
+			}
+		});
+
+		it("logs boot failure error server-side", async () => {
+			const diagnostic = vi
+				.spyOn(console, "error")
+				.mockImplementation(() => {});
+			try {
+				mockEnsureBooted.mockRejectedValue(
+					new MockBootFailureError(
+						"Store boot failed during registry boot",
+						new Error("Schema migration failed"),
+						15,
+					),
+				);
+
+				await GET(
+					makeRequest("/admin/products"),
+					makeCtx(["admin", "products"]),
+				);
+
+				expect(mockLoggerError).toHaveBeenCalledWith("Store boot failure", {
+					path: "/admin/products",
+					error: "Schema migration failed",
+				});
+			} finally {
+				diagnostic.mockRestore();
+			}
+		});
+
+		it("includes Retry-After header matching the backoff duration", async () => {
+			const diagnostic = vi
+				.spyOn(console, "error")
+				.mockImplementation(() => {});
+			try {
+				mockEnsureBooted.mockRejectedValue(
+					new MockBootFailureError(
+						"Store boot failed; retry throttled",
+						new Error("Connection refused"),
+						25,
+					),
+				);
+
+				const response = await GET(
+					makeRequest("/checkout/sessions", "GET"),
+					makeCtx(["checkout", "sessions"]),
+				);
+
+				expect(response.status).toBe(503);
+				expect(response.headers.get("Retry-After")).toBe("25");
+			} finally {
+				diagnostic.mockRestore();
+			}
+		});
+
+		it("returns 500 for non-BootFailureError exceptions", async () => {
+			const diagnostic = vi
+				.spyOn(console, "error")
+				.mockImplementation(() => {});
+			try {
+				mockEnsureBooted.mockRejectedValue(new Error("Unexpected error"));
+
+				const response = await GET(
+					makeRequest("/products"),
+					makeCtx(["products"]),
+				);
+				const json = await response.json();
+
+				expect(response.status).toBe(500);
+				expect(json.error.code).toBe("INTERNAL_SERVER_ERROR");
+			} finally {
+				diagnostic.mockRestore();
+			}
 		});
 	});
 });

@@ -258,4 +258,13 @@ describe("sitemap()", () => {
 			),
 		).toBe(true);
 	});
+
+	it("resolves base URL at request time via getBaseUrl (runtime NEXT_PUBLIC_STORE_URL)", async () => {
+		mocks.getBaseUrl.mockReturnValue("https://production.86d.store");
+		defaultMocks();
+
+		const entries = await sitemap();
+		expect(mocks.getBaseUrl).toHaveBeenCalled();
+		expect(entries[0]?.url).toContain("https://production.86d.store");
+	});
 });

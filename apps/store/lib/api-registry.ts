@@ -59,6 +59,18 @@ let compiledSchemaApplyPromise: Promise<void> | null = null;
 
 const moduleDataServices = new Map<string, CompiledModuleDataService>();
 
+let lastBootFailureMs = 0;
+let lastBootError: Error | null = null;
+
+function getBootBackoffSeconds(): number {
+	const configured = getProcessEnv("BOOT_FAILURE_BACKOFF_SECONDS");
+	if (configured) {
+		const parsed = Number.parseInt(configured, 10);
+		if (!Number.isNaN(parsed) && parsed > 0) return parsed;
+	}
+	return 10;
+}
+
 async function ensureCompiledSchema(): Promise<CompiledSchemaBundle> {
 	if (!compiledSchema) {
 		compiledSchema = compileInstalledModules(modules as Module[]);
@@ -180,8 +192,48 @@ function getRegistry(): ModuleRegistry {
 	return registry;
 }
 
+export class BootFailureError extends Error {
+	override readonly cause: Error;
+	readonly retryAfterSeconds: number;
+
+	constructor(message: string, cause: Error, retryAfterSeconds: number) {
+		super(message);
+		this.name = "BootFailureError";
+		this.cause = cause;
+		this.retryAfterSeconds = retryAfterSeconds;
+	}
+}
+
 export async function ensureBooted(): Promise<ModuleRegistry> {
-	await ensureCompiledSchema();
+	const backoffSeconds = getBootBackoffSeconds();
+	const now = Date.now();
+
+	if (lastBootFailureMs > 0 && lastBootError) {
+		const elapsedMs = now - lastBootFailureMs;
+		const remainingMs = backoffSeconds * 1000 - elapsedMs;
+		if (remainingMs > 0) {
+			throw new BootFailureError(
+				"Store boot failed; retry throttled",
+				lastBootError,
+				Math.ceil(remainingMs / 1000),
+			);
+		}
+		lastBootFailureMs = 0;
+		lastBootError = null;
+	}
+
+	try {
+		await ensureCompiledSchema();
+	} catch (err) {
+		lastBootFailureMs = Date.now();
+		lastBootError = err instanceof Error ? err : new Error(String(err));
+		throw new BootFailureError(
+			"Store boot failed during schema compilation",
+			lastBootError,
+			backoffSeconds,
+		);
+	}
+
 	const reg = getRegistry();
 	if (reg.isReady()) {
 		return reg;
@@ -191,10 +243,21 @@ export async function ensureBooted(): Promise<ModuleRegistry> {
 			registry = null;
 			bootPromise = null;
 			subscribersRegistered = false;
+			lastBootFailureMs = Date.now();
+			lastBootError = err instanceof Error ? err : new Error(String(err));
 			throw err;
 		});
 	}
-	await bootPromise;
+
+	try {
+		await bootPromise;
+	} catch (err) {
+		throw new BootFailureError(
+			"Store boot failed during registry boot",
+			err instanceof Error ? err : new Error(String(err)),
+			backoffSeconds,
+		);
+	}
 
 	if (!subscribersRegistered) {
 		const bus = reg.getEventBus();
@@ -281,4 +344,16 @@ export async function ensureBooted(): Promise<ModuleRegistry> {
 	}
 
 	return reg;
+}
+
+export function resetBootStateForTest(): void {
+	registry = null;
+	bootPromise = null;
+	subscribersRegistered = false;
+	storeOwnedConfig = null;
+	compiledSchema = null;
+	compiledSchemaApplyPromise = null;
+	moduleDataServices.clear();
+	lastBootFailureMs = 0;
+	lastBootError = null;
 }

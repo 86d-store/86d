@@ -10,7 +10,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { logger } from "utils/logger";
 import { createRateLimiter } from "utils/rate-limit";
-import { ensureBooted } from "~/lib/api-registry";
+import { BootFailureError, ensureBooted } from "~/lib/api-registry";
 import {
 	handleCatalogRevisionCommand,
 	matchCatalogRevisionCommandPath,
@@ -47,6 +47,8 @@ let exposureResolver: ((path: string) => EndpointExposure | undefined) | null =
  * Returns `internal` when nothing matches so an unknown path is refused rather
  * than defaulting to a reachable surface. The 404 for unmatched paths is still
  * produced downstream by module resolution.
+ *
+ * Throws BootFailureError when the registry cannot boot; the caller must handle it.
  */
 async function resolveExposure(fullPath: string): Promise<EndpointExposure> {
 	if (!exposureResolver) {
@@ -184,6 +186,19 @@ function rateLimitResponse(resetAt: number): NextResponse {
 	);
 }
 
+function bootFailureResponse(retryAfterSeconds: number): NextResponse {
+	return NextResponse.json(
+		{ error: "store_unavailable" },
+		{
+			status: 503,
+			headers: {
+				"Cache-Control": "no-store",
+				"Retry-After": String(retryAfterSeconds),
+			},
+		},
+	);
+}
+
 /**
  * Handle all API requests.
  * Uses session-based authentication (cookies) for browser-based storefront and admin.
@@ -195,7 +210,25 @@ async function handleRequest(req: NextRequest, ctx: RouteParams) {
 	// Reachability comes from the endpoint's declaration, never from the shape of
 	// the request path. An unresolvable path is served as the most restrictive
 	// option rather than being assumed to be a shopper endpoint.
-	const exposure = await resolveExposure(fullPath);
+	let exposure: EndpointExposure;
+	try {
+		exposure = await resolveExposure(fullPath);
+	} catch (err) {
+		if (err instanceof BootFailureError) {
+			console.error(
+				"[API boot failure]",
+				fullPath,
+				err.cause.message,
+				err.cause.stack,
+			);
+			logger.error("Store boot failure", {
+				path: fullPath,
+				error: err.cause.message,
+			});
+			return bootFailureResponse(err.retryAfterSeconds);
+		}
+		throw err;
+	}
 	const isAdmin = exposure === "admin";
 	const isMutation = req.method !== "GET" && req.method !== "HEAD";
 
@@ -375,7 +408,25 @@ async function handleAuthedRequest(
 			return commandResponse;
 		}
 
-		const reg = await ensureBooted();
+		let reg: Awaited<ReturnType<typeof ensureBooted>>;
+		try {
+			reg = await ensureBooted();
+		} catch (err) {
+			if (err instanceof BootFailureError) {
+				console.error(
+					"[API boot failure]",
+					fullPath,
+					err.cause.message,
+					err.cause.stack,
+				);
+				logger.error("Store boot failure", {
+					path: fullPath,
+					error: err.cause.message,
+				});
+				return bootFailureResponse(err.retryAfterSeconds);
+			}
+			throw err;
+		}
 		const context = reg.createRequestContext(resolvedModuleId, session);
 
 		const router = createApiRouter(context, {
