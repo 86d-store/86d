@@ -40,7 +40,9 @@ services:
 
   # ── MinIO Object Storage ────────────────────────────────────────────────
   minio:
-    image: quay.io/minio/minio:latest
+    # Official quay.io/minio/minio and docker.io/minio/minio currently return
+    # unauthorized for unauthenticated CI/local pulls; elestio mirrors MinIO.
+    image: elestio/minio:latest
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
