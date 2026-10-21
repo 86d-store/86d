@@ -4,16 +4,31 @@ import type {
 	ModuleContext,
 } from "@86d-store/core/types/module";
 import { adminEndpoints } from "./admin/endpoints/routes";
+import {
+	isWithinBusinessHours as _isWithinBusinessHours,
+	validateBusinessHours as _validateBusinessHours,
+} from "./business-hours";
 import { storePresentationResolveProvider } from "./capabilities";
 import { settingsStorage } from "./schema";
 import { createSettingsController } from "./service-impl";
 import { storeEndpoints } from "./store/endpoints/routes";
 
+export const isWithinBusinessHours = _isWithinBusinessHours;
+export const validateBusinessHours = _validateBusinessHours;
+
 export type {
+	BusinessHours,
+	DaySchedule,
+	PickupCancelLockState,
+	PickupNoShowOutcome,
+	PickupRefundMethod,
 	SettingGroup,
 	SettingKey,
 	SettingsController,
 	StoreSetting,
+	StoreStatus,
+	TimeWindow,
+	WeeklySchedule,
 } from "./service";
 
 export interface SettingsOptions extends ModuleConfig {

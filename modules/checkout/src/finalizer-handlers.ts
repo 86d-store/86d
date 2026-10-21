@@ -2,6 +2,7 @@ import type { CapabilityInvoker } from "@86d-store/core/capabilities";
 import {
 	orderCreateCapability,
 	paymentCheckoutCapability,
+	storePickupScheduleCapability,
 } from "@86d-store/core/commerce-capabilities";
 import { inventoryCheckoutV2Capability } from "@86d-store/core/inventory-reservation-capability";
 import type {
@@ -308,11 +309,18 @@ async function handleShippingAndTax(
 	if (!session) {
 		return needsAttention("CHECKOUT_NOT_FOUND");
 	}
-	if (!session.shippingAddress) {
+
+	const isPickup = finalization.acceptedInput.fulfillmentType === "pickup";
+
+	if (!isPickup && !session.shippingAddress) {
 		return needsAttention(
 			"SHIPPING_ADDRESS_REQUIRED",
 			"Tax cannot be decided without a shipping address.",
 		);
+	}
+
+	if (isPickup) {
+		return advance("shipping_and_tax");
 	}
 
 	const tax = await recalculateTax(session, deps.checkout, deps.capabilities);
@@ -620,6 +628,12 @@ async function handleOrder(
 	const giftCardContainment = legacyGiftCardContainment(session);
 	if (giftCardContainment) return giftCardContainment;
 	if (finalization.result.orderId) {
+		if (
+			finalization.acceptedInput.fulfillmentType === "pickup" &&
+			!finalization.result.pickupOrderId
+		) {
+			return schedulePickupForOrder(deps, finalization, session);
+		}
 		return advance("order");
 	}
 	const lineItems = await deps.checkout.getLineItems(finalization.checkoutId);
@@ -735,9 +749,69 @@ async function handleOrder(
 		return retryable("ORDER_CREATE_FAILED", created.failure.code);
 	}
 
+	if (finalization.acceptedInput.fulfillmentType === "pickup") {
+		return schedulePickupForOrder(deps, finalization, session, {
+			orderId: created.decision.orderId,
+		});
+	}
+
 	return {
 		outcome: { type: "advanced", nextStep: "commerce_commit" },
 		result: { orderId: created.decision.orderId },
+	};
+}
+
+async function schedulePickupForOrder(
+	deps: CheckoutFinalizationHandlerDependencies,
+	finalization: CheckoutFinalization,
+	session: CheckoutSession,
+	newResult?: { orderId: string },
+): Promise<CheckoutFinalizationStepOutcome> {
+	const orderId = newResult?.orderId ?? finalization.result.orderId;
+	if (!orderId) {
+		return needsAttention(
+			"ORDER_REQUIRED",
+			"Pickup scheduling requires the Order identity.",
+		);
+	}
+
+	const { pickupLocationId, pickupWindowId, pickupDate } =
+		finalization.acceptedInput;
+	if (!pickupLocationId || !pickupWindowId || !pickupDate) {
+		return needsAttention(
+			"PICKUP_INFO_REQUIRED",
+			"Pickup fulfillment requires location, window, and date.",
+		);
+	}
+
+	const pickupResult = await deps.capabilities.invoke(
+		storePickupScheduleCapability,
+		{
+			orderId,
+			locationId: pickupLocationId,
+			windowId: pickupWindowId,
+			scheduledDate: pickupDate,
+			customerId: session.customerId,
+			contactName: session.pickupContactName,
+			contactPhone: session.pickupContactPhone,
+			contactEmail: session.pickupContactEmail ?? session.guestEmail,
+		},
+	);
+
+	if (!pickupResult.ok) {
+		const failureDetail =
+			"message" in pickupResult.failure
+				? pickupResult.failure.message
+				: pickupResult.failure.code;
+		return retryable("PICKUP_SCHEDULE_FAILED", failureDetail);
+	}
+
+	return {
+		outcome: { type: "advanced", nextStep: "commerce_commit" },
+		result: {
+			orderId,
+			pickupOrderId: pickupResult.decision.pickupOrderId,
+		},
 	};
 }
 

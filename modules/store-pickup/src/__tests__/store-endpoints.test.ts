@@ -2,6 +2,8 @@ import { createMockDataService } from "@86d-store/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createStorePickupController } from "../service-impl";
 
+const TEST_TIMEZONE = "America/Los_Angeles";
+
 /**
  * Store endpoint integration tests for the store-pickup module.
  *
@@ -19,10 +21,21 @@ import { createStorePickupController } from "../service-impl";
 
 type DataService = ReturnType<typeof createMockDataService>;
 
-// 2026-03-09 is a Monday (dayOfWeek = 1)
-const MONDAY_DATE = "2026-03-09";
-// 2026-03-10 is a Tuesday (dayOfWeek = 2)
-const TUESDAY_DATE = "2026-03-10";
+// Dynamically compute future dates for testing
+function getNextMonday(): string {
+	const now = new Date();
+	now.setDate(now.getDate() + ((8 - now.getDay()) % 7 || 7));
+	return now.toISOString().slice(0, 10);
+}
+
+function getNextTuesday(): string {
+	const now = new Date();
+	now.setDate(now.getDate() + ((9 - now.getDay()) % 7 || 7));
+	return now.toISOString().slice(0, 10);
+}
+
+const MONDAY_DATE = getNextMonday();
+const TUESDAY_DATE = getNextTuesday();
 
 const makeLocation = (overrides?: Record<string, unknown>) => ({
 	name: "Downtown Store",
@@ -59,7 +72,10 @@ async function simulateAvailableWindows(
 	params: { locationId: string; date: string },
 ) {
 	const controller = createStorePickupController(data);
-	const windows = await controller.getAvailableWindows(params);
+	const windows = await controller.getAvailableWindowsWithTimezone(
+		params,
+		TEST_TIMEZONE,
+	);
 	return { windows };
 }
 
@@ -76,7 +92,10 @@ async function simulateSchedulePickup(
 ) {
 	const controller = createStorePickupController(data);
 	try {
-		const pickup = await controller.schedulePickup(body);
+		const pickup = await controller.schedulePickupWithTimezone(
+			body,
+			TEST_TIMEZONE,
+		);
 		return { pickup };
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : "Scheduling failed";
@@ -185,12 +204,15 @@ describe("store endpoint: available windows", () => {
 
 	it("shows reduced capacity after bookings", async () => {
 		const { controller, location, window } = await seedLocationWithWindow(data);
-		await controller.schedulePickup({
-			locationId: location.id,
-			windowId: window.id,
-			orderId: "order_booked_1",
-			scheduledDate: MONDAY_DATE,
-		});
+		await controller.schedulePickupWithTimezone(
+			{
+				locationId: location.id,
+				windowId: window.id,
+				orderId: "order_booked_1",
+				scheduledDate: MONDAY_DATE,
+			},
+			TEST_TIMEZONE,
+		);
 
 		const result = await simulateAvailableWindows(data, {
 			locationId: location.id,
@@ -456,12 +478,15 @@ describe("store endpoint: order pickup", () => {
 
 	it("returns null when the only pickup is cancelled", async () => {
 		const { controller, location, window } = await seedLocationWithWindow(data);
-		const scheduled = await controller.schedulePickup({
-			locationId: location.id,
-			windowId: window.id,
-			orderId: "order_was_cancelled",
-			scheduledDate: MONDAY_DATE,
-		});
+		const scheduled = await controller.schedulePickupWithTimezone(
+			{
+				locationId: location.id,
+				windowId: window.id,
+				orderId: "order_was_cancelled",
+				scheduledDate: MONDAY_DATE,
+			},
+			TEST_TIMEZONE,
+		);
 		await controller.cancelPickup(scheduled.id);
 
 		const result = await simulateOrderPickup(data, "order_was_cancelled");
@@ -498,12 +523,15 @@ describe("store endpoint: cancel pickup", () => {
 
 	it("cancels a preparing pickup", async () => {
 		const { controller, location, window } = await seedLocationWithWindow(data);
-		const scheduled = await controller.schedulePickup({
-			locationId: location.id,
-			windowId: window.id,
-			orderId: "order_cancel_prep",
-			scheduledDate: MONDAY_DATE,
-		});
+		const scheduled = await controller.schedulePickupWithTimezone(
+			{
+				locationId: location.id,
+				windowId: window.id,
+				orderId: "order_cancel_prep",
+				scheduledDate: MONDAY_DATE,
+			},
+			TEST_TIMEZONE,
+		);
 		await controller.updatePickupStatus(scheduled.id, "preparing");
 
 		const result = await simulateCancelPickup(data, scheduled.id);
@@ -517,12 +545,15 @@ describe("store endpoint: cancel pickup", () => {
 
 	it("cancels a ready pickup", async () => {
 		const { controller, location, window } = await seedLocationWithWindow(data);
-		const scheduled = await controller.schedulePickup({
-			locationId: location.id,
-			windowId: window.id,
-			orderId: "order_cancel_ready",
-			scheduledDate: MONDAY_DATE,
-		});
+		const scheduled = await controller.schedulePickupWithTimezone(
+			{
+				locationId: location.id,
+				windowId: window.id,
+				orderId: "order_cancel_ready",
+				scheduledDate: MONDAY_DATE,
+			},
+			TEST_TIMEZONE,
+		);
 		await controller.updatePickupStatus(scheduled.id, "preparing");
 		await controller.updatePickupStatus(scheduled.id, "ready");
 
@@ -537,12 +568,15 @@ describe("store endpoint: cancel pickup", () => {
 
 	it("throws on already cancelled pickup", async () => {
 		const { controller, location, window } = await seedLocationWithWindow(data);
-		const scheduled = await controller.schedulePickup({
-			locationId: location.id,
-			windowId: window.id,
-			orderId: "order_double_cancel",
-			scheduledDate: MONDAY_DATE,
-		});
+		const scheduled = await controller.schedulePickupWithTimezone(
+			{
+				locationId: location.id,
+				windowId: window.id,
+				orderId: "order_double_cancel",
+				scheduledDate: MONDAY_DATE,
+			},
+			TEST_TIMEZONE,
+		);
 		await controller.cancelPickup(scheduled.id);
 
 		const result = await simulateCancelPickup(data, scheduled.id);
@@ -556,12 +590,15 @@ describe("store endpoint: cancel pickup", () => {
 
 	it("throws on picked_up pickup", async () => {
 		const { controller, location, window } = await seedLocationWithWindow(data);
-		const scheduled = await controller.schedulePickup({
-			locationId: location.id,
-			windowId: window.id,
-			orderId: "order_completed",
-			scheduledDate: MONDAY_DATE,
-		});
+		const scheduled = await controller.schedulePickupWithTimezone(
+			{
+				locationId: location.id,
+				windowId: window.id,
+				orderId: "order_completed",
+				scheduledDate: MONDAY_DATE,
+			},
+			TEST_TIMEZONE,
+		);
 		await controller.updatePickupStatus(scheduled.id, "preparing");
 		await controller.updatePickupStatus(scheduled.id, "ready");
 		await controller.updatePickupStatus(scheduled.id, "picked_up");

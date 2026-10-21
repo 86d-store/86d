@@ -18,6 +18,7 @@ export const updateSettingEndpoint = createAdminEndpoint(
 					"legal",
 					"commerce",
 					"appearance",
+					"pickup",
 				])
 				.optional(),
 		}),

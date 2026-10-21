@@ -327,6 +327,8 @@ export type CheckoutAddress = {
 	phone?: string | undefined;
 };
 
+export type CheckoutFulfillmentType = "shipping" | "pickup";
+
 export type CheckoutSession = {
 	id: string;
 	/** Monotonic compare-and-swap token for shopper mutations. */
@@ -335,6 +337,8 @@ export type CheckoutSession = {
 	customerId?: string | undefined;
 	guestEmail?: string | undefined;
 	status: CheckoutStatus;
+	/** Type of fulfillment: "shipping" or "pickup". Defaults to "shipping". */
+	fulfillmentType: CheckoutFulfillmentType;
 	subtotal: number;
 	taxAmount: number;
 	shippingAmount: number;
@@ -349,6 +353,18 @@ export type CheckoutSession = {
 	billingAddress?: CheckoutAddress | undefined;
 	/** Display name of the selected shipping method (e.g. "Standard Shipping") */
 	shippingMethodName?: string | undefined;
+	/** Pickup location ID (for pickup fulfillment) */
+	pickupLocationId?: string | undefined;
+	/** Pickup window ID (for pickup fulfillment) */
+	pickupWindowId?: string | undefined;
+	/** Pickup date in YYYY-MM-DD format (for pickup fulfillment) */
+	pickupDate?: string | undefined;
+	/** Contact name for pickup */
+	pickupContactName?: string | undefined;
+	/** Contact phone for pickup */
+	pickupContactPhone?: string | undefined;
+	/** Contact email for pickup */
+	pickupContactEmail?: string | undefined;
 	paymentMethod?: string | undefined;
 	/** ID of the payment intent linked to this session */
 	paymentIntentId?: string | undefined;
@@ -382,6 +398,7 @@ export type CheckoutController = ModuleController & {
 		customerId?: string | undefined;
 		guestEmail?: string | undefined;
 		currency?: string | undefined;
+		fulfillmentType?: CheckoutFulfillmentType | undefined;
 		subtotal: number;
 		taxAmount?: number | undefined;
 		shippingAmount?: number | undefined;
@@ -391,6 +408,12 @@ export type CheckoutController = ModuleController & {
 		lineItems: CheckoutLineItem[];
 		shippingAddress?: CheckoutAddress | undefined;
 		billingAddress?: CheckoutAddress | undefined;
+		pickupLocationId?: string | undefined;
+		pickupWindowId?: string | undefined;
+		pickupDate?: string | undefined;
+		pickupContactName?: string | undefined;
+		pickupContactPhone?: string | undefined;
+		pickupContactEmail?: string | undefined;
 		metadata?: Record<string, unknown> | undefined;
 		/** Session TTL in milliseconds, default 30 minutes */
 		ttl?: number | undefined;
@@ -407,10 +430,17 @@ export type CheckoutController = ModuleController & {
 		id: string,
 		params: {
 			guestEmail?: string | undefined;
+			fulfillmentType?: CheckoutFulfillmentType | undefined;
 			shippingAddress?: CheckoutAddress | undefined;
 			billingAddress?: CheckoutAddress | undefined;
 			shippingAmount?: number | undefined;
 			shippingMethodName?: string | undefined;
+			pickupLocationId?: string | undefined;
+			pickupWindowId?: string | undefined;
+			pickupDate?: string | undefined;
+			pickupContactName?: string | undefined;
+			pickupContactPhone?: string | undefined;
+			pickupContactEmail?: string | undefined;
 			taxAmount?: number | undefined;
 			paymentMethod?: string | undefined;
 			metadata?: Record<string, unknown> | undefined;

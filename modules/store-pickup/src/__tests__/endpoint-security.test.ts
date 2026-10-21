@@ -2,6 +2,8 @@ import { createMockDataService } from "@86d-store/core/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createStorePickupController } from "../service-impl";
 
+const TEST_TIMEZONE = "America/Los_Angeles";
+
 /**
  * Security regression tests for store-pickup endpoints.
  *
@@ -73,12 +75,15 @@ describe("store-pickup endpoint security", () => {
 			await controller.updateLocation(loc.id, { active: false });
 
 			await expect(
-				controller.schedulePickup({
-					locationId: loc.id,
-					windowId: win.id,
-					orderId: "order_1",
-					scheduledDate: monday,
-				}),
+				controller.schedulePickupWithTimezone(
+					{
+						locationId: loc.id,
+						windowId: win.id,
+						orderId: "order_1",
+						scheduledDate: monday,
+					},
+					TEST_TIMEZONE,
+				),
 			).rejects.toThrow("not available");
 		});
 
@@ -90,10 +95,13 @@ describe("store-pickup endpoint security", () => {
 			await controller.updateLocation(loc.id, { active: false });
 
 			const tuesday = nextDayOfWeek(dow);
-			const windows = await controller.getAvailableWindows({
-				locationId: loc.id,
-				date: tuesday,
-			});
+			const windows = await controller.getAvailableWindowsWithTimezone(
+				{
+					locationId: loc.id,
+					date: tuesday,
+				},
+				TEST_TIMEZONE,
+			);
 			expect(windows).toHaveLength(0);
 		});
 	});
@@ -109,12 +117,15 @@ describe("store-pickup endpoint security", () => {
 			await controller.updateWindow(win.id, { active: false });
 
 			await expect(
-				controller.schedulePickup({
-					locationId: loc.id,
-					windowId: win.id,
-					orderId: "order_1",
-					scheduledDate: monday,
-				}),
+				controller.schedulePickupWithTimezone(
+					{
+						locationId: loc.id,
+						windowId: win.id,
+						orderId: "order_1",
+						scheduledDate: monday,
+					},
+					TEST_TIMEZONE,
+				),
 			).rejects.toThrow("not available");
 		});
 
@@ -127,10 +138,13 @@ describe("store-pickup endpoint security", () => {
 			const inactiveWin = await createWindowForLocation(loc.id, dow, 5);
 			await controller.updateWindow(inactiveWin.id, { active: false });
 
-			const windows = await controller.getAvailableWindows({
-				locationId: loc.id,
-				date: wednesday,
-			});
+			const windows = await controller.getAvailableWindowsWithTimezone(
+				{
+					locationId: loc.id,
+					date: wednesday,
+				},
+				TEST_TIMEZONE,
+			);
 			expect(windows).toHaveLength(1);
 		});
 	});
@@ -149,12 +163,15 @@ describe("store-pickup endpoint security", () => {
 			});
 
 			await expect(
-				controller.schedulePickup({
-					locationId: loc.id,
-					windowId: win.id,
-					orderId: "order_1",
-					scheduledDate: tuesday,
-				}),
+				controller.schedulePickupWithTimezone(
+					{
+						locationId: loc.id,
+						windowId: win.id,
+						orderId: "order_1",
+						scheduledDate: tuesday,
+					},
+					TEST_TIMEZONE,
+				),
 			).rejects.toThrow("not available");
 		});
 
@@ -169,10 +186,13 @@ describe("store-pickup endpoint security", () => {
 				date: thursday,
 			});
 
-			const windows = await controller.getAvailableWindows({
-				locationId: loc.id,
-				date: thursday,
-			});
+			const windows = await controller.getAvailableWindowsWithTimezone(
+				{
+					locationId: loc.id,
+					date: thursday,
+				},
+				TEST_TIMEZONE,
+			);
 			expect(windows).toHaveLength(0);
 		});
 
@@ -213,26 +233,35 @@ describe("store-pickup endpoint security", () => {
 			const monday = nextDayOfWeek(dow);
 			const win = await createWindowForLocation(loc.id, dow, 2);
 
-			await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_1",
-				scheduledDate: monday,
-			});
-			await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_2",
-				scheduledDate: monday,
-			});
-
-			await expect(
-				controller.schedulePickup({
+			await controller.schedulePickupWithTimezone(
+				{
 					locationId: loc.id,
 					windowId: win.id,
-					orderId: "order_3",
+					orderId: "order_1",
 					scheduledDate: monday,
-				}),
+				},
+				TEST_TIMEZONE,
+			);
+			await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_2",
+					scheduledDate: monday,
+				},
+				TEST_TIMEZONE,
+			);
+
+			await expect(
+				controller.schedulePickupWithTimezone(
+					{
+						locationId: loc.id,
+						windowId: win.id,
+						orderId: "order_3",
+						scheduledDate: monday,
+					},
+					TEST_TIMEZONE,
+				),
 			).rejects.toThrow("fully booked");
 		});
 
@@ -242,22 +271,28 @@ describe("store-pickup endpoint security", () => {
 			const tuesday = nextDayOfWeek(dow);
 			const win = await createWindowForLocation(loc.id, dow, 1);
 
-			const pickup = await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_cap",
-				scheduledDate: tuesday,
-			});
+			const pickup = await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_cap",
+					scheduledDate: tuesday,
+				},
+				TEST_TIMEZONE,
+			);
 
 			await controller.cancelPickup(pickup.id);
 
 			// Now capacity should be freed
-			const newPickup = await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_cap2",
-				scheduledDate: tuesday,
-			});
+			const newPickup = await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_cap2",
+					scheduledDate: tuesday,
+				},
+				TEST_TIMEZONE,
+			);
 			expect(newPickup.status).toBe("scheduled");
 		});
 
@@ -267,23 +302,32 @@ describe("store-pickup endpoint security", () => {
 			const wednesday = nextDayOfWeek(dow);
 			const win = await createWindowForLocation(loc.id, dow, 5);
 
-			await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_rem1",
-				scheduledDate: wednesday,
-			});
-			await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_rem2",
-				scheduledDate: wednesday,
-			});
+			await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_rem1",
+					scheduledDate: wednesday,
+				},
+				TEST_TIMEZONE,
+			);
+			await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_rem2",
+					scheduledDate: wednesday,
+				},
+				TEST_TIMEZONE,
+			);
 
-			const windows = await controller.getAvailableWindows({
-				locationId: loc.id,
-				date: wednesday,
-			});
+			const windows = await controller.getAvailableWindowsWithTimezone(
+				{
+					locationId: loc.id,
+					date: wednesday,
+				},
+				TEST_TIMEZONE,
+			);
 
 			expect(windows).toHaveLength(1);
 			expect(windows[0].booked).toBe(2);
@@ -299,20 +343,26 @@ describe("store-pickup endpoint security", () => {
 			const monday = nextDayOfWeek(dow);
 			const win = await createWindowForLocation(loc.id, dow);
 
-			await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_dup",
-				scheduledDate: monday,
-			});
-
-			await expect(
-				controller.schedulePickup({
+			await controller.schedulePickupWithTimezone(
+				{
 					locationId: loc.id,
 					windowId: win.id,
 					orderId: "order_dup",
 					scheduledDate: monday,
-				}),
+				},
+				TEST_TIMEZONE,
+			);
+
+			await expect(
+				controller.schedulePickupWithTimezone(
+					{
+						locationId: loc.id,
+						windowId: win.id,
+						orderId: "order_dup",
+						scheduledDate: monday,
+					},
+					TEST_TIMEZONE,
+				),
 			).rejects.toThrow("already has an active pickup");
 		});
 
@@ -322,21 +372,27 @@ describe("store-pickup endpoint security", () => {
 			const thursday = nextDayOfWeek(dow);
 			const win = await createWindowForLocation(loc.id, dow);
 
-			const first = await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_resch",
-				scheduledDate: thursday,
-			});
+			const first = await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_resch",
+					scheduledDate: thursday,
+				},
+				TEST_TIMEZONE,
+			);
 
 			await controller.cancelPickup(first.id);
 
-			const second = await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_resch",
-				scheduledDate: thursday,
-			});
+			const second = await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_resch",
+					scheduledDate: thursday,
+				},
+				TEST_TIMEZONE,
+			);
 			expect(second.status).toBe("scheduled");
 		});
 	});
@@ -348,12 +404,15 @@ describe("store-pickup endpoint security", () => {
 			const friday = nextDayOfWeek(dow);
 			const win = await createWindowForLocation(loc.id, dow);
 
-			const pickup = await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_trans1",
-				scheduledDate: friday,
-			});
+			const pickup = await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_trans1",
+					scheduledDate: friday,
+				},
+				TEST_TIMEZONE,
+			);
 
 			await expect(
 				controller.updatePickupStatus(pickup.id, "ready"),
@@ -366,12 +425,15 @@ describe("store-pickup endpoint security", () => {
 			const saturday = nextDayOfWeek(dow);
 			const win = await createWindowForLocation(loc.id, dow);
 
-			const pickup = await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_trans2",
-				scheduledDate: saturday,
-			});
+			const pickup = await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_trans2",
+					scheduledDate: saturday,
+				},
+				TEST_TIMEZONE,
+			);
 
 			await expect(
 				controller.updatePickupStatus(pickup.id, "picked_up"),
@@ -384,12 +446,15 @@ describe("store-pickup endpoint security", () => {
 			const monday = nextDayOfWeek(dow);
 			const win = await createWindowForLocation(loc.id, dow);
 
-			const pickup = await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_flow",
-				scheduledDate: monday,
-			});
+			const pickup = await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_flow",
+					scheduledDate: monday,
+				},
+				TEST_TIMEZONE,
+			);
 
 			const preparing = await controller.updatePickupStatus(
 				pickup.id,
@@ -413,12 +478,15 @@ describe("store-pickup endpoint security", () => {
 			const tuesday = nextDayOfWeek(dow);
 			const win = await createWindowForLocation(loc.id, dow);
 
-			const pickup = await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_terminal",
-				scheduledDate: tuesday,
-			});
+			const pickup = await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_terminal",
+					scheduledDate: tuesday,
+				},
+				TEST_TIMEZONE,
+			);
 
 			await controller.updatePickupStatus(pickup.id, "preparing");
 			await controller.updatePickupStatus(pickup.id, "ready");
@@ -445,12 +513,15 @@ describe("store-pickup endpoint security", () => {
 			const wednesday = nextDayOfWeek(dow);
 			const win = await createWindowForLocation(loc.id, dow);
 
-			const pickup = await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_cancel1",
-				scheduledDate: wednesday,
-			});
+			const pickup = await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_cancel1",
+					scheduledDate: wednesday,
+				},
+				TEST_TIMEZONE,
+			);
 
 			await controller.cancelPickup(pickup.id);
 
@@ -465,12 +536,15 @@ describe("store-pickup endpoint security", () => {
 			const thursday = nextDayOfWeek(dow);
 			const win = await createWindowForLocation(loc.id, dow);
 
-			const pickup = await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_cancel2",
-				scheduledDate: thursday,
-			});
+			const pickup = await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_cancel2",
+					scheduledDate: thursday,
+				},
+				TEST_TIMEZONE,
+			);
 
 			await controller.updatePickupStatus(pickup.id, "preparing");
 			await controller.updatePickupStatus(pickup.id, "ready");
@@ -494,12 +568,15 @@ describe("store-pickup endpoint security", () => {
 
 			const tuesday = nextDayOfWeek(2); // Tuesday date
 			await expect(
-				controller.schedulePickup({
-					locationId: loc.id,
-					windowId: win.id,
-					orderId: "order_dow",
-					scheduledDate: tuesday,
-				}),
+				controller.schedulePickupWithTimezone(
+					{
+						locationId: loc.id,
+						windowId: win.id,
+						orderId: "order_dow",
+						scheduledDate: tuesday,
+					},
+					TEST_TIMEZONE,
+				),
 			).rejects.toThrow("does not match");
 		});
 
@@ -518,12 +595,15 @@ describe("store-pickup endpoint security", () => {
 			const win = await createWindowForLocation(loc2.id, dow);
 
 			await expect(
-				controller.schedulePickup({
-					locationId: loc1.id,
-					windowId: win.id,
-					orderId: "order_mismatch",
-					scheduledDate: friday,
-				}),
+				controller.schedulePickupWithTimezone(
+					{
+						locationId: loc1.id,
+						windowId: win.id,
+						orderId: "order_mismatch",
+						scheduledDate: friday,
+					},
+					TEST_TIMEZONE,
+				),
 			).rejects.toThrow("does not belong to the specified location");
 		});
 	});
@@ -540,12 +620,15 @@ describe("store-pickup endpoint security", () => {
 			const monday = nextDayOfWeek(dow);
 			const win = await createWindowForLocation(loc.id, dow);
 
-			const pickup = await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_gop",
-				scheduledDate: monday,
-			});
+			const pickup = await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_gop",
+					scheduledDate: monday,
+				},
+				TEST_TIMEZONE,
+			);
 
 			const result = await controller.getOrderPickup("order_gop");
 			expect(result).not.toBeNull();
@@ -558,12 +641,15 @@ describe("store-pickup endpoint security", () => {
 			const tuesday = nextDayOfWeek(dow);
 			const win = await createWindowForLocation(loc.id, dow);
 
-			const pickup = await controller.schedulePickup({
-				locationId: loc.id,
-				windowId: win.id,
-				orderId: "order_gop2",
-				scheduledDate: tuesday,
-			});
+			const pickup = await controller.schedulePickupWithTimezone(
+				{
+					locationId: loc.id,
+					windowId: win.id,
+					orderId: "order_gop2",
+					scheduledDate: tuesday,
+				},
+				TEST_TIMEZONE,
+			);
 
 			await controller.cancelPickup(pickup.id);
 

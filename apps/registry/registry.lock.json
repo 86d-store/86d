@@ -117,7 +117,7 @@
       "source": "local",
       "packageName": "@86d-store/checkout",
       "version": "0.2.0",
-      "integrity": "sha256-c878ccb4da639a08f9520a5dc6c9fad7f8ce2ee73d9c40b01d6c22bb8d209bc4",
+      "integrity": "sha256-3d9be124821198178cd3bcadf468ecd6fe5a182458c6e55486f815e99747084e",
       "localPath": "modules/checkout"
     },
     "collections": {
@@ -530,7 +530,7 @@
       "source": "local",
       "packageName": "@86d-store/settings",
       "version": "0.2.0",
-      "integrity": "sha256-9db8f72a381e9ccc45696334413d24f437652aae87f9f8f031c65559185e33d0",
+      "integrity": "sha256-3c083919f49a2aaa0f425baa316eb8f0e0af6260016c2c4993a793770168bef8",
       "localPath": "modules/settings"
     },
     "shipping": {
@@ -586,7 +586,7 @@
       "source": "local",
       "packageName": "@86d-store/store-pickup",
       "version": "0.2.0",
-      "integrity": "sha256-965dc449fe43f25be0e1d20d12493ca41d052a0ac431b9c37b75c8d27a223854",
+      "integrity": "sha256-7c66a76350d79124916a728393cad1135202c60e0019960473996bdab62e2cd5",
       "localPath": "modules/store-pickup"
     },
     "stripe": {
@@ -702,5 +702,5 @@
       "localPath": "modules/x-shop"
     }
   },
-  "generatedAt": "2026-10-20T09:45:33.562Z"
+  "generatedAt": "2026-10-21T07:02:42.548Z"
 }

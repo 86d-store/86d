@@ -36,10 +36,12 @@ export type PickupWindow = {
 
 export type PickupOrderStatus =
 	| "scheduled"
+	| "started"
 	| "preparing"
 	| "ready"
 	| "picked_up"
-	| "cancelled";
+	| "cancelled"
+	| "no_show";
 
 export type PickupOrder = {
 	id: string;
@@ -54,10 +56,12 @@ export type PickupOrder = {
 	endTime: string;
 	status: PickupOrderStatus;
 	notes?: string;
+	startedAt?: Date;
 	preparingAt?: Date;
 	readyAt?: Date;
 	pickedUpAt?: Date;
 	cancelledAt?: Date;
+	noShowAt?: Date;
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -184,10 +188,12 @@ export type StorePickupSummary = {
 	activeWindows: number;
 	totalPickups: number;
 	scheduledPickups: number;
+	startedPickups: number;
 	preparingPickups: number;
 	readyPickups: number;
 	completedPickups: number;
 	cancelledPickups: number;
+	noShowPickups: number;
 	blackoutDates: number;
 };
 
@@ -224,10 +230,20 @@ export type StorePickupController = ModuleController & {
 		status: PickupOrderStatus,
 	): Promise<PickupOrder | null>;
 	cancelPickup(id: string): Promise<PickupOrder | null>;
+	customerCancelPickup(id: string): Promise<PickupOrder | null>;
 
 	// Availability
 	getAvailableWindows(
 		params: AvailableWindowsParams,
+	): Promise<WindowAvailability[]>;
+	/**
+	 * Get available pickup windows for a date with timezone-aware slot filtering.
+	 * @param params Location and date parameters
+	 * @param timezone IANA timezone for filtering past slots
+	 */
+	getAvailableWindowsWithTimezone(
+		params: AvailableWindowsParams,
+		timezone: string,
 	): Promise<WindowAvailability[]>;
 	getWindowBookingCount(windowId: string, date: string): Promise<number>;
 
@@ -239,4 +255,41 @@ export type StorePickupController = ModuleController & {
 
 	// Analytics
 	getSummary(): Promise<StorePickupSummary>;
+
+	/**
+	 * Mark pickup orders as no-show if they have passed the no-show window.
+	 * @param noShowWindowMinutes Minutes after ready/slot time to mark as no-show
+	 * @param timezone IANA timezone for date calculations
+	 * @returns Number of pickups marked as no-show
+	 */
+	processNoShows(
+		noShowWindowMinutes: number,
+		timezone: string,
+	): Promise<{ processed: number; pickupIds: string[] }>;
+
+	/**
+	 * Customer-initiated pickup cancellation with configurable lock state.
+	 * @param id Pickup order ID
+	 * @param cancelLockState Which status blocks customer cancel (default: 'started')
+	 * @param cancelBlockedMessage Custom message when cancel is blocked
+	 * @returns Cancelled pickup or null if not found
+	 * @throws If cancellation is blocked by the lock state
+	 */
+	customerCancelPickupWithPolicy(
+		id: string,
+		cancelLockState: "started" | "preparing" | "ready" | "none",
+		cancelBlockedMessage?: string,
+	): Promise<PickupOrder | null>;
+
+	/**
+	 * Schedule a pickup with timezone validation.
+	 * @param params Schedule pickup parameters
+	 * @param timezone IANA timezone for slot validation
+	 * @returns Scheduled pickup order
+	 * @throws If timezone is not provided or slot has passed
+	 */
+	schedulePickupWithTimezone(
+		params: SchedulePickupParams,
+		timezone: string,
+	): Promise<PickupOrder>;
 };

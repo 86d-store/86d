@@ -1165,3 +1165,50 @@ export const taxQuoteV2Capability = defineCapability({
 		})
 		.strict(),
 });
+
+export const storePickupScheduleCapability = defineCapability({
+	name: "store-pickup.schedule",
+	version: "1.0.0",
+	owner: "store-pickup",
+	request: z
+		.object({
+			orderId: z.string().min(1).max(200),
+			locationId: z.string().min(1).max(200),
+			windowId: z.string().min(1).max(200),
+			scheduledDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+			customerId: z.string().min(1).max(200).optional(),
+			contactName: z.string().min(1).max(200).optional(),
+			contactPhone: z.string().min(1).max(50).optional(),
+			contactEmail: z.string().email().max(320).optional(),
+			notes: z.string().max(1000).optional(),
+		})
+		.strict(),
+	decision: z
+		.object({
+			pickupOrderId: z.string().min(1).max(200),
+			locationName: z.string().min(1).max(200),
+			locationAddress: z.string().min(1).max(500),
+			scheduledDate: z.string(),
+			startTime: z.string(),
+			endTime: z.string(),
+		})
+		.strict(),
+	failure: z
+		.object({
+			code: z.enum([
+				"LOCATION_NOT_FOUND",
+				"LOCATION_NOT_ACTIVE",
+				"WINDOW_NOT_FOUND",
+				"WINDOW_NOT_ACTIVE",
+				"WINDOW_LOCATION_MISMATCH",
+				"DATE_DAY_MISMATCH",
+				"SLOT_ALREADY_PASSED",
+				"BLACKOUT_DATE",
+				"ORDER_ALREADY_HAS_PICKUP",
+				"WINDOW_FULLY_BOOKED",
+				"SCHEDULE_FAILED",
+			]),
+			message: z.string().min(1).max(300),
+		})
+		.strict(),
+});

@@ -11,6 +11,7 @@ import {
 	productResolveCapability,
 	shippingQuoteCapability,
 	storeCreditCheckoutCapability,
+	storePickupScheduleCapability,
 	taxQuoteCapability,
 	taxQuoteV2Capability,
 } from "@86d-store/core/commerce-capabilities";
@@ -130,6 +131,7 @@ export default function checkout(options?: CheckoutOptions): Module {
 				acceptCapability(priceListResolveCapability, { optional: true }),
 				acceptCapability(productPriceConversionCapability, { optional: true }),
 				acceptCapability(customerIdentityResolveCapability, { optional: true }),
+				acceptCapability(storePickupScheduleCapability, { optional: true }),
 			],
 		},
 		exports: {

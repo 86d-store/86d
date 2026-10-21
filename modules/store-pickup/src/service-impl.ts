@@ -50,12 +50,41 @@ function getDayOfWeek(dateStr: string): number {
 
 /** Valid status transitions for pickup orders */
 const STATUS_TRANSITIONS: Record<PickupOrderStatus, PickupOrderStatus[]> = {
-	scheduled: ["preparing", "cancelled"],
+	scheduled: ["started", "preparing", "cancelled"],
+	started: ["preparing", "cancelled"],
 	preparing: ["ready", "cancelled"],
-	ready: ["picked_up", "cancelled"],
+	ready: ["picked_up", "no_show", "cancelled"],
 	picked_up: [],
 	cancelled: [],
+	no_show: [],
 };
+
+/** Statuses where customer-initiated cancellation is blocked (prep has begun) */
+const CUSTOMER_CANCEL_BLOCKED_STATUSES: PickupOrderStatus[] = [
+	"started",
+	"preparing",
+	"ready",
+	"picked_up",
+	"no_show",
+];
+
+/** Get blocked statuses based on the configurable cancel lock state */
+function getBlockedStatusesForLockState(
+	lockState: "started" | "preparing" | "ready" | "none",
+): PickupOrderStatus[] {
+	switch (lockState) {
+		case "none":
+			return ["picked_up", "no_show"];
+		case "started":
+			return ["started", "preparing", "ready", "picked_up", "no_show"];
+		case "preparing":
+			return ["preparing", "ready", "picked_up", "no_show"];
+		case "ready":
+			return ["ready", "picked_up", "no_show"];
+		default:
+			return ["started", "preparing", "ready", "picked_up", "no_show"];
+	}
+}
 
 export function createStorePickupController(
 	data: ModuleDataService,
@@ -354,102 +383,10 @@ export function createStorePickupController(
 
 		// ── Pickup scheduling ────────────────────────────────────────
 
-		async schedulePickup(params: SchedulePickupParams): Promise<PickupOrder> {
-			if (!params.orderId) {
-				throw new Error("Order ID is required");
-			}
-			validateDate(params.scheduledDate, "Scheduled date");
-
-			const location = await getLocationRecord(params.locationId);
-			if (!location) {
-				throw new Error("Pickup location not found");
-			}
-			if (!location.active) {
-				throw new Error("Pickup location is not available");
-			}
-
-			const window = await getWindowRecord(params.windowId);
-			if (!window) {
-				throw new Error("Pickup window not found");
-			}
-			if (!window.active) {
-				throw new Error("Pickup window is not available");
-			}
-			if (window.locationId !== params.locationId) {
-				throw new Error("Window does not belong to the specified location");
-			}
-
-			// Verify the date matches the window's day of week
-			const dow = getDayOfWeek(params.scheduledDate);
-			if (dow !== window.dayOfWeek) {
-				throw new Error(
-					"Scheduled date does not match the window's day of week",
-				);
-			}
-
-			// Check for blackout
-			const blackouts = await data.findMany("pickupBlackout", {
-				where: { locationId: params.locationId, date: params.scheduledDate },
-			});
-			if (blackouts.length > 0) {
-				throw new Error(
-					"Pickup is not available at this location on this date",
-				);
-			}
-
-			// Check for duplicate pickup on the same order
-			const existingOrderPickups = await data.findMany("pickupOrder", {
-				where: { orderId: params.orderId },
-			});
-			const activePickup = (
-				existingOrderPickups as unknown as PickupOrder[]
-			).find((p) => p.status !== "cancelled" && p.status !== "picked_up");
-			if (activePickup) {
-				throw new Error("Order already has an active pickup scheduled");
-			}
-
-			// Check capacity
-			const dateBookings = await data.findMany("pickupOrder", {
-				where: {
-					windowId: params.windowId,
-					scheduledDate: params.scheduledDate,
-				},
-			});
-			const activeCount = (dateBookings as unknown as PickupOrder[]).filter(
-				(p) => p.status !== "cancelled",
-			).length;
-			if (activeCount >= window.capacity) {
-				throw new Error("Pickup window is fully booked");
-			}
-
-			const id = crypto.randomUUID();
-			const now = new Date();
-
-			const pickup: PickupOrder = {
-				id,
-				locationId: params.locationId,
-				windowId: params.windowId,
-				orderId: params.orderId,
-				scheduledDate: params.scheduledDate,
-				locationName: location.name,
-				locationAddress: `${location.address}, ${location.city}, ${location.state} ${location.postalCode}`,
-				startTime: window.startTime,
-				endTime: window.endTime,
-				status: "scheduled",
-				createdAt: now,
-				updatedAt: now,
-				...(params.customerId != null && {
-					customerId: params.customerId,
-				}),
-				...(params.notes != null && { notes: params.notes }),
-			};
-
-			await data.upsert(
-				"pickupOrder",
-				id,
-				pickup as unknown as Record<string, unknown>,
+		async schedulePickup(_params: SchedulePickupParams): Promise<PickupOrder> {
+			throw new Error(
+				"Store timezone is required. Use schedulePickupWithTimezone() with the store's configured timezone.",
 			);
-			return pickup;
 		},
 
 		async getPickup(id: string): Promise<PickupOrder | null> {
@@ -515,10 +452,12 @@ export function createStorePickupController(
 				updatedAt: now,
 			};
 
+			if (status === "started") updates.startedAt = now;
 			if (status === "preparing") updates.preparingAt = now;
 			if (status === "ready") updates.readyAt = now;
 			if (status === "picked_up") updates.pickedUpAt = now;
 			if (status === "cancelled") updates.cancelledAt = now;
+			if (status === "no_show") updates.noShowAt = now;
 
 			const updated = {
 				...(existing as unknown as Record<string, unknown>),
@@ -538,6 +477,9 @@ export function createStorePickupController(
 			if (existing.status === "picked_up") {
 				throw new Error("Cannot cancel a completed pickup");
 			}
+			if (existing.status === "no_show") {
+				throw new Error("Cannot cancel a no-show pickup");
+			}
 
 			const now = new Date();
 			const updated = {
@@ -550,18 +492,201 @@ export function createStorePickupController(
 			return updated as unknown as PickupOrder;
 		},
 
+		async customerCancelPickup(id: string): Promise<PickupOrder | null> {
+			const existing = await getPickupRecord(id);
+			if (!existing) return null;
+
+			if (existing.status === "cancelled") {
+				throw new Error("Pickup is already cancelled");
+			}
+			if (CUSTOMER_CANCEL_BLOCKED_STATUSES.includes(existing.status)) {
+				throw new Error(
+					"Cannot cancel order after preparation has started. Please contact the store.",
+				);
+			}
+
+			const now = new Date();
+			const updated = {
+				...(existing as unknown as Record<string, unknown>),
+				status: "cancelled",
+				cancelledAt: now,
+				updatedAt: now,
+			};
+			await data.upsert("pickupOrder", id, updated);
+			return updated as unknown as PickupOrder;
+		},
+
+		async customerCancelPickupWithPolicy(
+			id: string,
+			cancelLockState: "started" | "preparing" | "ready" | "none",
+			cancelBlockedMessage?: string,
+		): Promise<PickupOrder | null> {
+			const existing = await getPickupRecord(id);
+			if (!existing) return null;
+
+			if (existing.status === "cancelled") {
+				throw new Error("Pickup is already cancelled");
+			}
+			if (existing.status === "picked_up") {
+				throw new Error("Cannot cancel a completed pickup");
+			}
+			if (existing.status === "no_show") {
+				throw new Error("Cannot cancel a no-show pickup");
+			}
+
+			const blockedStatuses = getBlockedStatusesForLockState(cancelLockState);
+			if (blockedStatuses.includes(existing.status)) {
+				const message =
+					cancelBlockedMessage ??
+					"Cannot cancel order after preparation has started. Please contact the store.";
+				throw new Error(message);
+			}
+
+			const now = new Date();
+			const updated = {
+				...(existing as unknown as Record<string, unknown>),
+				status: "cancelled",
+				cancelledAt: now,
+				updatedAt: now,
+			};
+			await data.upsert("pickupOrder", id, updated);
+			return updated as unknown as PickupOrder;
+		},
+
+		async schedulePickupWithTimezone(
+			params: SchedulePickupParams,
+			timezone: string,
+		): Promise<PickupOrder> {
+			if (!timezone) {
+				throw new Error("Store timezone is required for scheduling pickups");
+			}
+			if (!params.orderId) {
+				throw new Error("Order ID is required");
+			}
+			validateDate(params.scheduledDate, "Scheduled date");
+
+			const location = await getLocationRecord(params.locationId);
+			if (!location) {
+				throw new Error("Pickup location not found");
+			}
+			if (!location.active) {
+				throw new Error("Pickup location is not available");
+			}
+
+			const window = await getWindowRecord(params.windowId);
+			if (!window) {
+				throw new Error("Pickup window not found");
+			}
+			if (!window.active) {
+				throw new Error("Pickup window is not available");
+			}
+			if (window.locationId !== params.locationId) {
+				throw new Error("Window does not belong to the specified location");
+			}
+
+			const dow = getDayOfWeek(params.scheduledDate);
+			if (dow !== window.dayOfWeek) {
+				throw new Error(
+					"Scheduled date does not match the window's day of week",
+				);
+			}
+
+			const slotEndTime = parseSlotTime(
+				params.scheduledDate,
+				window.endTime,
+				timezone,
+			);
+			if (slotEndTime && slotEndTime <= new Date()) {
+				throw new Error(
+					"Cannot schedule pickup for a time slot that has already passed",
+				);
+			}
+
+			const blackouts = await data.findMany("pickupBlackout", {
+				where: { locationId: params.locationId, date: params.scheduledDate },
+			});
+			if (blackouts.length > 0) {
+				throw new Error(
+					"Pickup is not available at this location on this date",
+				);
+			}
+
+			const existingOrderPickups = await data.findMany("pickupOrder", {
+				where: { orderId: params.orderId },
+			});
+			const activePickup = (
+				existingOrderPickups as unknown as PickupOrder[]
+			).find((p) => p.status !== "cancelled" && p.status !== "picked_up");
+			if (activePickup) {
+				throw new Error("Order already has an active pickup scheduled");
+			}
+
+			const dateBookings = await data.findMany("pickupOrder", {
+				where: {
+					windowId: params.windowId,
+					scheduledDate: params.scheduledDate,
+				},
+			});
+			const activeCount = (dateBookings as unknown as PickupOrder[]).filter(
+				(p) => p.status !== "cancelled",
+			).length;
+			if (activeCount >= window.capacity) {
+				throw new Error("Pickup window is fully booked");
+			}
+
+			const id = crypto.randomUUID();
+			const now = new Date();
+
+			const pickup: PickupOrder = {
+				id,
+				locationId: params.locationId,
+				windowId: params.windowId,
+				orderId: params.orderId,
+				scheduledDate: params.scheduledDate,
+				locationName: location.name,
+				locationAddress: `${location.address}, ${location.city}, ${location.state} ${location.postalCode}`,
+				startTime: window.startTime,
+				endTime: window.endTime,
+				status: "scheduled",
+				createdAt: now,
+				updatedAt: now,
+				...(params.customerId != null && {
+					customerId: params.customerId,
+				}),
+				...(params.notes != null && { notes: params.notes }),
+			};
+
+			await data.upsert(
+				"pickupOrder",
+				id,
+				pickup as unknown as Record<string, unknown>,
+			);
+			return pickup;
+		},
+
 		// ── Availability ──────────────────────────────────────────────
 
 		async getAvailableWindows(
-			params: AvailableWindowsParams,
+			_params: AvailableWindowsParams,
 		): Promise<WindowAvailability[]> {
+			throw new Error(
+				"Store timezone is required. Use getAvailableWindowsWithTimezone() with the store's configured timezone.",
+			);
+		},
+
+		async getAvailableWindowsWithTimezone(
+			params: AvailableWindowsParams,
+			timezone: string,
+		): Promise<WindowAvailability[]> {
+			if (!timezone) {
+				throw new Error("Store timezone is required");
+			}
 			validateDate(params.date, "Date");
 
 			const location = await getLocationRecord(params.locationId);
 			if (!location) return [];
 			if (!location.active) return [];
 
-			// Check blackout
 			const blackouts = await data.findMany("pickupBlackout", {
 				where: { locationId: params.locationId, date: params.date },
 			});
@@ -569,7 +694,7 @@ export function createStorePickupController(
 
 			const dow = getDayOfWeek(params.date);
 
-			const windows = (await data.findMany("pickupWindow", {
+			const allWindows = (await data.findMany("pickupWindow", {
 				where: {
 					locationId: params.locationId,
 					dayOfWeek: dow,
@@ -577,6 +702,12 @@ export function createStorePickupController(
 				},
 				orderBy: { sortOrder: "asc" },
 			})) as unknown as PickupWindow[];
+
+			const now = new Date();
+			const windows = allWindows.filter((window) => {
+				const slotEnd = parseSlotTime(params.date, window.endTime, timezone);
+				return slotEnd == null || slotEnd > now;
+			});
 
 			const results: WindowAvailability[] = [];
 			for (const window of windows) {
@@ -703,6 +834,7 @@ export function createStorePickupController(
 				totalPickups: allPickups.length,
 				scheduledPickups: allPickups.filter((p) => p.status === "scheduled")
 					.length,
+				startedPickups: allPickups.filter((p) => p.status === "started").length,
 				preparingPickups: allPickups.filter((p) => p.status === "preparing")
 					.length,
 				readyPickups: allPickups.filter((p) => p.status === "ready").length,
@@ -710,8 +842,112 @@ export function createStorePickupController(
 					.length,
 				cancelledPickups: allPickups.filter((p) => p.status === "cancelled")
 					.length,
+				noShowPickups: allPickups.filter((p) => p.status === "no_show").length,
 				blackoutDates: allBlackouts.length,
 			};
 		},
+
+		// ── No-show processing ────────────────────────────────────────
+
+		async processNoShows(
+			noShowWindowMinutes: number,
+			timezone: string,
+		): Promise<{ processed: number; pickupIds: string[] }> {
+			if (noShowWindowMinutes <= 0) {
+				return { processed: 0, pickupIds: [] };
+			}
+
+			const now = new Date();
+			const noShowThresholdMs = noShowWindowMinutes * 60 * 1000;
+			const pickupIds: string[] = [];
+
+			const readyPickups = (await data.findMany("pickupOrder", {
+				where: { status: "ready" },
+			})) as unknown as PickupOrder[];
+
+			for (const pickup of readyPickups) {
+				const referenceTime =
+					pickup.readyAt ?? getSlotEndTime(pickup, timezone);
+				if (!referenceTime) continue;
+
+				const elapsedMs = now.getTime() - referenceTime.getTime();
+				if (elapsedMs >= noShowThresholdMs) {
+					const updated = {
+						...(pickup as unknown as Record<string, unknown>),
+						status: "no_show",
+						noShowAt: now,
+						updatedAt: now,
+					};
+					await data.upsert("pickupOrder", pickup.id, updated);
+					pickupIds.push(pickup.id);
+				}
+			}
+
+			return { processed: pickupIds.length, pickupIds };
+		},
 	};
+}
+
+function getSlotEndTime(pickup: PickupOrder, timezone: string): Date | null {
+	try {
+		const dateStr = pickup.scheduledDate;
+		const endTime = pickup.endTime;
+		const [hours, minutes] = endTime.split(":").map(Number);
+		const formatter = new Intl.DateTimeFormat("en-US", {
+			timeZone: timezone,
+			year: "numeric",
+			month: "2-digit",
+			day: "2-digit",
+		});
+		const parts = formatter.formatToParts(new Date(`${dateStr}T12:00:00`));
+		const year = parts.find((p) => p.type === "year")?.value;
+		const month = parts.find((p) => p.type === "month")?.value;
+		const day = parts.find((p) => p.type === "day")?.value;
+		if (!year || !month || !day) return null;
+
+		const localDateStr = `${year}-${month}-${day}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
+		const slotDate = new Date(localDateStr);
+
+		const utcOffset = getTimezoneOffset(timezone, slotDate);
+		return new Date(slotDate.getTime() - utcOffset);
+	} catch {
+		return null;
+	}
+}
+
+function getTimezoneOffset(timezone: string, date: Date): number {
+	const utcDate = new Date(date.toLocaleString("en-US", { timeZone: "UTC" }));
+	const tzDate = new Date(date.toLocaleString("en-US", { timeZone: timezone }));
+	return tzDate.getTime() - utcDate.getTime();
+}
+
+function parseSlotTime(
+	dateStr: string,
+	timeStr: string,
+	timezone: string,
+): Date | null {
+	try {
+		const [hours, minutes] = timeStr.split(":").map(Number);
+		if (
+			!Number.isFinite(hours) ||
+			!Number.isFinite(minutes) ||
+			hours < 0 ||
+			hours > 23 ||
+			minutes < 0 ||
+			minutes > 59
+		) {
+			return null;
+		}
+
+		const localDateTimeStr = `${dateStr}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
+		const localDate = new Date(localDateTimeStr);
+		if (Number.isNaN(localDate.getTime())) {
+			return null;
+		}
+
+		const utcOffset = getTimezoneOffset(timezone, localDate);
+		return new Date(localDate.getTime() - utcOffset);
+	} catch {
+		return null;
+	}
 }

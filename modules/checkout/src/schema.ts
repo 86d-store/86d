@@ -11,6 +11,7 @@ export const checkoutCheckoutSessionShape = z.object({
 	status: z
 		.enum(["pending", "processing", "completed", "expired", "abandoned"])
 		.default("pending"),
+	fulfillmentType: z.enum(["shipping", "pickup"]).default("shipping"),
 	subtotal: z.number(),
 	taxAmount: z.int().default(0),
 	shippingAmount: z.int().default(0),
@@ -24,6 +25,12 @@ export const checkoutCheckoutSessionShape = z.object({
 	shippingAddress: z.record(z.string(), z.unknown()).optional(),
 	billingAddress: z.record(z.string(), z.unknown()).optional(),
 	shippingMethodName: z.string().optional(),
+	pickupLocationId: z.string().optional(),
+	pickupWindowId: z.string().optional(),
+	pickupDate: z.string().optional(),
+	pickupContactName: z.string().optional(),
+	pickupContactPhone: z.string().optional(),
+	pickupContactEmail: z.string().optional(),
 	paymentMethod: z.string().optional(),
 	paymentIntentId: z.string().optional(),
 	paymentStatus: z.string().optional(),

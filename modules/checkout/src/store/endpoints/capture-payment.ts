@@ -2,6 +2,7 @@ import { createStoreEndpoint } from "@86d-store/core/api";
 import { paymentCheckoutCapability } from "@86d-store/core/commerce-capabilities";
 import { z } from "zod";
 import type { CheckoutController } from "../../service";
+import { resolveStoreStatus, storeNotAcceptingError } from "../../store-status";
 
 /**
  * Capture a payment after the customer has approved it on the provider side
@@ -15,6 +16,14 @@ export const capturePayment = createStoreEndpoint(
 		params: z.object({ id: z.string().max(128) }),
 	},
 	async (ctx) => {
+		const settingsController = ctx.context.controllers.settings as
+			| { getValue(key: string): Promise<string | null> }
+			| undefined;
+		const storeStatus = await resolveStoreStatus(settingsController);
+		if (!storeStatus.accepting) {
+			return storeNotAcceptingError(storeStatus);
+		}
+
 		const controller = ctx.context.controllers.checkout as CheckoutController;
 		const existing = await controller.getById(ctx.params.id);
 		if (!existing) {
