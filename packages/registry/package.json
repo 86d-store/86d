@@ -1,6 +1,6 @@
 {
 	"name": "@86d-store/registry",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Module registry for 86d — resolve, fetch, and cache modules from local, GitHub, or npm sources",
 	"repository": {
 		"type": "git",

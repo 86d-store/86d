@@ -11,6 +11,11 @@ import { NextResponse } from "next/server";
 import { logger } from "utils/logger";
 import { createRateLimiter } from "utils/rate-limit";
 import { ensureBooted } from "~/lib/api-registry";
+import {
+	handleCatalogRevisionCommand,
+	matchCatalogRevisionCommandPath,
+} from "~/lib/catalog-command-route";
+import { handleInventoryStockAdjustCommand } from "~/lib/inventory-command-route";
 import { resolveStoreCommerceGate } from "~/lib/store-commerce-availability";
 import { createApiRouter, getModuleIdForPath } from "../../../generated/api";
 
@@ -325,9 +330,6 @@ async function handleAuthedRequest(
 					{ status: 401 },
 				);
 			}
-			const { handleInventoryStockAdjustCommand } = await import(
-				"~/lib/inventory-command-route"
-			);
 			const commandResponse = await handleInventoryStockAdjustCommand(
 				req,
 				session,
@@ -353,8 +355,6 @@ async function handleAuthedRequest(
 					{ status: 401 },
 				);
 			}
-			const { handleCatalogRevisionCommand, matchCatalogRevisionCommandPath } =
-				await import("~/lib/catalog-command-route");
 			const catalogCommand = matchCatalogRevisionCommandPath(fullPath);
 			if (!catalogCommand) {
 				return NextResponse.json(

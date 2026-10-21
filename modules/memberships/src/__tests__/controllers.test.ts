@@ -46,11 +46,15 @@ describe("membership controllers — edge cases", () => {
 			expect(m.trialEndDate).toBeUndefined();
 			expect(m.endDate).toBeInstanceOf(Date);
 
-			const diffDays =
-				((m.endDate as Date).getTime() - m.startDate.getTime()) /
+			// Compare calendar dates so daylight-saving changes do not add an hour.
+			const start = m.startDate;
+			const end = m.endDate as Date;
+			const calendarDays =
+				(Date.UTC(end.getFullYear(), end.getMonth(), end.getDate()) -
+					Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())) /
 				(1000 * 60 * 60 * 24);
-			expect(diffDays).toBeGreaterThanOrEqual(28);
-			expect(diffDays).toBeLessThanOrEqual(31);
+			expect(calendarDays).toBeGreaterThanOrEqual(28);
+			expect(calendarDays).toBeLessThanOrEqual(31);
 		});
 
 		it("plan with trial sets status to trial and populates trialEndDate", async () => {

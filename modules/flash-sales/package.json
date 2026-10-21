@@ -1,6 +1,6 @@
 {
 	"name": "@86d-store/flash-sales",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Flash sales — time-limited promotional events with countdown timers, per-product sale pricing, and stock limits",
 	"keywords": [
 		"commerce",

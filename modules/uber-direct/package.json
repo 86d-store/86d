@@ -1,6 +1,6 @@
 {
 	"name": "@86d-store/uber-direct",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Uber Direct on-demand delivery integration for 86d commerce platform",
 	"keywords": [
 		"commerce",

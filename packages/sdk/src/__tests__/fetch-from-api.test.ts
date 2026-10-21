@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchFromApi } from "../fetch-from-api";
+import {
+	fetchFromApi,
+	STORE_RUNTIME_CONFIG_V2_MEDIA_TYPE,
+} from "../fetch-from-api";
 import { DEFAULT_CONFIG } from "../types";
-
-// ── Helpers ──
 
 function createValidApiResponse() {
 	return {
@@ -30,7 +31,7 @@ describe("fetchFromApi", () => {
 		globalThis.fetch = originalFetch;
 	});
 
-	it("fetches config from correct URL", async () => {
+	it("posts the Store ID to the shared read operation with v2 negotiation", async () => {
 		globalThis.fetch = vi.fn().mockResolvedValue({
 			ok: true,
 			json: () => Promise.resolve(createValidApiResponse()),
@@ -39,40 +40,45 @@ describe("fetchFromApi", () => {
 		await fetchFromApi("abc-123", "https://api.86d.app");
 
 		expect(globalThis.fetch).toHaveBeenCalledWith(
-			"https://api.86d.app/api/v1/stores/abc-123",
+			"https://api.86d.app/api/v1/stores/get-by-id",
 			expect.objectContaining({
+				method: "POST",
+				body: JSON.stringify({ id: "abc-123" }),
 				headers: expect.objectContaining({
+					Accept: STORE_RUNTIME_CONFIG_V2_MEDIA_TYPE,
 					"Content-Type": "application/json",
 				}),
 			}),
 		);
 	});
 
-	it("strips trailing slash from API base URL", async () => {
+	it.each([
+		"https://api.86d.app/",
+		"https://api.86d.app/api",
+		"https://api.86d.app/api/",
+	])("normalizes the API base URL %s", async (apiBaseUrl) => {
 		globalThis.fetch = vi.fn().mockResolvedValue({
 			ok: true,
 			json: () => Promise.resolve(createValidApiResponse()),
 		});
 
-		await fetchFromApi("abc-123", "https://api.86d.app/");
+		await fetchFromApi("abc-123", apiBaseUrl);
 
 		expect(globalThis.fetch).toHaveBeenCalledWith(
-			"https://api.86d.app/api/v1/stores/abc-123",
+			"https://api.86d.app/api/v1/stores/get-by-id",
 			expect.anything(),
 		);
 	});
 
 	it("does not include an Authorization header", async () => {
-		globalThis.fetch = vi.fn().mockResolvedValue({
-			ok: true,
-			json: () => Promise.resolve(createValidApiResponse()),
-		});
+		const fetcher = vi.fn<typeof globalThis.fetch>(async () =>
+			Response.json(createValidApiResponse()),
+		);
 
-		await fetchFromApi("abc-123", "https://api.86d.app");
+		await fetchFromApi("abc-123", "https://api.86d.app", fetcher);
 
-		const call = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-		const headers = call[1].headers as Record<string, string>;
-		expect(headers.Authorization).toBeUndefined();
+		const headers = new Headers(fetcher.mock.calls[0]?.[1]?.headers);
+		expect(headers.has("Authorization")).toBe(false);
 	});
 
 	it("returns merged config with defaults", async () => {

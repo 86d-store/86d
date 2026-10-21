@@ -16,6 +16,7 @@ import {
 	it,
 	vi,
 } from "vitest";
+import { STORE_RUNTIME_CONFIG_V2_MEDIA_TYPE } from "../fetch-from-api";
 import { getStoreConfig } from "../get-store-config";
 import { DEFAULT_CONFIG } from "../types";
 
@@ -85,8 +86,8 @@ describe("getStoreConfig", () => {
 			"86D_WORKLOAD_CREDENTIAL",
 			`${credentialId}.${credentialSecret}`,
 		);
-		globalThis.fetch = vi
-			.fn()
+		const fetcher = vi
+			.fn<typeof globalThis.fetch>()
 			.mockResolvedValueOnce(
 				Response.json({
 					access_token: "scoped-config-token",
@@ -105,6 +106,7 @@ describe("getStoreConfig", () => {
 					variables: DEFAULT_CONFIG.variables,
 				}),
 			);
+		globalThis.fetch = fetcher;
 
 		const config = await getStoreConfig();
 
@@ -115,18 +117,78 @@ describe("getStoreConfig", () => {
 			"https://api.86d.app/api/oauth/token",
 			expect.objectContaining({ method: "POST" }),
 		);
-		const configRequest = (globalThis.fetch as ReturnType<typeof vi.fn>).mock
-			.calls[1];
+		const configRequest = fetcher.mock.calls[1];
 		expect(configRequest?.[0].toString()).toBe(
-			`https://api.86d.app/api/v1/stores/${VALID_UUID}`,
+			"https://api.86d.app/api/v1/stores/get-by-id",
 		);
-		const requestHeaders = new Headers(
-			(globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[1]?.[1]
-				?.headers,
+		expect(configRequest?.[1]?.method).toBe("POST");
+		expect(configRequest?.[1]?.body).toBe(JSON.stringify({ id: VALID_UUID }));
+		const requestHeaders = new Headers(configRequest?.[1]?.headers);
+		expect(requestHeaders.get("Accept")).toBe(
+			STORE_RUNTIME_CONFIG_V2_MEDIA_TYPE,
 		);
 		expect(requestHeaders.get("Authorization")).toBe(
 			"Bearer scoped-config-token",
 		);
+	});
+
+	it("replays the config POST body and negotiation after one invalid-token challenge", async () => {
+		setProcessEnv("86D_STORE_ID", VALID_UUID);
+		setProcessEnv("86D_API_URL", "https://api.86d.app");
+		setProcessEnv(
+			"86D_WORKLOAD_CREDENTIAL",
+			`86d_wc_configpostretryclient001.${"r".repeat(43)}`,
+		);
+		const tokenResponse = (token: string) =>
+			Response.json({
+				access_token: token,
+				token_type: "Bearer",
+				expires_in: 300,
+				scope: "runtime.config:read",
+			});
+		const fetcher = vi
+			.fn<typeof globalThis.fetch>()
+			.mockResolvedValueOnce(tokenResponse("initial-token"))
+			.mockResolvedValueOnce(
+				Response.json(
+					{ error: "invalid_token" },
+					{
+						status: 401,
+						headers: { "WWW-Authenticate": 'Bearer error="invalid_token"' },
+					},
+				),
+			)
+			.mockResolvedValueOnce(tokenResponse("replacement-token"))
+			.mockResolvedValueOnce(
+				Response.json({
+					theme: "brisa",
+					name: "Managed Store",
+					favicon: "/assets/favicon.svg",
+					icon: DEFAULT_CONFIG.icon,
+					logo: DEFAULT_CONFIG.logo,
+				}),
+			);
+		globalThis.fetch = fetcher;
+
+		await expect(getStoreConfig()).resolves.toMatchObject({
+			name: "Managed Store",
+		});
+		expect(fetcher).toHaveBeenCalledTimes(4);
+		for (const [index, token] of [
+			[1, "initial-token"],
+			[3, "replacement-token"],
+		] as const) {
+			const [url, init] = fetcher.mock.calls[index];
+			expect(url.toString()).toBe(
+				"https://api.86d.app/api/v1/stores/get-by-id",
+			);
+			expect(init?.method).toBe("POST");
+			expect(init?.body).toBe(JSON.stringify({ id: VALID_UUID }));
+			const headers = new Headers(init?.headers);
+			expect(headers.get("Authorization")).toBe(`Bearer ${token}`);
+			expect(headers.get("Accept")).toBe(STORE_RUNTIME_CONFIG_V2_MEDIA_TYPE);
+			expect(headers.get("Content-Type")).toBe("application/json");
+		}
 	});
 
 	it("fails closed on a compromised managed Control Plane config response", async () => {

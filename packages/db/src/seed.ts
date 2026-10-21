@@ -28,6 +28,7 @@ import {
 	CURATED_STORE_MODULES,
 	TIER_NONE_CURATED_MODULES,
 } from "@86d-store/core/curated-modules";
+import { compileModuleDeclarations, emitSql } from "@86d-store/core/schema";
 import { createStorageFromEnv } from "@86d-store/storage/factory";
 import type { StorageProvider } from "@86d-store/storage/types";
 import { getProcessEnv } from "env/process-env";
@@ -59,6 +60,8 @@ import {
 	taxCategory,
 	taxRates,
 } from "../seed/catalog/luxury-house.ts";
+import { loadCuratedModules } from "./load-curated-modules";
+import { applyModuleDdl } from "./schema/apply-disposable-ddl";
 
 const DATABASE_URL = getProcessEnv("DATABASE_URL");
 if (!DATABASE_URL) {
@@ -402,12 +405,6 @@ async function resetManagedModuleData(_client: pg.PoolClient) {
 }
 
 async function applySeedModuleSchema(client: pg.PoolClient) {
-	const { compileModuleDeclarations, emitSql } = await import(
-		"@86d-store/core/schema"
-	);
-	const { applyModuleDdl } = await import("./schema/apply-disposable-ddl");
-	const { loadCuratedModules } = await import("./load-curated-modules");
-
 	const loaded = await loadCuratedModules();
 	const report = compileModuleDeclarations(loaded);
 	const expectedTables = new Set(seededModuleNames);

@@ -64,6 +64,7 @@ export type StoreEntitlementPlan = "launch" | "premium" | "enterprise";
 export type StoreEntitlementLifecycle =
 	| "trialing"
 	| "active"
+	| "paused"
 	| "suspended"
 	| "destroyed";
 
@@ -82,6 +83,7 @@ export interface StoreRuntimeEntitlement {
 export type StoreCommerceAvailabilityReason =
 	| "entitlement_trialing"
 	| "entitlement_active"
+	| "entitlement_paused"
 	| "entitlement_suspended"
 	| "entitlement_destroyed"
 	| "entitlement_missing"
@@ -127,9 +129,16 @@ export interface Config {
 	};
 }
 
+export interface StoreRuntimeTemplate {
+	id: string;
+	version: string;
+	url?: string | undefined;
+}
+
 interface RemoteConfigBoundary {
 	moduleOptions?: never;
 	notificationSettings?: never;
+	template?: StoreRuntimeTemplate | undefined;
 }
 
 /** Legacy managed configuration retained during the v2 rollout. */

@@ -1,7 +1,16 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import {
+	cpSync,
+	existsSync,
+	mkdirSync,
+	readdirSync,
+	readFileSync,
+	rmSync,
+	writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { getProcessEnv } from "env/process-env";
-import { fetchModule } from "./fetcher.js";
+import { fetchModule, fetchWithRetry } from "./fetcher.js";
 import { parseSpecifier } from "./specifier.js";
 import type {
 	FetchResult,
@@ -160,9 +169,6 @@ async function fetchTemplateFromGitHub(
 ): Promise<FetchResult> {
 	// Temporarily rewrite the specifier to fetch into templates/ by using
 	// a customized root where "modules" maps to "templates"
-	const { spawnSync } = await import("node:child_process");
-	const { cpSync, mkdirSync, rmSync, writeFileSync } = await import("node:fs");
-
 	const { repo, path, ref = "main", name } = spec;
 	if (!repo) {
 		return {
@@ -178,8 +184,6 @@ async function fetchTemplateFromGitHub(
 	}
 
 	try {
-		const { fetchWithRetry } = await import("./fetcher.js");
-
 		const tarballUrl = `https://api.github.com/repos/${repo}/tarball/${ref}`;
 		const tmpDir = join(root, ".86d", "tmp", `template-${name}-${Date.now()}`);
 		mkdirSync(tmpDir, { recursive: true });
@@ -222,7 +226,6 @@ async function fetchTemplateFromGitHub(
 			};
 		}
 
-		const { readdirSync } = await import("node:fs");
 		const extractedDirs = readdirSync(extractDir);
 		if (extractedDirs.length === 0) {
 			rmSync(tmpDir, { recursive: true, force: true });
