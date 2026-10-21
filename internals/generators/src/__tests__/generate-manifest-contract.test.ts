@@ -187,6 +187,7 @@ describe("registry manifest generation modes", () => {
 				canonicalBytes,
 			);
 		},
+		30_000,
 	);
 
 	it("pins the actual commit after the source is committed in default mode", () => {

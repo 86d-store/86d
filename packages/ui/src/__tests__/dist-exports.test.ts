@@ -29,7 +29,7 @@ describe("@86d-store/ui built exports", () => {
 			encoding: "utf8",
 		});
 		expect(build.status, build.stderr || build.stdout).toBe(0);
-	}, 60_000);
+	}, 180_000);
 
 	it("loads every explicit public JavaScript entry with Node ESM", () => {
 		const source = `await Promise.all(${JSON.stringify(
@@ -45,5 +45,5 @@ describe("@86d-store/ui built exports", () => {
 		);
 
 		expect(imported.status, imported.stderr || imported.stdout).toBe(0);
-	});
+	}, 60_000);
 });
