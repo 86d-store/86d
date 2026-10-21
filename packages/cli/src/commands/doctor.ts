@@ -262,12 +262,26 @@ export async function doctor(options: DoctorOptions = {}) {
 		// Optional env checks
 		const optional: [string, string][] = [
 			["RESEND_API_KEY", "email sending"],
-			["NEXT_PUBLIC_STORE_URL", "absolute URLs"],
 			["NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID", "Google Tag Manager"],
 		];
 		const missingOptional = optional.filter(
 			([k]) => !(k in vars) || vars[k] === "",
 		);
+
+		const hasAppUrl = "APP_URL" in vars && vars.APP_URL !== "";
+		const hasNextPublicStoreUrl =
+			"NEXT_PUBLIC_STORE_URL" in vars && vars.NEXT_PUBLIC_STORE_URL !== "";
+		if (!hasAppUrl && !hasNextPublicStoreUrl) {
+			missingOptional.push(["APP_URL", "public store URL"]);
+		} else if (hasNextPublicStoreUrl && !hasAppUrl) {
+			checks.push({
+				label: "Store URL",
+				status: "warn",
+				message: "NEXT_PUBLIC_STORE_URL is deprecated; migrate to APP_URL",
+				fix: "Set APP_URL instead of NEXT_PUBLIC_STORE_URL",
+			});
+		}
+
 		if (missingOptional.length > 0) {
 			checks.push({
 				label: "Optional env",

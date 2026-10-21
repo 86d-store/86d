@@ -47,15 +47,19 @@ import { getBaseUrl } from "utils/url";
 
 const url = getBaseUrl();
 // In browser: window.location.origin
-// On Vercel: https://<VERCEL_URL>
+// On server: APP_URL or detected deployment URL
 // Fallback: http://localhost:3000
 ```
 
-Resolution priority:
+Resolution priority (server-side):
 1. `window.location.origin` (browser)
-2. `NEXT_PUBLIC_STORE_URL` env var
-3. `VERCEL_URL` env var (prefixed with `https://`)
-4. `http://localhost:<PORT>` (default 3000)
+2. `NEXT_PUBLIC_STORE_URL` env var (deprecated fallback override)
+3. `APP_URL` env var (canonical)
+4. `RAILWAY_PUBLIC_DOMAIN` env var (prefixed with `https://`)
+5. `VERCEL_URL` env var (prefixed with `https://`)
+6. `http://localhost:<PORT>` (default 3000)
+
+> **Note:** `APP_URL` is the canonical variable. `NEXT_PUBLIC_STORE_URL` takes precedence for backward compatibility with existing deployments. New deployments should use `APP_URL` only.
 
 ### Rate Limiting
 
